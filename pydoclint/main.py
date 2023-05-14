@@ -3,25 +3,20 @@ from pathlib import Path
 import click
 
 from pydoclint.visitor import Visitor
+from pydoclint.violation import Violation
 
 
+@click.command(
+    context_settings={"help_option_names": ["-h", "--help"]},
+    # While Click does set this field automatically using the docstring, mypyc
+    # (annoyingly) strips 'em so we need to set it here too.
+    help="Yes",
+)
 @click.option(
     '-c',
     '--code',
     type=str,
     help='The source code to check',
-)
-@click.argument(
-    'paths',
-    nargs=-1,
-    type=click.Path(
-        exists=True,
-        file_okay=True,
-        dir_okay=True,
-        readable=True,
-        allow_dash=True,
-    ),
-    is_eager=True,
 )
 @click.option(
     '-th',
@@ -39,6 +34,18 @@ from pydoclint.visitor import Visitor
     default=True,
     help='Whether to check docstring argument order agasint function signature',
 )
+@click.argument(
+    'paths',
+    nargs=-1,
+    type=click.Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=True,
+        readable=True,
+        allow_dash=True,
+    ),
+    is_eager=True,
+)
 @click.pass_context
 def main(
         ctx: click.Context,
@@ -49,7 +56,7 @@ def main(
 ) -> int:
     """Main entry point of pydoclint"""
 
-    # ctx.ensure_object(dict)
+    ctx.ensure_object(dict)
 
     if paths and code is not None:
         click.echo(
@@ -62,11 +69,13 @@ def main(
         click.echo(main.get_usage(ctx) + "\n\nOne of 'paths' or 'code' is required.")
         ctx.exit(1)
 
-    _checkPaths(
+    checkPathsStatus: int = _checkPaths(
         paths=paths,
         checkTypeHint=check_type_hint,
         checkArgOrder=check_arg_order,
     )
+
+    ctx.exit(checkPathsStatus)
 
 
 def _checkPaths(
@@ -95,8 +104,14 @@ def _checkPaths(
         )
         visitor.visit(tree)
 
-        return visitor.violations
+        violations: list[Violation] = visitor.violations
+        print(violations)
+
+        if len(violations) > 0:
+            return 1
+
+        return 0
 
 
 if __name__ == '__main__':
-    raise SystemExit(main())
+    main()
