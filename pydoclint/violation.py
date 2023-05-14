@@ -14,9 +14,10 @@ VIOLATION_CODES = types.MappingProxyType({
 })
 
 
-class Violation():
+class Violation:
     def __init__(
             self,
+            line: int,
             code: int,
             msgPrefix: str = '',
             msgPostfix: str = '',
@@ -24,6 +25,7 @@ class Violation():
         if code not in VIOLATION_CODES:
             raise InternalError('Invalid violation code')
 
+        self.line = line
         self.code = code
         self.msg = msgPrefix + ' ' + VIOLATION_CODES[code] + ' ' + msgPostfix
 
@@ -32,3 +34,7 @@ class Violation():
 
     def __str__(self) -> str:
         return f'DOC{self.code}: {self.msg}'
+
+    def getInfoForFlake8(self) -> tuple[int, int, str]:
+        colOffset: int = 0  # we don't need column offset to locate the issue
+        return self.line, colOffset, self.__str__()

@@ -62,7 +62,7 @@ class Visitor(ast.NodeVisitor):
 
     def checkArguments(
             self,
-            node: ast.FunctionDef,
+            node: AllFunctionDef,
             parent_: ast.AST,
             docstringStruct: NumpyDocString,
     ) -> list[Violation]:
@@ -85,15 +85,24 @@ class Visitor(ast.NodeVisitor):
             return []
 
         docArgList: list[Parameter] = docstringStruct.get('Parameters', [])
-        return self.validateDocArgList(docArgList, argList, node.name)
+        results = self.validateDocArgs(docArgList, argList, node)
+        return results
 
-    def validateDocArgList(
+    def validateDocArgs(
             self,
             docArgList: list[Parameter],
             actualArgs: list[ast.arg],
-            functionName: str,
+            node: AllFunctionDef,
     ) -> list[Violation]:
+        functionName: str = node.name
+        lineNum: int = node.lineno
+
         fnNameMsg = f'Function: {functionName}.'
+
+        v101 = Violation(code=101, line=lineNum, msgPrefix=fnNameMsg)
+        v102 = Violation(code=102, line=lineNum, msgPrefix=fnNameMsg)
+        v104 = Violation(code=104, line=lineNum, msgPrefix=fnNameMsg)
+        v105 = Violation(code=105, line=lineNum, msgPrefix=fnNameMsg)
 
         docArgs = ArgList([Arg.fromNumpydocParam(_) for _ in docArgList])
         funcArgs = ArgList([Arg.fromAstArg(_) for _ in actualArgs])
@@ -103,10 +112,10 @@ class Visitor(ast.NodeVisitor):
 
         violations: list[Violation] = []
         if docArgs.length() < funcArgs.length():
-            violations.append(Violation(101, msgPrefix=fnNameMsg))
+            violations.append(v101)
 
         if docArgs.length() > funcArgs.length():
-            violations.append(Violation(102, msgPrefix=fnNameMsg))
+            violations.append(v102)
 
         if not docArgs.equals(
             funcArgs,
@@ -118,20 +127,20 @@ class Visitor(ast.NodeVisitor):
                 checkTypeHint=self.checkTypeHint,
                 orderMatters=False,
             ):
-                violations.append(Violation(104, msgPrefix=fnNameMsg))
+                violations.append(v104)
             elif docArgs.equals(
                 funcArgs,
                 checkTypeHint=False,
                 orderMatters=self.checkArgOrder,
             ):
-                violations.append(Violation(105, msgPrefix=fnNameMsg))
+                violations.append(v105)
             elif docArgs.equals(
                 funcArgs,
                 checkTypeHint=False,
                 orderMatters=False,
             ):
-                violations.append(Violation(104, msgPrefix=fnNameMsg))
-                violations.append(Violation(105, msgPrefix=fnNameMsg))
+                violations.append(v104)
+                violations.append(v105)
             else:
                 argsInFuncNotInDoc: set[Arg] = funcArgs.subtract(docArgs)
                 argsInDocNotInFunc: set[Arg] = docArgs.subtract(funcArgs)
@@ -149,10 +158,13 @@ class Visitor(ast.NodeVisitor):
                         f' signature: {sorted(argsInDocNotInFunc)}.'
                     )
 
-                msgPostfix: str = ' '.join(msgPostfixParts)
-
                 violations.append(
-                    Violation(103, msgPrefix=fnNameMsg, msgPostfix=msgPostfix)
+                    Violation(
+                        code=103,
+                        line=lineNum,
+                        msgPrefix=fnNameMsg,
+                        msgPostfix=' '.join(msgPostfixParts),
+                    )
                 )
 
         return violations
@@ -164,6 +176,10 @@ class Visitor(ast.NodeVisitor):
             nonEmptyDocStruct: NumpyDocString,
     ) -> list[Violation]:
         msgPrefix: str = f'Function "{node.name}"'
+        lineNum: int = node.lineno
+
+        v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
+        v202 = Violation(code=202, line=lineNum, msgPrefix=msgPrefix)
 
         hasReturnStmt: bool = returns.hasReturnStatements(node)
         hasReturnAnno: bool = returns.hasReturnAnnotation(node)
@@ -172,9 +188,9 @@ class Visitor(ast.NodeVisitor):
 
         violations: list[Violation] = []
         if (hasReturnStmt or hasReturnAnno) and not docstringHasReturnSection:
-            violations.append(Violation(201, msgPrefix=msgPrefix))
+            violations.append(v201)
 
         if docstringHasReturnSection and not (hasReturnAnno or hasReturnAnno):
-            violations.append(Violation(202, msgPrefix=msgPrefix))
+            violations.append(v202)
 
         return violations

@@ -9,7 +9,7 @@ from pydoclint.violation import Violation
 @click.command(
     context_settings={"help_option_names": ["-h", "--help"]},
     # While Click does set this field automatically using the docstring, mypyc
-    # (annoyingly) strips 'em so we need to set it here too.
+    # (annoyingly) strips them, so we need to set it here too.
     help="Yes",
 )
 @click.option(
@@ -53,8 +53,8 @@ def main(
         paths: tuple[str, ...],
         check_type_hint: bool,
         check_arg_order: bool,
-) -> int:
-    """Main entry point of pydoclint"""
+) -> None:
+    """Command-line entry point of pydoclint"""
 
     ctx.ensure_object(dict)
 
@@ -69,20 +69,34 @@ def main(
         click.echo(main.get_usage(ctx) + "\n\nOne of 'paths' or 'code' is required.")
         ctx.exit(1)
 
-    checkPathsStatus: int = _checkPaths(
+    violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(
         paths=paths,
         checkTypeHint=check_type_hint,
         checkArgOrder=check_arg_order,
     )
 
-    ctx.exit(checkPathsStatus)
+    if len(violationsInAllFiles) > 0:
+        counter = 0
+        for filename, violationsInThisFile in violationsInAllFiles.items():
+            counter += 1
+            if len(violationsInThisFile) > 0:
+                if counter > 1:
+                    print('')
+
+                print(filename)
+                for violation in violationsInThisFile:
+                    print('    ' + str(violation))
+
+        ctx.exit(1)
+
+    ctx.exit(0)
 
 
 def _checkPaths(
         paths: tuple[str, ...],
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
-):
+) -> dict[str, list[Violation]]:
     filenames: list[Path] = []
 
     for path_ in paths:
@@ -92,25 +106,34 @@ def _checkPaths(
         elif path.is_dir():
             filenames.extend(sorted(path.rglob('*.py')))
 
+    allViolations: dict[str, list[Violation]] = {}
+
     for filename in filenames:
-        with open(filename) as fp:
-            src: str = ''.join(fp.readlines())
-
-        tree: ast.Module = ast.parse(src)
-
-        visitor = Visitor(
+        violationsInThisFile: list[Violation] = _checkFile(
+            filename.as_posix(),
             checkTypeHint=checkTypeHint,
             checkArgOrder=checkArgOrder,
         )
-        visitor.visit(tree)
+        allViolations[filename.as_posix()] = violationsInThisFile
 
-        violations: list[Violation] = visitor.violations
-        print(violations)
+    return allViolations
 
-        if len(violations) > 0:
-            return 1
 
-        return 0
+def _checkFile(
+        filename: str,
+        checkTypeHint: bool = True,
+        checkArgOrder: bool = True,
+) -> list[Violation]:
+    with open(filename) as fp:
+        src: str = ''.join(fp.readlines())
+
+    tree: ast.Module = ast.parse(src)
+    visitor = Visitor(
+        checkTypeHint=checkTypeHint,
+        checkArgOrder=checkArgOrder,
+    )
+    visitor.visit(tree)
+    return visitor.violations
 
 
 if __name__ == '__main__':
