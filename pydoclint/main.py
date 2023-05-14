@@ -1,6 +1,6 @@
 import ast
 from pathlib import Path
-from typing import Optional
+from typing import Dict, List, Optional, Tuple
 
 import click
 
@@ -72,7 +72,7 @@ def main(
         )
         ctx.exit(1)
 
-    violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(
+    violationsInAllFiles: Dict[str, List[Violation]] = _checkPaths(
         paths=paths,
         checkTypeHint=check_type_hint,
         checkArgOrder=check_arg_order,
@@ -96,11 +96,11 @@ def main(
 
 
 def _checkPaths(
-        paths: tuple[str, ...],
+        paths: Tuple[str, ...],
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
-) -> dict[str, list[Violation]]:
-    filenames: list[Path] = []
+) -> Dict[str, List[Violation]]:
+    filenames: List[Path] = []
 
     for path_ in paths:
         path = Path(path_)
@@ -109,10 +109,10 @@ def _checkPaths(
         elif path.is_dir():
             filenames.extend(sorted(path.rglob('*.py')))
 
-    allViolations: dict[str, list[Violation]] = {}
+    allViolations: Dict[str, List[Violation]] = {}
 
     for filename in filenames:
-        violationsInThisFile: list[Violation] = _checkFile(
+        violationsInThisFile: List[Violation] = _checkFile(
             filename.as_posix(),
             checkTypeHint=checkTypeHint,
             checkArgOrder=checkArgOrder,
@@ -126,7 +126,7 @@ def _checkFile(
         filename: str,
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
-) -> list[Violation]:
+) -> List[Violation]:
     with open(filename) as fp:
         src: str = ''.join(fp.readlines())
 

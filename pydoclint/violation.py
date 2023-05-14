@@ -1,4 +1,5 @@
 import types
+from typing import Tuple
 
 from pydoclint.internal_error import InternalError
 
@@ -36,7 +37,7 @@ class Violation:
     def __str__(self) -> str:
         return f'DOC{self.code}: {self.msg}'
 
-    def getInfoForFlake8(self) -> tuple[int, int, str]:
+    def getInfoForFlake8(self) -> Tuple[int, int, str]:
         """Get the violation info for flake8"""
         colOffset: int = 0  # we don't need column offset to locate the issue
         return self.line, colOffset, self.__str__()

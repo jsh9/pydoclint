@@ -1,10 +1,11 @@
 import ast
+from typing import Tuple
 
 from pydoclint.method_type import MethodType
 from pydoclint.utils.astTypes import AllFunctionDef
 
 
-def getFunctionId(node: AllFunctionDef) -> tuple[int, int, str]:
+def getFunctionId(node: AllFunctionDef) -> Tuple[int, int, str]:
     """
     Get unique identifier of a function def. We also need line and
     column number because different function can have identical names.

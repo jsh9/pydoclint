@@ -1,4 +1,5 @@
 import ast
+from typing import List, Tuple
 
 import pytest
 
@@ -77,8 +78,8 @@ class MyClass:
         ),
     ],
 )
-def testWalk(src: str, expected: list[tuple[str, str]]) -> None:
-    result: list[tuple[str, str]] = []
+def testWalk(src: str, expected: List[Tuple[str, str]]) -> None:
+    result: List[Tuple[str, str]] = []
     tree = ast.parse(src)
     for node, parent in walk(tree):
         if 'name' in node.__dict__:

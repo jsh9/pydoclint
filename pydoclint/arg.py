@@ -1,4 +1,5 @@
 import ast
+from typing import List, Set
 
 from numpydoc.docscrape import Parameter
 
@@ -75,7 +76,7 @@ class ArgList:
     equality, length calculation, etc.
     """
 
-    def __init__(self, infoList: list[Arg]):
+    def __init__(self, infoList: List[Arg]):
         if not all(isinstance(_, Arg) for _ in infoList):
             raise TypeError('All elements of `infoList` must be Arg.')
 
@@ -157,6 +158,6 @@ class ArgList:
 
         return verdict  # noqa: R504
 
-    def subtract(self, other: 'ArgList') -> set[Arg]:
+    def subtract(self, other: 'ArgList') -> Set[Arg]:
         """Find the args that are in this object but not in `other`."""
         return set(self.infoList) - set(other.infoList)

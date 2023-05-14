@@ -1,5 +1,6 @@
 import itertools
 from pathlib import Path
+from typing import Dict, List
 
 import pytest
 
@@ -153,14 +154,14 @@ expectedViolations_False_False = [
     '[arg3: list, arg4: tuple, arg5: dict].',
 ]
 
-expectedViolationsLookup: dict[str, list[str]] = {
+expectedViolationsLookup: Dict[str, List[str]] = {
     'true_true': expectedViolations_True_True,
     'true_false': expectedViolations_True_False,
     'false_true': expectedViolations_False_True,
     'false_false': expectedViolations_False_False,
 }
 
-optionDictLookup: dict[str, dict[str, bool]] = {
+optionDictLookup: Dict[str, Dict[str, bool]] = {
     'true_true': {'checkTypeHint': True, 'checkArgOrder': True},
     'true_false': {'checkTypeHint': True, 'checkArgOrder': False},
     'false_true': {'checkTypeHint': False, 'checkArgOrder': True},
@@ -188,8 +189,8 @@ def testArguments(
         filename: str,
         option: str,
 ) -> None:
-    optionDict: dict[str, bool] = optionDictLookup[option]
-    expectedViolations: list[str] = expectedViolationsLookup[option]
+    optionDict: Dict[str, bool] = optionDictLookup[option]
+    expectedViolations: List[str] = expectedViolationsLookup[option]
 
     violations = _checkFile(
         filename=DATA_DIR / f'args/{filename}',
@@ -205,7 +206,7 @@ def testArguments(
 )
 def testReturns(filename: str) -> None:
     violations = _checkFile(filename=DATA_DIR / f'returns/{filename}')
-    expectedViolations: list[str] = [
+    expectedViolations: List[str] = [
         'DOC201: Function `func1_3` does not have a return section in docstring ',
         'DOC201: Function `func1_5` does not have a return section in docstring ',
         'DOC201: Function `func1_6` does not have a return section in docstring ',

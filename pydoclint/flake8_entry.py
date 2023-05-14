@@ -1,6 +1,6 @@
 import ast
 import importlib.metadata as importlib_metadata
-from typing import Any, Generator
+from typing import Any, Generator, Tuple
 
 from pydoclint.visitor import Visitor
 
@@ -39,7 +39,7 @@ class Plugin:
         cls.check_type_hint = options.check_type_hint
         cls.check_arg_order = options.check_arg_order
 
-    def run(self) -> Generator[tuple[int, int, str, Any], None, None]:
+    def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
         checkTypeHint = self._bool('--check-type-hint', self.check_type_hint)
         checkArgOrder = self._bool('--check-arg-order', self.check_arg_order)

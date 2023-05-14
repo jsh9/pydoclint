@@ -1,5 +1,5 @@
 import ast
-from typing import Optional
+from typing import Dict, Optional
 
 import pytest
 
@@ -30,7 +30,7 @@ def foo(
         if isinstance(node, ast.FunctionDef):
             result = _getArgTypeHints(node)
 
-    expected: dict[str, str] = {
+    expected: Dict[str, str] = {
         'arg1': 'Optional[Union[int, float]]',
         'arg2': 'Tuple[str, int, float]',
         'arg3': 'Dict[str, Any]',
@@ -47,7 +47,7 @@ def foo(
     assert result == expected
 
 
-def _getArgTypeHints(node: ast.FunctionDef) -> dict[str, str]:
+def _getArgTypeHints(node: ast.FunctionDef) -> Dict[str, str]:
     hints = {}
     for arg_ in node.args.args:
         hints[arg_.arg] = parseAnnotation(arg_.annotation)

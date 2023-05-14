@@ -1,4 +1,5 @@
 import ast
+from typing import Dict, Tuple
 
 import pytest
 
@@ -108,11 +109,11 @@ class ReturnVisitor(ast.NodeVisitor):
     """A helper class to check each return statements in nested functions"""
 
     def __init__(self):
-        self.returnStatements: dict[tuple[int, int, str], bool] = {}
-        self.returnAnnotations: dict[tuple[int, int, str], bool] = {}
+        self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
+        self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
 
     def visit_FunctionDef(self, node: AllFunctionDef):
-        functionId: tuple[int, int, str] = getFunctionId(node)
+        functionId: Tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = returns.hasReturnStatements(node)
         self.returnAnnotations[functionId] = returns.hasReturnAnnotation(node)
         self.generic_visit(node)
@@ -132,7 +133,7 @@ def func4() -> int:
         def func4_child2_grandchild1():
             return 4021
 
-    def func4_child3() -> list[str]:
+    def func4_child3() -> List[str]:
         print(1)
 
     def func4_child4():
@@ -140,7 +141,7 @@ def func4() -> int:
             def func4_child4_grandchild1(self):
                 return 2
 
-            def func4_child4_grandchild2(self) -> dict[str, tuple[int, float]]:
+            def func4_child4_grandchild2(self) -> Dict[str, Tuple[int, float]]:
                 print(1)
 
         return 1

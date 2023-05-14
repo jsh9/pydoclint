@@ -1,5 +1,5 @@
 import ast
-from typing import Optional
+from typing import List, Optional, Set
 
 from numpydoc.docscrape import NumpyDocString, Parameter
 
@@ -22,7 +22,7 @@ class Visitor(ast.NodeVisitor):
         self.checkArgOrder: bool = checkArgOrder
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
-        self.violations: list[Violation] = []
+        self.violations: List[Violation] = []
 
     def visit_ClassDef(self, node: ast.ClassDef):  # noqa: D102
         currentParent = self.parent  # keep aside
@@ -66,7 +66,7 @@ class Visitor(ast.NodeVisitor):
             node: AllFunctionDef,
             parent_: ast.AST,
             docstringStruct: NumpyDocString,
-    ) -> list[Violation]:
+    ) -> List[Violation]:
         """
         Check input arguments of the function.
 
@@ -81,7 +81,7 @@ class Visitor(ast.NodeVisitor):
         docstringStruct : NumpyDocString
             The parsed docstring structure.
         """
-        argList: list[ast.arg] = list(node.args.args)
+        argList: List[ast.arg] = list(node.args.args)
 
         if isinstance(parent_, ast.ClassDef):
             mType: MethodType = generic.detectMethodType(node)
@@ -96,31 +96,31 @@ class Visitor(ast.NodeVisitor):
             # to determine whether a function needs a docstring.
             return []
 
-        docArgList: list[Parameter] = docstringStruct.get('Parameters', [])
+        docArgList: List[Parameter] = docstringStruct.get('Parameters', [])
         return self.validateDocArgs(docArgList, argList, node)
 
     def validateDocArgs(
             self,
-            docArgList: list[Parameter],
-            actualArgs: list[ast.arg],
+            docArgList: List[Parameter],
+            actualArgs: List[ast.arg],
             node: AllFunctionDef,
-    ) -> list[Violation]:
+    ) -> List[Violation]:
         """
         Validate the argument list in the docstring against the "actual"
         arguments (the argument list in the function signature).
 
         Parameters
         ----------
-        docArgList : list[Parameter]
+        docArgList : List[Parameter]
             The argument list from the docstring
-        actualArgs : list[ast.arg]
+        actualArgs : List[ast.arg]
             The argument list from the function signature
         node : AllFunctionDef
             The current function node
 
         Returns
         -------
-        list[Violation]
+        List[Violation]
             A list of style violations. It can be empty.
         """
         functionName: str = node.name
@@ -139,7 +139,7 @@ class Visitor(ast.NodeVisitor):
         if docArgs.length() == 0 and funcArgs.length() == 0:
             return []
 
-        violations: list[Violation] = []
+        violations: List[Violation] = []
         if docArgs.length() < funcArgs.length():
             violations.append(v101)
 
@@ -171,10 +171,10 @@ class Visitor(ast.NodeVisitor):
                 violations.append(v104)
                 violations.append(v105)
             else:
-                argsInFuncNotInDoc: set[Arg] = funcArgs.subtract(docArgs)
-                argsInDocNotInFunc: set[Arg] = docArgs.subtract(funcArgs)
+                argsInFuncNotInDoc: Set[Arg] = funcArgs.subtract(docArgs)
+                argsInDocNotInFunc: Set[Arg] = docArgs.subtract(funcArgs)
 
-                msgPostfixParts: list[str] = []
+                msgPostfixParts: List[str] = []
                 if argsInFuncNotInDoc:
                     msgPostfixParts.append(
                         'Arguments in the function signature but not in the'
@@ -203,7 +203,7 @@ class Visitor(ast.NodeVisitor):
             cls,
             node: AllFunctionDef,
             nonEmptyDocStruct: NumpyDocString,
-    ) -> list[Violation]:
+    ) -> List[Violation]:
         """Check return statement & return type annotation of this function"""
         msgPrefix: str = f'Function `{node.name}`'
         lineNum: int = node.lineno
@@ -216,7 +216,7 @@ class Visitor(ast.NodeVisitor):
 
         docstringHasReturnSection = bool(nonEmptyDocStruct.get('Returns'))
 
-        violations: list[Violation] = []
+        violations: List[Violation] = []
         if (hasReturnStmt or hasReturnAnno) and not docstringHasReturnSection:
             violations.append(v201)
 
