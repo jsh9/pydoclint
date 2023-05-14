@@ -16,6 +16,7 @@ This `ast.iter_fields()` function comes from:
     https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L255-L264
 """
 import ast
+from collections import deque
 
 
 def walk(node):
@@ -24,7 +25,6 @@ def walk(node):
     (including *node* itself), in no specified order.  This is useful if you
     only want to modify nodes in place and don't care about the context.
     """
-    from collections import deque
     todo = deque([(node, None)])
     while todo:
         node, parent = todo.popleft()
