@@ -23,8 +23,8 @@ def parseAnnotation(node: Optional[Annotation]) -> Optional[str]:
     if isinstance(node, ast.Tuple):
         return ', '.join(map(parseAnnotation, node.elts))
 
-    if isinstance(node, ast.Constant) and node.value is None:
-        return 'None'
+    if isinstance(node, ast.Constant):
+        return str(node.value)
 
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
         return parseAnnotation(node.left) + ' | ' + parseAnnotation(node.right)

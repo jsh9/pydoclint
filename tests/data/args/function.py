@@ -174,3 +174,22 @@ def func7(arg1: int, arg2: float) -> int:
         return None
 
     return 2
+
+
+def func8(arg1: 'MyClass', arg2: "SomeClass") -> int:
+    """
+    Something
+
+    Parameters
+    ----------
+    arg1 : MyClass
+        Arg 1
+    arg2 : SomeClass
+        Arg 2
+
+    Returns
+    -------
+    int
+        Result
+    """
+    return MyClass()

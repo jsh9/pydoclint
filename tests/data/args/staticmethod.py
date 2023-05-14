@@ -179,3 +179,22 @@ class MyClass:
             return None
 
         return 2
+
+    @staticmethod
+    def func8(arg1: 'MyClass', arg2: "SomeClass") -> int:
+        """
+        Something
+
+        Parameters
+        ----------
+        arg1 : MyClass
+            Arg 1
+        arg2 : SomeClass
+            Arg 2
+
+        Returns
+        -------
+        int
+            Result
+        """
+        return MyClass()
