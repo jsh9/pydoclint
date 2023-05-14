@@ -1,7 +1,11 @@
 import pytest
 import itertools
+from pathlib import Path
 
 from pydoclint.main import _checkFile
+
+THIS_DIR = Path(__file__).parent
+DATA_DIR = THIS_DIR / 'data'
 
 
 expectedViolations_True_True = [
@@ -187,7 +191,7 @@ def testArguments(
     expectedViolations: list[str] = expectedViolationsLookup[option]
 
     violations = _checkFile(
-        filename=f'./data/args/{filename}',
+        filename=DATA_DIR / f'args/{filename}',
         checkTypeHint=optionDict['checkTypeHint'],
         checkArgOrder=optionDict['checkArgOrder'],
     )
@@ -199,7 +203,7 @@ def testArguments(
     ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
 )
 def testReturns(filename: str) -> None:
-    violations = _checkFile(filename=f'./data/returns/{filename}')
+    violations = _checkFile(filename=DATA_DIR / f'returns/{filename}')
     expectedViolations: list[str] = [
         'DOC201: Function `func1_3` does not have a return section in docstring ',
         'DOC201: Function `func1_5` does not have a return section in docstring ',
