@@ -29,12 +29,12 @@ from pydoclint.visitor import Visitor
     help='Whether to check type hints in docstrings',
 )
 @click.option(
-    '-th',
+    '-ao',
     '--check-arg-order',
     type=bool,
     show_default=True,
     default=True,
-    help='Whether to check docstring argument order agasint function signature',
+    help='Whether to check docstring argument order against function signature',
 )
 @click.argument(
     'paths',
