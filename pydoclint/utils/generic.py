@@ -5,14 +5,18 @@ from pydoclint.utils.astTypes import AllFunctionDef
 
 
 def getFunctionId(node: AllFunctionDef) -> tuple[int, int, str]:
-    """Get unique identifier of a function def. We also need line and
-    column number because different function can have identical names"""
+    """
+    Get unique identifier of a function def. We also need line and
+    column number because different function can have identical names.
+    """
     return node.lineno, node.col_offset, node.name
 
 
 def detectMethodType(node: ast.FunctionDef) -> MethodType:
-    """Detect whether the function def is an instance method,
-    a classmethod, or a staticmethod"""
+    """
+    Detect whether the function def is an instance method,
+    a classmethod, or a staticmethod.
+    """
     if len(node.decorator_list) == 0:
         return MethodType.INSTANCE_METHOD
 

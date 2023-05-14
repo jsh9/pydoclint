@@ -10,6 +10,8 @@ from pydoclint.violation import Violation
 
 
 class Visitor(ast.NodeVisitor):
+    """A class to recursively visit all the nodes in a parsed module"""
+
     def __init__(
             self,
             checkTypeHint: bool,
@@ -21,7 +23,7 @@ class Visitor(ast.NodeVisitor):
         self.parent: ast.AST | None = None  # keep track of parent node
         self.violations: list[Violation] = []
 
-    def visit_ClassDef(self, node: ast.ClassDef):
+    def visit_ClassDef(self, node: ast.ClassDef):  # noqa: D102
         currentParent = self.parent  # keep aside
         self.parent = node
 
@@ -29,7 +31,7 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = currentParent  # restore
 
-    def visit_FunctionDef(self, node: AllFunctionDef):
+    def visit_FunctionDef(self, node: AllFunctionDef):  # noqa: D102
         currentParent = self.parent  # keep aside
         self.parent = node
 
@@ -51,12 +53,11 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = currentParent  # restore
 
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):  # noqa: D102
         # Treat async functions similarly to regular ones
         self.visit_FunctionDef(node)
 
-    def visit_Raise(self, node: ast.Raise):
-        # print(f"Raises: {ast.unparse(node.exc)}\n")
+    def visit_Raise(self, node: ast.Raise):  # noqa: D102
         self.generic_visit(node)
 
     def checkArguments(
@@ -65,15 +66,26 @@ class Visitor(ast.NodeVisitor):
             parent_: ast.AST,
             docstringStruct: NumpyDocString,
     ) -> list[Violation]:
-        argList: list[ast.arg] = [arg for arg in node.args.args]
+        """
+        Check input arguments of the function.
+
+        Parameters
+        ----------
+        node : AllFunctionDef
+            The current function node.  It can be a regular function
+            or an async function.
+        parent_ : ast.AST
+            The parent of the current node, which can be another function,
+            a class, etc.
+        docstringStruct : NumpyDocString
+            The parsed docstring structure.
+        """
+        argList: list[ast.arg] = list(node.args.args)
 
         if isinstance(parent_, ast.ClassDef):
             mType: MethodType = generic.detectMethodType(node)
             if mType in {MethodType.INSTANCE_METHOD, MethodType.CLASS_METHOD}:
                 argList = argList[1:]  # no need to document `self` and `cls`
-
-        isDunderFunc: bool = node.name.startswith('__')
-        isPrivateFunc: bool = not isDunderFunc and node.name.startswith('_')
 
         if not node.body or not isinstance(node.body[0], ast.Expr):
             # We don't check functions without docstrings.
@@ -84,8 +96,7 @@ class Visitor(ast.NodeVisitor):
             return []
 
         docArgList: list[Parameter] = docstringStruct.get('Parameters', [])
-        results = self.validateDocArgs(docArgList, argList, node)
-        return results
+        return self.validateDocArgs(docArgList, argList, node)
 
     def validateDocArgs(
             self,
@@ -93,6 +104,24 @@ class Visitor(ast.NodeVisitor):
             actualArgs: list[ast.arg],
             node: AllFunctionDef,
     ) -> list[Violation]:
+        """
+        Validate the argument list in the docstring against the "actual"
+        arguments (the argument list in the function signature).
+
+        Parameters
+        ----------
+        docArgList : list[Parameter]
+            The argument list from the docstring
+        actualArgs : list[ast.arg]
+            The argument list from the function signature
+        node : AllFunctionDef
+            The current function node
+
+        Returns
+        -------
+        list[Violation]
+            A list of style violations. It can be empty.
+        """
         functionName: str = node.name
         lineNum: int = node.lineno
 
@@ -174,6 +203,7 @@ class Visitor(ast.NodeVisitor):
             node: AllFunctionDef,
             nonEmptyDocStruct: NumpyDocString,
     ) -> list[Violation]:
+        """Check return statement & return type annotation of this function"""
         msgPrefix: str = f'Function `{node.name}`'
         lineNum: int = node.lineno
 

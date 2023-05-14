@@ -56,7 +56,6 @@ def main(
         check_arg_order: bool,
 ) -> None:
     """Command-line entry point of pydoclint"""
-
     ctx.ensure_object(dict)
 
     if paths and code is not None:

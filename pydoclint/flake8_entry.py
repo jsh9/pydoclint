@@ -15,7 +15,7 @@ class Plugin:
         self._tree = tree
 
     @classmethod
-    def add_options(cls, parser):
+    def add_options(cls, parser):  # noqa: D102
         parser.add_option(
             '-th',
             '--check-type-hint',
@@ -35,11 +35,12 @@ class Plugin:
         )
 
     @classmethod
-    def parse_options(cls, options):
+    def parse_options(cls, options):  # noqa: D102
         cls.check_type_hint = options.check_type_hint
         cls.check_arg_order = options.check_arg_order
 
     def run(self) -> Generator[tuple[int, int, str, Any], None, None]:
+        """Run the linter and yield the violation information"""
         checkTypeHint = self._bool('--check-type-hint', self.check_type_hint)
         checkArgOrder = self._bool('--check-arg-order', self.check_arg_order)
 

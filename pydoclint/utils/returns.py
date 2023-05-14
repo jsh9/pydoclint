@@ -6,10 +6,12 @@ from pydoclint.utils.generic import getFunctionId
 
 
 def hasReturnAnnotation(node: AllFunctionDef) -> bool:
+    """Check whether the function node has a return type annotation"""
     return node.returns is not None
 
 
 def hasReturnStatements(node: AllFunctionDef) -> bool:
+    """Check whether the function node has any return statements"""
     thisId = getFunctionId(node)
     for child, parent in walk.walk(node):
         if isinstance(child, ast.Return):

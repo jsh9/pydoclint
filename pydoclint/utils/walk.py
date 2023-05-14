@@ -38,7 +38,7 @@ def iter_child_nodes(node):
     and all items of fields that are lists of nodes.
     """
     parent = node
-    for name, field in ast.iter_fields(node):
+    for name, field in ast.iter_fields(node):  # noqa: B007
         if isinstance(field, ast.AST):
             yield field, parent
         elif isinstance(field, list):
