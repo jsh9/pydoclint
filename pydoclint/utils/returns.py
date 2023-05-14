@@ -15,7 +15,7 @@ def hasReturnStatements(node: AllFunctionDef) -> bool:
     thisId = getFunctionId(node)
     for child, parent in walk.walk(node):
         if isinstance(child, ast.Return):
-            if isinstance(parent, AllFunctionDef):
+            if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
                 # Only return True if the parent is `node` (in other words, if
                 # this return statement doesn't come from a nested function)
                 parentId = getFunctionId(parent)

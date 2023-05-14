@@ -2,7 +2,6 @@ import ast
 
 import pytest
 
-from pydoclint.utils.astTypes import FunctionOrClassDef
 from pydoclint.utils.walk import walk
 
 src1 = """
@@ -86,7 +85,9 @@ def testWalk(src: str, expected: list[tuple[str, str]]) -> None:
             parent_repr: str
             if isinstance(parent, ast.Module):
                 parent_repr = 'ast.Module'
-            elif isinstance(parent, FunctionOrClassDef):
+            elif isinstance(
+                parent, (ast.AsyncFunctionDef, ast.FunctionDef, ast.ClassDef)
+            ):
                 parent_repr = parent.name
             else:
                 parent_repr = str(type(parent))
