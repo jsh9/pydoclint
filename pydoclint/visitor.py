@@ -105,6 +105,11 @@ class Visitor(ast.NodeVisitor):
             a class, etc.
         docstringStruct : NumpyDocString
             The parsed docstring structure.
+
+        Returns
+        -------
+        List[Violation]
+            A list of argument violations
         """
         argList: List[ast.arg] = list(node.args.args)
 
@@ -138,7 +143,7 @@ class Visitor(ast.NodeVisitor):
         Returns
         -------
         List[Violation]
-            A list of style violations. It can be empty.
+            A list of argument violations. It can be empty.
         """
         functionName: str = node.name
         lineNum: int = node.lineno
