@@ -27,6 +27,6 @@ def parseAnnotation(node: Optional[Annotation]) -> Optional[str]:
         return str(node.value)
 
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
-        return parseAnnotation(node.left) + ' | ' + parseAnnotation(node.right)
+        return f'{parseAnnotation(node.left)} | {parseAnnotation(node.right)}'
 
     return None
