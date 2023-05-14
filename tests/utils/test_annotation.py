@@ -1,4 +1,5 @@
 import ast
+
 import pytest
 
 from pydoclint.utils.annotation import parseAnnotation

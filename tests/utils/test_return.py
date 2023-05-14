@@ -1,9 +1,9 @@
 import ast
+
 import pytest
 
 from pydoclint.utils import returns
 from pydoclint.utils.generic import getFunctionId
-
 
 src1 = """
 def func1():
@@ -130,18 +130,18 @@ def func4() -> int:
         print('402')
         def func4_child2_grandchild1():
             return 4021
-            
+
     def func4_child3() -> list[str]:
         print(1)
-        
+
     def func4_child4():
         class NestedClass:
             def func4_child4_grandchild1(self):
                 return 2
-                
+
             def func4_child4_grandchild2(self) -> dict[str, tuple[int, float]]:
                 print(1)
-                
+
         return 1
 """
 

@@ -3,11 +3,10 @@ import ast
 from numpydoc.docscrape import NumpyDocString, Parameter
 
 from pydoclint.arg import Arg, ArgList
-from pydoclint.violation import Violation
 from pydoclint.method_type import MethodType
-from pydoclint.utils import returns
-from pydoclint.utils import generic
+from pydoclint.utils import generic, returns
 from pydoclint.utils.astTypes import AllFunctionDef
+from pydoclint.violation import Violation
 
 
 class Visitor(ast.NodeVisitor):

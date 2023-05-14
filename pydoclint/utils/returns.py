@@ -1,8 +1,8 @@
 import ast
 
 from pydoclint.utils import walk
-from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.astTypes import AllFunctionDef, Block
+from pydoclint.utils.generic import getFunctionId
 
 
 def hasReturnAnnotation(node: AllFunctionDef) -> bool:

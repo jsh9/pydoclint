@@ -1,6 +1,7 @@
-import pytest
 import itertools
 from pathlib import Path
+
+import pytest
 
 from pydoclint.main import _checkFile
 

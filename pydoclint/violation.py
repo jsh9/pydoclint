@@ -2,7 +2,6 @@ import types
 
 from pydoclint.internal_error import InternalError
 
-
 VIOLATION_CODES = types.MappingProxyType({
     101: 'Docstring contains fewer arguments than in function signature.',
     102: 'Docstring contains more arguments than in function signature.',

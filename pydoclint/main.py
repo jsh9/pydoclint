@@ -1,9 +1,10 @@
 import ast
 from pathlib import Path
+
 import click
 
-from pydoclint.visitor import Visitor
 from pydoclint.violation import Violation
+from pydoclint.visitor import Visitor
 
 
 @click.command(

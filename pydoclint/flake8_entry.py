@@ -1,6 +1,6 @@
-import importlib.metadata as importlib_metadata
 import ast
-from typing import Generator, Any
+import importlib.metadata as importlib_metadata
+from typing import Any, Generator
 
 from pydoclint.visitor import Visitor
 

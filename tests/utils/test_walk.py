@@ -1,9 +1,9 @@
 import ast
+
 import pytest
 
-from pydoclint.utils.walk import walk
 from pydoclint.utils.astTypes import FunctionOrClassDef
-
+from pydoclint.utils.walk import walk
 
 src1 = """
 def func1():
@@ -22,7 +22,7 @@ async def func3():
 def func4():
     def func4_child1():
         return "nested 401"
-        
+
     def func4_child2():
         print('402')
         def func4_child2_grandchild1():
@@ -31,20 +31,20 @@ def func4():
 def func5():
     if 1 > 2:
         return 501
-    
+
     if 2 > 6:
         return 506
-        
+
 class MyClass:
     def __init__(self):
         pass
-        
+
     def method1(self):
         print('a1')
         def method1_child1(self):
             pass
-    
-    @classmethod     
+
+    @classmethod
     def classmethod1(cls):
         pass
         def classmethod1_child1():
