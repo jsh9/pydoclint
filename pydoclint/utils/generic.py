@@ -1,6 +1,8 @@
 import ast
 from typing import Tuple
 
+from numpydoc.docscrape import NumpyDocString, Parameter
+
 from pydoclint.method_type import MethodType
 from pydoclint.utils.astTypes import AllFunctionDef
 
@@ -34,3 +36,27 @@ def detectMethodType(node: ast.FunctionDef) -> MethodType:
                 return MethodType.STATIC_METHOD
 
     return MethodType.INSTANCE_METHOD
+
+
+def isShortDocstring(docstringStruct: NumpyDocString) -> bool:
+    return (
+        (
+            bool(docstringStruct.get('Summary'))
+            or bool(docstringStruct.get('Extended Summary'))
+        )
+        and not bool(docstringStruct.get('Parameters'))
+        and not bool(docstringStruct.get('Returns'))
+        and not bool(docstringStruct.get('Yields'))
+        and not bool(docstringStruct.get('Receives'))
+        and not bool(docstringStruct.get('Raises'))
+        and not bool(docstringStruct.get('Warns'))
+        and not bool(docstringStruct.get('Other Parameters'))
+        and not bool(docstringStruct.get('Attributes'))
+        and not bool(docstringStruct.get('Methods'))
+        and not bool(docstringStruct.get('See Also'))
+        and not bool(docstringStruct.get('Notes'))
+        and not bool(docstringStruct.get('Warnings'))
+        and not bool(docstringStruct.get('References'))
+        and not bool(docstringStruct.get('Examples'))
+        and not bool(docstringStruct.get('index'))
+    )

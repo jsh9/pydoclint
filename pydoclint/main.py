@@ -36,6 +36,14 @@ from pydoclint.visitor import Visitor
     default=True,
     help='Whether to check docstring argument order against function signature',
 )
+@click.option(
+    '-scsd',
+    '--skip-checking-short-docstrings',
+    type=bool,
+    show_default=True,
+    default=True,
+    help='If True, skip checking if the docstring only has a short summary.',
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -55,6 +63,7 @@ def main(
         paths: Tuple[str, ...],
         check_type_hint: bool,
         check_arg_order: bool,
+        skip_checking_short_docstrings: bool,
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
@@ -76,6 +85,7 @@ def main(
         paths=paths,
         checkTypeHint=check_type_hint,
         checkArgOrder=check_arg_order,
+        skipCheckingShortDocstrings=skip_checking_short_docstrings,
     )
 
     if len(violationsInAllFiles) > 0:
@@ -99,6 +109,7 @@ def _checkPaths(
         paths: Tuple[str, ...],
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
+        skipCheckingShortDocstrings: bool = True,
 ) -> Dict[str, List[Violation]]:
     filenames: List[Path] = []
 
@@ -113,9 +124,10 @@ def _checkPaths(
 
     for filename in filenames:
         violationsInThisFile: List[Violation] = _checkFile(
-            filename.as_posix(),
+            filename,
             checkTypeHint=checkTypeHint,
             checkArgOrder=checkArgOrder,
+            skipCheckingShortDocstrings=skipCheckingShortDocstrings,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -123,9 +135,10 @@ def _checkPaths(
 
 
 def _checkFile(
-        filename: str,
+        filename: Path,
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
+        skipCheckingShortDocstrings: bool = True,
 ) -> List[Violation]:
     with open(filename) as fp:
         src: str = ''.join(fp.readlines())
@@ -134,6 +147,7 @@ def _checkFile(
     visitor = Visitor(
         checkTypeHint=checkTypeHint,
         checkArgOrder=checkArgOrder,
+        skipCheckingShortDocstrings=skipCheckingShortDocstrings,
     )
     visitor.visit(tree)
     return visitor.violations

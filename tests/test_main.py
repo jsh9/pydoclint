@@ -205,7 +205,10 @@ def testArguments(
     ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
 )
 def testReturns(filename: str) -> None:
-    violations = _checkFile(filename=DATA_DIR / f'returns/{filename}')
+    violations = _checkFile(
+        filename=DATA_DIR / f'returns/{filename}',
+        skipCheckingShortDocstrings=False,
+    )
     expectedViolations: List[str] = [
         'DOC201: Function `func1_3` does not have a return section in docstring ',
         'DOC201: Function `func1_5` does not have a return section in docstring ',
@@ -223,3 +226,52 @@ def testReturns(filename: str) -> None:
         'return statements or annotations ',
     ]
     assert list(map(str, violations)) == expectedViolations
+
+
+
+expected_True = [
+    'DOC101: Function `func3`: Docstring contains fewer arguments than in '
+    'function signature. ',
+    'DOC103: Function `func3`: Docstring arguments are different from function '
+    'arguments. Arguments in the function signature but not in the docstring: '
+    '[arg1: , arg2: , arg3: ]. Arguments in the docstring but not in the function '
+    'signature: [var1: int, var2: str].',
+    'DOC201: Function `func3` does not have a return section in docstring ',
+]
+
+expected_False = [
+    'DOC101: Function `func1`: Docstring contains fewer arguments than in '
+    'function signature. ',
+    'DOC103: Function `func1`: Docstring arguments are different from function '
+    'arguments. Arguments in the function signature but not in the docstring: '
+    '[arg1: , arg2: , arg3: ].',
+    'DOC201: Function `func1` does not have a return section in docstring ',
+    'DOC101: Function `func2`: Docstring contains fewer arguments than in '
+    'function signature. ',
+    'DOC103: Function `func2`: Docstring arguments are different from function '
+    'arguments. Arguments in the function signature but not in the docstring: '
+    '[arg1: , arg2: , arg3: ].',
+    'DOC201: Function `func2` does not have a return section in docstring ',
+    'DOC101: Function `func3`: Docstring contains fewer arguments than in '
+    'function signature. ',
+    'DOC103: Function `func3`: Docstring arguments are different from function '
+    'arguments. Arguments in the function signature but not in the docstring: '
+    '[arg1: , arg2: , arg3: ]. Arguments in the docstring but not in the function '
+    'signature: [var1: int, var2: str].',
+    'DOC201: Function `func3` does not have a return section in docstring ',
+]
+
+
+@pytest.mark.parametrize(
+    'skipCheckingShortDocstrings, expected',
+    [(True, expected_True), (False, expected_False)],
+)
+def testSkipCheckingShortDocstrings(
+        skipCheckingShortDocstrings: bool,
+        expected: List[str],
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'short_docstrings/cases.py',
+        skipCheckingShortDocstrings=skipCheckingShortDocstrings,
+    )
+    assert list(map(str, violations)) == expected

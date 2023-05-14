@@ -5,7 +5,8 @@ from numpydoc.docscrape import NumpyDocString, Parameter
 
 from pydoclint.arg import Arg, ArgList
 from pydoclint.method_type import MethodType
-from pydoclint.utils import generic, returns
+from pydoclint.utils import returns
+from pydoclint.utils.generic import detectMethodType, isShortDocstring
 from pydoclint.utils.astTypes import AllFunctionDef
 from pydoclint.violation import Violation
 
@@ -15,11 +16,13 @@ class Visitor(ast.NodeVisitor):
 
     def __init__(
             self,
-            checkTypeHint: bool,
-            checkArgOrder: bool,
+            checkTypeHint: bool = True,
+            checkArgOrder: bool = True,
+            skipCheckingShortDocstrings: bool = True,
     ) -> None:
         self.checkTypeHint: bool = checkTypeHint
         self.checkArgOrder: bool = checkArgOrder
+        self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
         self.violations: List[Violation] = []
@@ -38,14 +41,27 @@ class Visitor(ast.NodeVisitor):
 
         docstring_: Optional[str] = ast.get_docstring(node)
         docstring: str = '' if docstring_ is None else docstring_
+
+        # Note: a NumpyDocString object has the following sections:
+        #   {'Signature': '', 'Summary': [''], 'Extended Summary': [],
+        #   'Parameters': [], 'Returns': [], 'Yields': [], 'Receives': [],
+        #   'Raises': [], 'Warns': [], 'Other Parameters': [],
+        #   'Attributes': [], 'Methods': [], 'See Also': [], 'Notes': [],
+        #   'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
         docStruct: NumpyDocString = NumpyDocString(docstring)
 
-        argViolations = self.checkArguments(node, currentParent, docStruct)
+        argViolations: List[Violation]
+        returnViolations: List[Violation]
 
-        if docstring == '':
+        if self.skipCheckingShortDocstrings and isShortDocstring(docStruct):
+            argViolations = []
             returnViolations = []
         else:
-            returnViolations = self.checkReturns(node, docStruct)
+            argViolations = self.checkArguments(node, currentParent, docStruct)
+            if docstring == '':
+                returnViolations = []
+            else:
+                returnViolations = self.checkReturns(node, docStruct)
 
         self.violations.extend(argViolations)
         self.violations.extend(returnViolations)
@@ -84,7 +100,7 @@ class Visitor(ast.NodeVisitor):
         argList: List[ast.arg] = list(node.args.args)
 
         if isinstance(parent_, ast.ClassDef):
-            mType: MethodType = generic.detectMethodType(node)
+            mType: MethodType = detectMethodType(node)
             if mType in {MethodType.INSTANCE_METHOD, MethodType.CLASS_METHOD}:
                 argList = argList[1:]  # no need to document `self` and `cls`
 
