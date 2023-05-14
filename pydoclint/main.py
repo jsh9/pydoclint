@@ -15,8 +15,8 @@ from pydoclint.visitor import Visitor
     help='Yes',
 )
 @click.option(
-    '-c',
-    '--code',
+    '-s',
+    '--src',
     type=str,
     help='The source code to check',
 )
@@ -51,24 +51,24 @@ from pydoclint.visitor import Visitor
 @click.pass_context
 def main(
         ctx: click.Context,
-        code: Optional[str],
-        paths: tuple[str, ...],
+        src: Optional[str],
+        paths: Tuple[str, ...],
         check_type_hint: bool,
         check_arg_order: bool,
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
 
-    if paths and code is not None:
+    if paths and src is not None:
         click.echo(
             main.get_usage(ctx)
-            + "\n\n'paths' and 'code' cannot be passed simultaneously."
+            + "\n\n'paths' and 'src' cannot be passed simultaneously."
         )
         ctx.exit(1)
 
-    if not paths and code is None:
+    if not paths and src is None:
         click.echo(
-            main.get_usage(ctx) + "\n\nOne of 'paths' or 'code' is required."
+            main.get_usage(ctx) + "\n\nOne of 'paths' or 'src' is required."
         )
         ctx.exit(1)
 
