@@ -14,7 +14,7 @@ def parseAnnotation(node: Annotation | None) -> str | None:
     if isinstance(node, ast.Subscript):
         value: str = parseAnnotation(node.value)
         slice_: str = parseAnnotation(node.slice)
-        return f"{value}[{slice_}]"
+        return f'{value}[{slice_}]'
 
     if isinstance(node, ast.Index):
         return parseAnnotation(node.value)
@@ -26,8 +26,4 @@ def parseAnnotation(node: Annotation | None) -> str | None:
         return 'None'
 
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
-        return (
-                parseAnnotation(node.left)
-                + ' | '
-                + parseAnnotation(node.right)
-        )
+        return parseAnnotation(node.left) + ' | ' + parseAnnotation(node.right)

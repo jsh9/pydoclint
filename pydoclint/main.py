@@ -7,10 +7,10 @@ from pydoclint.violation import Violation
 
 
 @click.command(
-    context_settings={"help_option_names": ["-h", "--help"]},
+    context_settings={'help_option_names': ['-h', '--help']},
     # While Click does set this field automatically using the docstring, mypyc
     # (annoyingly) strips them, so we need to set it here too.
-    help="Yes",
+    help='Yes',
 )
 @click.option(
     '-c',
@@ -66,7 +66,9 @@ def main(
         ctx.exit(1)
 
     if not paths and code is None:
-        click.echo(main.get_usage(ctx) + "\n\nOne of 'paths' or 'code' is required.")
+        click.echo(
+            main.get_usage(ctx) + "\n\nOne of 'paths' or 'code' is required."
+        )
         ctx.exit(1)
 
     violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(

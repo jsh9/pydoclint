@@ -1,0 +1,5 @@
+repos:
+  - repo: /Users/jian/Documents/github/cercis
+    rev: 0.1.5
+    hooks:
+      - id: cercis

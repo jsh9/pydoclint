@@ -125,7 +125,6 @@ def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
     assert sorted(original) == after
 
 
-
 @pytest.mark.parametrize(
     'input_, expected',
     [
@@ -140,7 +139,7 @@ def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
                 Arg('2', '3'),
                 Arg('3', '456789'),
             ]),
-                '[1: 2, 2: 3, 3: 456789]',
+            '[1: 2, 2: 3, 3: 456789]',
         ),
         (
             ArgList([
@@ -240,51 +239,42 @@ def testArgList_contains(
         assert not argInfoList.contains(argInfo)
 
 
-
 @pytest.mark.parametrize(
     'obj1, obj2, expected',
     [
         (
-            ArgList([
-                Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')
-            ]),
-            ArgList([
-                Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')
-            ]),
-                set(),
+            ArgList(
+                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
+            ),
+            ArgList(
+                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
+            ),
+            set(),
         ),
         (
-            ArgList([
-                Arg('a', '1'), Arg('b', '2'), Arg('c', '3')
-            ]),
-            ArgList([
-                Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')
-            ]),
-                set(),
+            ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
+            ArgList(
+                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
+            ),
+            set(),
         ),
         (
-            ArgList([
-                Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')
-            ]),
-            ArgList([
-                Arg('c', '3'), Arg('d', '4'), Arg('e', '5')
-            ]),
+            ArgList(
+                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
+            ),
+            ArgList([Arg('c', '3'), Arg('d', '4'), Arg('e', '5')]),
             {Arg('a', '1'), Arg('b', '2')},
         ),
         (
-            ArgList([
-                Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')
-            ]),
-            ArgList([
-                Arg('e', '5'), Arg('f', '6'), Arg('g', '7')
-            ]),
+            ArgList(
+                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
+            ),
+            ArgList([Arg('e', '5'), Arg('f', '6'), Arg('g', '7')]),
             {Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')},
         ),
         (
             ArgList([]),
-            ArgList([
-                Arg('e', '5'), Arg('f', '6'), Arg('g', '7')
-            ]),
+            ArgList([Arg('e', '5'), Arg('f', '6'), Arg('g', '7')]),
             set(),
         ),
         (

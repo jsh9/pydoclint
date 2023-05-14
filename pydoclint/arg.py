@@ -10,7 +10,7 @@ class Arg:
         if len(name) == 0:
             raise ValueError('`name` cannot be an empty string')
 
-        self.name: str= name
+        self.name: str = name
         self.typeHint: str = typeHint
 
     def __repr__(self) -> str:

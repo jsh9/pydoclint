@@ -73,6 +73,7 @@ class MyClass:
             return 'hello'
 """
 
+
 @pytest.mark.parametrize(
     'src, expected',
     [
@@ -82,7 +83,7 @@ class MyClass:
         (src4, False),
         (src5, True),
         (src6, True),
-    ]
+    ],
 )
 def testHasReturnStatements(src: str, expected: bool) -> None:
     tree = ast.parse(src)
