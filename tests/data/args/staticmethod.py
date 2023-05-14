@@ -181,7 +181,7 @@ class MyClass:
         return 2
 
     @staticmethod
-    def func8(arg1: 'MyClass', arg2: "SomeClass") -> int:
+    def func8(arg1: 'MyClass', arg2: 'SomeClass') -> int:
         """
         Something
 

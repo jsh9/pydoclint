@@ -168,7 +168,7 @@ class MyClass:
 
         return 2
 
-    def func8(self, arg1: 'MyClass', arg2: "SomeClass") -> int:
+    def func8(self, arg1: 'MyClass', arg2: 'SomeClass') -> int:
         """
         Something
 

@@ -176,7 +176,7 @@ def func7(arg1: int, arg2: float) -> int:
     return 2
 
 
-def func8(arg1: 'MyClass', arg2: "SomeClass") -> int:
+def func8(arg1: 'MyClass', arg2: 'SomeClass') -> int:
     """
     Something
 
