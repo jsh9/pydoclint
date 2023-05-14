@@ -9,17 +9,18 @@ from pydoclint.utils.annotation import parseAnnotation
 def testParseAnnotationInArguments() -> None:
     src = """
 def foo(
-        arg1: Optional[Union[int, float]],
-        arg2: Tuple[str, int, float],
-        arg3: Dict[str, Any],
-        arg4: Set[int],
-        arg5: List[float],
-        arg6: int | float | None,
-        arg7: Any,
-        arg8: SomeType[List[Dict[str, Any]], SomeOtherType],
-        arg9: None,
+        arg01: Optional[Union[int, float]],
+        arg02: Tuple[str, int, float],
+        arg03: Dict[str, Any],
+        arg04: Set[int],
+        arg05: List[float],
+        arg06: int | float | None,
+        arg07: Any,
+        arg08: SomeType[List[Dict[str, Any]], SomeOtherType],
+        arg09: None,
         arg10,
-        arg11,
+        arg11: List[ast.arg],
+        arg12: Dict[str, Tuple[ast.arg, np.ndarray]],
 ):
     pass
 """
@@ -31,17 +32,18 @@ def foo(
             result = _getArgTypeHints(node)
 
     expected: Dict[str, str] = {
-        'arg1': 'Optional[Union[int, float]]',
-        'arg2': 'Tuple[str, int, float]',
-        'arg3': 'Dict[str, Any]',
-        'arg4': 'Set[int]',
-        'arg5': 'List[float]',
-        'arg6': 'int | float | None',
-        'arg7': 'Any',
-        'arg8': 'SomeType[List[Dict[str, Any]], SomeOtherType]',
-        'arg9': 'None',
+        'arg01': 'Optional[Union[int, float]]',
+        'arg02': 'Tuple[str, int, float]',
+        'arg03': 'Dict[str, Any]',
+        'arg04': 'Set[int]',
+        'arg05': 'List[float]',
+        'arg06': 'int | float | None',
+        'arg07': 'Any',
+        'arg08': 'SomeType[List[Dict[str, Any]], SomeOtherType]',
+        'arg09': 'None',
         'arg10': None,
-        'arg11': None,
+        'arg11': 'List[ast.arg]',
+        'arg12': 'Dict[str, Tuple[ast.arg, np.ndarray]]',
     }
 
     assert result == expected
