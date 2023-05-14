@@ -11,6 +11,7 @@ def func2(arg1, arg2, arg3) -> int:
     """
     return 2
 
+
 def func3(arg1, arg2, arg3) -> int:
     """
     This is a function.

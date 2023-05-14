@@ -228,7 +228,6 @@ def testReturns(filename: str) -> None:
     assert list(map(str, violations)) == expectedViolations
 
 
-
 expected_True = [
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
     'function signature. ',
