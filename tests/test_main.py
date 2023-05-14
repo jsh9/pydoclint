@@ -11,11 +11,6 @@ DATA_DIR = THIS_DIR / 'data'
 
 
 expectedViolations_True_True = [
-    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Function `func1_2`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: int, arg2: float].',
     'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func1_3`: Docstring arguments are different from function '
@@ -50,11 +45,6 @@ expectedViolations_True_True = [
 ]
 
 expectedViolations_False_True = [
-    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Function `func1_2`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: int, arg2: float].',
     'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func1_3`: Docstring arguments are different from function '
@@ -87,11 +77,6 @@ expectedViolations_False_True = [
 ]
 
 expectedViolations_True_False = [
-    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Function `func1_2`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: int, arg2: float].',
     'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func1_3`: Docstring arguments are different from function '
@@ -122,11 +107,6 @@ expectedViolations_True_False = [
 ]
 
 expectedViolations_False_False = [
-    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Function `func1_2`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: int, arg2: float].',
     'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func1_3`: Docstring arguments are different from function '

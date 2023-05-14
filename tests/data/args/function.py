@@ -2,6 +2,10 @@ def func1_1(arg1: int, arg2: float) -> None:
     pass
 
 
+def func1_1a(arg1: int, arg2: float) -> None:
+    func2(arg1, arg2)
+
+
 def func1_2(arg1: int, arg2: float) -> None:
     """"""
     pass

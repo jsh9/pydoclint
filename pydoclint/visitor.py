@@ -42,26 +42,35 @@ class Visitor(ast.NodeVisitor):
         docstring_: Optional[str] = ast.get_docstring(node)
         docstring: str = '' if docstring_ is None else docstring_
 
-        # Note: a NumpyDocString object has the following sections:
-        # *  {'Signature': '', 'Summary': [''], 'Extended Summary': [],
-        # *  'Parameters': [], 'Returns': [], 'Yields': [], 'Receives': [],
-        # *  'Raises': [], 'Warns': [], 'Other Parameters': [],
-        # *  'Attributes': [], 'Methods': [], 'See Also': [], 'Notes': [],
-        # *  'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
-        docStruct: NumpyDocString = NumpyDocString(docstring)
-
         argViolations: List[Violation]
         returnViolations: List[Violation]
 
-        if self.skipCheckingShortDocstrings and isShortDocstring(docStruct):
+        if docstring == '':
+            # We don't check functions without docstrings.
+            # We defer to
+            # flake8-docstrings (https://github.com/PyCQA/flake8-docstrings)
+            # or pydocstyle (https://www.pydocstyle.org/en/stable/)
+            # to determine whether a function needs a docstring.
             argViolations = []
             returnViolations = []
         else:
-            argViolations = self.checkArguments(node, currentParent, docStruct)
-            if docstring == '':
+            # Note: a NumpyDocString object has the following sections:
+            # *  {'Signature': '', 'Summary': [''], 'Extended Summary': [],
+            # *  'Parameters': [], 'Returns': [], 'Yields': [], 'Receives': [],
+            # *  'Raises': [], 'Warns': [], 'Other Parameters': [],
+            # *  'Attributes': [], 'Methods': [], 'See Also': [], 'Notes': [],
+            # *  'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
+            docStruct: NumpyDocString = NumpyDocString(docstring)
+
+            if self.skipCheckingShortDocstrings and isShortDocstring(docStruct):
+                argViolations = []
                 returnViolations = []
             else:
-                returnViolations = self.checkReturns(node, docStruct)
+                argViolations = self.checkArguments(node, currentParent, docStruct)
+                if docstring == '':
+                    returnViolations = []
+                else:
+                    returnViolations = self.checkReturns(node, docStruct)
 
         self.violations.extend(argViolations)
         self.violations.extend(returnViolations)
@@ -103,14 +112,6 @@ class Visitor(ast.NodeVisitor):
             mType: MethodType = detectMethodType(node)
             if mType in {MethodType.INSTANCE_METHOD, MethodType.CLASS_METHOD}:
                 argList = argList[1:]  # no need to document `self` and `cls`
-
-        if not node.body or not isinstance(node.body[0], ast.Expr):
-            # We don't check functions without docstrings.
-            # We defer to
-            # flake8-docstrings (https://github.com/PyCQA/flake8-docstrings)
-            # or pydocstyle (https://www.pydocstyle.org/en/stable/)
-            # to determine whether a function needs a docstring.
-            return []
 
         docArgList: List[Parameter] = docstringStruct.get('Parameters', [])
         return self.validateDocArgs(docArgList, argList, node)

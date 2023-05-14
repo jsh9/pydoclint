@@ -5,6 +5,9 @@ class MyClass:
     def func1_1(self, arg1: int, arg2: float) -> None:
         pass
 
+    def func1_1a(self, arg1: int, arg2: float) -> None:
+        self.func2(arg1, arg2)
+
     def func1_2(self, arg1: int, arg2: float) -> None:
         """"""
         pass

@@ -7,6 +7,10 @@ class MyClass:
         pass
 
     @staticmethod
+    def func1_1a(arg1: int, arg2: float) -> None:
+        MyClass.func2(arg1, arg2)
+
+    @staticmethod
     def func1_2(arg1: int, arg2: float) -> None:
         """"""
         pass

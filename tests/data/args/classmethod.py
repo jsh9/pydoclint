@@ -7,6 +7,10 @@ class MyClass:
         pass
 
     @classmethod
+    def func1_1a(cls, arg1: int, arg2: float) -> None:
+        cls.func2(arg1, arg2)
+
+    @classmethod
     def func1_2(cls, arg1: int, arg2: float) -> None:
         """"""
         pass
