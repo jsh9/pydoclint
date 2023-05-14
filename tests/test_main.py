@@ -1,149 +1,149 @@
 import pytest
 import itertools
 
-from pydoclint.main import _checkPaths
+from pydoclint.main import _checkFile
 
 
 expectedViolations_True_True = [
-    'DOC101: Function: func1_2. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_2. Docstring arguments are different from function '
+    'DOC103: Function `func1_2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: int, arg2: float].',
-    'DOC101: Function: func1_3. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_3. Docstring arguments are different from function '
+    'DOC103: Function `func1_3`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: str, arg2: list[int]].',
-    'DOC102: Function: func1_6. Docstring contains more arguments than in '
+    'DOC102: Function `func1_6`: Docstring contains more arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_6. Docstring arguments are different from function '
+    'DOC103: Function `func1_6`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg1: int].',
-    'DOC101: Function: func2. Docstring contains fewer arguments than in function '
+    'DOC101: Function `func2`: Docstring contains fewer arguments than in function '
     'signature. ',
-    'DOC103: Function: func2. Docstring arguments are different from function '
+    'DOC103: Function `func2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg2: float | int | None].',
-    'DOC102: Function: func3. Docstring contains more arguments than in function '
+    'DOC102: Function `func3`: Docstring contains more arguments than in function '
     'signature. ',
-    'DOC103: Function: func3. Docstring arguments are different from function '
+    'DOC103: Function `func3`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg3: Optional[Union[float, int, str]]].',
-    'DOC104: Function: func4. Arguments are the same in the docstring and the '
+    'DOC104: Function `func4`: Arguments are the same in the docstring and the '
     'function signature, but are in a different order. ',
-    'DOC105: Function: func5. Argument names match, but type hints do not match ',
-    'DOC104: Function: func6. Arguments are the same in the docstring and the '
+    'DOC105: Function `func5`: Argument names match, but type hints do not match ',
+    'DOC104: Function `func6`: Arguments are the same in the docstring and the '
     'function signature, but are in a different order. ',
-    'DOC105: Function: func6. Argument names match, but type hints do not match ',
-    'DOC101: Function: func72. Docstring contains fewer arguments than in '
+    'DOC105: Function `func6`: Argument names match, but type hints do not match ',
+    'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func72. Docstring arguments are different from function '
+    'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg3: list, arg4: tuple, arg5: dict].',
 ]
 
 expectedViolations_False_True = [
-    'DOC101: Function: func1_2. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_2. Docstring arguments are different from function '
+    'DOC103: Function `func1_2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: int, arg2: float].',
-    'DOC101: Function: func1_3. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_3. Docstring arguments are different from function '
+    'DOC103: Function `func1_3`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: str, arg2: list[int]].',
-    'DOC102: Function: func1_6. Docstring contains more arguments than in '
+    'DOC102: Function `func1_6`: Docstring contains more arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_6. Docstring arguments are different from function '
+    'DOC103: Function `func1_6`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg1: int].',
-    'DOC101: Function: func2. Docstring contains fewer arguments than in function '
+    'DOC101: Function `func2`: Docstring contains fewer arguments than in function '
     'signature. ',
-    'DOC103: Function: func2. Docstring arguments are different from function '
+    'DOC103: Function `func2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg2: float | int | None].',
-    'DOC102: Function: func3. Docstring contains more arguments than in function '
+    'DOC102: Function `func3`: Docstring contains more arguments than in function '
     'signature. ',
-    'DOC103: Function: func3. Docstring arguments are different from function '
+    'DOC103: Function `func3`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg3: Optional[Union[float, int, str]]].',
-    'DOC104: Function: func4. Arguments are the same in the docstring and the '
+    'DOC104: Function `func4`: Arguments are the same in the docstring and the '
     'function signature, but are in a different order. ',
-    'DOC104: Function: func6. Arguments are the same in the docstring and the '
+    'DOC104: Function `func6`: Arguments are the same in the docstring and the '
     'function signature, but are in a different order. ',
-    'DOC101: Function: func72. Docstring contains fewer arguments than in '
+    'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func72. Docstring arguments are different from function '
+    'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg3: list, arg4: tuple, arg5: dict].',
 ]
 
 expectedViolations_True_False = [
-    'DOC101: Function: func1_2. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_2. Docstring arguments are different from function '
+    'DOC103: Function `func1_2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: int, arg2: float].',
-    'DOC101: Function: func1_3. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_3. Docstring arguments are different from function '
+    'DOC103: Function `func1_3`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: str, arg2: list[int]].',
-    'DOC102: Function: func1_6. Docstring contains more arguments than in '
+    'DOC102: Function `func1_6`: Docstring contains more arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_6. Docstring arguments are different from function '
+    'DOC103: Function `func1_6`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg1: int].',
-    'DOC101: Function: func2. Docstring contains fewer arguments than in function '
+    'DOC101: Function `func2`: Docstring contains fewer arguments than in function '
     'signature. ',
-    'DOC103: Function: func2. Docstring arguments are different from function '
+    'DOC103: Function `func2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg2: float | int | None].',
-    'DOC102: Function: func3. Docstring contains more arguments than in function '
+    'DOC102: Function `func3`: Docstring contains more arguments than in function '
     'signature. ',
-    'DOC103: Function: func3. Docstring arguments are different from function '
+    'DOC103: Function `func3`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg3: Optional[Union[float, int, str]]].',
-    'DOC105: Function: func5. Argument names match, but type hints do not match ',
-    'DOC105: Function: func6. Argument names match, but type hints do not match ',
-    'DOC101: Function: func72. Docstring contains fewer arguments than in '
+    'DOC105: Function `func5`: Argument names match, but type hints do not match ',
+    'DOC105: Function `func6`: Argument names match, but type hints do not match ',
+    'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func72. Docstring arguments are different from function '
+    'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg3: list, arg4: tuple, arg5: dict].',
 ]
 
 expectedViolations_False_False = [
-    'DOC101: Function: func1_2. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_2`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_2. Docstring arguments are different from function '
+    'DOC103: Function `func1_2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: int, arg2: float].',
-    'DOC101: Function: func1_3. Docstring contains fewer arguments than in '
+    'DOC101: Function `func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_3. Docstring arguments are different from function '
+    'DOC103: Function `func1_3`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg1: str, arg2: list[int]].',
-    'DOC102: Function: func1_6. Docstring contains more arguments than in '
+    'DOC102: Function `func1_6`: Docstring contains more arguments than in '
     'function signature. ',
-    'DOC103: Function: func1_6. Docstring arguments are different from function '
+    'DOC103: Function `func1_6`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg1: int].',
-    'DOC101: Function: func2. Docstring contains fewer arguments than in function '
+    'DOC101: Function `func2`: Docstring contains fewer arguments than in function '
     'signature. ',
-    'DOC103: Function: func2. Docstring arguments are different from function '
+    'DOC103: Function `func2`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg2: float | int | None].',
-    'DOC102: Function: func3. Docstring contains more arguments than in function '
+    'DOC102: Function `func3`: Docstring contains more arguments than in function '
     'signature. ',
-    'DOC103: Function: func3. Docstring arguments are different from function '
+    'DOC103: Function `func3`: Docstring arguments are different from function '
     'arguments. Arguments in the docstring but not in the function signature: '
     '[arg3: Optional[Union[float, int, str]]].',
-    'DOC101: Function: func72. Docstring contains fewer arguments than in '
+    'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
-    'DOC103: Function: func72. Docstring arguments are different from function '
+    'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. Arguments in the function signature but not in the docstring: '
     '[arg3: list, arg4: tuple, arg5: dict].',
 ]
@@ -185,8 +185,8 @@ def testArguments(
     optionDict: dict[str, bool] = optionDictLookup[option]
     expectedViolations: list[str] = expectedViolationsLookup[option]
 
-    violations = _checkPaths(
-        paths=(f'./data/args/{filename}',),
+    violations = _checkFile(
+        filename=f'./data/args/{filename}',
         checkTypeHint=optionDict['checkTypeHint'],
         checkArgOrder=optionDict['checkArgOrder'],
     )
@@ -198,21 +198,21 @@ def testArguments(
     ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
 )
 def testReturns(filename: str) -> None:
-    violations = _checkPaths(paths=(f'./data/returns/{filename}',))
+    violations = _checkFile(filename=f'./data/returns/{filename}')
     expectedViolations: list[str] = [
-        'DOC201: Function "func1_3" does not have a return section in docstring ',
-        'DOC201: Function "func1_5" does not have a return section in docstring ',
-        'DOC201: Function "func1_6" does not have a return section in docstring ',
-        'DOC101: Function: func2. Docstring contains fewer arguments than in function '
+        'DOC201: Function `func1_3` does not have a return section in docstring ',
+        'DOC201: Function `func1_5` does not have a return section in docstring ',
+        'DOC201: Function `func1_6` does not have a return section in docstring ',
+        'DOC101: Function `func2`: Docstring contains fewer arguments than in function '
         'signature. ',
-        'DOC103: Function: func2. Docstring arguments are different from function '
+        'DOC103: Function `func2`: Docstring arguments are different from function '
         'arguments. Arguments in the function signature but not in the docstring: '
         '[arg2: float, arg3: str]. Arguments in the docstring but not in the function '
         'signature: [arg1: int].',
-        'DOC201: Function "func52" does not have a return section in docstring ',
-        'DOC202: Function "func6" has a return section in docstring, but there are no '
+        'DOC201: Function `func52` does not have a return section in docstring ',
+        'DOC202: Function `func6` has a return section in docstring, but there are no '
         'return statements or annotations ',
-        'DOC202: Function "func7" has a return section in docstring, but there are no '
+        'DOC202: Function `func7` has a return section in docstring, but there are no '
         'return statements or annotations ',
     ]
     assert list(map(str, violations)) == expectedViolations

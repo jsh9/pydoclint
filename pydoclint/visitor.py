@@ -97,7 +97,7 @@ class Visitor(ast.NodeVisitor):
         functionName: str = node.name
         lineNum: int = node.lineno
 
-        fnNameMsg = f'Function: {functionName}.'
+        fnNameMsg = f'Function `{functionName}`:'
 
         v101 = Violation(code=101, line=lineNum, msgPrefix=fnNameMsg)
         v102 = Violation(code=102, line=lineNum, msgPrefix=fnNameMsg)
@@ -175,7 +175,7 @@ class Visitor(ast.NodeVisitor):
             node: AllFunctionDef,
             nonEmptyDocStruct: NumpyDocString,
     ) -> list[Violation]:
-        msgPrefix: str = f'Function "{node.name}"'
+        msgPrefix: str = f'Function `{node.name}`'
         lineNum: int = node.lineno
 
         v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
