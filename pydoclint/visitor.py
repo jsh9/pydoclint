@@ -1,4 +1,5 @@
 import ast
+from typing import Optional
 
 from numpydoc.docscrape import NumpyDocString, Parameter
 
@@ -20,7 +21,7 @@ class Visitor(ast.NodeVisitor):
         self.checkTypeHint: bool = checkTypeHint
         self.checkArgOrder: bool = checkArgOrder
 
-        self.parent: ast.AST | None = None  # keep track of parent node
+        self.parent: Optional[ast.AST] = None  # keep track of parent node
         self.violations: list[Violation] = []
 
     def visit_ClassDef(self, node: ast.ClassDef):  # noqa: D102
@@ -35,7 +36,7 @@ class Visitor(ast.NodeVisitor):
         currentParent = self.parent  # keep aside
         self.parent = node
 
-        docstring_: str | None = ast.get_docstring(node)
+        docstring_: Optional[str] = ast.get_docstring(node)
         docstring: str = '' if docstring_ is None else docstring_
         docStruct: NumpyDocString = NumpyDocString(docstring)
 

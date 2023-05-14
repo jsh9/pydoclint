@@ -3,6 +3,7 @@ import ast
 import pytest
 
 from pydoclint.utils import returns
+from pydoclint.utils.astTypes import AllFunctionDef
 from pydoclint.utils.generic import getFunctionId
 
 src1 = """
@@ -88,7 +89,7 @@ class MyClass:
 def testHasReturnStatements(src: str, expected: bool) -> None:
     tree = ast.parse(src)
     assert len(tree.body) == 1  # sanity check
-    assert isinstance(tree.body[0], ast.FunctionDef | ast.AsyncFunctionDef)
+    assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
     assert returns.hasReturnStatements(tree.body[0]) == expected
 
 
@@ -110,7 +111,7 @@ class ReturnVisitor(ast.NodeVisitor):
         self.returnStatements: dict[tuple[int, int, str], bool] = {}
         self.returnAnnotations: dict[tuple[int, int, str], bool] = {}
 
-    def visit_FunctionDef(self, node: ast.FunctionDef | ast.AsyncFunctionDef):
+    def visit_FunctionDef(self, node: AllFunctionDef):
         functionId: tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = returns.hasReturnStatements(node)
         self.returnAnnotations[functionId] = returns.hasReturnAnnotation(node)
@@ -177,7 +178,7 @@ def testHasReturnStatements_nestedFunction() -> None:
 def testHasReturnAnnotation(src: str, expected: bool) -> None:
     tree = ast.parse(src)
     assert len(tree.body) == 1  # sanity check
-    assert isinstance(tree.body[0], ast.FunctionDef | ast.AsyncFunctionDef)
+    assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
     assert returns.hasReturnAnnotation(tree.body[0]) == expected
 
 

@@ -1,4 +1,5 @@
 import ast
+from typing import Optional
 
 import pytest
 
@@ -74,7 +75,7 @@ def _getArgTypeHints(node: ast.FunctionDef) -> dict[str, str]:
 def testParseReturnAnnotation(src: str, expectedAnnotation: str):
     tree = ast.parse(src)
 
-    returnAnnotation: str | None = None
+    returnAnnotation: Optional[str] = None
     for node in tree.body:
         if isinstance(node, ast.FunctionDef):
             returnAnnotation: str = parseAnnotation(node.returns)

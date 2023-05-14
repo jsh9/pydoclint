@@ -1,5 +1,6 @@
 import ast
 from pathlib import Path
+from typing import Optional
 
 import click
 
@@ -50,7 +51,7 @@ from pydoclint.visitor import Visitor
 @click.pass_context
 def main(
         ctx: click.Context,
-        code: str | None,
+        code: Optional[str],
         paths: tuple[str, ...],
         check_type_hint: bool,
         check_arg_order: bool,
