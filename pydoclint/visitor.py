@@ -43,11 +43,11 @@ class Visitor(ast.NodeVisitor):
         docstring: str = '' if docstring_ is None else docstring_
 
         # Note: a NumpyDocString object has the following sections:
-        #   {'Signature': '', 'Summary': [''], 'Extended Summary': [],
-        #   'Parameters': [], 'Returns': [], 'Yields': [], 'Receives': [],
-        #   'Raises': [], 'Warns': [], 'Other Parameters': [],
-        #   'Attributes': [], 'Methods': [], 'See Also': [], 'Notes': [],
-        #   'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
+        # *  {'Signature': '', 'Summary': [''], 'Extended Summary': [],
+        # *  'Parameters': [], 'Returns': [], 'Yields': [], 'Receives': [],
+        # *  'Raises': [], 'Warns': [], 'Other Parameters': [],
+        # *  'Attributes': [], 'Methods': [], 'See Also': [], 'Notes': [],
+        # *  'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
         docStruct: NumpyDocString = NumpyDocString(docstring)
 
         argViolations: List[Violation]

@@ -1,7 +1,7 @@
 import ast
 from typing import Tuple
 
-from numpydoc.docscrape import NumpyDocString, Parameter
+from numpydoc.docscrape import NumpyDocString
 
 from pydoclint.method_type import MethodType
 from pydoclint.utils.astTypes import AllFunctionDef
@@ -39,6 +39,7 @@ def detectMethodType(node: ast.FunctionDef) -> MethodType:
 
 
 def isShortDocstring(docstringStruct: NumpyDocString) -> bool:
+    """Detect whether the input is a short docstring."""
     return (
         (
             bool(docstringStruct.get('Summary'))
