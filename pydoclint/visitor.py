@@ -62,11 +62,14 @@ class Visitor(ast.NodeVisitor):
             # *  'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
             docStruct: NumpyDocString = NumpyDocString(docstring)
 
-            if self.skipCheckingShortDocstrings and isShortDocstring(docStruct):
+            isShort: bool = isShortDocstring(docStruct)
+            if self.skipCheckingShortDocstrings and isShort:
                 argViolations = []
                 returnViolations = []
             else:
-                argViolations = self.checkArguments(node, currentParent, docStruct)
+                argViolations = self.checkArguments(
+                    node, currentParent, docStruct
+                )
                 if docstring == '':
                     returnViolations = []
                 else:
