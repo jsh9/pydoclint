@@ -106,9 +106,17 @@ def main(
                 if counter > 1:
                     print('')
 
-                print(filename)
+                click.echo(click.style(filename, fg='yellow', bold=True))
                 for violation in violationsInThisFile:
-                    print('    ' + str(violation))
+                    fourSpaces = '    '
+                    click.echo(fourSpaces, nl=False)
+                    click.echo(f'{violation.line}: ', nl=False)
+                    click.echo(click.style(
+                        f'{violation.fullErrorCode}',
+                        fg='red',
+                        bold=True,
+                    ), nl=False)
+                    click.echo(f': {violation.msg}')
 
         ctx.exit(1)
 

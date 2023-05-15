@@ -42,11 +42,21 @@ class Violation:
         self.code = code
         self.msg = msgPrefix + ' ' + VIOLATION_CODES[code] + ' ' + msgPostfix
 
+    @property
+    def fullErrorCode(self) -> str:
+        return f'DOC{self.code}'
+
     def __repr__(self) -> str:
         return self.__str__()
 
     def __str__(self) -> str:
         return f'DOC{self.code}: {self.msg}'
+
+    def _str(self, showLineNum: bool = False) -> str:
+        if not showLineNum:
+            return self.__str__()
+
+        return f'{self.line}: {self.__str__()}'
 
     def getInfoForFlake8(self) -> Tuple[int, int, str]:
         """Get the violation info for flake8"""
