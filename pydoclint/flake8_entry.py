@@ -33,18 +33,47 @@ class Plugin:
                 ' against the argument list in the function signature'
             ),
         )
+        parser.add_option(
+            '-scsd',
+            '--skip-checking-short-docstrings',
+            action='store',
+            default='True',
+            help='If True, skip checking if the docstring only has a short summary.',
+        )
+        parser.add_option(
+            '-scr',
+            '--skip-checking-raises',
+            action='store',
+            default='False',
+            help='If True, skip checking docstring "Raises" section against "raise" statements',
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
         cls.check_type_hint = options.check_type_hint
         cls.check_arg_order = options.check_arg_order
+        cls.skip_checking_short_docstrings = options.skip_checking_short_docstrings
+        cls.skip_checking_raises = options.skip_checking_raises
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
         checkTypeHint = self._bool('--check-type-hint', self.check_type_hint)
         checkArgOrder = self._bool('--check-arg-order', self.check_arg_order)
+        skipCheckingShortDocstrings = self._bool(
+            '--skip-checking-short-docstrings',
+            self.skip_checking_short_docstrings,
+        )
+        skipCheckingRaises = self._bool(
+            '--skip-checking-raises',
+            self.skip_checking_raises,
+        )
 
-        v = Visitor(checkTypeHint=checkTypeHint, checkArgOrder=checkArgOrder)
+        v = Visitor(
+            checkTypeHint=checkTypeHint,
+            checkArgOrder=checkArgOrder,
+            skipCheckingShortDocstrings=skipCheckingShortDocstrings,
+            skipCheckingRaises=skipCheckingRaises,
+        )
         v.visit(self._tree)
         violationInfo = [_.getInfoForFlake8() for _ in v.violations]
         for line, colOffset, msg in violationInfo:
