@@ -358,3 +358,17 @@ def testRaises(skipRaisesCheck: bool) -> None:
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
     assert list(map(str, violations)) == expected
+
+
+def testPlayground() -> None:
+    """
+    This is a placeholder test for testing the `playground.py` file.
+
+    When you want to quickly test something, you can add contents into
+    tests/data/playground.py and run this test function.
+    """
+    violations = _checkFile(
+        filename=DATA_DIR / 'playground.py',
+    )
+    expected = []
+    assert list(map(str, violations)) == expected
