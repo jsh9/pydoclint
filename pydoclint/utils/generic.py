@@ -1,10 +1,10 @@
 import ast
-from typing import Tuple
+from typing import Optional, Tuple
 
 from numpydoc.docscrape import NumpyDocString
 
 from pydoclint.method_type import MethodType
-from pydoclint.utils.astTypes import AllFunctionDef
+from pydoclint.utils.astTypes import AllFunctionDef, ClassOrFunctionDef
 
 
 def getFunctionId(node: AllFunctionDef) -> Tuple[int, int, str]:
@@ -61,3 +61,9 @@ def isShortDocstring(docstringStruct: NumpyDocString) -> bool:
         and not bool(docstringStruct.get('Examples'))
         and not bool(docstringStruct.get('index'))
     )
+
+
+def getDocstring(node: ClassOrFunctionDef) -> str:
+    """Get docstring from a class definition or a function definition"""
+    docstring_: Optional[str] = ast.get_docstring(node)
+    return '' if docstring_ is None else docstring_

@@ -7,7 +7,11 @@ from pydoclint.arg import Arg, ArgList
 from pydoclint.method_type import MethodType
 from pydoclint.utils import returns
 from pydoclint.utils.astTypes import AllFunctionDef
-from pydoclint.utils.generic import detectMethodType, isShortDocstring
+from pydoclint.utils.generic import (
+    detectMethodType,
+    getDocstring,
+    isShortDocstring,
+)
 from pydoclint.violation import Violation
 
 
@@ -39,8 +43,26 @@ class Visitor(ast.NodeVisitor):
         currentParent = self.parent  # keep aside
         self.parent = node
 
-        docstring_: Optional[str] = ast.get_docstring(node)
-        docstring: str = '' if docstring_ is None else docstring_
+        isClassConstructor: bool = node.name == '__init__' and isinstance(
+            currentParent, ast.ClassDef
+        )
+
+        docstring: str = getDocstring(node)
+
+        if isClassConstructor:
+            className: str = currentParent.name
+            if len(docstring) > 0:  # __init__() has its own docstring
+                self.violations.append(
+                    Violation(
+                        code=301,
+                        line=node.lineno,
+                        msgPrefix=f'Class `{className}`:',
+                    )
+                )
+
+            # Inspect class docstring instead, because that's what we care
+            # about when checking the class constructor.
+            docstring = getDocstring(currentParent)
 
         argViolations: List[Violation]
         returnViolations: List[Violation]
@@ -74,6 +96,13 @@ class Visitor(ast.NodeVisitor):
                     returnViolations = []
                 else:
                     returnViolations = self.checkReturns(node, docStruct)
+
+            if isClassConstructor:
+                # Re-check return violations because the rules are
+                # different for class constructors.
+                returnViolations = self.checkReturnsInClassConstructor(
+                    parent=currentParent, nonEmptyDocStruct=docStruct
+                )
 
         self.violations.extend(argViolations)
         self.violations.extend(returnViolations)
@@ -116,19 +145,35 @@ class Visitor(ast.NodeVisitor):
         """
         argList: List[ast.arg] = list(node.args.args)
 
-        if isinstance(parent_, ast.ClassDef):
+        isMethod: bool = isinstance(parent_, ast.ClassDef)
+
+        if isMethod:
             mType: MethodType = detectMethodType(node)
             if mType in {MethodType.INSTANCE_METHOD, MethodType.CLASS_METHOD}:
                 argList = argList[1:]  # no need to document `self` and `cls`
 
         docArgList: List[Parameter] = docstringStruct.get('Parameters', [])
-        return self.validateDocArgs(docArgList, argList, node)
 
-    def validateDocArgs(
+        if parent_ is None:
+            parentName = ''
+        else:
+            parentName = parent_.name if 'name' in parent_.__dict__ else ''
+
+        return self.validateDocArgs(
+            docArgList=docArgList,
+            actualArgs=argList,
+            node=node,
+            isMethod=isMethod,
+            parentName=parentName,
+        )
+
+    def validateDocArgs(  # noqa: C901
             self,
             docArgList: List[Parameter],
             actualArgs: List[ast.arg],
             node: AllFunctionDef,
+            isMethod: bool,
+            parentName: str = '',
     ) -> List[Violation]:
         """
         Validate the argument list in the docstring against the "actual"
@@ -142,6 +187,11 @@ class Visitor(ast.NodeVisitor):
             The argument list from the function signature
         node : AllFunctionDef
             The current function node
+        isMethod : bool
+            Whether the current node is a method under a class
+        parentName : str
+            The name of the parent node. It is used to construct the
+            violation message only when the parent is a class.
 
         Returns
         -------
@@ -151,7 +201,10 @@ class Visitor(ast.NodeVisitor):
         functionName: str = node.name
         lineNum: int = node.lineno
 
-        fnNameMsg = f'Function `{functionName}`:'
+        if isMethod:
+            fnNameMsg = f'Method `{parentName}.{functionName}`:'
+        else:
+            fnNameMsg = f'Function `{functionName}`:'
 
         v101 = Violation(code=101, line=lineNum, msgPrefix=fnNameMsg)
         v102 = Violation(code=102, line=lineNum, msgPrefix=fnNameMsg)
@@ -247,5 +300,27 @@ class Visitor(ast.NodeVisitor):
 
         if docstringHasReturnSection and not (hasReturnAnno or hasReturnAnno):
             violations.append(v202)
+
+        return violations
+
+    @classmethod
+    def checkReturnsInClassConstructor(
+            cls,
+            parent: ast.ClassDef,
+            nonEmptyDocStruct: NumpyDocString,
+    ) -> List[Violation]:
+        """Check the presence of return statement in class docstring"""
+        violations: List[Violation] = []
+
+        docstringHasReturnSection = bool(nonEmptyDocStruct.get('Returns'))
+
+        if docstringHasReturnSection:
+            violations.append(
+                Violation(
+                    code=302,
+                    line=parent.lineno,
+                    msgPrefix=f'Class `{parent.name}`:',
+                )
+            )
 
         return violations

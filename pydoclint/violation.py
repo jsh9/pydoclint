@@ -11,6 +11,8 @@ VIOLATION_CODES = types.MappingProxyType({
     105: 'Argument names match, but type hints do not match',
     201: 'does not have a return section in docstring',
     202: 'has a return section in docstring, but there are no return statements or annotations',
+    301: '__init__() should not have a docstring; please combine it with the docstring of the class',
+    302: 'The docstring for the class does not need a "Returns" sections',
 })
 
 

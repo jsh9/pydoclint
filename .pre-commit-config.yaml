@@ -1,4 +1,9 @@
 repos:
+  - repo: https://github.com/pycqa/isort
+    rev: 5.12.0
+    hooks:
+      - id: isort
+
   - repo: https://github.com/jsh9/cercis
     rev: 0.1.5
     hooks:
@@ -16,8 +21,3 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
