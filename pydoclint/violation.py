@@ -6,7 +6,11 @@ from pydoclint.internal_error import InternalError
 VIOLATION_CODES = types.MappingProxyType({
     101: 'Docstring contains fewer arguments than in function signature.',
     102: 'Docstring contains more arguments than in function signature.',
-    103: 'Docstring arguments are different from function arguments.',
+    103: (  # noqa: PAR001
+        'Docstring arguments are different from function arguments.'
+        ' (Or did you miss the space between the argument name'
+        ' and the ":" in the docstring?).'
+    ),
     104: 'Arguments are the same in the docstring and the function signature, but are in a different order.',
     105: 'Argument names match, but type hints do not match',
     201: 'does not have a return section in docstring',

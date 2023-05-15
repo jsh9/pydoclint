@@ -15,23 +15,27 @@ expectedViolations_True_True = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg1: str, arg2: list[int]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg1: int].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg2: float | int | None].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg3: Optional[Union[float, int, str]]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
     'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not '
@@ -43,31 +47,36 @@ expectedViolations_True_True = [
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg3: list, arg4: tuple, arg5: dict].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
 expectedViolations_False_True = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg1: str, arg2: list[int]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg1: int].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg2: float | int | None].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg3: Optional[Union[float, int, str]]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
     'DOC104: Method `MyClass.func6`: Arguments are the same in the docstring and '
@@ -75,31 +84,36 @@ expectedViolations_False_True = [
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg3: list, arg4: tuple, arg5: dict].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
 expectedViolations_True_False = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg1: str, arg2: list[int]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg1: int].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg2: float | int | None].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg3: Optional[Union[float, int, str]]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not '
     'match ',
     'DOC105: Method `MyClass.func6`: Argument names match, but type hints do not '
@@ -107,36 +121,42 @@ expectedViolations_True_False = [
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg3: list, arg4: tuple, arg5: dict].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
 expectedViolations_False_False = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg1: str, arg2: list[int]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg1: int].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. Arguments in the function signature but not in the '
-    'docstring: [arg2: float | int | None].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. Arguments in the docstring but not in the function '
-    'signature: [arg3: Optional[Union[float, int, str]]].',
+    'function arguments. (Or did you miss the space between the argument name and '
+    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg3: list, arg4: tuple, arg5: dict].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
 expectedViolationsLookup: Dict[str, List[str]] = {
@@ -216,9 +236,10 @@ def testReturns(filename: str) -> None:
         f'DOC101: {func2Name}: Docstring contains fewer arguments than in '
         'function signature. ',
         f'DOC103: {func2Name}: Docstring arguments are different from '
-        'function arguments. Arguments in the function signature but not in the '
-        'docstring: [arg2: float, arg3: str]. Arguments in the docstring but not in '
-        'the function signature: [arg1: int].',
+        'function arguments. (Or did you miss the space between the argument name and '
+        'the ":" in the docstring?). Arguments in the function signature but not in '
+        'the docstring: [arg2: float, arg3: str]. Arguments in the docstring but not '
+        'in the function signature: [arg1: int].',
         'DOC201: Function `func52` does not have a return section in docstring ',
         'DOC202: Function `func6` has a return section in docstring, but there are no '
         'return statements or annotations ',
@@ -232,9 +253,10 @@ expected_True = [
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func3`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: , arg2: , arg3: ]. Arguments in the docstring but not in the function '
-    'signature: [var1: int, var2: str].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg1: , arg2: , arg3: ]. Arguments in the docstring but not in '
+    'the function signature: [var1: int, var2: str].',
     'DOC201: Function `func3` does not have a return section in docstring ',
 ]
 
@@ -242,21 +264,24 @@ expected_False = [
     'DOC101: Function `func1`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func1`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: , arg2: , arg3: ].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg1: , arg2: , arg3: ].',
     'DOC201: Function `func1` does not have a return section in docstring ',
     'DOC101: Function `func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func2`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: , arg2: , arg3: ].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg1: , arg2: , arg3: ].',
     'DOC201: Function `func2` does not have a return section in docstring ',
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func3`: Docstring arguments are different from function '
-    'arguments. Arguments in the function signature but not in the docstring: '
-    '[arg1: , arg2: , arg3: ]. Arguments in the docstring but not in the function '
-    'signature: [var1: int, var2: str].',
+    'arguments. (Or did you miss the space between the argument name and the ":" '
+    'in the docstring?). Arguments in the function signature but not in the '
+    'docstring: [arg1: , arg2: , arg3: ]. Arguments in the docstring but not in '
+    'the function signature: [var1: int, var2: str].',
     'DOC201: Function `func3` does not have a return section in docstring ',
 ]
 
@@ -288,9 +313,10 @@ def testInit():
         'DOC302: Class `C`: The docstring for the class does not need a "Returns" '
         'sections ',
         'DOC103: Method `D.__init__`: Docstring arguments are different from function '
-        'arguments. Arguments in the function signature but not in the docstring: '
-        '[arg1: int, arg2: float]. Arguments in the docstring but not in the function '
-        'signature: [var1: list, var2: dict].',
+        'arguments. (Or did you miss the space between the argument name and the ":" '
+        'in the docstring?). Arguments in the function signature but not in the '
+        'docstring: [arg1: int, arg2: float]. Arguments in the docstring but not in '
+        'the function signature: [var1: list, var2: dict].',
         'DOC302: Class `D`: The docstring for the class does not need a "Returns" '
         'sections ',
     ]
