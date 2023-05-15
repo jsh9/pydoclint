@@ -1,9 +1,9 @@
 import ast
-from typing import Tuple, Type
+from typing import Tuple, Type, Union
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import parseAnnotation
-from pydoclint.utils.astTypes import Block, FuncOrAsyncFuncDef
+from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 
 ReturnType = Type[ast.Return]
@@ -26,24 +26,6 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     return returnAnnotation.startswith('Generator')
 
 
-def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether the function node has any return statements"""
-    thisId = getFunctionId(node)
-    for child, parent in walk.walk(node):
-        if isinstance(child, ast.Return):
-            if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
-                # Only return True if the parent is `node` (in other words, if
-                # this return statement doesn't come from a nested function)
-                parentId = getFunctionId(parent)
-                if thisId == parentId:
-                    return True
-
-            if isinstance(parent, Block):
-                return True
-
-    return False
-
-
 def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any yield statements"""
     thisId = getFunctionId(node)
@@ -52,13 +34,43 @@ def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
             child.value, (ast.Yield, ast.YieldFrom)
         ):
             if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
-                # Only return True if the parent is `node` (in other words, if
-                # this return statement doesn't come from a nested function)
+                # Only return True if the parent is `node` (in other words,
+                # this yield statement doesn't come from a nested function)
                 parentId = getFunctionId(parent)
                 if thisId == parentId:
                     return True
 
-            if isinstance(parent, Block):
+            if isinstance(parent, BlockType):
+                return True
+
+    return False
+
+
+def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the function node has any return statements"""
+    return _hasReturnOrRaiseStatements(node, expectedNodeType=ast.Return)
+
+
+def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the function node has any raise statements"""
+    return _hasReturnOrRaiseStatements(node, expectedNodeType=ast.Raise)
+
+
+def _hasReturnOrRaiseStatements(
+        node: FuncOrAsyncFuncDef,
+        expectedNodeType: Union[Type[ast.Return], Type[ast.Raise]],
+) -> bool:
+    thisId = getFunctionId(node)
+    for child, parent in walk.walk(node):
+        if isinstance(child, expectedNodeType):
+            if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
+                # Only return True if the parent is `node` (in other words,
+                # this statement doesn't come from a child function of `node`)
+                parentId = getFunctionId(parent)
+                if thisId == parentId:
+                    return True
+
+            if isinstance(parent, BlockType):
                 return True
 
     return False

@@ -44,6 +44,14 @@ from pydoclint.visitor import Visitor
     default=True,
     help='If True, skip checking if the docstring only has a short summary.',
 )
+@click.option(
+    '-scr',
+    '--skip-checking-raises',
+    type=bool,
+    show_default=True,
+    default=False,
+    help='If True, skip checking docstring "Raises" section against "raise" statements',
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -64,6 +72,7 @@ def main(
         check_type_hint: bool,
         check_arg_order: bool,
         skip_checking_short_docstrings: bool,
+        skip_checking_raises: bool,
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
@@ -86,6 +95,7 @@ def main(
         checkTypeHint=check_type_hint,
         checkArgOrder=check_arg_order,
         skipCheckingShortDocstrings=skip_checking_short_docstrings,
+        skipCheckingRaises=skip_checking_raises,
     )
 
     if len(violationsInAllFiles) > 0:
@@ -110,6 +120,7 @@ def _checkPaths(
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
+        skipCheckingRaises: bool = False,
 ) -> Dict[str, List[Violation]]:
     filenames: List[Path] = []
 
@@ -128,6 +139,7 @@ def _checkPaths(
             checkTypeHint=checkTypeHint,
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
+            skipCheckingRaises=skipCheckingRaises,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -139,6 +151,7 @@ def _checkFile(
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
+        skipCheckingRaises: bool = False,
 ) -> List[Violation]:
     with open(filename) as fp:
         src: str = ''.join(fp.readlines())
@@ -148,6 +161,7 @@ def _checkFile(
         checkTypeHint=checkTypeHint,
         checkArgOrder=checkArgOrder,
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
+        skipCheckingRaises=skipCheckingRaises,
     )
     visitor.visit(tree)
     return visitor.violations

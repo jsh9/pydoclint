@@ -14,6 +14,7 @@ from pydoclint.utils.generic import (
 )
 from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
+    hasRaiseStatements,
     hasReturnAnnotation,
     hasReturnStatements,
     hasYieldStatements,
@@ -29,10 +30,12 @@ class Visitor(ast.NodeVisitor):
             checkTypeHint: bool = True,
             checkArgOrder: bool = True,
             skipCheckingShortDocstrings: bool = True,
+            skipCheckingRaises: bool = False,
     ) -> None:
         self.checkTypeHint: bool = checkTypeHint
         self.checkArgOrder: bool = checkArgOrder
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
+        self.skipCheckingRaises: bool = skipCheckingRaises
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
         self.violations: List[Violation] = []
@@ -46,17 +49,17 @@ class Visitor(ast.NodeVisitor):
         self.parent = currentParent  # restore
 
     def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):  # noqa: D102
-        currentParent = self.parent  # keep aside
+        parent_ = self.parent  # keep aside
         self.parent = node
 
         isClassConstructor: bool = node.name == '__init__' and isinstance(
-            currentParent, ast.ClassDef
+            parent_, ast.ClassDef
         )
 
         docstring: str = getDocstring(node)
 
         if isClassConstructor:
-            className: str = currentParent.name
+            className: str = parent_.name
             if len(docstring) > 0:  # __init__() has its own docstring
                 self.violations.append(
                     Violation(
@@ -68,11 +71,12 @@ class Visitor(ast.NodeVisitor):
 
             # Inspect class docstring instead, because that's what we care
             # about when checking the class constructor.
-            docstring = getDocstring(currentParent)
+            docstring = getDocstring(parent_)
 
         argViolations: List[Violation]
         returnViolations: List[Violation]
         yieldViolations: List[Violation]
+        raiseViolations: List[Violation]
 
         if docstring == '':
             # We don't check functions without docstrings.
@@ -83,6 +87,7 @@ class Visitor(ast.NodeVisitor):
             argViolations = []
             returnViolations = []
             yieldViolations = []
+            raiseViolations = []
         else:
             # Note: a NumpyDocString object has the following sections:
             # *  {'Signature': '', 'Summary': [''], 'Extended Summary': [],
@@ -90,42 +95,43 @@ class Visitor(ast.NodeVisitor):
             # *  'Raises': [], 'Warns': [], 'Other Parameters': [],
             # *  'Attributes': [], 'Methods': [], 'See Also': [], 'Notes': [],
             # *  'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
-            docStruct: NumpyDocString = NumpyDocString(docstring)
+            doc: NumpyDocString = NumpyDocString(docstring)
 
-            isShort: bool = isShortDocstring(docStruct)
+            isShort: bool = isShortDocstring(doc)
             if self.skipCheckingShortDocstrings and isShort:
                 argViolations = []
                 returnViolations = []
                 yieldViolations = []
+                raiseViolations = []
             else:
-                argViolations = self.checkArguments(
-                    node, currentParent, docStruct
-                )
+                argViolations = self.checkArguments(node, parent_, doc)
                 if docstring == '':
                     returnViolations = []
                     yieldViolations = []
+                    raiseViolations = []
                 else:
-                    returnViolations = self.checkReturns(
-                        node, currentParent, docStruct
-                    )
-                    yieldViolations = self.checkYields(
-                        node, currentParent, docStruct
-                    )
+                    returnViolations = self.checkReturns(node, parent_, doc)
+                    yieldViolations = self.checkYields(node, parent_, doc)
+                    if not self.skipCheckingRaises:
+                        raiseViolations = self.checkRaises(node, parent_, doc)
+                    else:
+                        raiseViolations = []
 
             if isClassConstructor:
                 # Re-check return violations because the rules are
                 # different for class constructors.
                 returnViolations = self.checkReturnsInClassConstructor(
-                    parent=currentParent, nonEmptyDocStruct=docStruct
+                    parent=parent_, nonEmptyDocStruct=doc
                 )
 
         self.violations.extend(argViolations)
         self.violations.extend(returnViolations)
         self.violations.extend(yieldViolations)
+        self.violations.extend(raiseViolations)
 
         self.generic_visit(node)
 
-        self.parent = currentParent  # restore
+        self.parent = parent_  # restore
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):  # noqa: D102
         # Treat async functions similarly to regular ones
@@ -305,7 +311,7 @@ class Visitor(ast.NodeVisitor):
                 # we need a "Yields" section.
                 violations.append(v201)
 
-        if docstringHasReturnSection and not (hasReturnAnno or hasReturnAnno):
+        if docstringHasReturnSection and not (hasReturnStmt or hasReturnAnno):
             violations.append(v202)
 
         return violations
@@ -339,7 +345,7 @@ class Visitor(ast.NodeVisitor):
             parent: ast.AST,
             nonEmptyDocStruct: NumpyDocString,
     ) -> List[Violation]:
-        """Check the presence of a "Yields" section in class docstring"""
+        """Check violations on 'yield' statements or 'Generator' annotation"""
         violations: List[Violation] = []
 
         lineNum: int = node.lineno
@@ -349,19 +355,46 @@ class Visitor(ast.NodeVisitor):
         v402 = Violation(code=402, line=lineNum, msgPrefix=msgPrefix)
         v403 = Violation(code=403, line=lineNum, msgPrefix=msgPrefix)
 
-        docstringHasYieldSection = bool(nonEmptyDocStruct.get('Yields'))
+        docstringHasYieldsSection = bool(nonEmptyDocStruct.get('Yields'))
         hasYieldStmt: bool = hasYieldStatements(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
 
-        if not docstringHasYieldSection:
+        if not docstringHasYieldsSection:
             if hasGenAsRetAnno:
                 violations.append(v401)
 
             if hasYieldStmt:
                 violations.append(v402)
 
-        if docstringHasYieldSection:
+        if docstringHasYieldsSection:
             if not hasYieldStmt and not hasGenAsRetAnno:
                 violations.append(v403)
+
+        return violations
+
+    @classmethod
+    def checkRaises(
+            cls,
+            node: FuncOrAsyncFuncDef,
+            parent: ast.AST,
+            nonEmptyDocStruct: NumpyDocString,
+    ) -> List[Violation]:
+        """Check violations on 'raise' statements"""
+        violations: List[Violation] = []
+
+        lineNum: int = node.lineno
+        msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
+
+        v501 = Violation(code=501, line=lineNum, msgPrefix=msgPrefix)
+        v502 = Violation(code=502, line=lineNum, msgPrefix=msgPrefix)
+
+        docstringHasRaisesSection = bool(nonEmptyDocStruct.get('Raises'))
+        hasRaiseStmt: bool = hasRaiseStatements(node)
+
+        if hasRaiseStmt and not docstringHasRaisesSection:
+            violations.append(v501)
+
+        if not hasRaiseStmt and docstringHasRaisesSection:
+            violations.append(v502)
 
         return violations

@@ -20,6 +20,8 @@ VIOLATION_CODES = types.MappingProxyType({
     401: 'returns a Generator, but the docstring does not have a "Yields" section',
     402: 'has "yield" statements, but the docstring does not have a "Yields" section',
     403: 'has a "Yields" section in the docstring, but there are no "yield" statements or a Generator return annotation',
+    501: 'has "raise" statements, but the docstring does not have a "Raises" section',
+    502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',
 })
 
 

@@ -236,8 +236,6 @@ def testReturns(filename: str) -> None:
         'DOC201: Function `func52` does not have a return section in docstring ',
         'DOC202: Method `MyClass.func6` has a return section in docstring, but there '
         'are no return statements or annotations ',
-        'DOC202: Method `MyClass.func7` has a return section in docstring, but there '
-        'are no return statements or annotations ',
     ]
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
@@ -306,7 +304,7 @@ def testSkipCheckingShortDocstrings(
     assert list(map(str, violations)) == expected
 
 
-def testInit():
+def testInit() -> None:
     violations = _checkFile(filename=DATA_DIR / 'init/init.py')
     expected = [
         'DOC301: Class `A`: __init__() should not have a docstring; please combine it '
@@ -328,7 +326,7 @@ def testInit():
     assert list(map(str, violations)) == expected
 
 
-def testYields():
+def testYields() -> None:
     violations = _checkFile(filename=DATA_DIR / 'yields/cases.py')
     expected = [
         'DOC401: Method `A.method1` returns a Generator, but the docstring does not '
@@ -340,4 +338,23 @@ def testYields():
         'DOC403: Method `A.method3` has a "Yields" section in the docstring, but '
         'there are no "yield" statements or a Generator return annotation ',
     ]
+    assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize('skipRaisesCheck', [False, True])
+def testRaises(skipRaisesCheck: bool) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'raises/cases.py',
+        skipCheckingRaises=skipRaisesCheck,
+    )
+    expected0 = [
+        'DOC501: Method `B.func1` has "raise" statements, but the docstring does not '
+        'have a "Raises" section ',
+        'DOC502: Method `B.func5` has a "Raises" section in the docstring, but there '
+        'are not "raise" statements in the body ',
+        'DOC502: Method `B.func7` has a "Raises" section in the docstring, but there '
+        'are not "raise" statements in the body ',
+    ]
+    expected1 = []
+    expected = expected1 if skipRaisesCheck else expected0
     assert list(map(str, violations)) == expected
