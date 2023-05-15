@@ -6,7 +6,7 @@ from numpydoc.docscrape import NumpyDocString, Parameter
 from pydoclint.arg import Arg, ArgList
 from pydoclint.method_type import MethodType
 from pydoclint.utils import returns
-from pydoclint.utils.astTypes import AllFunctionDef
+from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import (
     detectMethodType,
     getDocstring,
@@ -39,7 +39,7 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = currentParent  # restore
 
-    def visit_FunctionDef(self, node: AllFunctionDef):  # noqa: D102
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):  # noqa: D102
         currentParent = self.parent  # keep aside
         self.parent = node
 
@@ -120,7 +120,7 @@ class Visitor(ast.NodeVisitor):
 
     def checkArguments(
             self,
-            node: AllFunctionDef,
+            node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
             docstringStruct: NumpyDocString,
     ) -> List[Violation]:
@@ -129,7 +129,7 @@ class Visitor(ast.NodeVisitor):
 
         Parameters
         ----------
-        node : AllFunctionDef
+        node : FuncOrAsyncFuncDef
             The current function node.  It can be a regular function
             or an async function.
         parent_ : ast.AST
@@ -171,7 +171,7 @@ class Visitor(ast.NodeVisitor):
             self,
             docArgList: List[Parameter],
             actualArgs: List[ast.arg],
-            node: AllFunctionDef,
+            node: FuncOrAsyncFuncDef,
             isMethod: bool,
             parentName: str = '',
     ) -> List[Violation]:
@@ -185,7 +185,7 @@ class Visitor(ast.NodeVisitor):
             The argument list from the docstring
         actualArgs : List[ast.arg]
             The argument list from the function signature
-        node : AllFunctionDef
+        node : FuncOrAsyncFuncDef
             The current function node
         isMethod : bool
             Whether the current node is a method under a class
@@ -279,7 +279,7 @@ class Visitor(ast.NodeVisitor):
     @classmethod
     def checkReturns(
             cls,
-            node: AllFunctionDef,
+            node: FuncOrAsyncFuncDef,
             nonEmptyDocStruct: NumpyDocString,
     ) -> List[Violation]:
         """Check return statement & return type annotation of this function"""

@@ -4,7 +4,7 @@ from typing import Dict, Tuple
 import pytest
 
 from pydoclint.utils import returns
-from pydoclint.utils.astTypes import AllFunctionDef
+from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 
 src1 = """
@@ -112,7 +112,7 @@ class ReturnVisitor(ast.NodeVisitor):
         self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
         self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
 
-    def visit_FunctionDef(self, node: AllFunctionDef):
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):
         functionId: Tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = returns.hasReturnStatements(node)
         self.returnAnnotations[functionId] = returns.hasReturnAnnotation(node)

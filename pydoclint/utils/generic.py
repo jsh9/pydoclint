@@ -4,10 +4,10 @@ from typing import Optional, Tuple
 from numpydoc.docscrape import NumpyDocString
 
 from pydoclint.method_type import MethodType
-from pydoclint.utils.astTypes import AllFunctionDef, ClassOrFunctionDef
+from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 
 
-def getFunctionId(node: AllFunctionDef) -> Tuple[int, int, str]:
+def getFunctionId(node: FuncOrAsyncFuncDef) -> Tuple[int, int, str]:
     """
     Get unique identifier of a function def. We also need line and
     column number because different function can have identical names.
