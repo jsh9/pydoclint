@@ -1,0 +1,85 @@
+import ast
+from typing import Dict, Optional
+
+import pytest
+
+from pydoclint.utils.annotation import parseAnnotation
+
+
+def testParseAnnotationInArguments() -> None:
+    src = """
+def foo(
+        arg01: Optional[Union[int, float]],
+        arg02: Tuple[str, int, float],
+        arg03: Dict[str, Any],
+        arg04: Set[int],
+        arg05: List[float],
+        arg06: int | float | None,
+        arg07: Any,
+        arg08: SomeType[List[Dict[str, Any]], SomeOtherType],
+        arg09: None,
+        arg10,
+        arg11: List[ast.arg],
+        arg12: Dict[str, Tuple[ast.arg, np.ndarray]],
+):
+    pass
+"""
+    tree = ast.parse(src)
+
+    result = None
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef):
+            result = _getArgTypeHints(node)
+
+    expected: Dict[str, str] = {
+        'arg01': 'Optional[Union[int, float]]',
+        'arg02': 'Tuple[str, int, float]',
+        'arg03': 'Dict[str, Any]',
+        'arg04': 'Set[int]',
+        'arg05': 'List[float]',
+        'arg06': 'int | float | None',
+        'arg07': 'Any',
+        'arg08': 'SomeType[List[Dict[str, Any]], SomeOtherType]',
+        'arg09': 'None',
+        'arg10': None,
+        'arg11': 'List[ast.arg]',
+        'arg12': 'Dict[str, Tuple[ast.arg, np.ndarray]]',
+    }
+
+    assert result == expected
+
+
+def _getArgTypeHints(node: ast.FunctionDef) -> Dict[str, str]:
+    hints = {}
+    for arg_ in node.args.args:
+        hints[arg_.arg] = parseAnnotation(arg_.annotation)
+
+    return hints
+
+
+@pytest.mark.parametrize(
+    'src, expectedAnnotation',
+    [
+        ('def func():\n    pass', None),
+        ('def func(arg1, arg2):\n    pass', None),
+        ('def func() -> int:\n    pass', 'int'),
+        ('def func() -> list[int]:\n    pass', 'list[int]'),
+        ('def func() -> List[int]:\n    pass', 'List[int]'),
+        ('def func() -> Optional[int]:\n    pass', 'Optional[int]'),
+        ('def func() -> Dict[str, Any]:\n    pass', 'Dict[str, Any]'),
+        ('def func() -> CustomType:\n    pass', 'CustomType'),
+        (
+            'def func() -> int | dict[str, Any] | None | list[int]:\n    pass',
+            'int | dict[str, Any] | None | list[int]',
+        ),
+    ],
+)
+def testParseReturnAnnotation(src: str, expectedAnnotation: str):
+    tree = ast.parse(src)
+
+    returnAnnotation: Optional[str] = None
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef):
+            returnAnnotation: str = parseAnnotation(node.returns)
+
+    assert returnAnnotation == expectedAnnotation
