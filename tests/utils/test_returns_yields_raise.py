@@ -5,7 +5,7 @@ import pytest
 
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
-from pydoclint.utils.returns_and_yields import (
+from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
     hasReturnAnnotation,
     hasReturnStatements,

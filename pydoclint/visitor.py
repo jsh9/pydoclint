@@ -12,7 +12,7 @@ from pydoclint.utils.generic import (
     getDocstring,
     isShortDocstring,
 )
-from pydoclint.utils.returns_and_yields import (
+from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
     hasReturnAnnotation,
     hasReturnStatements,
