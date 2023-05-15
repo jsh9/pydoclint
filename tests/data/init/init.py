@@ -77,3 +77,8 @@ class D:
     def __init__(self, arg1: int, arg2: float) -> None:
         self.arg1 = arg1
         self.arg2 = arg2
+
+
+class E:
+    def __init__(self, arg1) -> None:
+        self.arg1 = arg1

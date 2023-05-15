@@ -17,6 +17,9 @@ VIOLATION_CODES = types.MappingProxyType({
     202: 'has a return section in docstring, but there are no return statements or annotations',
     301: '__init__() should not have a docstring; please combine it with the docstring of the class',
     302: 'The docstring for the class does not need a "Returns" sections',
+    401: 'returns a Generator, but the docstring does not have a "Yields" section',
+    402: 'has "yield" statements, but the docstring does not have a "Yields" section',
+    403: 'has a "Yields" section in the docstring, but there are no "yield" statements or a Generator return annotation',
 })
 
 

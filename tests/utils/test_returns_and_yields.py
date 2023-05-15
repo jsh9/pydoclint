@@ -3,9 +3,14 @@ from typing import Dict, Tuple
 
 import pytest
 
-from pydoclint.utils import returns
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
+from pydoclint.utils.returns_and_yields import (
+    hasGeneratorAsReturnAnnotation,
+    hasReturnAnnotation,
+    hasReturnStatements,
+    hasYieldStatements,
+)
 
 src1 = """
 def func1():
@@ -91,7 +96,7 @@ def testHasReturnStatements(src: str, expected: bool) -> None:
     tree = ast.parse(src)
     assert len(tree.body) == 1  # sanity check
     assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
-    assert returns.hasReturnStatements(tree.body[0]) == expected
+    assert hasReturnStatements(tree.body[0]) == expected
 
 
 def testHasReturnStatements_inClass() -> None:
@@ -102,7 +107,7 @@ def testHasReturnStatements_inClass() -> None:
 
     expected_list = [False, True, False]
     for node, expected in zip(tree.body[0].body, expected_list):
-        assert returns.hasReturnStatements(node) == expected
+        assert hasReturnStatements(node) == expected
 
 
 class ReturnVisitor(ast.NodeVisitor):
@@ -110,12 +115,18 @@ class ReturnVisitor(ast.NodeVisitor):
 
     def __init__(self):
         self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
+        self.yieldStatements: Dict[Tuple[int, int, str], bool] = {}
         self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
+        self.generatorAnnotations: Dict[Tuple[int, int, str], bool] = {}
 
     def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):
         functionId: Tuple[int, int, str] = getFunctionId(node)
-        self.returnStatements[functionId] = returns.hasReturnStatements(node)
-        self.returnAnnotations[functionId] = returns.hasReturnAnnotation(node)
+        self.returnStatements[functionId] = hasReturnStatements(node)
+        self.yieldStatements[functionId] = hasYieldStatements(node)
+        self.returnAnnotations[functionId] = hasReturnAnnotation(node)
+        self.generatorAnnotations[functionId] = hasGeneratorAsReturnAnnotation(
+            node,
+        )
         self.generic_visit(node)
 
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
@@ -123,7 +134,7 @@ class ReturnVisitor(ast.NodeVisitor):
         self.visit_FunctionDef(node)
 
 
-srcNested = """ # Return annotations and statementss are intentionally opposite
+srcNested = """ # Return annotations and statements are intentionally opposite
 def func4() -> int:
     def func4_child1():
         return "nested 401"
@@ -180,7 +191,7 @@ def testHasReturnAnnotation(src: str, expected: bool) -> None:
     tree = ast.parse(src)
     assert len(tree.body) == 1  # sanity check
     assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
-    assert returns.hasReturnAnnotation(tree.body[0]) == expected
+    assert hasReturnAnnotation(tree.body[0]) == expected
 
 
 def testHasReturnAnnotations_nestedFunction() -> None:
@@ -198,6 +209,87 @@ def testHasReturnAnnotations_nestedFunction() -> None:
         (14, 4, 'func4_child4'): False,
         (16, 12, 'func4_child4_grandchild1'): False,
         (19, 12, 'func4_child4_grandchild2'): True,
+    }
+
+    assert result == expected
+
+
+srcGenerator = """
+def genFuncExample1() -> Generator[int, None, int]:
+    yield 1
+    yield 2
+    return 3
+
+def genFuncExample2():
+    yield 1
+    yield 2
+    return 3
+
+def someFunc1() -> Generator[int, None, int]:
+    return 1
+
+def someFunc2():
+    yield from genFuncExample2()
+
+def someFunc3() -> Generator[int, None, None]:
+    def someFunc3_child1():
+        yield 2
+
+    return 1
+
+def someFunc4():
+    yield from range(10)
+    def someFunc4_child1():
+        yield 2
+
+    yield 3
+
+def someFunc5(arg1):
+    if arg1 > 3:
+        yield 1
+
+    if arg < -1:
+        yield 2
+"""
+
+
+def testHasGeneratorAsReturnAnnotation() -> None:
+    tree = ast.parse(srcGenerator)
+    visitor = ReturnVisitor()
+    visitor.visit(tree)
+    result = visitor.generatorAnnotations
+
+    expected = {
+        (2, 0, 'genFuncExample1'): True,
+        (7, 0, 'genFuncExample2'): False,
+        (12, 0, 'someFunc1'): True,
+        (15, 0, 'someFunc2'): False,
+        (18, 0, 'someFunc3'): True,
+        (24, 0, 'someFunc4'): False,
+        (19, 4, 'someFunc3_child1'): False,
+        (26, 4, 'someFunc4_child1'): False,
+        (31, 0, 'someFunc5'): False,
+    }
+
+    assert result == expected
+
+
+def testHasYieldStatement() -> None:
+    tree = ast.parse(srcGenerator)
+    visitor = ReturnVisitor()
+    visitor.visit(tree)
+    result = visitor.yieldStatements
+
+    expected = {
+        (2, 0, 'genFuncExample1'): True,
+        (7, 0, 'genFuncExample2'): True,
+        (12, 0, 'someFunc1'): False,
+        (15, 0, 'someFunc2'): True,
+        (18, 0, 'someFunc3'): False,
+        (24, 0, 'someFunc4'): True,
+        (19, 4, 'someFunc3_child1'): True,
+        (26, 4, 'someFunc4_child1'): True,
+        (31, 0, 'someFunc5'): True,
     }
 
     assert result == expected

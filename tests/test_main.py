@@ -198,12 +198,8 @@ def testArguments(
     expectedViolations: List[str] = expectedViolationsLookup[option]
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
-
     if filename == 'function.py':
-        for i in range(len(expectedViolationsCopy)):
-            expectedViolationsCopy[i] = expectedViolationsCopy[i].replace(
-                'Method `MyClass.', 'Function `'
-            )
+        _tweakViolationMsgForFunctions(expectedViolationsCopy)
 
     violations = _checkFile(
         filename=DATA_DIR / f'args/{filename}',
@@ -223,30 +219,39 @@ def testReturns(filename: str) -> None:
         skipCheckingShortDocstrings=False,
     )
 
-    func2Name = (
-        'Function `func2`'
-        if filename == 'function.py'
-        else 'Method `MyClass.func2`'
-    )
-
     expectedViolations: List[str] = [
-        'DOC201: Function `func1_3` does not have a return section in docstring ',
-        'DOC201: Function `func1_5` does not have a return section in docstring ',
-        'DOC201: Function `func1_6` does not have a return section in docstring ',
-        f'DOC101: {func2Name}: Docstring contains fewer arguments than in '
+        'DOC201: Method `MyClass.func1_3` does not have a return section in '
+        'docstring ',
+        'DOC201: Method `MyClass.func1_5` does not have a return section in '
+        'docstring ',
+        'DOC201: Method `MyClass.func1_6` does not have a return section in '
+        'docstring ',
+        'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
         'function signature. ',
-        f'DOC103: {func2Name}: Docstring arguments are different from '
+        'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
         'function arguments. (Or did you miss the space between the argument name and '
         'the ":" in the docstring?). Arguments in the function signature but not in '
         'the docstring: [arg2: float, arg3: str]. Arguments in the docstring but not '
         'in the function signature: [arg1: int].',
         'DOC201: Function `func52` does not have a return section in docstring ',
-        'DOC202: Function `func6` has a return section in docstring, but there are no '
-        'return statements or annotations ',
-        'DOC202: Function `func7` has a return section in docstring, but there are no '
-        'return statements or annotations ',
+        'DOC202: Method `MyClass.func6` has a return section in docstring, but there '
+        'are no return statements or annotations ',
+        'DOC202: Method `MyClass.func7` has a return section in docstring, but there '
+        'are no return statements or annotations ',
     ]
-    assert list(map(str, violations)) == expectedViolations
+
+    expectedViolationsCopy = copy.deepcopy(expectedViolations)
+    if filename == 'function.py':
+        _tweakViolationMsgForFunctions(expectedViolationsCopy)
+
+    assert list(map(str, violations)) == expectedViolationsCopy
+
+
+def _tweakViolationMsgForFunctions(expectedViolationsCopy: List[str]) -> None:
+    for i in range(len(expectedViolationsCopy)):
+        expectedViolationsCopy[i] = expectedViolationsCopy[i].replace(
+            'Method `MyClass.', 'Function `'
+        )
 
 
 expected_True = [
@@ -319,5 +324,20 @@ def testInit():
         'the function signature: [var1: list, var2: dict].',
         'DOC302: Class `D`: The docstring for the class does not need a "Returns" '
         'sections ',
+    ]
+    assert list(map(str, violations)) == expected
+
+
+def testYields():
+    violations = _checkFile(filename=DATA_DIR / 'yields/cases.py')
+    expected = [
+        'DOC401: Method `A.method1` returns a Generator, but the docstring does not '
+        'have a "Yields" section ',
+        'DOC402: Method `A.method1` has "yield" statements, but the docstring does '
+        'not have a "Yields" section ',
+        'DOC402: Method `A.method2` has "yield" statements, but the docstring does '
+        'not have a "Yields" section ',
+        'DOC403: Method `A.method3` has a "Yields" section in the docstring, but '
+        'there are no "yield" statements or a Generator return annotation ',
     ]
     assert list(map(str, violations)) == expected

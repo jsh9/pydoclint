@@ -1,10 +1,10 @@
 import ast
 from typing import Optional
 
-from pydoclint.utils.astTypes import Annotation
+from pydoclint.utils.astTypes import AnnotationType
 
 
-def parseAnnotation(node: Optional[Annotation]) -> Optional[str]:
+def parseAnnotation(node: Optional[AnnotationType]) -> Optional[str]:
     """Parse type annotations from argument list or return annotation."""
     if node is None:
         return None

@@ -67,3 +67,45 @@ def getDocstring(node: ClassOrFunctionDef) -> str:
     """Get docstring from a class definition or a function definition"""
     docstring_: Optional[str] = ast.get_docstring(node)
     return '' if docstring_ is None else docstring_
+
+
+def generateMsgPrefix(
+        node: FuncOrAsyncFuncDef,
+        parent: ast.AST,
+        appendColon: bool,
+) -> str:
+    """
+    Generate violation message prefix.
+
+    Parameters
+    ----------
+    node : FuncOrAsyncFuncDef
+        The current node.
+    parent : ast.AST
+        The parent of the current node.
+    appendColon : bool
+        Whether to append a colon (':') at the end of the message prefix
+
+    Returns
+    -------
+    str
+        The violation message prefix.
+    """
+    isMethod: bool = isinstance(parent, ast.ClassDef)
+    parentName: str = getNodeName(parent)
+    selfName: str = getNodeName(node)
+
+    colon = ':' if appendColon else ''
+
+    if isMethod:
+        return f'Method `{parentName}.{selfName}`{colon}'
+
+    return f'Function `{selfName}`{colon}'
+
+
+def getNodeName(node: ast.AST) -> str:
+    """Get the name of an AST node"""
+    if node is None:
+        return ''
+
+    return node.name if 'name' in node.__dict__ else ''
