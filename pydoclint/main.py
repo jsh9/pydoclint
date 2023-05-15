@@ -111,11 +111,14 @@ def main(
                     fourSpaces = '    '
                     click.echo(fourSpaces, nl=False)
                     click.echo(f'{violation.line}: ', nl=False)
-                    click.echo(click.style(
-                        f'{violation.fullErrorCode}',
-                        fg='red',
-                        bold=True,
-                    ), nl=False)
+                    click.echo(
+                        click.style(
+                            f'{violation.fullErrorCode}',
+                            fg='red',
+                            bold=True,
+                        ),
+                        nl=False,
+                    )
                     click.echo(f': {violation.msg}')
 
         ctx.exit(1)

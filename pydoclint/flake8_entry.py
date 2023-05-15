@@ -52,7 +52,9 @@ class Plugin:
     def parse_options(cls, options):  # noqa: D102
         cls.check_type_hint = options.check_type_hint
         cls.check_arg_order = options.check_arg_order
-        cls.skip_checking_short_docstrings = options.skip_checking_short_docstrings
+        cls.skip_checking_short_docstrings = (
+            options.skip_checking_short_docstrings
+        )
         cls.skip_checking_raises = options.skip_checking_raises
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
