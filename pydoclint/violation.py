@@ -44,6 +44,7 @@ class Violation:
 
     @property
     def fullErrorCode(self) -> str:
+        """Full error code, including the 'DOC' prefix"""
         return f'DOC{self.code}'
 
     def __repr__(self) -> str:
