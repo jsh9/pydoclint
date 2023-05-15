@@ -13,6 +13,8 @@ Here is a comparison of running time on some famous Python projects:
 
 Currently, `pydoclint` only works when you write your docstrings in the [numpy stlyle](https://numpydoc.readthedocs.io/en/latest/format.html). Support for the [Google style](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html) docstrings will be added soon.
 
+**Note**: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle) serves complementary purposes. It is recommended that you use both together.
+
 ## 1. Installation
 
 ```
