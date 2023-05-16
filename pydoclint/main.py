@@ -22,10 +22,11 @@ from pydoclint.visitor import Visitor
     help='The source code to check',
 )
 @click.option(
-    '--verbose',
+    '-q',
+    '--quiet',
     is_flag=True,
     default=False,
-    help='If true, print the file names being checked to the terminal.',
+    help='If True, do not print the file names being checked to the terminal.',
 )
 @click.option(
     '--exclude',
@@ -85,7 +86,7 @@ from pydoclint.visitor import Visitor
 @click.pass_context
 def main(
         ctx: click.Context,
-        verbose: bool,
+        quiet: bool,
         exclude: str,
         src: Optional[str],
         paths: Tuple[str, ...],
@@ -111,7 +112,7 @@ def main(
         ctx.exit(1)
 
     violationsInAllFiles: Dict[str, List[Violation]] = _checkPaths(
-        verbose=verbose,
+        quiet=quiet,
         exclude=exclude,
         paths=paths,
         checkTypeHint=check_type_hint,
@@ -148,7 +149,9 @@ def main(
     if violationCounter > 0:
         ctx.exit(1)
     else:
-        click.echo(click.style('🎉 No violations 🎉', fg='green', bold=True))
+        if not quiet:
+            click.echo(click.style('🎉 No violations 🎉', fg='green', bold=True))
+
         ctx.exit(0)
 
 
@@ -158,12 +161,12 @@ def _checkPaths(
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
-        verbose: bool = False,
+        quiet: bool = False,
         exclude: str = '',
 ) -> Dict[str, List[Violation]]:
     filenames: List[Path] = []
 
-    if verbose:
+    if not quiet:
         skipMsg = f'Skipping files that match this pattern: {exclude}'
         click.echo(click.style(skipMsg, fg='yellow', bold=True))
 
@@ -182,7 +185,7 @@ def _checkPaths(
         if excludePattern.search(filename.as_posix()):
             continue
 
-        if verbose:
+        if not quiet:
             click.echo(click.style(filename, fg='cyan', bold=True))
 
         violationsInThisFile: List[Violation] = _checkFile(
