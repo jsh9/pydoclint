@@ -129,7 +129,6 @@ def func5(arg1: int, *, arg2: str, arg3: bool) -> float:
     return 2.0
 
 
-
 def func6(arg1: int, arg2: str, arg3: bool, *args, **kwargs) -> float:
     """
     Do something.
@@ -140,6 +139,27 @@ def func6(arg1: int, arg2: str, arg3: bool, *args, **kwargs) -> float:
         Arg 1
     arg2 : str
         Arg 2
+    arg3 : bool
+        Arg 3
+
+    Returns
+    -------
+    float
+        Result
+    """
+    return 2.0
+
+
+def func7(arg1: float, arg2: str, arg3: bool, *args, **kwargs) -> float:
+    """
+    Do something.
+
+    Parameters
+    ----------
+    arg2 : dict
+        Arg 2
+    arg1 : int
+        Arg 1
     arg3 : bool
         Arg 3
 

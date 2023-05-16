@@ -381,6 +381,13 @@ def testStarsInArgumentList() -> None:
         'arguments. (Or did you miss the space between the argument name and the ":" '
         'in the docstring?). Arguments in the function signature but not in the '
         'docstring: [**kwargs: , *args: ].',
+        'DOC101: Function `func7`: Docstring contains fewer arguments than in '
+        'function signature. ',
+        'DOC103: Function `func7`: Docstring arguments are different from function '
+        'arguments. (Or did you miss the space between the argument name and the ":" '
+        'in the docstring?). Arguments in the function signature but not in the '
+        'docstring: [**kwargs: , *args: , arg1: float, arg2: str]. Arguments in the '
+        'docstring but not in the function signature: [arg1: int, arg2: dict].',
     ]
     assert list(map(str, violations)) == expected
 
