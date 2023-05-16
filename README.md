@@ -1,19 +1,27 @@
 # pydoclint
 
-A Python docstring linter to check whether a docstring's sections (arguments, returns, raises, ...) match the function signature or function implementation.
+A Python docstring linter to check whether a docstring's sections (arguments,
+returns, raises, ...) match the function signature or function implementation.
 
-It runs really fast. In fact, it is at least 30,000 times faster than [darglint](https://github.com/terrencepreilly/darglint) (another linter of the same purposes which is no longer maintained).
+It runs really fast. In fact, it is at least ~1,475 times faster than
+[darglint](https://github.com/terrencepreilly/darglint) (another linter of the
+same purposes which is no longer maintained).
 
-Here is a comparison of running time on some famous Python projects:
+Here is a comparison of linting time on some famous Python projects:
 
-|                                                              | pydoclint | darglint             |
-| ------------------------------------------------------------ | --------- | -------------------- |
-| [numpy](https://github.com/numpy/numpy)                      | 0.08 sec  | > 40 min (> 30,000x) |
-| [scikit-learn](https://github.com/scikit-learn/scikit-learn) | 0.09 sec  | > 40 min (> 30,000x) |
+|                                                              | pydoclint | darglint                          |
+| ------------------------------------------------------------ | --------- | --------------------------------- |
+| [numpy](https://github.com/numpy/numpy)                      | 2.0 sec   | 49 min 9 sec (1,475x slower)      |
+| [scikit-learn](https://github.com/scikit-learn/scikit-learn) | 2.4 sec   | 3 hr 5 min 33 sec (4,639x slower) |
 
-Currently, `pydoclint` only works when you write your docstrings in the [numpy stlyle](https://numpydoc.readthedocs.io/en/latest/format.html). Support for the [Google style](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html) docstrings will be added soon.
+Currently, _pydoclint_ only works when you write your docstrings in the
+[numpy stlyle](https://numpydoc.readthedocs.io/en/latest/format.html). Support
+for the
+[Google style](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html)
+docstrings will be added soon.
 
-**Note**: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle) serves complementary purposes. It is recommended that you use both together.
+Another note: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle)
+serves complementary purposes. It is recommended that you use both together.
 
 ## 1. Installation
 
@@ -21,11 +29,12 @@ Currently, `pydoclint` only works when you write your docstrings in the [numpy s
 pip install pydoclint
 ```
 
-Note that `pydoclint` only supports Python 3.8 and above.
+Note that _pydoclint_ currently only supports Python 3.8 and above. (Python 3.7
+support may be added if there are interests and requests.)
 
 ## 2. Usage
 
-### 2.1. As a standalone command line tool
+### 2.1. As a native command line tool
 
 ```
 pydoclint <FILE_OR_FOLDER>
@@ -33,15 +42,29 @@ pydoclint <FILE_OR_FOLDER>
 
 Replace `<FILE_OR_FOLDER>` with the file/folder names you want, such as `.`.
 
-### 2.2. As a flake8 plugin
+### 2.2. As a _flake8_ plugin
 
-Once you install `pydoclint` you will have also installed `flake8`. Then you can run:
+Once you install _pydoclint_ you will have also installed _flake8_. Then you
+can run:
 
 ```
 flake8 --select=DOC <FILE_OR_FOLDER>
 ```
 
-If you don't include `--select=DOC` in your command, `flake8` will also run other built-in flake8 linters on your code.
+If you don't include `--select=DOC` in your command, _flake8_ will also run
+other built-in _flake8_ linters on your code.
+
+### 2.3. Native vs _flake8_
+
+Should I use _pydoclint_ as a native command line tool or a _flake8_ plugin?
+Here's comparison:
+
+|                 | Pros                                       | Cons                                                          |
+| --------------- | ------------------------------------------ | ------------------------------------------------------------- |
+| Native tool     | Slightly faster                            | No per-line or project-wide omission support right now [*]    |
+| _flake8_ plugin | Supports per-line or project-wide omission | Slightly slower because other flake8 plugins are run together |
+
+\*) This feature may be added in the near future
 
 ## 3. Style violation codes
 
@@ -88,11 +111,44 @@ If you don't include `--select=DOC` in your command, `flake8` will also run othe
 
 ## 4. Configuration options
 
-There are several configuration options available. They can be used invidually or together.
+There are several configuration options available. They can be used invidually
+or together.
 
-### 4.1. `--check-type-hint` (shortform: `-th`, default: `True`)
+### 4.1. `--quiet` (shortform: `-q`)
 
-If `True`, the type hints in the docstring and in the Python code need to exactly match.
+This flag activates the "quite mode", in which no output will be printed to the
+command line if there are no violations.
+
+By default, this flag is _not_ activated, so the files that are scanned are
+printed in the command line.
+
+```
+pydoclint --quiet <FILE_OR_FOLDER>
+```
+
+This option is only available in the "native" command-line mode, rather than in
+flake8. If you use pydoclint in flake8, please use flake8's own verbosity
+configuration instead.
+
+### 4.2. `--exclude`
+
+You can use this option to exclude files within the given folder. It is a regex
+pattern of full file paths.
+
+For example:
+
+```
+pydoclint --exclude='\.git|\.tox|tests/data' <FOLDER_NAME>
+```
+
+This option is only available in the native command-line mode. If you use
+_pydoclint_ within _flake8_, you can use _flake8_'s
+[`--exclude` option](https://flake8.pycqa.org/en/latest/user/options.html#cmdoption-flake8-exclude).
+
+### 4.3. `--check-type-hint` (shortform: `-th`, default: `True`)
+
+If `True`, the type hints in the docstring and in the Python code need to
+exactly match.
 
 To turn this optoin on/off, do this:
 
@@ -106,9 +162,10 @@ or
 flake8 --check-type-hint=False <FILE_OR_FOLDER>
 ```
 
-### 4.2. `--check-arg-order` (shortform: `-ao`, default: `True`)
+### 4.4. `--check-arg-order` (shortform: `-ao`, default: `True`)
 
-If `True`, the input argument order in the docstring needs to match that in the function signature.
+If `True`, the input argument order in the docstring needs to match that in the
+function signature.
 
 To turn this optoin on/off, do this:
 
@@ -122,9 +179,10 @@ or
 flake8 --check-arg-order=False <FILE_OR_FOLDER>
 ```
 
-### 4.3. `--skip-checking-short-docstrings` (shortform: `-scsd`, default: `True`)
+### 4.5. `--skip-checking-short-docstrings` (shortform: `-scsd`, default: `True`)
 
-If `True`, `pydoclint` won't check functions that have only a short description in their docstring.
+If `True`, `pydoclint` won't check functions that have only a short description
+in their docstring.
 
 To turn this optoin on/off, do this:
 
@@ -138,6 +196,8 @@ or
 flake8 --skip-checking-short-docstrings=False <FILE_OR_FOLDER>
 ```
 
-### 4.4. `--skip-checking-raises` (shortform: `-scr`, default: `False`)
+### 4.6. `--skip-checking-raises` (shortform: `-scr`, default: `False`)
 
-If `True`, `pydoclint` won't report `DOC501` or `DOC502` if there are `raise` statements in the function/method but there aren't any "raises" sections in the docstring (or vice versa).
+If `True`, _pydoclint_ won't report `DOC501` or `DOC502` if there are `raise`
+statements in the function/method but there aren't any "raises" sections in the
+docstring (or vice versa).

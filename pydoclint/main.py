@@ -1,4 +1,5 @@
 import ast
+import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -19,6 +20,24 @@ from pydoclint.visitor import Visitor
     '--src',
     type=str,
     help='The source code to check',
+)
+@click.option(
+    '-q',
+    '--quiet',
+    is_flag=True,
+    default=False,
+    help='If True, do not print the file names being checked to the terminal.',
+)
+@click.option(
+    '--exclude',
+    type=str,
+    show_default=True,
+    default=r'\.git|\.tox',
+    help=(
+        'Regex pattern to exclude files/folders. Please add quotes (both'
+        ' double and single quotes are fine) around the regex in the'
+        ' command line.'
+    ),
 )
 @click.option(
     '-th',
@@ -67,6 +86,8 @@ from pydoclint.visitor import Visitor
 @click.pass_context
 def main(
         ctx: click.Context,
+        quiet: bool,
+        exclude: str,
         src: Optional[str],
         paths: Tuple[str, ...],
         check_type_hint: bool,
@@ -91,6 +112,8 @@ def main(
         ctx.exit(1)
 
     violationsInAllFiles: Dict[str, List[Violation]] = _checkPaths(
+        quiet=quiet,
+        exclude=exclude,
         paths=paths,
         checkTypeHint=check_type_hint,
         checkArgOrder=check_arg_order,
@@ -98,6 +121,7 @@ def main(
         skipCheckingRaises=skip_checking_raises,
     )
 
+    violationCounter: int = 0
     if len(violationsInAllFiles) > 0:
         counter = 0
         for filename, violationsInThisFile in violationsInAllFiles.items():
@@ -108,6 +132,7 @@ def main(
 
                 click.echo(click.style(filename, fg='yellow', bold=True))
                 for violation in violationsInThisFile:
+                    violationCounter += 1
                     fourSpaces = '    '
                     click.echo(fourSpaces, nl=False)
                     click.echo(f'{violation.line}: ', nl=False)
@@ -121,9 +146,13 @@ def main(
                     )
                     click.echo(f': {violation.msg}')
 
+    if violationCounter > 0:
         ctx.exit(1)
+    else:
+        if not quiet:
+            click.echo(click.style('🎉 No violations 🎉', fg='green', bold=True))
 
-    ctx.exit(0)
+        ctx.exit(0)
 
 
 def _checkPaths(
@@ -132,8 +161,16 @@ def _checkPaths(
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
+        quiet: bool = False,
+        exclude: str = '',
 ) -> Dict[str, List[Violation]]:
     filenames: List[Path] = []
+
+    if not quiet:
+        skipMsg = f'Skipping files that match this pattern: {exclude}'
+        click.echo(click.style(skipMsg, fg='yellow', bold=True))
+
+    excludePattern = re.compile(exclude)
 
     for path_ in paths:
         path = Path(path_)
@@ -145,6 +182,12 @@ def _checkPaths(
     allViolations: Dict[str, List[Violation]] = {}
 
     for filename in filenames:
+        if excludePattern.search(filename.as_posix()):
+            continue
+
+        if not quiet:
+            click.echo(click.style(filename, fg='cyan', bold=True))
+
         violationsInThisFile: List[Violation] = _checkFile(
             filename,
             checkTypeHint=checkTypeHint,

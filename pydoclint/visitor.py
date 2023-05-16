@@ -7,6 +7,7 @@ from pydoclint.arg import Arg, ArgList
 from pydoclint.method_type import MethodType
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import (
+    collectFuncArgs,
     detectMethodType,
     generateMsgPrefix,
     getDocstring,
@@ -165,7 +166,7 @@ class Visitor(ast.NodeVisitor):
         List[Violation]
             A list of argument violations
         """
-        argList: List[ast.arg] = list(node.args.args)
+        argList: List[ast.arg] = collectFuncArgs(node)
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)
         msgPrefix: str = generateMsgPrefix(node, parent_, appendColon=True)

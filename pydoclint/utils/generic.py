@@ -1,10 +1,50 @@
 import ast
-from typing import Optional, Tuple
+import copy
+from typing import List, Optional, Tuple
 
 from numpydoc.docscrape import NumpyDocString
 
 from pydoclint.method_type import MethodType
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
+
+
+def collectFuncArgs(node: FuncOrAsyncFuncDef) -> List[ast.arg]:
+    """
+    Collect all arguments from a function node, and return them in
+    their original order in the function signature.
+    """
+    allArgs: List[ast.arg] = []
+    allArgs.extend(node.args.args)
+    allArgs.extend(node.args.posonlyargs)
+    allArgs.extend(node.args.kwonlyargs)
+
+    if node.args.vararg is not None:
+        vararg = copy.deepcopy(node.args.vararg)
+
+        # This is a hacky way to ensure that users write '*args' instead
+        # of 'args' in the docstring, as per the style guide of numpy:
+        # https://numpydoc.readthedocs.io/en/latest/format.html
+        vararg.arg = '*' + vararg.arg
+
+        # Not 'extend', because there can be only one vararg
+        allArgs.append(vararg)
+
+    if node.args.kwarg is not None:
+        kwarg = copy.deepcopy(node.args.kwarg)
+
+        # This is a hacky way to ensure that users write '**kwargs' instead
+        # of 'kwargs' in the docstring, as per the style guide of numpy:
+        # https://numpydoc.readthedocs.io/en/latest/format.html
+        kwarg.arg = '**' + kwarg.arg
+
+        # not 'extend' because there can be only one vararg
+        allArgs.append(kwarg)
+
+    return sorted(  # sort to reconstruct the original order of arguments
+        allArgs,
+        key=lambda x: (x.lineno, x.col_offset),
+        reverse=False,
+    )
 
 
 def getFunctionId(node: FuncOrAsyncFuncDef) -> Tuple[int, int, str]:

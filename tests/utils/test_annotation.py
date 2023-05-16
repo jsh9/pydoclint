@@ -21,6 +21,8 @@ def foo(
         arg10,
         arg11: List[ast.arg],
         arg12: Dict[str, Tuple[ast.arg, np.ndarray]],
+        arg13: Tuple[str, ...],
+        arg14: Tuple[None, int, float, None],
 ):
     pass
 """
@@ -44,6 +46,8 @@ def foo(
         'arg10': None,
         'arg11': 'List[ast.arg]',
         'arg12': 'Dict[str, Tuple[ast.arg, np.ndarray]]',
+        'arg13': 'Tuple[str, ...]',
+        'arg14': 'Tuple[None, int, float, None]',
     }
 
     assert result == expected
