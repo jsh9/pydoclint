@@ -1,0 +1,30 @@
+name: Changelog Check
+
+on:
+  push:
+    branches-ignore:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check_changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check whether CHANGELOG.md is updated
+        run: |
+          PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+          echo "PR number (or branch): $PR_NUMBER"
+          UPDATED_CHANGELOG=$(git diff --name-only origin/main...HEAD | grep CHANGELOG.md)
+          if [ -z "$UPDATED_CHANGELOG" ]; then
+            echo "CHANGELOG.md not updated in this pull request"
+            exit 1
+          else
+            echo "CHANGELOG.md updated in this pull request"
+          fi
