@@ -22,8 +22,10 @@ def parseAnnotation(node: Optional[AnnotationType]) -> Optional[str]:
 
     if isinstance(node, ast.Tuple):
         return ', '.join(map(parseAnnotation, node.elts))
-
     if isinstance(node, ast.Constant):
+        if isinstance(node, ast.Ellipsis):  # Ellipsis is Constant's subclass
+            return '...'
+
         return str(node.value)
 
     if isinstance(node, ast.BinOp) and isinstance(node.op, ast.BitOr):
