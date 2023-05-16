@@ -1,3 +1,4 @@
+# fmt: off
 def func1(arg1: int,
           *, arg2: str,
           arg3: bool,
