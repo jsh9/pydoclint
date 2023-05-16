@@ -1,6 +1,6 @@
 import ast
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import click
@@ -33,9 +33,9 @@ from pydoclint.visitor import Visitor
     show_default=True,
     default=r'\.git|\.tox',
     help=(
-         'Regex pattern to exclude files/folders. Please add quotes (both'
-         ' double and single quotes are fine) around the regex in the'
-         ' command line.'
+        'Regex pattern to exclude files/folders. Please add quotes (both'
+        ' double and single quotes are fine) around the regex in the'
+        ' command line.'
     ),
 )
 @click.option(
