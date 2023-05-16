@@ -360,6 +360,31 @@ def testRaises(skipRaisesCheck: bool) -> None:
     assert list(map(str, violations)) == expected
 
 
+def testStarsInArgumentList() -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'star_args/cases.py',
+    )
+    expected = [
+        'DOC103: Function `func2`: Docstring arguments are different from function '
+        'arguments. (Or did you miss the space between the argument name and the ":" '
+        'in the docstring?). Arguments in the function signature but not in the '
+        'docstring: [**kwargs: ]. Arguments in the docstring but not in the function '
+        'signature: [kwargs: ].',
+        'DOC103: Function `func4`: Docstring arguments are different from function '
+        'arguments. (Or did you miss the space between the argument name and the ":" '
+        'in the docstring?). Arguments in the function signature but not in the '
+        'docstring: [*args: ]. Arguments in the docstring but not in the function '
+        'signature: [args: ].',
+        'DOC101: Function `func6`: Docstring contains fewer arguments than in '
+        'function signature. ',
+        'DOC103: Function `func6`: Docstring arguments are different from function '
+        'arguments. (Or did you miss the space between the argument name and the ":" '
+        'in the docstring?). Arguments in the function signature but not in the '
+        'docstring: [**kwargs: , *args: ].',
+    ]
+    assert list(map(str, violations)) == expected
+
+
 def testPlayground() -> None:
     """
     This is a placeholder test for testing the `playground.py` file.
