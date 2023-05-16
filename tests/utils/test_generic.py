@@ -13,7 +13,7 @@ def func1(
     return 2.0
 """
 
-expected1 = ['arg1', 'arg2', 'arg3', 'kwargs']
+expected1 = ['arg1', 'arg2', 'arg3', '**kwargs']
 
 src2 = """
 def func2(*, arg1,
@@ -22,7 +22,7 @@ def func2(*, arg1,
     pass
 """
 
-expected2 = ['arg1', 'arg2', 'arg3', 'kwargs']
+expected2 = ['arg1', 'arg2', 'arg3', '**kwargs']
 
 src3 = """
 def func3(arg1,
@@ -31,21 +31,21 @@ def func3(arg1,
     print(2)
 """
 
-expected3 = ['arg1', 'arg2', 'args', 'kwargs']
+expected3 = ['arg1', 'arg2', '*args', '**kwargs']
 
 src4 = """
 def func4(*args):
     print(2)
 """
 
-expected4 = ['args']
+expected4 = ['*args']
 
 src5 = """
 def func5(**kwargs):
     print(2)
 """
 
-expected5 = ['kwargs']
+expected5 = ['**kwargs']
 
 src6 = """
 def func6(*, arg1, arg2):
