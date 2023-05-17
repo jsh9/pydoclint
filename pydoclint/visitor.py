@@ -11,8 +11,8 @@ from pydoclint.utils.generic import (
     detectMethodType,
     generateMsgPrefix,
     getDocstring,
-    isShortDocstring,
 )
+from pydoclint.utils.doc import Doc
 from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
     hasRaiseStatements,
@@ -28,11 +28,13 @@ class Visitor(ast.NodeVisitor):
 
     def __init__(
             self,
+            style: str = 'numpy',
             checkTypeHint: bool = True,
             checkArgOrder: bool = True,
             skipCheckingShortDocstrings: bool = True,
             skipCheckingRaises: bool = False,
     ) -> None:
+        self.style: str = style
         self.checkTypeHint: bool = checkTypeHint
         self.checkArgOrder: bool = checkArgOrder
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
@@ -90,15 +92,8 @@ class Visitor(ast.NodeVisitor):
             yieldViolations = []
             raiseViolations = []
         else:
-            # Note: a NumpyDocString object has the following sections:
-            # *  {'Signature': '', 'Summary': [''], 'Extended Summary': [],
-            # *  'Parameters': [], 'Returns': [], 'Yields': [], 'Receives': [],
-            # *  'Raises': [], 'Warns': [], 'Other Parameters': [],
-            # *  'Attributes': [], 'Methods': [], 'See Also': [], 'Notes': [],
-            # *  'Warnings': [], 'References': '', 'Examples': '', 'index': {}}
-            doc: NumpyDocString = NumpyDocString(docstring)
-
-            isShort: bool = isShortDocstring(doc)
+            doc: Doc = Doc(docstring=docstring, style=self.style)
+            isShort: bool = doc.isShortDocstring
             if self.skipCheckingShortDocstrings and isShort:
                 argViolations = []
                 returnViolations = []
@@ -122,7 +117,7 @@ class Visitor(ast.NodeVisitor):
                 # Re-check return violations because the rules are
                 # different for class constructors.
                 returnViolations = self.checkReturnsInClassConstructor(
-                    parent=parent_, nonEmptyDocStruct=doc
+                    parent=parent_, doc=doc
                 )
 
         self.violations.extend(argViolations)
@@ -141,11 +136,11 @@ class Visitor(ast.NodeVisitor):
     def visit_Raise(self, node: ast.Raise):  # noqa: D102
         self.generic_visit(node)
 
-    def checkArguments(
+    def checkArguments(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
-            docstringStruct: NumpyDocString,
+            doc: Doc,
     ) -> List[Violation]:
         """
         Check input arguments of the function.
@@ -158,7 +153,7 @@ class Visitor(ast.NodeVisitor):
         parent_ : ast.AST
             The parent of the current node, which can be another function,
             a class, etc.
-        docstringStruct : NumpyDocString
+        doc : Doc
             The parsed docstring structure.
 
         Returns
@@ -166,7 +161,7 @@ class Visitor(ast.NodeVisitor):
         List[Violation]
             A list of argument violations
         """
-        argList: List[ast.arg] = collectFuncArgs(node)
+        astArgList: List[ast.arg] = collectFuncArgs(node)
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)
         msgPrefix: str = generateMsgPrefix(node, parent_, appendColon=True)
@@ -174,53 +169,16 @@ class Visitor(ast.NodeVisitor):
         if isMethod:
             mType: MethodType = detectMethodType(node)
             if mType in {MethodType.INSTANCE_METHOD, MethodType.CLASS_METHOD}:
-                argList = argList[1:]  # no need to document `self` and `cls`
+                astArgList = astArgList[1:]  # no need to document self/cls
 
-        docArgList: List[Parameter] = docstringStruct.get('Parameters', [])
-
-        return self.validateDocArgs(
-            docArgList=docArgList,
-            actualArgs=argList,
-            node=node,
-            msgPrefix=msgPrefix,
-        )
-
-    def validateDocArgs(  # noqa: C901
-            self,
-            docArgList: List[Parameter],
-            actualArgs: List[ast.arg],
-            node: FuncOrAsyncFuncDef,
-            msgPrefix: str,
-    ) -> List[Violation]:
-        """
-        Validate the argument list in the docstring against the "actual"
-        arguments (the argument list in the function signature).
-
-        Parameters
-        ----------
-        docArgList : List[Parameter]
-            The argument list from the docstring
-        actualArgs : List[ast.arg]
-            The argument list from the function signature
-        node : FuncOrAsyncFuncDef
-            The current function node
-        msgPrefix : str
-            The prefix to be used in the violation message
-
-        Returns
-        -------
-        List[Violation]
-            A list of argument violations. It can be empty.
-        """
         lineNum: int = node.lineno
-
         v101 = Violation(code=101, line=lineNum, msgPrefix=msgPrefix)
         v102 = Violation(code=102, line=lineNum, msgPrefix=msgPrefix)
         v104 = Violation(code=104, line=lineNum, msgPrefix=msgPrefix)
         v105 = Violation(code=105, line=lineNum, msgPrefix=msgPrefix)
 
-        docArgs = ArgList([Arg.fromNumpydocParam(_) for _ in docArgList])
-        funcArgs = ArgList([Arg.fromAstArg(_) for _ in actualArgs])
+        docArgs = doc.argList
+        funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
         if docArgs.length() == 0 and funcArgs.length() == 0:
             return []
@@ -289,7 +247,7 @@ class Visitor(ast.NodeVisitor):
             cls,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
-            nonEmptyDocStruct: NumpyDocString,
+            doc: Doc,
     ) -> List[Violation]:
         """Check return statement & return type annotation of this function"""
         lineNum: int = node.lineno
@@ -302,7 +260,7 @@ class Visitor(ast.NodeVisitor):
         hasReturnAnno: bool = hasReturnAnnotation(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
 
-        docstringHasReturnSection = bool(nonEmptyDocStruct.get('Returns'))
+        docstringHasReturnSection: bool = doc.hasReturnsSection
 
         violations: List[Violation] = []
         if not docstringHasReturnSection:
@@ -321,14 +279,11 @@ class Visitor(ast.NodeVisitor):
     def checkReturnsInClassConstructor(
             cls,
             parent: ast.ClassDef,
-            nonEmptyDocStruct: NumpyDocString,
+            doc: Doc,
     ) -> List[Violation]:
         """Check the presence of a "Returns" section in class docstring"""
         violations: List[Violation] = []
-
-        docstringHasReturnSection = bool(nonEmptyDocStruct.get('Returns'))
-
-        if docstringHasReturnSection:
+        if doc.hasReturnsSection:
             violations.append(
                 Violation(
                     code=302,
@@ -344,7 +299,7 @@ class Visitor(ast.NodeVisitor):
             cls,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
-            nonEmptyDocStruct: NumpyDocString,
+            doc: Doc,
     ) -> List[Violation]:
         """Check violations on 'yield' statements or 'Generator' annotation"""
         violations: List[Violation] = []
@@ -356,7 +311,8 @@ class Visitor(ast.NodeVisitor):
         v402 = Violation(code=402, line=lineNum, msgPrefix=msgPrefix)
         v403 = Violation(code=403, line=lineNum, msgPrefix=msgPrefix)
 
-        docstringHasYieldsSection = bool(nonEmptyDocStruct.get('Yields'))
+        docstringHasYieldsSection: bool = doc.hasYieldsSection
+
         hasYieldStmt: bool = hasYieldStatements(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
 
@@ -378,7 +334,7 @@ class Visitor(ast.NodeVisitor):
             cls,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
-            nonEmptyDocStruct: NumpyDocString,
+            doc: Doc,
     ) -> List[Violation]:
         """Check violations on 'raise' statements"""
         violations: List[Violation] = []
@@ -389,7 +345,7 @@ class Visitor(ast.NodeVisitor):
         v501 = Violation(code=501, line=lineNum, msgPrefix=msgPrefix)
         v502 = Violation(code=502, line=lineNum, msgPrefix=msgPrefix)
 
-        docstringHasRaisesSection = bool(nonEmptyDocStruct.get('Raises'))
+        docstringHasRaisesSection: bool = doc.hasRaisesSection
         hasRaiseStmt: bool = hasRaiseStatements(node)
 
         if hasRaiseStmt and not docstringHasRaisesSection:

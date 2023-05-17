@@ -9,6 +9,17 @@ from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 
 
+def validateStyleValue(
+        context: click.Context,
+        param: click.Parameter,
+        value: Optional[str],
+) -> Optional[str]:
+    if value not in {'numpy', 'google'}:
+        raise click.BadParameter('"--style" must be "numpy" or "google"')
+
+    return value
+
+
 @click.command(
     context_settings={'help_option_names': ['-h', '--help']},
     # While Click does set this field automatically using the docstring, mypyc
@@ -38,6 +49,14 @@ from pydoclint.visitor import Visitor
         ' double and single quotes are fine) around the regex in the'
         ' command line.'
     ),
+)
+@click.option(
+    '--style',
+    type=str,
+    show_default=True,
+    default='numpy',
+    callback=validateStyleValue,
+    help='',
 )
 @click.option(
     '-th',
@@ -88,6 +107,7 @@ def main(
         ctx: click.Context,
         quiet: bool,
         exclude: str,
+        style: str,
         src: Optional[str],
         paths: Tuple[str, ...],
         check_type_hint: bool,
@@ -114,6 +134,7 @@ def main(
     violationsInAllFiles: Dict[str, List[Violation]] = _checkPaths(
         quiet=quiet,
         exclude=exclude,
+        style=style,
         paths=paths,
         checkTypeHint=check_type_hint,
         checkArgOrder=check_arg_order,
@@ -157,6 +178,7 @@ def main(
 
 def _checkPaths(
         paths: Tuple[str, ...],
+        style: str = 'numpy',
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
@@ -190,6 +212,7 @@ def _checkPaths(
 
         violationsInThisFile: List[Violation] = _checkFile(
             filename,
+            style=style,
             checkTypeHint=checkTypeHint,
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
@@ -202,6 +225,7 @@ def _checkPaths(
 
 def _checkFile(
         filename: Path,
+        style: str = 'numpy',
         checkTypeHint: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
@@ -212,6 +236,7 @@ def _checkFile(
 
     tree: ast.Module = ast.parse(src)
     visitor = Visitor(
+        style=style,
         checkTypeHint=checkTypeHint,
         checkArgOrder=checkArgOrder,
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,

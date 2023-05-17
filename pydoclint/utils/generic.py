@@ -78,31 +78,6 @@ def detectMethodType(node: ast.FunctionDef) -> MethodType:
     return MethodType.INSTANCE_METHOD
 
 
-def isShortDocstring(docstringStruct: NumpyDocString) -> bool:
-    """Detect whether the input is a short docstring."""
-    return (
-        (
-            bool(docstringStruct.get('Summary'))
-            or bool(docstringStruct.get('Extended Summary'))
-        )
-        and not bool(docstringStruct.get('Parameters'))
-        and not bool(docstringStruct.get('Returns'))
-        and not bool(docstringStruct.get('Yields'))
-        and not bool(docstringStruct.get('Receives'))
-        and not bool(docstringStruct.get('Raises'))
-        and not bool(docstringStruct.get('Warns'))
-        and not bool(docstringStruct.get('Other Parameters'))
-        and not bool(docstringStruct.get('Attributes'))
-        and not bool(docstringStruct.get('Methods'))
-        and not bool(docstringStruct.get('See Also'))
-        and not bool(docstringStruct.get('Notes'))
-        and not bool(docstringStruct.get('Warnings'))
-        and not bool(docstringStruct.get('References'))
-        and not bool(docstringStruct.get('Examples'))
-        and not bool(docstringStruct.get('index'))
-    )
-
-
 def getDocstring(node: ClassOrFunctionDef) -> str:
     """Get docstring from a class definition or a function definition"""
     docstring_: Optional[str] = ast.get_docstring(node)
