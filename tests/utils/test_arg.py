@@ -2,7 +2,7 @@ from typing import Any, List, Set
 
 import pytest
 
-from pydoclint.arg import Arg, ArgList
+from pydoclint.utils.arg import Arg, ArgList
 
 
 def testArg_initializationCheck():

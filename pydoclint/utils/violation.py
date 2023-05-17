@@ -1,7 +1,7 @@
 import types
 from typing import Tuple
 
-from pydoclint.internal_error import InternalError
+from pydoclint.utils.internal_error import InternalError
 
 VIOLATION_CODES = types.MappingProxyType({
     101: 'Docstring contains fewer arguments than in function signature.',

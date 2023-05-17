@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
-from pydoclint.violation import Violation
+from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 
 

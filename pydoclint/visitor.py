@@ -3,8 +3,8 @@ from typing import List, Optional, Set
 
 from numpydoc.docscrape import NumpyDocString, Parameter
 
-from pydoclint.arg import Arg, ArgList
-from pydoclint.method_type import MethodType
+from pydoclint.utils.arg import Arg, ArgList
+from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import (
     collectFuncArgs,
@@ -20,7 +20,7 @@ from pydoclint.utils.return_yield_raise import (
     hasReturnStatements,
     hasYieldStatements,
 )
-from pydoclint.violation import Violation
+from pydoclint.utils.violation import Violation
 
 
 class Visitor(ast.NodeVisitor):

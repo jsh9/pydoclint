@@ -4,7 +4,7 @@ from typing import List, Optional, Tuple
 
 from numpydoc.docscrape import NumpyDocString
 
-from pydoclint.method_type import MethodType
+from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 
 
