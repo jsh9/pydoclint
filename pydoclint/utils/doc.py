@@ -53,6 +53,22 @@ class Doc:
                 and not bool(self.parsed.get('index'))
             )
 
+        if self.style == 'google':
+            # API documentation:
+            # https://rr-.github.io/docstring_parser/docstring_parser.Docstring.html
+            return (
+                (
+                    bool(self.parsed.short_description)
+                    or bool(self.parsed.long_description)
+                )
+                and len(self.parsed.params) == 0
+                and len(self.parsed.raises) == 0
+                and self.parsed.returns is None
+                and len(self.parsed.many_returns) == 0
+                and len(self.parsed.examples) == 0
+                and self.parsed.deprecation is None
+            )
+
     @property
     def argList(self) -> ArgList:
         if self.style == 'numpy':
