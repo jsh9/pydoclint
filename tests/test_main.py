@@ -182,15 +182,17 @@ options = [
 
 
 @pytest.mark.parametrize(
-    'filename, option',
+    'style, filename, option',
     list(
         itertools.product(
+            ['numpy'],
             ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
             options,
         ),
     ),
 )
 def testArguments(
+        style: str,
         filename: str,
         option: str,
 ) -> None:
@@ -202,7 +204,7 @@ def testArguments(
         _tweakViolationMsgForFunctions(expectedViolationsCopy)
 
     violations = _checkFile(
-        filename=DATA_DIR / f'args/{filename}',
+        filename=DATA_DIR / f'{style}/args/{filename}',
         checkTypeHint=optionDict['checkTypeHint'],
         checkArgOrder=optionDict['checkArgOrder'],
     )
@@ -210,12 +212,17 @@ def testArguments(
 
 
 @pytest.mark.parametrize(
-    'filename',
-    ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
+    'style, filename',
+    list(
+        itertools.product(
+            ['numpy'],
+            ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
+        ),
+    ),
 )
-def testReturns(filename: str) -> None:
+def testReturns(style: str, filename: str) -> None:
     violations = _checkFile(
-        filename=DATA_DIR / f'returns/{filename}',
+        filename=DATA_DIR / f'{style}/returns/{filename}',
         skipCheckingShortDocstrings=False,
     )
 
@@ -290,22 +297,30 @@ expected_False = [
 
 
 @pytest.mark.parametrize(
-    'skipCheckingShortDocstrings, expected',
-    [(True, expected_True), (False, expected_False)],
+    'style, skipCheckingShortDocstrings, expected',
+    [
+        ('numpy', True, expected_True),
+        ('numpy', False, expected_False),
+    ],
 )
 def testSkipCheckingShortDocstrings(
+        style: str,
         skipCheckingShortDocstrings: bool,
         expected: List[str],
 ) -> None:
     violations = _checkFile(
-        filename=DATA_DIR / 'short_docstrings/cases.py',
+        filename=DATA_DIR / f'{style}/short_docstrings/cases.py',
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
     )
     assert list(map(str, violations)) == expected
 
 
-def testInit() -> None:
-    violations = _checkFile(filename=DATA_DIR / 'init/init.py')
+@pytest.mark.parametrize(
+    'style',
+    ['numpy'],
+)
+def testInit(style: str) -> None:
+    violations = _checkFile(filename=DATA_DIR / f'{style}/init/init.py')
     expected = [
         'DOC301: Class `A`: __init__() should not have a docstring; please combine it '
         'with the docstring of the class ',
@@ -326,8 +341,9 @@ def testInit() -> None:
     assert list(map(str, violations)) == expected
 
 
-def testYields() -> None:
-    violations = _checkFile(filename=DATA_DIR / 'yields/cases.py')
+@pytest.mark.parametrize('style', ['numpy'])
+def testYields(style: str) -> None:
+    violations = _checkFile(filename=DATA_DIR / f'{style}/yields/cases.py')
     expected = [
         'DOC401: Method `A.method1` returns a Generator, but the docstring does not '
         'have a "Yields" section ',
@@ -341,10 +357,16 @@ def testYields() -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('skipRaisesCheck', [False, True])
-def testRaises(skipRaisesCheck: bool) -> None:
+@pytest.mark.parametrize(
+    'style, skipRaisesCheck',
+    itertools.product(
+        ['numpy'],
+        [False, True],
+    ),
+)
+def testRaises(style: str, skipRaisesCheck: bool) -> None:
     violations = _checkFile(
-        filename=DATA_DIR / 'raises/cases.py',
+        filename=DATA_DIR / f'{style}/raises/cases.py',
         skipCheckingRaises=skipRaisesCheck,
     )
     expected0 = [
@@ -360,9 +382,10 @@ def testRaises(skipRaisesCheck: bool) -> None:
     assert list(map(str, violations)) == expected
 
 
-def testStarsInArgumentList() -> None:
+@pytest.mark.parametrize('style', ['numpy'])
+def testStarsInArgumentList(style: str) -> None:
     violations = _checkFile(
-        filename=DATA_DIR / 'star_args/cases.py',
+        filename=DATA_DIR / f'{style}/star_args/cases.py',
     )
     expected = [
         'DOC103: Function `func2`: Docstring arguments are different from function '
