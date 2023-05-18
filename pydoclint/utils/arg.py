@@ -1,5 +1,5 @@
 import ast
-from typing import List, Set
+from typing import List, Set, Optional
 
 from docstring_parser.common import DocstringParam
 from numpydoc.docscrape import Parameter
@@ -64,7 +64,7 @@ class Arg:
     @classmethod
     def fromGoogleParsedParam(cls, param: DocstringParam) -> 'Arg':
         """Construct an Arg object from a GoogleParser Parameter object"""
-        return Arg(name=param.arg_name, typeHint=param.type_name)
+        return Arg(name=param.arg_name, typeHint=cls._of(param.type_name))
 
     @classmethod
     def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
@@ -73,6 +73,9 @@ class Arg:
         typeHint: str = '' if anno is None else parseAnnotation(anno)
         return Arg(name=astArg.arg, typeHint=typeHint)
 
+    @classmethod
+    def _of(cls, typeName: Optional[str]) -> str:
+        return '' if typeName is None else typeName
 
 class ArgList:
     """

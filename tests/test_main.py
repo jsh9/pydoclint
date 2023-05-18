@@ -185,7 +185,7 @@ options = [
     'style, filename, option',
     list(
         itertools.product(
-            ['numpy'],
+            ['numpy', 'google'],
             ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
             options,
         ),
@@ -207,6 +207,7 @@ def testArguments(
         filename=DATA_DIR / f'{style}/args/{filename}',
         checkTypeHint=optionDict['checkTypeHint'],
         checkArgOrder=optionDict['checkArgOrder'],
+        style=style,
     )
     assert list(map(str, violations)) == expectedViolationsCopy
 
@@ -215,7 +216,7 @@ def testArguments(
     'style, filename',
     list(
         itertools.product(
-            ['numpy'],
+            ['numpy', 'google'],
             ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
         ),
     ),
@@ -224,6 +225,7 @@ def testReturns(style: str, filename: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returns/{filename}',
         skipCheckingShortDocstrings=False,
+        style=style,
     )
 
     expectedViolations: List[str] = [
@@ -301,6 +303,8 @@ expected_False = [
     [
         ('numpy', True, expected_True),
         ('numpy', False, expected_False),
+        ('google', True, expected_True),
+        ('google', False, expected_False),
     ],
 )
 def testSkipCheckingShortDocstrings(
@@ -311,16 +315,20 @@ def testSkipCheckingShortDocstrings(
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/short_docstrings/cases.py',
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
+        style=style,
     )
     assert list(map(str, violations)) == expected
 
 
 @pytest.mark.parametrize(
     'style',
-    ['numpy'],
+    ['numpy', 'google'],
 )
 def testInit(style: str) -> None:
-    violations = _checkFile(filename=DATA_DIR / f'{style}/init/init.py')
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/init/init.py',
+        style=style,
+    )
     expected = [
         'DOC301: Class `A`: __init__() should not have a docstring; please combine it '
         'with the docstring of the class ',
@@ -341,9 +349,12 @@ def testInit(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['numpy'])
+@pytest.mark.parametrize('style', ['numpy', 'google'])
 def testYields(style: str) -> None:
-    violations = _checkFile(filename=DATA_DIR / f'{style}/yields/cases.py')
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/yields/cases.py',
+        style=style,
+    )
     expected = [
         'DOC401: Method `A.method1` returns a Generator, but the docstring does not '
         'have a "Yields" section ',
@@ -360,7 +371,7 @@ def testYields(style: str) -> None:
 @pytest.mark.parametrize(
     'style, skipRaisesCheck',
     itertools.product(
-        ['numpy'],
+        ['numpy', 'google'],
         [False, True],
     ),
 )
@@ -368,6 +379,7 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/raises/cases.py',
         skipCheckingRaises=skipRaisesCheck,
+        style=style,
     )
     expected0 = [
         'DOC501: Method `B.func1` has "raise" statements, but the docstring does not '
@@ -382,10 +394,11 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['numpy'])
+@pytest.mark.parametrize('style', ['numpy', 'google'])
 def testStarsInArgumentList(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/star_args/cases.py',
+        style=style,
     )
     expected = [
         'DOC103: Function `func2`: Docstring arguments are different from function '
@@ -424,6 +437,7 @@ def testPlayground() -> None:
     """
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
+        style='google',
     )
     expected = []
     assert list(map(str, violations)) == expected
