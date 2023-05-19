@@ -1,6 +1,7 @@
 import ast
-from typing import List, Set
+from typing import List, Optional, Set
 
+from docstring_parser.common import DocstringParam
 from numpydoc.docscrape import Parameter
 
 from pydoclint.utils.annotation import parseAnnotation
@@ -61,11 +62,20 @@ class Arg:
         return Arg(name=param.name, typeHint=param.type)
 
     @classmethod
+    def fromGoogleParsedParam(cls, param: DocstringParam) -> 'Arg':
+        """Construct an Arg object from a GoogleParser Parameter object"""
+        return Arg(name=param.arg_name, typeHint=cls._str(param.type_name))
+
+    @classmethod
     def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
         """Construct an Arg object from a Python AST argument object"""
         anno = astArg.annotation
         typeHint: str = '' if anno is None else parseAnnotation(anno)
         return Arg(name=astArg.arg, typeHint=typeHint)
+
+    @classmethod
+    def _str(cls, typeName: Optional[str]) -> str:
+        return '' if typeName is None else typeName
 
 
 class ArgList:
