@@ -17,6 +17,12 @@ class Plugin:
     @classmethod
     def add_options(cls, parser):  # noqa: D102
         parser.add_option(
+            '--style',
+            action='store',
+            default='numpy',
+            help='Which style of docstring is your code base using',
+        )
+        parser.add_option(
             '-th',
             '--check-type-hint',
             action='store',
@@ -56,6 +62,7 @@ class Plugin:
             options.skip_checking_short_docstrings
         )
         cls.skip_checking_raises = options.skip_checking_raises
+        cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
@@ -70,11 +77,17 @@ class Plugin:
             self.skip_checking_raises,
         )
 
+        if self.style not in {'numpy', 'google'}:
+            raise ValueError(
+                'Invalid value for "--style": must be "numpy" or "google"'
+            )
+
         v = Visitor(
             checkTypeHint=checkTypeHint,
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
+            style=self.style,
         )
         v.visit(self._tree)
         violationInfo = [_.getInfoForFlake8() for _ in v.violations]

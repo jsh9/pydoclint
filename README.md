@@ -14,11 +14,15 @@ Here is a comparison of linting time on some famous Python projects:
 | [numpy](https://github.com/numpy/numpy)                      | 2.0 sec   | 49 min 9 sec (1,475x slower)      |
 | [scikit-learn](https://github.com/scikit-learn/scikit-learn) | 2.4 sec   | 3 hr 5 min 33 sec (4,639x slower) |
 
-Currently, _pydoclint_ only works when you write your docstrings in the
-[numpy stlyle](https://numpydoc.readthedocs.io/en/latest/format.html). Support
-for the
-[Google style](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html)
-docstrings will be added soon.
+Currently, _pydoclint_ supports two docstring styles:
+
+- The [numpy stlyle](https://numpydoc.readthedocs.io/en/latest/format.html)
+- The
+  [Google style](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html)
+
+Support for the
+[Sphinx style](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html)
+may be added in the future if there are requests for it.
 
 Another note: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle)
 serves complementary purposes. It is recommended that you use both together.
@@ -145,7 +149,22 @@ This option is only available in the native command-line mode. If you use
 _pydoclint_ within _flake8_, you can use _flake8_'s
 [`--exclude` option](https://flake8.pycqa.org/en/latest/user/options.html#cmdoption-flake8-exclude).
 
-### 4.3. `--check-type-hint` (shortform: `-th`, default: `True`)
+### 4.3. `--style`
+
+Which style of docstring is your code base using. Right now there are two
+available choices: `numpy` and `google`. The default value is `numpy`.
+
+```
+pydoclint --style=google <FILE_OR_FOLDER>
+```
+
+or
+
+```
+flake8 --style=google <FILE_OR_FOLDER>
+```
+
+### 4.4. `--check-type-hint` (shortform: `-th`, default: `True`)
 
 If `True`, the type hints in the docstring and in the Python code need to
 exactly match.
@@ -162,7 +181,7 @@ or
 flake8 --check-type-hint=False <FILE_OR_FOLDER>
 ```
 
-### 4.4. `--check-arg-order` (shortform: `-ao`, default: `True`)
+### 4.5. `--check-arg-order` (shortform: `-ao`, default: `True`)
 
 If `True`, the input argument order in the docstring needs to match that in the
 function signature.
@@ -179,7 +198,7 @@ or
 flake8 --check-arg-order=False <FILE_OR_FOLDER>
 ```
 
-### 4.5. `--skip-checking-short-docstrings` (shortform: `-scsd`, default: `True`)
+### 4.6. `--skip-checking-short-docstrings` (shortform: `-scsd`, default: `True`)
 
 If `True`, `pydoclint` won't check functions that have only a short description
 in their docstring.
@@ -196,7 +215,7 @@ or
 flake8 --skip-checking-short-docstrings=False <FILE_OR_FOLDER>
 ```
 
-### 4.6. `--skip-checking-raises` (shortform: `-scr`, default: `False`)
+### 4.7. `--skip-checking-raises` (shortform: `-scr`, default: `False`)
 
 If `True`, _pydoclint_ won't report `DOC501` or `DOC502` if there are `raise`
 statements in the function/method but there aren't any "raises" sections in the
