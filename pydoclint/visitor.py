@@ -1,8 +1,6 @@
 import ast
 from typing import List, Optional, Set
 
-from numpydoc.docscrape import NumpyDocString, Parameter
-
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc

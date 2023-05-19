@@ -25,11 +25,11 @@ class Doc:
             parser = GoogleParser()
             self.parsed = parser.parse(docstring)
         else:
-            msg = f'Unknown style {style}; please contact the authors'
-            raise InternalError(msg)
+            self._raiseException()
 
     @property
     def isShortDocstring(self) -> bool:
+        """Is the docstring a short one (containing only a summary)"""
         if self.style == 'numpy':
             return (
                 (
@@ -69,8 +69,11 @@ class Doc:
                 and self.parsed.deprecation is None
             )
 
+        self._raiseException()  # noqa: R503
+
     @property
     def argList(self) -> ArgList:
+        """The argument info in the docstring, presented as an ArgList"""
         if self.style == 'numpy':
             return ArgList(
                 [
@@ -84,8 +87,11 @@ class Doc:
                 [Arg.fromGoogleParsedParam(_) for _ in self.parsed.params]
             )
 
+        self._raiseException()  # noqa: R503
+
     @property
     def hasReturnsSection(self) -> bool:
+        """Whether the docstring has a 'Returns' section"""
         if self.style == 'numpy':
             return bool(self.parsed.get('Returns'))
 
@@ -93,8 +99,11 @@ class Doc:
             retSection: DocstringReturns = self.parsed.returns
             return retSection is not None and not retSection.is_generator
 
+        self._raiseException()  # noqa: R503
+
     @property
     def hasYieldsSection(self) -> bool:
+        """Whether the docstring has a 'Yields' section"""
         if self.style == 'numpy':
             return bool(self.parsed.get('Yields'))
 
@@ -102,10 +111,19 @@ class Doc:
             retSection: DocstringReturns = self.parsed.returns
             return retSection is not None and retSection.is_generator
 
+        self._raiseException()  # noqa: R503
+
     @property
     def hasRaisesSection(self) -> bool:
+        """Whether the docstring has a 'Raises' section"""
         if self.style == 'numpy':
             return bool(self.parsed.get('Raises'))
 
         if self.style == 'google':
             return len(self.parsed.raises) > 0
+
+        self._raiseException()  # noqa: R503
+
+    def _raiseException(self) -> None:
+        msg = f'Unknown style "{self.style}"; please contact the authors'
+        raise InternalError(msg)
