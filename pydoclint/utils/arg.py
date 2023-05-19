@@ -1,5 +1,5 @@
 import ast
-from typing import List, Set, Optional
+from typing import List, Optional, Set
 
 from docstring_parser.common import DocstringParam
 from numpydoc.docscrape import Parameter
@@ -76,6 +76,7 @@ class Arg:
     @classmethod
     def _of(cls, typeName: Optional[str]) -> str:
         return '' if typeName is None else typeName
+
 
 class ArgList:
     """

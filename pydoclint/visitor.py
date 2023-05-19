@@ -4,15 +4,15 @@ from typing import List, Optional, Set
 from numpydoc.docscrape import NumpyDocString, Parameter
 
 from pydoclint.utils.arg import Arg, ArgList
-from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
+from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
     collectFuncArgs,
     detectMethodType,
     generateMsgPrefix,
     getDocstring,
 )
-from pydoclint.utils.doc import Doc
+from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
     hasRaiseStatements,

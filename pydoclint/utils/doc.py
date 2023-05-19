@@ -1,5 +1,5 @@
-from docstring_parser.google import GoogleParser
 from docstring_parser.common import DocstringReturns
+from docstring_parser.google import GoogleParser
 from numpydoc.docscrape import NumpyDocString
 
 from pydoclint.utils.arg import Arg, ArgList
@@ -72,15 +72,17 @@ class Doc:
     @property
     def argList(self) -> ArgList:
         if self.style == 'numpy':
-            return ArgList([
-                Arg.fromNumpydocParam(_)
-                for _ in self.parsed.get('Parameters', [])
-            ])
+            return ArgList(
+                [
+                    Arg.fromNumpydocParam(_)
+                    for _ in self.parsed.get('Parameters', [])
+                ]
+            )
 
         if self.style == 'google':
-            return ArgList([
-                Arg.fromGoogleParsedParam(_) for _ in self.parsed.params
-            ])
+            return ArgList(
+                [Arg.fromGoogleParsedParam(_) for _ in self.parsed.params]
+            )
 
     @property
     def hasReturnsSection(self) -> bool:
