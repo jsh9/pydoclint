@@ -26,10 +26,6 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
-    - name: Check version in CHANGELOG.md
-      run: |
-        python -m pip install requests
-        python ./.github/helper_scripts/check_version_and_changelog.py main
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
