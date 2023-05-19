@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.0.3] - 2023-05-18
+
+- Added
+  - Added support for [Google-style docstrings](https://google.github.io/styleguide/pyguide.html#s3.8.1-comments-in-doc-strings)
+- Full changelog
+  - https://github.com/jsh9/pydoclint/compare/0.0.2...0.0.3
+
 ## [0.0.2] - 2023-05-16
 
 - Added
