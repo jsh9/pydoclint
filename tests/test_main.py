@@ -332,19 +332,54 @@ def testInit(style: str) -> None:
     expected = [
         'DOC301: Class `A`: __init__() should not have a docstring; please combine it '
         'with the docstring of the class ',
-        'DOC302: Class `B`: The docstring for the class does not need a "Returns" '
-        'sections ',
+        'DOC302: Class `B`: The class docstring does not need a "Returns" section, '
+        'because __init__() cannot return anything ',
         'DOC105: Method `C.__init__`: Argument names match, but type hints do not '
         'match ',
-        'DOC302: Class `C`: The docstring for the class does not need a "Returns" '
-        'sections ',
+        'DOC302: Class `C`: The class docstring does not need a "Returns" section, '
+        'because __init__() cannot return anything ',
         'DOC103: Method `D.__init__`: Docstring arguments are different from function '
         'arguments. (Or did you miss the space between the argument name and the ":" '
         'in the docstring?). Arguments in the function signature but not in the '
         'docstring: [arg1: int, arg2: float]. Arguments in the docstring but not in '
         'the function signature: [var1: list, var2: dict].',
-        'DOC302: Class `D`: The docstring for the class does not need a "Returns" '
-        'sections ',
+        'DOC302: Class `D`: The class docstring does not need a "Returns" section, '
+        'because __init__() cannot return anything ',
+    ]
+    assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize(
+    'style',
+    ['numpy', 'google'],
+)
+def testAllowInitDocstring(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/allow_init_docstring/cases.py',
+        style=style,
+        allowInitDocstring=True,
+    )
+    expected = [
+        'DOC304: Class `A`: Class docstring has an argument/parameter section; please '
+        'put it in the __init__() docstring ',
+        'DOC302: Class `B`: The class docstring does not need a "Returns" section, '
+        'because __init__() cannot return anything ',
+        'DOC303: Class `B`: The __init__() docstring does not need a "Returns" '
+        'section, because it cannot return anything ',
+        'DOC304: Class `B`: Class docstring has an argument/parameter section; please '
+        'put it in the __init__() docstring ',
+        'DOC302: Class `B`: The class docstring does not need a "Returns" section, '
+        'because __init__() cannot return anything ',
+        'DOC305: Class `C`: Class docstring has a "Raises" section; please put it in '
+        'the __init__() docstring ',
+        'DOC306: Class `D`: The class docstring does not need a "Yields" section, '
+        'because __init__() cannot yield anything ',
+        'DOC307: Class `D`: The __init__() docstring does not need a "Yields" '
+        'section, because __init__() cannot yield anything ',
+        'DOC306: Class `D`: The class docstring does not need a "Yields" section, '
+        'because __init__() cannot yield anything ',
+        'DOC403: Method `D.__init__` has a "Yields" section in the docstring, but '
+        'there are no "yield" statements or a Generator return annotation ',
     ]
     assert list(map(str, violations)) == expected
 

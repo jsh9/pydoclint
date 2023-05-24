@@ -93,10 +93,15 @@ Here's comparison:
 
 ### 3.3. `DOC3xx`: Violations about class docstring and class constructor
 
-| Code     | Explanation                                                                                 |
-| -------- | ------------------------------------------------------------------------------------------- |
-| `DOC301` | `__init__()` should not have a docstring; please combine it with the docstring of the class |
-| `DOC302` | The docstring for the class does not need a "Returns" sections                              |
+| Code     | Explanation                                                                                             |
+| -------- | ------------------------------------------------------------------------------------------------------- |
+| `DOC301` | `__init__()` should not have a docstring; please combine it with the docstring of the class             |
+| `DOC302` | The class docstring does not need a "Returns" section, because `__init__()` cannot return anything      |
+| `DOC303` | The `__init__()` docstring does not need a "Returns" section, because it cannot return anything         |
+| `DOC304` | Class docstring has an argument/parameter section; please put it in the `__init__()` docstring          |
+| `DOC305` | Class docstring has a "Raises" section; please put it in the `__init__()` docstring                     |
+| `DOC306` | The class docstring does not need a "Yields" section, because `__init__()` cannot yield anything        |
+| `DOC307` | The `__init__()` docstring does not need a "Yields" section, because `__init__()` cannot yield anything |
 
 ### 3.4. `DOC4xx`: Violations about "yield" statements
 
@@ -220,3 +225,9 @@ flake8 --skip-checking-short-docstrings=False <FILE_OR_FOLDER>
 If `True`, _pydoclint_ won't report `DOC501` or `DOC502` if there are `raise`
 statements in the function/method but there aren't any "raises" sections in the
 docstring (or vice versa).
+
+### 4.8. `--allow-init-docstring` (shortform: `-aid`, default: `False`)
+
+If it is set to `True`, having a docstring for class constructors
+(`__init__()`) is allowed, and the arguments are expected to be documented
+under `__init__()` rather than in the class docstring.

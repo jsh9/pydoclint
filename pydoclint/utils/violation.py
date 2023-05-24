@@ -13,13 +13,22 @@ VIOLATION_CODES = types.MappingProxyType({
     ),
     104: 'Arguments are the same in the docstring and the function signature, but are in a different order.',
     105: 'Argument names match, but type hints do not match',
+
     201: 'does not have a return section in docstring',
     202: 'has a return section in docstring, but there are no return statements or annotations',
+
     301: '__init__() should not have a docstring; please combine it with the docstring of the class',
-    302: 'The docstring for the class does not need a "Returns" sections',
+    302: 'The class docstring does not need a "Returns" section, because __init__() cannot return anything',
+    303: 'The __init__() docstring does not need a "Returns" section, because it cannot return anything',
+    304: 'Class docstring has an argument/parameter section; please put it in the __init__() docstring',
+    305: 'Class docstring has a "Raises" section; please put it in the __init__() docstring',
+    306: 'The class docstring does not need a "Yields" section, because __init__() cannot yield anything',
+    307: 'The __init__() docstring does not need a "Yields" section, because __init__() cannot yield anything',
+
     401: 'returns a Generator, but the docstring does not have a "Yields" section',
     402: 'has "yield" statements, but the docstring does not have a "Yields" section',
     403: 'has a "Yields" section in the docstring, but there are no "yield" statements or a Generator return annotation',
+
     501: 'has "raise" statements, but the docstring does not have a "Raises" section',
     502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',
 })

@@ -10,6 +10,7 @@ from pydoclint.utils.generic import (
     generateMsgPrefix,
     getDocstring,
 )
+from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
@@ -31,12 +32,14 @@ class Visitor(ast.NodeVisitor):
             checkArgOrder: bool = True,
             skipCheckingShortDocstrings: bool = True,
             skipCheckingRaises: bool = False,
+            allowInitDocstring: bool = False,
     ) -> None:
         self.style: str = style
         self.checkTypeHint: bool = checkTypeHint
         self.checkArgOrder: bool = checkArgOrder
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
         self.skipCheckingRaises: bool = skipCheckingRaises
+        self.allowInitDocstring: bool = allowInitDocstring
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
         self.violations: List[Violation] = []
@@ -60,19 +63,11 @@ class Visitor(ast.NodeVisitor):
         docstring: str = getDocstring(node)
 
         if isClassConstructor:
-            className: str = parent_.name
-            if len(docstring) > 0:  # __init__() has its own docstring
-                self.violations.append(
-                    Violation(
-                        code=301,
-                        line=node.lineno,
-                        msgPrefix=f'Class `{className}`:',
-                    )
-                )
-
-            # Inspect class docstring instead, because that's what we care
-            # about when checking the class constructor.
-            docstring = getDocstring(parent_)
+            docstring = self._checkClassConstructorDocstrings(
+                node=node,
+                parent_=parent_,
+                initDocstring=docstring,
+            )
 
         argViolations: List[Violation]
         returnViolations: List[Violation]
@@ -114,8 +109,10 @@ class Visitor(ast.NodeVisitor):
             if isClassConstructor:
                 # Re-check return violations because the rules are
                 # different for class constructors.
-                returnViolations = self.checkReturnsInClassConstructor(
-                    parent=parent_, doc=doc
+                returnViolations = (
+                    self.checkReturnsAndYieldsInClassConstructor(
+                        parent=parent_, doc=doc
+                    )
                 )
 
         self.violations.extend(argViolations)
@@ -133,6 +130,108 @@ class Visitor(ast.NodeVisitor):
 
     def visit_Raise(self, node: ast.Raise):  # noqa: D102
         self.generic_visit(node)
+
+    def _checkClassConstructorDocstrings(
+            self,
+            node: FuncOrAsyncFuncDef,
+            parent_: ast.ClassDef,
+            initDocstring: str,
+    ) -> str:
+        """
+        Check class docstring and __init__() docstring.
+
+        If only class docstring exists, or if __init__() is not allowed to have
+        its own docstring, return the class docstring for further checking.
+
+        Otherwise, return the __init__() docstring for further checking.
+        """
+        if not isinstance(parent_, ast.ClassDef):
+            msg = (
+                'This should not have happened; please contact the authors'
+                ' and share the full call stack.'
+            )
+            raise InternalError(msg)
+
+        className: str = parent_.name
+        classLineNum: int = parent_.lineno
+
+        classDocstring: str = getDocstring(parent_)
+
+        if len(initDocstring) == 0:  # __init__() doesn't have its own docstring
+            # Check class docstring instead, because that's what we care
+            # about when checking the class constructor.
+            return classDocstring
+
+        # Below: __init__() has its own docstring
+        if not self.allowInitDocstring:
+            self.violations.append(
+                Violation(
+                    code=301,
+                    line=node.lineno,
+                    msgPrefix=f'Class `{className}`:',
+                )
+            )
+            return classDocstring
+
+        # Below: __init__() is allowed to have a separate docstring
+        classDoc = Doc(docstring=classDocstring, style=self.style)
+        initDoc = Doc(docstring=initDocstring, style=self.style)
+
+        if classDoc.hasReturnsSection:
+            self.violations.append(
+                Violation(
+                    code=302,
+                    line=classLineNum,
+                    msgPrefix=f'Class `{className}`:',
+                )
+            )
+
+        if initDoc.hasReturnsSection:
+            self.violations.append(
+                Violation(
+                    code=303,
+                    line=node.lineno,
+                    msgPrefix=f'Class `{className}`:',
+                )
+            )
+
+        if classDoc.argList.nonEmpty:
+            self.violations.append(
+                Violation(
+                    code=304,
+                    line=classLineNum,
+                    msgPrefix=f'Class `{className}`:',
+                )
+            )
+
+        if classDoc.hasYieldsSection:
+            self.violations.append(
+                Violation(
+                    code=306,
+                    line=classLineNum,
+                    msgPrefix=f'Class `{className}`:',
+                )
+            )
+
+        if initDoc.hasYieldsSection:
+            self.violations.append(
+                Violation(
+                    code=307,
+                    line=classLineNum,
+                    msgPrefix=f'Class `{className}`:',
+                )
+            )
+
+        if classDoc.hasRaisesSection:
+            self.violations.append(
+                Violation(
+                    code=305,
+                    line=classLineNum,
+                    msgPrefix=f'Class `{className}`:',
+                )
+            )
+
+        return initDocstring
 
     def checkArguments(  # noqa: C901
             self,
@@ -178,14 +277,14 @@ class Visitor(ast.NodeVisitor):
         docArgs = doc.argList
         funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
-        if docArgs.length() == 0 and funcArgs.length() == 0:
+        if docArgs.length == 0 and funcArgs.length == 0:
             return []
 
         violations: List[Violation] = []
-        if docArgs.length() < funcArgs.length():
+        if docArgs.length < funcArgs.length:
             violations.append(v101)
 
-        if docArgs.length() > funcArgs.length():
+        if docArgs.length > funcArgs.length:
             violations.append(v102)
 
         if not docArgs.equals(
@@ -274,17 +373,26 @@ class Visitor(ast.NodeVisitor):
         return violations
 
     @classmethod
-    def checkReturnsInClassConstructor(
+    def checkReturnsAndYieldsInClassConstructor(
             cls,
             parent: ast.ClassDef,
             doc: Doc,
     ) -> List[Violation]:
-        """Check the presence of a "Returns" section in class docstring"""
+        """Check the presence of a Returns/Yields section in class docstring"""
         violations: List[Violation] = []
         if doc.hasReturnsSection:
             violations.append(
                 Violation(
                     code=302,
+                    line=parent.lineno,
+                    msgPrefix=f'Class `{parent.name}`:',
+                )
+            )
+
+        if doc.hasYieldsSection:
+            violations.append(
+                Violation(
+                    code=306,
                     line=parent.lineno,
                     msgPrefix=f'Class `{parent.name}`:',
                 )

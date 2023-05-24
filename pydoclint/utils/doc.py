@@ -2,7 +2,7 @@ from docstring_parser.common import DocstringReturns
 from docstring_parser.google import GoogleParser
 from numpydoc.docscrape import NumpyDocString
 
-from pydoclint.utils.arg import Arg, ArgList
+from pydoclint.utils.arg import ArgList
 from pydoclint.utils.internal_error import InternalError
 
 
@@ -75,17 +75,10 @@ class Doc:
     def argList(self) -> ArgList:
         """The argument info in the docstring, presented as an ArgList"""
         if self.style == 'numpy':
-            return ArgList(
-                [
-                    Arg.fromNumpydocParam(_)
-                    for _ in self.parsed.get('Parameters', [])
-                ]
-            )
+            return ArgList.fromNumpydocParam(self.parsed.get('Parameters', []))
 
         if self.style == 'google':
-            return ArgList(
-                [Arg.fromGoogleParsedParam(_) for _ in self.parsed.params]
-            )
+            return ArgList.fromGoogleParsedParam(self.parsed.params)
 
         self._raiseException()  # noqa: R503
 
