@@ -163,7 +163,7 @@ def testArgList_str(input_: ArgList, expected: str) -> None:
     ],
 )
 def testArgList_length(input_: ArgList, expected: int) -> None:
-    assert input_.length() == expected
+    assert input_.length == expected
 
 
 @pytest.mark.parametrize(

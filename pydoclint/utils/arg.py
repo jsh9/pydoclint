@@ -105,9 +105,35 @@ class ArgList:
 
         return self.infoList == other.infoList
 
+    @property
+    def isEmpty(self) -> bool:
+        """Whether the arg list is empty"""
+        return self.length == 0
+
+    @property
+    def nonEmpty(self) -> bool:
+        """Whether the arg list is non-empty"""
+        return not self.isEmpty
+
+    @property
     def length(self) -> int:
         """Calculate the length of the list"""
         return len(self.infoList)
+
+    @classmethod
+    def fromNumpydocParam(cls, params: List[Parameter]) -> 'ArgList':
+        """Construct an Arglist from a list of Parameter objects"""
+        return ArgList([Arg.fromNumpydocParam(_) for _ in params])
+
+    @classmethod
+    def fromGoogleParsedParam(cls, params: List[DocstringParam]) -> 'ArgList':
+        """Construct an ArgList from a list of DocstringParam objects"""
+        infoList = [
+            Arg.fromGoogleParsedParam(_)
+            for _ in params
+            if _.args[0] != 'attribute'  # we only need 'param' not 'attribute'
+        ]
+        return ArgList(infoList=infoList)
 
     def contains(self, arg: Arg) -> bool:
         """Whether a given `Arg` object exists in the list"""
@@ -148,7 +174,7 @@ class ArgList:
         if not isinstance(other, ArgList):
             return False
 
-        if self.length() != other.length():
+        if self.length != other.length:
             return False
 
         verdict: bool

@@ -91,6 +91,14 @@ def validateStyleValue(
     default=False,
     help='If True, skip checking docstring "Raises" section against "raise" statements',
 )
+@click.option(
+    '-aid',
+    '--allow-init-docstring',
+    type=bool,
+    show_default=True,
+    default=False,
+    help='If True, allow both __init__() and the class def to have docstrings',
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -115,6 +123,7 @@ def main(
         check_arg_order: bool,
         skip_checking_short_docstrings: bool,
         skip_checking_raises: bool,
+        allow_init_docstring: bool,
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
@@ -141,6 +150,7 @@ def main(
         checkArgOrder=check_arg_order,
         skipCheckingShortDocstrings=skip_checking_short_docstrings,
         skipCheckingRaises=skip_checking_raises,
+        allowInitDocstring=allow_init_docstring,
     )
 
     violationCounter: int = 0
@@ -184,6 +194,7 @@ def _checkPaths(
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
+        allowInitDocstring: bool = False,
         quiet: bool = False,
         exclude: str = '',
 ) -> Dict[str, List[Violation]]:
@@ -218,6 +229,7 @@ def _checkPaths(
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
+            allowInitDocstring=allowInitDocstring,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -231,6 +243,7 @@ def _checkFile(
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
+        allowInitDocstring: bool = False,
 ) -> List[Violation]:
     with open(filename) as fp:
         src: str = ''.join(fp.readlines())
@@ -242,6 +255,7 @@ def _checkFile(
         checkArgOrder=checkArgOrder,
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
         skipCheckingRaises=skipCheckingRaises,
+        allowInitDocstring=allowInitDocstring,
     )
     visitor.visit(tree)
     return visitor.violations

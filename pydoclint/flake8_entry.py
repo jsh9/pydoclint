@@ -53,6 +53,13 @@ class Plugin:
             default='False',
             help='If True, skip checking docstring "Raises" section against "raise" statements',
         )
+        parser.add_option(
+            '-aid',
+            '--allow-init-docstring',
+            action='store',
+            default='False',
+            help='If True, allow both __init__() and the class def to have docstrings',
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
@@ -62,6 +69,7 @@ class Plugin:
             options.skip_checking_short_docstrings
         )
         cls.skip_checking_raises = options.skip_checking_raises
+        cls.allow_init_docstring = options.allow_init_docstring
         cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
@@ -76,6 +84,10 @@ class Plugin:
             '--skip-checking-raises',
             self.skip_checking_raises,
         )
+        allowInitDocstring = self._bool(
+            '--allow-init-docstring',
+            self.allow_init_docstring,
+        )
 
         if self.style not in {'numpy', 'google'}:
             raise ValueError(
@@ -87,6 +99,7 @@ class Plugin:
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
+            allowInitDocstring=allowInitDocstring,
             style=self.style,
         )
         v.visit(self._tree)
