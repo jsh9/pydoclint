@@ -140,11 +140,10 @@ class Visitor(ast.NodeVisitor):
         """
         Check class docstring and __init__() docstring.
 
-        If only class docstring exists or __init__() is not allowed to have
+        If only class docstring exists, or if __init__() is not allowed to have
         its own docstring, return the class docstring for further checking.
 
-        Otherwise, return the combination of both docstrings for further
-        checking.
+        Otherwise, return the __init__() docstring for further checking.
         """
         if not isinstance(parent_, ast.ClassDef):
             msg = (
