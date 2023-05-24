@@ -1,5 +1,12 @@
 # Change Log
 
+## Unreleased
+
+- Added
+  - A new option to allow `__init__()` methods to have docstring (and when
+    users activate this option, check arguments and "Raises" in the docstring
+    of `__init__()` instead of in the class docstring)
+
 ## [0.0.3] - 2023-05-18
 
 - Added
