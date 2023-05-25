@@ -23,6 +23,15 @@ def foo(
         arg12: Dict[str, Tuple[ast.arg, np.ndarray]],
         arg13: Tuple[str, ...],
         arg14: Tuple[None, int, float, None],
+        arg15: Callable[[T], U],
+        arg16: Callable[[int, str, bool], float],
+        arg17: Callable[..., ReturnType],
+        arg18: Callable[ParamSpecVariable, ReturnType],
+        arg19: Callable[Concatenate[Arg1Type, Arg2Type, ..., ParamSpecVariable], ReturnType],
+        arg20: Type[User],
+        arg21: Type[BasicUser | ProUser],
+        arg22: Literal[True],
+        arg23: ClassVar[dict[str, int]],
 ):
     pass
 """
@@ -48,6 +57,15 @@ def foo(
         'arg12': 'Dict[str, Tuple[ast.arg, np.ndarray]]',
         'arg13': 'Tuple[str, ...]',
         'arg14': 'Tuple[None, int, float, None]',
+        'arg15': 'Callable[[T], U]',
+        'arg16': 'Callable[[int, str, bool], float]',
+        'arg17': 'Callable[..., ReturnType]',
+        'arg18': 'Callable[ParamSpecVariable, ReturnType]',
+        'arg19': 'Callable[Concatenate[Arg1Type, Arg2Type, ..., ParamSpecVariable], ReturnType]',
+        'arg20': 'Type[User]',
+        'arg21': 'Type[BasicUser | ProUser]',
+        'arg22': 'Literal[True]',
+        'arg23': 'ClassVar[dict[str, int]]',
     }
 
     assert result == expected

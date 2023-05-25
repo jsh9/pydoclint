@@ -6,6 +6,8 @@
   - A new option to allow `__init__()` methods to have docstring (and when
     users activate this option, check arguments and "Raises" in the docstring
     of `__init__()` instead of in the class docstring)
+- Fixed
+  - A bug when parsing type annotations such as `Callable[[int], str]`
 
 ## [0.0.3] - 2023-05-18
 

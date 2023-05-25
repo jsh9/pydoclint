@@ -4,7 +4,7 @@ from typing import Optional
 from pydoclint.utils.astTypes import AnnotationType
 
 
-def parseAnnotation(node: Optional[AnnotationType]) -> Optional[str]:
+def parseAnnotation(node: Optional[AnnotationType]) -> Optional[str]:  # noqa: C901
     """Parse type annotations from argument list or return annotation."""
     if node is None:
         return None
@@ -22,6 +22,9 @@ def parseAnnotation(node: Optional[AnnotationType]) -> Optional[str]:
 
     if isinstance(node, ast.Tuple):
         return ', '.join(map(parseAnnotation, node.elts))
+
+    if isinstance(node, ast.List):
+        return '[' + ', '.join(map(parseAnnotation, node.elts)) + ']'
 
     if isinstance(node, ast.Constant):
         if isinstance(node, ast.Ellipsis):  # Ellipsis is Constant's subclass
