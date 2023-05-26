@@ -4,7 +4,7 @@ from typing import List, Optional, Set
 from docstring_parser.common import DocstringParam
 from numpydoc.docscrape import Parameter
 
-from pydoclint.utils.annotation import parseAnnotation
+from pydoclint.utils.annotation import unparseAnnotation
 
 
 class Arg:
@@ -28,11 +28,11 @@ class Arg:
     def __str__(self) -> str:
         return f'{self.name}: {self.typeHint}'
 
-    def __eq__(self, other: 'Arg') -> bool:
-        if not isinstance(other, Arg):
+    def __eq__(self, o: 'Arg') -> bool:
+        if not isinstance(o, Arg):
             return False
 
-        return self.name == other.name and self.typeHint == other.typeHint
+        return self.name == o.name and self._eq(self.typeHint, o.typeHint)
 
     def __lt__(self, other: 'Arg') -> bool:
         if not isinstance(other, Arg):
@@ -50,7 +50,7 @@ class Arg:
         return self < other or self == other
 
     def __hash__(self) -> int:
-        return hash((self.name, self.typeHint))
+        return hash((self.name, self._stripQuotes(self.typeHint)))
 
     def nameEquals(self, other: 'Arg') -> bool:
         """More lenient equality: only compare names"""
@@ -70,12 +70,20 @@ class Arg:
     def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
         """Construct an Arg object from a Python AST argument object"""
         anno = astArg.annotation
-        typeHint: str = '' if anno is None else parseAnnotation(anno)
+        typeHint: str = '' if anno is None else unparseAnnotation(anno)
         return Arg(name=astArg.arg, typeHint=typeHint)
 
     @classmethod
     def _str(cls, typeName: Optional[str]) -> str:
         return '' if typeName is None else typeName
+
+    @classmethod
+    def _eq(cls, str1: str, str2: str) -> bool:
+        return cls._stripQuotes(str1) == cls._stripQuotes(str2)
+
+    @classmethod
+    def _stripQuotes(cls, string: str) -> str:
+        return string.replace('"', '').replace("'", '')
 
 
 class ArgList:

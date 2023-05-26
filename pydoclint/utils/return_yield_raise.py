@@ -2,7 +2,7 @@ import ast
 from typing import Tuple, Type, Union
 
 from pydoclint.utils import walk
-from pydoclint.utils.annotation import parseAnnotation
+from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 
@@ -22,7 +22,7 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnnotation: str = parseAnnotation(node.returns)
+    returnAnnotation: str = unparseAnnotation(node.returns)
     return returnAnnotation.startswith('Generator')
 
 

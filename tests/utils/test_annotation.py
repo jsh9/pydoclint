@@ -1,12 +1,13 @@
 import ast
+import sys
 from typing import Dict, Optional
 
 import pytest
 
-from pydoclint.utils.annotation import parseAnnotation
+from pydoclint.utils.annotation import unparseAnnotation
 
 
-def testParseAnnotationInArguments() -> None:
+def testUnparseAnnotationInArguments() -> None:
     src = """
 def foo(
         arg01: Optional[Union[int, float]],
@@ -32,6 +33,13 @@ def foo(
         arg21: Type[BasicUser | ProUser],
         arg22: Literal[True],
         arg23: ClassVar[dict[str, int]],
+        arg24: TypeGuard[list[str]],
+        arg25: TypeVarTuple('Ts'),
+        arg26: Annotated[int, ValueRange(-10, 5)],
+        arg27: Annotated[int, ValueRange(3, 10), ctype('char')],
+        arg28: 'MyClass',
+        arg29: TypeVar('A', str, bytes),
+        arg30: TypeVar('U', bound=str | bytes),
 ):
     pass
 """
@@ -66,6 +74,46 @@ def foo(
         'arg21': 'Type[BasicUser | ProUser]',
         'arg22': 'Literal[True]',
         'arg23': 'ClassVar[dict[str, int]]',
+        'arg24': 'TypeGuard[list[str]]',
+        'arg25': "TypeVarTuple('Ts')",
+        'arg26': 'Annotated[int, ValueRange(-10, 5)]',
+        'arg27': "Annotated[int, ValueRange(3, 10), ctype('char')]",
+        'arg28': "'MyClass'",
+        'arg29': "TypeVar('A', str, bytes)",
+        'arg30': "TypeVar('U', bound=str | bytes)",
+    }
+
+    assert result == expected
+
+
+def testUnparseAnnotationInArguments_py311() -> None:
+    if sys.version_info < (3, 11):
+        assert True
+        return  # this test is only runnable in Python 3.11
+
+    src = """
+def foo(
+        arg01: tuple[T, *Ts],
+        arg02: tuple[*Ts, T],
+        arg03: Callable[[*Ts], None],
+        arg04: tuple[*Shape],
+        arg05: Optional[tuple[*Shape]],
+):
+    pass
+"""
+    tree = ast.parse(src)
+
+    result = None
+    for node in tree.body:
+        if isinstance(node, ast.FunctionDef):
+            result = _getArgTypeHints(node)
+
+    expected: Dict[str, str] = {
+        'arg01': 'tuple[T, *Ts]',
+        'arg02': 'tuple[*Ts, T]',
+        'arg03': 'Callable[[*Ts], None]',
+        'arg04': 'tuple[*Shape]',
+        'arg05': 'Optional[tuple[*Shape]]',
     }
 
     assert result == expected
@@ -74,7 +122,7 @@ def foo(
 def _getArgTypeHints(node: ast.FunctionDef) -> Dict[str, str]:
     hints = {}
     for arg_ in node.args.args:
-        hints[arg_.arg] = parseAnnotation(arg_.annotation)
+        hints[arg_.arg] = unparseAnnotation(arg_.annotation)
 
     return hints
 
@@ -102,6 +150,6 @@ def testParseReturnAnnotation(src: str, expectedAnnotation: str):
     returnAnnotation: Optional[str] = None
     for node in tree.body:
         if isinstance(node, ast.FunctionDef):
-            returnAnnotation: str = parseAnnotation(node.returns)
+            returnAnnotation: str = unparseAnnotation(node.returns)
 
     assert returnAnnotation == expectedAnnotation
