@@ -15,26 +15,26 @@ expectedViolations_True_True = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
@@ -47,8 +47,8 @@ expectedViolations_True_True = [
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
@@ -56,26 +56,26 @@ expectedViolations_False_True = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
@@ -84,8 +84,8 @@ expectedViolations_False_True = [
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
@@ -93,26 +93,26 @@ expectedViolations_True_False = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not '
     'match ',
@@ -121,8 +121,8 @@ expectedViolations_True_False = [
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
@@ -130,32 +130,32 @@ expectedViolations_False_False = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the function signature but not in '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
     'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
     'function signature. ',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. (Or did you miss the space between the argument name and '
-    'the ":" in the docstring?). Arguments in the docstring but not in the '
+    'function arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the docstring but not in the '
     'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
@@ -238,8 +238,8 @@ def testReturns(style: str, filename: str) -> None:
         'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
         'function signature. ',
         'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-        'function arguments. (Or did you miss the space between the argument name and '
-        'the ":" in the docstring?). Arguments in the function signature but not in '
+        'function arguments. (Or could be other formatting issues: '
+        'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in '
         'the docstring: [arg2: float, arg3: str]. Arguments in the docstring but not '
         'in the function signature: [arg1: int].',
         'DOC201: Function `func52` does not have a return section in docstring ',
@@ -265,8 +265,8 @@ expected_True = [
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func3`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg1: , arg2: , arg3: ]. Arguments in the docstring but not in '
     'the function signature: [var1: int, var2: str].',
     'DOC201: Function `func3` does not have a return section in docstring ',
@@ -276,22 +276,22 @@ expected_False = [
     'DOC101: Function `func1`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func1`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg1: , arg2: , arg3: ].',
     'DOC201: Function `func1` does not have a return section in docstring ',
     'DOC101: Function `func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func2`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg1: , arg2: , arg3: ].',
     'DOC201: Function `func2` does not have a return section in docstring ',
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func3`: Docstring arguments are different from function '
-    'arguments. (Or did you miss the space between the argument name and the ":" '
-    'in the docstring?). Arguments in the function signature but not in the '
+    'arguments. (Or could be other formatting issues: '
+    'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
     'docstring: [arg1: , arg2: , arg3: ]. Arguments in the docstring but not in '
     'the function signature: [var1: int, var2: str].',
     'DOC201: Function `func3` does not have a return section in docstring ',
@@ -339,8 +339,8 @@ def testInit(style: str) -> None:
         'DOC302: Class `C`: The class docstring does not need a "Returns" section, '
         'because __init__() cannot return anything ',
         'DOC103: Method `D.__init__`: Docstring arguments are different from function '
-        'arguments. (Or did you miss the space between the argument name and the ":" '
-        'in the docstring?). Arguments in the function signature but not in the '
+        'arguments. (Or could be other formatting issues: '
+        'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
         'docstring: [arg1: int, arg2: float]. Arguments in the docstring but not in '
         'the function signature: [var1: list, var2: dict].',
         'DOC302: Class `D`: The class docstring does not need a "Returns" section, '
@@ -437,28 +437,54 @@ def testStarsInArgumentList(style: str) -> None:
     )
     expected = [
         'DOC103: Function `func2`: Docstring arguments are different from function '
-        'arguments. (Or did you miss the space between the argument name and the ":" '
-        'in the docstring?). Arguments in the function signature but not in the '
+        'arguments. (Or could be other formatting issues: '
+        'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
         'docstring: [**kwargs: ]. Arguments in the docstring but not in the function '
         'signature: [kwargs: ].',
         'DOC103: Function `func4`: Docstring arguments are different from function '
-        'arguments. (Or did you miss the space between the argument name and the ":" '
-        'in the docstring?). Arguments in the function signature but not in the '
+        'arguments. (Or could be other formatting issues: '
+        'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
         'docstring: [*args: ]. Arguments in the docstring but not in the function '
         'signature: [args: ].',
         'DOC101: Function `func6`: Docstring contains fewer arguments than in '
         'function signature. ',
         'DOC103: Function `func6`: Docstring arguments are different from function '
-        'arguments. (Or did you miss the space between the argument name and the ":" '
-        'in the docstring?). Arguments in the function signature but not in the '
+        'arguments. (Or could be other formatting issues: '
+        'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
         'docstring: [**kwargs: , *args: ].',
         'DOC101: Function `func7`: Docstring contains fewer arguments than in '
         'function signature. ',
         'DOC103: Function `func7`: Docstring arguments are different from function '
-        'arguments. (Or did you miss the space between the argument name and the ":" '
-        'in the docstring?). Arguments in the function signature but not in the '
+        'arguments. (Or could be other formatting issues: '
+        'https://github.com/jsh9/pydoclint/#notes-on-doc103). Arguments in the function signature but not in the '
         'docstring: [**kwargs: , *args: , arg1: float, arg2: str]. Arguments in the '
         'docstring but not in the function signature: [arg1: int, arg2: dict].',
+    ]
+    assert list(map(str, violations)) == expected
+
+
+def testParsingErrors_google() -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'google/parsing_errors/cases.py',
+        style='google',
+    )
+    expected = [
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        "docstring. Error message: Expected a colon in 'arg1'."
+    ]
+    assert list(map(str, violations)) == expected
+
+
+def testParsingErrors_numpy() -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'numpy/parsing_errors/cases.py',
+        style='numpy',
+    )
+    expected = [
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        'docstring. Error message: The section Parameters appears twice in  Some '
+        'class  Parameters ----------     arg1     arg2  Parameters ----------     '
+        'arg3     arg4'
     ]
     assert list(map(str, violations)) == expected
 

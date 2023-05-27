@@ -85,7 +85,19 @@ class Visitor(ast.NodeVisitor):
             yieldViolations = []
             raiseViolations = []
         else:
-            doc: Doc = Doc(docstring=docstring, style=self.style)
+            try:
+                doc: Doc = Doc(docstring=docstring, style=self.style)
+            except Exception as excp:
+                doc = Doc(docstring='', style=self.style)
+                self.violations.append(
+                    Violation(
+                        code=1,
+                        line=node.lineno,
+                        msgPrefix=f'Function/method `{node.name}`:',
+                        msgPostfix=str(excp).replace('\n', ' '),
+                    )
+                )
+
             isShort: bool = doc.isShortDocstring
             if self.skipCheckingShortDocstrings and isShort:
                 argViolations = []
@@ -131,7 +143,7 @@ class Visitor(ast.NodeVisitor):
     def visit_Raise(self, node: ast.Raise):  # noqa: D102
         self.generic_visit(node)
 
-    def _checkClassConstructorDocstrings(
+    def _checkClassConstructorDocstrings(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.ClassDef,
@@ -174,8 +186,31 @@ class Visitor(ast.NodeVisitor):
             return classDocstring
 
         # Below: __init__() is allowed to have a separate docstring
-        classDoc = Doc(docstring=classDocstring, style=self.style)
-        initDoc = Doc(docstring=initDocstring, style=self.style)
+        try:
+            classDoc = Doc(docstring=classDocstring, style=self.style)
+        except Exception as excp:
+            classDoc = Doc(docstring='', style=self.style)
+            self.violations.append(
+                Violation(
+                    code=1,
+                    line=parent_.lineno,
+                    msgPrefix=f'Class `{className}`:',
+                    msgPostfix=str(excp).replace('\n', ' '),
+                )
+            )
+
+        try:
+            initDoc = Doc(docstring=initDocstring, style=self.style)
+        except Exception as excp:
+            initDoc = Doc(docstring='', style=self.style)
+            self.violations.append(
+                Violation(
+                    code=1,
+                    line=node.lineno,
+                    msgPrefix=f'Method `{node.name}`',
+                    msgPostfix=str(excp).replace('\n', ' '),
+                )
+            )
 
         if classDoc.hasReturnsSection:
             self.violations.append(
