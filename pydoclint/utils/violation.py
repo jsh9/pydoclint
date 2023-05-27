@@ -4,12 +4,13 @@ from typing import Tuple
 from pydoclint.utils.internal_error import InternalError
 
 VIOLATION_CODES = types.MappingProxyType({
+    1: 'Potential formatting errors in docstring. Error message:',
+
     101: 'Docstring contains fewer arguments than in function signature.',
     102: 'Docstring contains more arguments than in function signature.',
     103: (  # noqa: PAR001
         'Docstring arguments are different from function arguments.'
-        ' (Or did you miss the space between the argument name'
-        ' and the ":" in the docstring?).'
+        ' (Or could be other formatting issues: https://github.com/jsh9/pydoclint/#notes-on-doc103).'
     ),
     104: 'Arguments are the same in the docstring and the function signature, but are in a different order.',
     105: 'Argument names match, but type hints do not match',
@@ -54,13 +55,13 @@ class Violation:
     @property
     def fullErrorCode(self) -> str:
         """Full error code, including the 'DOC' prefix"""
-        return f'DOC{self.code}'
+        return 'DOC' + f'{self.code}'.zfill(3)
 
     def __repr__(self) -> str:
         return self.__str__()
 
     def __str__(self) -> str:
-        return f'DOC{self.code}: {self.msg}'
+        return f'{self.fullErrorCode}: {self.msg}'
 
     def _str(self, showLineNum: bool = False) -> str:
         if not showLineNum:
