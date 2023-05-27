@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Added
+  - A new violation, `DOC001`, for errors in parsing docstrings
   - A new option to allow `__init__()` methods to have docstring (and when
     users activate this option, check arguments and "Raises" in the docstring
     of `__init__()` instead of in the class docstring)
