@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## [0.0.4] - 2023-05-27
 
 - Added
   - A new violation, `DOC001`, for errors in parsing docstrings
@@ -11,6 +11,8 @@
   - Used AST unparser to unparse type annotation nodes
 - Fixed
   - A bug when parsing type annotations such as `Callable[[int], str]`
+- Full changelog
+  - https://github.com/jsh9/pydoclint/compare/0.0.3...0.0.4
 
 ## [0.0.3] - 2023-05-18
 
