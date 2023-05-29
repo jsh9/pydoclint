@@ -17,6 +17,11 @@ def hasReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     return node.returns is not None
 
 
+def isReturnAnnotationNone(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the return type annotation if `None`"""
+    return _isNone(node.returns)
+
+
 def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has a 'Generator' return annotation"""
     if node.returns is None:
@@ -74,3 +79,7 @@ def _hasReturnOrRaiseStatements(
                 return True
 
     return False
+
+
+def _isNone(node: ast.AST) -> bool:
+    return isinstance(node, ast.Constant) and node.value is None
