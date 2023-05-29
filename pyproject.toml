@@ -8,4 +8,5 @@ wrap-line-with-long-string = true
 
 [tool.pydoclint]
 style = 'numpy'
+exclude = '\.git|\.tox|tests/data|unparser\.py'
 require-return-section-when-returning-none = true

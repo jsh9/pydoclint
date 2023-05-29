@@ -6,7 +6,6 @@ from typing import Dict, List, Optional, Tuple
 import click
 
 from pydoclint.parse_config import (
-    injectDefaultOptionsFromInferredTomlFilePath,
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
 from pydoclint.utils.violation import Violation
@@ -140,9 +139,9 @@ def validateStyleValue(
     is_eager=True,
     callback=injectDefaultOptionsFromUserSpecifiedTomlFilePath,
     help=(
-        'The full path of the .toml config file; if not provided, pydoclint'
-        ' will try to load the file pyproject.toml in the common parent folder'
-        ' of `paths`'
+        'The full path of the .toml config file that contains the config'
+        ' options; note that the command line options take precedence'
+        ' over the .toml file'
     ),
 )
 @click.pass_context
@@ -163,9 +162,6 @@ def main(  # noqa: C901
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
-
-    if config is None:  # user has not specified a `--config`
-        injectDefaultOptionsFromInferredTomlFilePath(ctx, None, value=paths)
 
     if paths and src is not None:
         click.echo(

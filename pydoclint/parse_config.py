@@ -37,39 +37,7 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
         return None
 
     print(f'Loading config from user-specified .toml file: {value}')
-    config = parseOneTomlFile(tomlFilename=value)
-    updateCtxDefaultMap(ctx=ctx, config=config)
-    return value
-
-
-def injectDefaultOptionsFromInferredTomlFilePath(
-        ctx: click.Context,
-        param: click.Parameter,
-        value: Optional[List[str]],
-) -> Optional[List[str]]:
-    """
-    Inject default objects from user-specified .toml file path.
-
-    Parameters
-    ----------
-    ctx : click.Context
-        The "click" context
-    param : click.Parameter
-        The "click" parameter; not used in this function; just a placeholder
-    value : Optional[List[str]]
-        The paths of the Python files to check, from which the full path
-        of ``pyproject.toml`` will be inferred. (It needs to be named ``value``
-        so that ``click`` can correctly use it as a callback function.)
-
-    Returns
-    -------
-    Optional[List[str]]
-        The paths of the Python files to check
-    """
-    if not value:
-        return None
-
-    config = parseToml(paths=value)
+    config = parseOneTomlFile(tomlFilename=Path(value))
     updateCtxDefaultMap(ctx=ctx, config=config)
     return value
 
