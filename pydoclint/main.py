@@ -105,7 +105,11 @@ def validateStyleValue(
     type=bool,
     show_default=True,
     default=False,
-    help='',
+    help=(
+        'If False, a return section is not needed in docstring if'
+        ' the function body does not have a "return" statement and'
+        ' the return type annotation is "-> None".'
+    ),
 )
 @click.argument(
     'paths',

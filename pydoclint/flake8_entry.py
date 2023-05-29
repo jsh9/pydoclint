@@ -60,6 +60,17 @@ class Plugin:
             default='False',
             help='If True, allow both __init__() and the class def to have docstrings',
         )
+        parser.add_option(
+            '-rrs',
+            '--require-return-section-when-returning-none',
+            action='store',
+            default='False',
+            help=(
+                'If False, a return section is not needed in docstring if'
+                ' the function body does not have a "return" statement and'
+                ' the return type annotation is "-> None".'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
@@ -70,6 +81,9 @@ class Plugin:
         )
         cls.skip_checking_raises = options.skip_checking_raises
         cls.allow_init_docstring = options.allow_init_docstring
+        cls.require_return_section_when_returning_none = (
+            options.require_return_section_when_returning_none
+        )
         cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
@@ -88,6 +102,10 @@ class Plugin:
             '--allow-init-docstring',
             self.allow_init_docstring,
         )
+        requireReturnSectionWhenReturningNone = self._bool(
+            '--require-return-section-when-returning-none',
+            self.require_return_section_when_returning_none,
+        )
 
         if self.style not in {'numpy', 'google'}:
             raise ValueError(
@@ -100,6 +118,7 @@ class Plugin:
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
             allowInitDocstring=allowInitDocstring,
+            requireReturnSectionWhenReturningNone=requireReturnSectionWhenReturningNone,
             style=self.style,
         )
         v.visit(self._tree)
