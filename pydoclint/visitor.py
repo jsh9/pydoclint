@@ -18,6 +18,7 @@ from pydoclint.utils.return_yield_raise import (
     hasReturnAnnotation,
     hasReturnStatements,
     hasYieldStatements,
+    isReturnAnnotationNone,
 )
 from pydoclint.utils.violation import Violation
 
@@ -33,6 +34,7 @@ class Visitor(ast.NodeVisitor):
             skipCheckingShortDocstrings: bool = True,
             skipCheckingRaises: bool = False,
             allowInitDocstring: bool = False,
+            requireReturnSectionWhenReturningNone: bool = False,
     ) -> None:
         self.style: str = style
         self.checkTypeHint: bool = checkTypeHint
@@ -40,6 +42,9 @@ class Visitor(ast.NodeVisitor):
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
         self.skipCheckingRaises: bool = skipCheckingRaises
         self.allowInitDocstring: bool = allowInitDocstring
+        self.requireReturnSectionWhenReturningNone: bool = (
+            requireReturnSectionWhenReturningNone
+        )
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
         self.violations: List[Violation] = []
@@ -374,9 +379,8 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    @classmethod
     def checkReturns(
-            cls,
+            self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
@@ -400,7 +404,10 @@ class Visitor(ast.NodeVisitor):
                 # If "Generator[...]" is put in the return type annotation,
                 # we don't need a "Returns" section in the docstring. Instead,
                 # we need a "Yields" section.
-                violations.append(v201)
+                if self.requireReturnSectionWhenReturningNone:
+                    violations.append(v201)
+                elif not isReturnAnnotationNone(node):
+                    violations.append(v201)
 
         if docstringHasReturnSection and not (hasReturnStmt or hasReturnAnno):
             violations.append(v202)

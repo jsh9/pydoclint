@@ -99,6 +99,18 @@ def validateStyleValue(
     default=False,
     help='If True, allow both __init__() and the class def to have docstrings',
 )
+@click.option(
+    '-rrs',
+    '--require-return-section-when-returning-none',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If False, a return section is not needed in docstring if'
+        ' the function body does not have a "return" statement and'
+        ' the return type annotation is "-> None".'
+    ),
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -124,6 +136,7 @@ def main(
         skip_checking_short_docstrings: bool,
         skip_checking_raises: bool,
         allow_init_docstring: bool,
+        require_return_section_when_returning_none: bool,
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
@@ -151,6 +164,7 @@ def main(
         skipCheckingShortDocstrings=skip_checking_short_docstrings,
         skipCheckingRaises=skip_checking_raises,
         allowInitDocstring=allow_init_docstring,
+        requireReturnSectionWhenReturningNone=require_return_section_when_returning_none,
     )
 
     violationCounter: int = 0
@@ -195,6 +209,7 @@ def _checkPaths(
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
         allowInitDocstring: bool = False,
+        requireReturnSectionWhenReturningNone: bool = False,
         quiet: bool = False,
         exclude: str = '',
 ) -> Dict[str, List[Violation]]:
@@ -230,6 +245,7 @@ def _checkPaths(
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
             allowInitDocstring=allowInitDocstring,
+            requireReturnSectionWhenReturningNone=requireReturnSectionWhenReturningNone,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -244,6 +260,7 @@ def _checkFile(
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
         allowInitDocstring: bool = False,
+        requireReturnSectionWhenReturningNone: bool = False,
 ) -> List[Violation]:
     with open(filename) as fp:
         src: str = ''.join(fp.readlines())
@@ -256,6 +273,7 @@ def _checkFile(
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
         skipCheckingRaises=skipCheckingRaises,
         allowInitDocstring=allowInitDocstring,
+        requireReturnSectionWhenReturningNone=requireReturnSectionWhenReturningNone,
     )
     visitor.visit(tree)
     return visitor.violations

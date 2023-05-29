@@ -225,6 +225,7 @@ def testReturns(style: str, filename: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returns/{filename}',
         skipCheckingShortDocstrings=False,
+        requireReturnSectionWhenReturningNone=True,
         style=style,
     )
 
@@ -487,6 +488,40 @@ def testParsingErrors_numpy() -> None:
         'arg3     arg4'
     ]
     assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize(
+    'style, rrs',
+    itertools.product(
+        ['numpy', 'google'],
+        [False, True],
+    ),
+)
+def testNoReturnSection(
+        style: str,
+        rrs: bool,
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/no_return_section/cases.py',
+        style=style,
+        requireReturnSectionWhenReturningNone=rrs,
+    )
+    expected_lookup = {
+        True: [
+            'DOC201: Function `func1` does not have a return section in docstring ',
+            'DOC201: Function `func2` does not have a return section in docstring ',
+            'DOC201: Function `func3` does not have a return section in docstring ',
+            'DOC201: Function `func4` does not have a return section in docstring ',
+            'DOC201: Function `func5` does not have a return section in docstring ',
+        ],
+        False: [
+            'DOC201: Function `func2` does not have a return section in docstring ',
+            'DOC201: Function `func3` does not have a return section in docstring ',
+            'DOC201: Function `func4` does not have a return section in docstring ',
+            'DOC201: Function `func5` does not have a return section in docstring ',
+        ],
+    }
+    assert list(map(str, violations)) == expected_lookup[rrs]
 
 
 def testPlayground() -> None:

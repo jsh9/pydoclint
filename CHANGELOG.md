@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- Added
+  - A new option to allow no return section in the docstring if the function
+    implicitly returns `None`
+
 ## [0.0.4] - 2023-05-27
 
 - Added

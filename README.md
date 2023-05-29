@@ -184,7 +184,7 @@ flake8 --style=google <FILE_OR_FOLDER>
 If `True`, the type hints in the docstring and in the Python code need to
 exactly match.
 
-To turn this optoin on/off, do this:
+To turn this option on/off, do this:
 
 ```
 pydoclint --check-type-hint=False <FILE_OR_FOLDER>
@@ -201,7 +201,7 @@ flake8 --check-type-hint=False <FILE_OR_FOLDER>
 If `True`, the input argument order in the docstring needs to match that in the
 function signature.
 
-To turn this optoin on/off, do this:
+To turn this option on/off, do this:
 
 ```
 pydoclint --check-arg-order=False <FILE_OR_FOLDER>
@@ -218,7 +218,7 @@ flake8 --check-arg-order=False <FILE_OR_FOLDER>
 If `True`, `pydoclint` won't check functions that have only a short description
 in their docstring.
 
-To turn this optoin on/off, do this:
+To turn this option on/off, do this:
 
 ```
 pydoclint --skip-checking-short-docstrings=False <FILE_OR_FOLDER>
@@ -241,3 +241,9 @@ docstring (or vice versa).
 If it is set to `True`, having a docstring for class constructors
 (`__init__()`) is allowed, and the arguments are expected to be documented
 under `__init__()` rather than in the class docstring.
+
+### 4.9. `--require-return-section-when-returning-none` (shortform: `-rrs`, default: `False`)
+
+If `False`, a "return" section is not necessary in the docstring if the
+function implicitly returns `None` (for example, doesn't have a return
+statement, or has `-> None` as the return annotation).
