@@ -225,6 +225,7 @@ def testReturns(style: str, filename: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returns/{filename}',
         skipCheckingShortDocstrings=False,
+        requireReturnSectionWhenReturningNone=True,
         style=style,
     )
 
