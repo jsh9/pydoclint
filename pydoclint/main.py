@@ -5,6 +5,10 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
+from pydoclint.parse_config import (
+    injectDefaultOptionsFromInferredTomlFilePath,
+    injectDefaultOptionsFromUserSpecifiedTomlFilePath,
+)
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 
@@ -25,7 +29,7 @@ def validateStyleValue(
     context_settings={'help_option_names': ['-h', '--help']},
     # While Click does set this field automatically using the docstring, mypyc
     # (annoyingly) strips them, so we need to set it here too.
-    help='Yes',
+    help='Pydoclint, a linter for Python docstring styles',
 )
 @click.option(
     '-s',
@@ -123,8 +127,26 @@ def validateStyleValue(
     ),
     is_eager=True,
 )
+@click.option(
+    '--config',
+    type=click.Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        allow_dash=False,
+        path_type=str,
+    ),
+    is_eager=True,
+    callback=injectDefaultOptionsFromUserSpecifiedTomlFilePath,
+    help=(
+        'The full path of the .toml config file; if not provided, pydoclint'
+        ' will try to load the file pyproject.toml in the common parent folder'
+        ' of `paths`'
+    ),
+)
 @click.pass_context
-def main(
+def main(  # noqa: C901
         ctx: click.Context,
         quiet: bool,
         exclude: str,
@@ -137,9 +159,13 @@ def main(
         skip_checking_raises: bool,
         allow_init_docstring: bool,
         require_return_section_when_returning_none: bool,
+        config: Optional[str],
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
+
+    if config is None:  # user has not specified a `--config`
+        injectDefaultOptionsFromInferredTomlFilePath(ctx, None, value=paths)
 
     if paths and src is not None:
         click.echo(
