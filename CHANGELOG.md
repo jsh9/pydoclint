@@ -8,6 +8,8 @@
 - Changed
   - Made pydoclint options configurable via a config file (both in the native
     mode and in the flake8 plugin mode)
+  - Methods with `@property` as its last decorator no longer need to have a
+    return section in the docstring
 
 ## [0.0.4] - 2023-05-27
 

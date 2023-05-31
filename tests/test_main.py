@@ -524,6 +524,20 @@ def testNoReturnSection(
     assert list(map(str, violations)) == expected_lookup[rrs]
 
 
+@pytest.mark.parametrize(
+    'style',
+    ['numpy', 'google'],
+)
+def testPropertyMethod(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/property_method/cases.py',
+        style=style,
+        skipCheckingShortDocstrings=True,
+    )
+    expected = []
+    assert list(map(str, violations)) == expected
+
+
 def testPlayground() -> None:
     """
     This is a placeholder test for testing the `playground.py` file.

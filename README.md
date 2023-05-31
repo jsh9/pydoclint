@@ -151,6 +151,9 @@ Other potential causes to `DOC103` include:
 | `DOC201` | Function/method does not have a return section in docstring                                          |
 | `DOC202` | Function/method has a return section in docstring, but there are no return statements or annotations |
 
+Note on `DOC201`: Methods with `@property` as its last decorator do not need to
+have a return section.
+
 ### 3.3. `DOC3xx`: Violations about class docstring and class constructor
 
 | Code     | Explanation                                                                                             |
