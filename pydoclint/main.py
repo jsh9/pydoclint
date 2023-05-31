@@ -26,8 +26,6 @@ def validateStyleValue(
 
 @click.command(
     context_settings={'help_option_names': ['-h', '--help']},
-    # While Click does set this field automatically using the docstring, mypyc
-    # (annoyingly) strips them, so we need to set it here too.
     help='Pydoclint, a linter for Python docstring styles',
 )
 @click.option(
