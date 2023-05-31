@@ -118,6 +118,12 @@ see [Section 4](#4-configuration-options) below.
 
 _pydoclint_ currently has the following style violation codes:
 
+### 3.0. `DOC0xx`: Docstring parsing issues
+
+| Code     | Explanation                              |
+| -------- | ---------------------------------------- |
+| `DOC001` | Potential formatting errors in docstring |
+
 ### 3.1. `DOC1xx`: Violations about input arguments
 
 | Code     | Explanation                                                                                                                                          |
