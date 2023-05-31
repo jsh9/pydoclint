@@ -122,3 +122,14 @@ def getNodeName(node: ast.AST) -> str:
         return ''
 
     return node.name if 'name' in node.__dict__ else ''
+
+
+def isPropertyMethod(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether a function has `@property` as its last decorator"""
+    return (
+        isinstance(node.decorator_list, list)
+        and len(node.decorator_list) > 0
+        and isinstance(node.decorator_list[-1], ast.Name)
+        and hasattr(node.decorator_list[-1], 'id')
+        and node.decorator_list[-1].id == 'property'
+    )

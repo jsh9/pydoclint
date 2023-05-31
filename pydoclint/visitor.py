@@ -9,6 +9,7 @@ from pydoclint.utils.generic import (
     detectMethodType,
     generateMsgPrefix,
     getDocstring,
+    isPropertyMethod,
 )
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
@@ -399,7 +400,7 @@ class Visitor(ast.NodeVisitor):
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
         violations: List[Violation] = []
-        if not docstringHasReturnSection:
+        if not docstringHasReturnSection and not isPropertyMethod(node):
             if hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno):
                 # If "Generator[...]" is put in the return type annotation,
                 # we don't need a "Returns" section in the docstring. Instead,
