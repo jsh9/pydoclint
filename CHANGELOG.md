@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## [0.0.5] - 2023-05-31
 
 - Added
   - A new option to allow no return section in the docstring if the function
