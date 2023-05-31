@@ -20,6 +20,7 @@ class Plugin:
             '--style',
             action='store',
             default='numpy',
+            parse_from_config=True,
             help='Which style of docstring is your code base using',
         )
         parser.add_option(
@@ -27,6 +28,7 @@ class Plugin:
             '--check-type-hint',
             action='store',
             default='True',
+            parse_from_config=True,
             help='Whether to check type hints in the docstring',
         )
         parser.add_option(
@@ -34,6 +36,7 @@ class Plugin:
             '--check-arg-order',
             action='store',
             default='True',
+            parse_from_config=True,
             help=(
                 'Whether to check argument orders in the docstring'
                 ' against the argument list in the function signature'
@@ -44,6 +47,7 @@ class Plugin:
             '--skip-checking-short-docstrings',
             action='store',
             default='True',
+            parse_from_config=True,
             help='If True, skip checking if the docstring only has a short summary.',
         )
         parser.add_option(
@@ -51,6 +55,7 @@ class Plugin:
             '--skip-checking-raises',
             action='store',
             default='False',
+            parse_from_config=True,
             help='If True, skip checking docstring "Raises" section against "raise" statements',
         )
         parser.add_option(
@@ -58,6 +63,7 @@ class Plugin:
             '--allow-init-docstring',
             action='store',
             default='False',
+            parse_from_config=True,
             help='If True, allow both __init__() and the class def to have docstrings',
         )
         parser.add_option(
@@ -65,6 +71,7 @@ class Plugin:
             '--require-return-section-when-returning-none',
             action='store',
             default='False',
+            parse_from_config=True,
             help=(
                 'If False, a return section is not needed in docstring if'
                 ' the function body does not have a "return" statement and'

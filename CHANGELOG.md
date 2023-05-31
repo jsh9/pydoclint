@@ -5,6 +5,9 @@
 - Added
   - A new option to allow no return section in the docstring if the function
     implicitly returns `None`
+- Changed
+  - Made pydoclint options configurable via a config file (both in the native
+    mode and in the flake8 plugin mode)
 
 ## [0.0.4] - 2023-05-27
 

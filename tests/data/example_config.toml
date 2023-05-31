@@ -1,0 +1,7 @@
+[tool.mytool]
+option1 = true
+option2 = 'hello'
+
+[tool.pydoclint]
+style = 'google'
+some-custom-option = true

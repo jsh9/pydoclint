@@ -5,6 +5,9 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
+from pydoclint.parse_config import (
+    injectDefaultOptionsFromUserSpecifiedTomlFilePath,
+)
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 
@@ -121,8 +124,26 @@ def validateStyleValue(
     ),
     is_eager=True,
 )
+@click.option(
+    '--config',
+    type=click.Path(
+        exists=True,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        allow_dash=False,
+        path_type=str,
+    ),
+    is_eager=True,
+    callback=injectDefaultOptionsFromUserSpecifiedTomlFilePath,
+    help=(
+        'The full path of the .toml config file that contains the config'
+        ' options; note that the command line options take precedence'
+        ' over the .toml file'
+    ),
+)
 @click.pass_context
-def main(
+def main(  # noqa: C901
         ctx: click.Context,
         quiet: bool,
         exclude: str,
@@ -135,6 +156,7 @@ def main(
         skip_checking_raises: bool,
         allow_init_docstring: bool,
         require_return_section_when_returning_none: bool,
+        config: Optional[str],
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
