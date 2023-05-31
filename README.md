@@ -63,16 +63,60 @@ other built-in _flake8_ linters on your code.
 Should I use _pydoclint_ as a native command line tool or a _flake8_ plugin?
 Here's comparison:
 
-|                 | Pros                                       | Cons                                                          |
-| --------------- | ------------------------------------------ | ------------------------------------------------------------- |
-| Native tool     | Slightly faster                            | No per-line or project-wide omission support right now [*]    |
-| _flake8_ plugin | Supports per-line or project-wide omission | Slightly slower because other flake8 plugins are run together |
+|                 | Pros                                     | Cons                                                          |
+| --------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| Native tool     | Slightly faster                          | No inline or project-wide omission support right now [*]      |
+| _flake8_ plugin | Supports inline or project-wide omission | Slightly slower because other flake8 plugins are run together |
 
 \*) This feature may be added in the near future
 
+### 2.4. Configuration
+
+Here is how to configure _pydoclint_. For detailed explanations of all options,
+see [Section 4](#4-configuration-options) below.
+
+#### 2.4.1. Setting options inline
+
+- Native:
+
+  ```bash
+  pydoclint --check-arg-order=False <FILE_OR_FOLDER_PATH>
+  ```
+
+- Flake8:
+
+  ```bash
+  flake8 --check-arg-order=False <FILE_OR_FOLDER_PATH>
+  ```
+
+#### 2.4.2. Setting options in a configuration file
+
+- Native:
+
+  - In a `.toml` file somewhere in your project folder, add a section like this
+    (put in the config that you need):
+
+    ```toml
+    [tool.pydoclint]
+    style = 'google'
+    exclude = '\.git|\.tox|tests/data|some_script\.py'
+    require-return-section-when-returning-none = true
+    ```
+
+  - Then, specify the path of the `.toml` file in your command:
+
+    ```bash
+    pydoclint --config=path/to/my/config.toml <FILE_OR_FOLDER_PATH>
+    ```
+
+- Flake8:
+  - In your flake8 config file (see
+    [flake8's official doc](https://flake8.pycqa.org/en/latest/user/configuration.html#configuration-locations)),
+    add the config you need under the section `[flake8]`
+
 ## 3. Style violation codes
 
-`pydoclint` currently has the following style violation codes:
+_pydoclint_ currently has the following style violation codes:
 
 ### 3.1. `DOC1xx`: Violations about input arguments
 
