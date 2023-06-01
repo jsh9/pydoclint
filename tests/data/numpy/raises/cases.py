@@ -103,3 +103,16 @@ class B:
             When something goes wrong
         """
         return 2
+
+    def func8(self) -> None:
+        """This is a function.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the file does not exist.
+        """
+        try:
+            open('nonexistent')
+        except FileNotFoundError:
+            raise

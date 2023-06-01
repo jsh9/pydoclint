@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.0.7] - 2023-06-01
+
+- Fixed
+  - Fixed a bug where re-raising an exception was not handled properly
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.6...0.0.7
+
 ## [0.0.6] - 2023-05-31
 
 - Fixed
