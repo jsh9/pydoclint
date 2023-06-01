@@ -1,5 +1,10 @@
 # Change Log
 
+## [0.0.6] - 2023-05-31
+
+- Fixed
+  - A typo in `DOC103` error message that resulted in an invalid URL
+
 ## [0.0.5] - 2023-05-31
 
 - Added
