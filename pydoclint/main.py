@@ -10,6 +10,7 @@ from pydoclint.parse_config import (
 )
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
+from pydoclint import __version__
 
 
 def validateStyleValue(
@@ -142,6 +143,7 @@ def validateStyleValue(
         ' over the .toml file'
     ),
 )
+@click.version_option(__version__)
 @click.pass_context
 def main(  # noqa: C901
         ctx: click.Context,
