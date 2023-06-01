@@ -1,0 +1,6 @@
+-   id: pydoclint
+    name: pydoclint
+    description: 'A Python docstring linter matching signatures.'
+    entry: pydoclint
+    language: python
+    types: [python]
