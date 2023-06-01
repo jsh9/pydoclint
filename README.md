@@ -58,7 +58,22 @@ flake8 --select=DOC <FILE_OR_FOLDER>
 If you don't include `--select=DOC` in your command, _flake8_ will also run
 other built-in _flake8_ linters on your code.
 
-### 2.3. Native vs _flake8_
+### 2.3. As a pre-commit hook
+
+`pydoclint` is configured for [pre-commit](https://pre-commit.com/)
+and can be set up as a hook with the following `.pre-commit-config.yaml`
+configuration:
+
+```yaml
+- repo: https://github.com/jsh9/pydoclint
+  rev: 0.0.7
+  hooks:
+    - id: pydoclint
+```
+
+You will need to install `pre-commit` and run `pre-commit install`.
+
+### 2.5. Native vs _flake8_
 
 Should I use _pydoclint_ as a native command line tool or a _flake8_ plugin?
 Here's comparison:
@@ -70,12 +85,12 @@ Here's comparison:
 
 \*) This feature may be added in the near future
 
-### 2.4. Configuration
+### 2.5. Configuration
 
 Here is how to configure _pydoclint_. For detailed explanations of all options,
 see [Section 4](#4-configuration-options) below.
 
-#### 2.4.1. Setting options inline
+#### 2.5.1. Setting options inline
 
 - Native:
 
@@ -89,7 +104,7 @@ see [Section 4](#4-configuration-options) below.
   flake8 --check-arg-order=False <FILE_OR_FOLDER_PATH>
   ```
 
-#### 2.4.2. Setting options in a configuration file
+#### 2.5.2. Setting options in a configuration file
 
 - Native:
 
