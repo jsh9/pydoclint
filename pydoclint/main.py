@@ -166,13 +166,15 @@ def main(  # noqa: C901
     if paths and src is not None:
         click.echo(
             main.get_usage(ctx)
-            + "\n\n'paths' and 'src' cannot be passed simultaneously."
+            + "\n\n'paths' and 'src' cannot be passed simultaneously.",
+            err=True,
         )
         ctx.exit(1)
 
     if not paths and src is None:
         click.echo(
-            main.get_usage(ctx) + "\n\nOne of 'paths' or 'src' is required."
+            main.get_usage(ctx) + "\n\nOne of 'paths' or 'src' is required.",
+            err=True,
         )
         ctx.exit(1)
 
@@ -198,12 +200,14 @@ def main(  # noqa: C901
                 if counter > 1:
                     print('')
 
-                click.echo(click.style(filename, fg='yellow', bold=True))
+                click.echo(
+                    click.style(filename, fg='yellow', bold=True), err=True
+                )
                 for violation in violationsInThisFile:
                     violationCounter += 1
                     fourSpaces = '    '
-                    click.echo(fourSpaces, nl=False)
-                    click.echo(f'{violation.line}: ', nl=False)
+                    click.echo(fourSpaces, nl=False, err=True)
+                    click.echo(f'{violation.line}: ', nl=False, err=True)
                     click.echo(
                         click.style(
                             f'{violation.fullErrorCode}',
@@ -211,14 +215,18 @@ def main(  # noqa: C901
                             bold=True,
                         ),
                         nl=False,
+                        err=True,
                     )
-                    click.echo(f': {violation.msg}')
+                    click.echo(f': {violation.msg}', err=True)
 
     if violationCounter > 0:
         ctx.exit(1)
     else:
         if not quiet:
-            click.echo(click.style('🎉 No violations 🎉', fg='green', bold=True))
+            click.echo(
+                click.style('🎉 No violations 🎉', fg='green', bold=True),
+                err=True,
+            )
 
         ctx.exit(0)
 
@@ -239,7 +247,7 @@ def _checkPaths(
 
     if not quiet:
         skipMsg = f'Skipping files that match this pattern: {exclude}'
-        click.echo(click.style(skipMsg, fg='yellow', bold=True))
+        click.echo(click.style(skipMsg, fg='yellow', bold=True), err=True)
 
     excludePattern = re.compile(exclude)
 
@@ -257,7 +265,7 @@ def _checkPaths(
             continue
 
         if not quiet:
-            click.echo(click.style(filename, fg='cyan', bold=True))
+            click.echo(click.style(filename, fg='cyan', bold=True), err=True)
 
         violationsInThisFile: List[Violation] = _checkFile(
             filename,
