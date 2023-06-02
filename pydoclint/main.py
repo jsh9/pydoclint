@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
+from pydoclint import __version__
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
@@ -142,6 +143,7 @@ def validateStyleValue(
         ' over the .toml file'
     ),
 )
+@click.version_option(__version__)
 @click.pass_context
 def main(  # noqa: C901
         ctx: click.Context,
