@@ -1,5 +1,10 @@
 # Change Log
 
+## Unreleased
+
+- Added
+  - A command line option `--version` to show the current version of pydoclint
+
 ## [0.0.7] - 2023-06-01
 
 - Fixed
