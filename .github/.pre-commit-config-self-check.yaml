@@ -1,0 +1,12 @@
+# Used to test console encoding issues when running with pre-commit on windows
+# See: https://github.com/jsh9/pydoclint/issues/20
+
+repos:
+  - repo: local
+    hooks:
+      - id: check-self
+        name: check-self
+        entry: pydoclint --config=pyproject.toml
+        language: system
+        types: [python]
+        exclude: "^(setup\\.py$|tests?/)"

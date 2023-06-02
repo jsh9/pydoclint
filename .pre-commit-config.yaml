@@ -25,12 +25,3 @@ repos:
     rev: v3.2.2
     hooks:
       - id: validate_manifest
-
-  - repo: local
-    hooks:
-      - id: check-self
-        name: check-self
-        entry: pydoclint --config=pyproject.toml
-        language: system
-        types: [python]
-        exclude: "^(setup\\.py$|tests?/)"
