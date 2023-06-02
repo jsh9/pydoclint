@@ -68,6 +68,8 @@ set up as a hook with the following `.pre-commit-config.yaml` configuration:
   rev: 0.0.7
   hooks:
     - id: pydoclint
+      args:
+        - "--config=pyproject.toml"
 ```
 
 You will need to install `pre-commit` and run `pre-commit install`.
