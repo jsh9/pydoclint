@@ -60,9 +60,8 @@ other built-in _flake8_ linters on your code.
 
 ### 2.3. As a pre-commit hook
 
-`pydoclint` is configured for [pre-commit](https://pre-commit.com/)
-and can be set up as a hook with the following `.pre-commit-config.yaml`
-configuration:
+`pydoclint` is configured for [pre-commit](https://pre-commit.com/) and can be
+set up as a hook with the following `.pre-commit-config.yaml` configuration:
 
 ```yaml
 - repo: https://github.com/jsh9/pydoclint
