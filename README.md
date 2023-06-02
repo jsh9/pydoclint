@@ -72,7 +72,7 @@ set up as a hook with the following `.pre-commit-config.yaml` configuration:
 
 You will need to install `pre-commit` and run `pre-commit install`.
 
-### 2.5. Native vs _flake8_
+### 2.4. Native vs _flake8_
 
 Should I use _pydoclint_ as a native command line tool or a _flake8_ plugin?
 Here's comparison:
