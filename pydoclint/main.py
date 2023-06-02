@@ -284,7 +284,7 @@ def _checkFile(
         allowInitDocstring: bool = False,
         requireReturnSectionWhenReturningNone: bool = False,
 ) -> List[Violation]:
-    with open(filename) as fp:
+    with open(filename, encoding='utf8') as fp:
         src: str = ''.join(fp.readlines())
 
     tree: ast.Module = ast.parse(src)
