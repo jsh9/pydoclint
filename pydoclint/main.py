@@ -5,12 +5,12 @@ from typing import Dict, List, Optional, Tuple
 
 import click
 
+from pydoclint import __version__
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
-from pydoclint import __version__
 
 
 def validateStyleValue(
