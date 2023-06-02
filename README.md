@@ -126,13 +126,13 @@ _pydoclint_ currently has the following style violation codes:
 
 ### 3.1. `DOC1xx`: Violations about input arguments
 
-| Code     | Explanation                                                                                                                                          |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DOC101` | Docstring contains fewer arguments than in function signature                                                                                        |
-| `DOC102` | Docstring contains more arguments than in function signature                                                                                         |
+| Code     | Explanation                                                                                                                                         |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DOC101` | Docstring contains fewer arguments than in function signature                                                                                       |
+| `DOC102` | Docstring contains more arguments than in function signature                                                                                        |
 | `DOC103` | Docstring arguments are different from function arguments. (Or could be other formatting issues: https://github.com/jsh9/pydoclint#notes-on-doc103) |
-| `DOC104` | Arguments are the same in the docstring and the function signature, but are in a different order.                                                    |
-| `DOC105` | Argument names match, but type hints do not match                                                                                                    |
+| `DOC104` | Arguments are the same in the docstring and the function signature, but are in a different order.                                                   |
+| `DOC105` | Argument names match, but type hints do not match                                                                                                   |
 
 #### Notes on `DOC103`:
 
