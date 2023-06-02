@@ -10,7 +10,7 @@ VIOLATION_CODES = types.MappingProxyType({
     102: 'Docstring contains more arguments than in function signature.',
     103: (  # noqa: PAR001
         'Docstring arguments are different from function arguments.'
-        ' (Or could be other formatting issues: https://github.com/jsh9/pydoclint#notes-on-doc103).'
+        ' (Or could be other formatting issues: https://github.com/jsh9/pydoclint#notes-on-doc103 ).'
     ),
     104: 'Arguments are the same in the docstring and the function signature, but are in a different order.',
     105: 'Argument names match, but type hints do not match',
