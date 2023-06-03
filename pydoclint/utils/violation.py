@@ -72,4 +72,4 @@ class Violation:
     def getInfoForFlake8(self) -> Tuple[int, int, str]:
         """Get the violation info for flake8"""
         colOffset: int = 0  # we don't need column offset to locate the issue
-        return self.line, colOffset, self.__str__()
+        return self.line, colOffset, f'{self.fullErrorCode} {self.msg}'
