@@ -65,7 +65,7 @@ set up as a hook with the following `.pre-commit-config.yaml` configuration:
 
 ```yaml
 - repo: https://github.com/jsh9/pydoclint
-  rev: 0.0.7
+  rev: <latest_tag>
   hooks:
     - id: pydoclint
       args:
