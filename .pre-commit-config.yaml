@@ -20,3 +20,8 @@ repos:
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
+
+  - repo: https://github.com/pre-commit/pre-commit
+    rev: v3.2.2
+    hooks:
+      - id: validate_manifest
