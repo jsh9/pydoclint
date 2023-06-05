@@ -1,4 +1,14 @@
-from typing import Generator
+from typing import (
+    Any,
+    AsyncGenerator,
+    AsyncIterable,
+    AsyncIterator,
+    Generator,
+    Iterable,
+    Iterator,
+    List,
+    Tuple,
+)
 
 
 class A:
@@ -41,3 +51,140 @@ class A:
     def method5(self, arg1: int) -> Generator[int, int, int]:
         """Do something else"""
         yield 2
+
+    def method6(self, arg1: int) -> AsyncGenerator[int, int, int]:
+        """
+        Do something
+
+        Args:
+            arg1 (int):
+        """
+        yield 2
+
+    def method7a(self, arg1: int) -> Iterator[int]:
+        """
+        Do something
+
+        Args:
+            arg1 (int):
+
+        Yields:
+            int: something
+        """
+        yield 1
+        yield 2
+        yield 3
+
+    def method8a(self, arg1: int) -> Iterator[int]:
+        """
+        Do something
+
+        Args:
+            arg1 (int):
+        """
+        yield 1
+        yield 2
+        yield 3
+
+    def method7b(self, arg1: int) -> Iterable[int]:
+        """
+        Do something
+
+        Args:
+            arg1 (int):
+
+        Yields:
+            int: something
+        """
+        i = 0
+        while i < 10:
+            yield i
+            i += 1
+
+    def method8b(self, arg1: int) -> Iterable[int]:
+        """
+        Do something
+
+        Args:
+            arg1 (int):
+        """
+        i = 0
+        while i < 10:
+            yield i
+            i += 1
+
+    def method7c(self, data: list) -> AsyncIterator[int]:
+        """
+        Do something
+
+        Args:
+            data (list):
+
+        Yields:
+            int: something
+        """
+        yield from data
+
+    def method8c(self, data: list) -> AsyncIterator[int]:
+        """
+        Do something
+
+        Args:
+            data (list):
+        """
+        yield from data
+
+    def method7d(self, data: list) -> AsyncIterable[int]:
+        """
+        Do something
+
+        Args:
+            data (list):
+
+        Yields:
+            int: something
+        """
+        yield from data
+
+    def method8d(self, data: list) -> AsyncIterable[int]:
+        """
+        Do something
+
+        Args:
+            data (list):
+        """
+        yield from data
+
+    def zipLists1(
+            self,
+            list1: List[Any],
+            list2: List[Any],
+    ) -> Iterator[Tuple[Any, Any]]:
+        """
+        Zip 2 lists.
+
+        Args:
+            list1 (List[Any]) : The first list
+            list2 (List[Any]) : The second list
+
+        Returns:
+            The zipped result
+        """
+        return zip(list1, list2)
+
+    def zipLists2(
+            self,
+            list1: List[Any],
+            list2: List[Any],
+    ) -> Iterator[Tuple[Any, Any]]:
+        """
+        Zip 2 lists.
+
+        Args:
+            list1 (List[Any]) : The first list
+            list2 (List[Any]) : The second list
+
+        Yields:
+            The zipped result
+        """
+        return zip(list1, list2)
