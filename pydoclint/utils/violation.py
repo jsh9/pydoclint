@@ -72,4 +72,5 @@ class Violation:
     def getInfoForFlake8(self) -> Tuple[int, int, str]:
         """Get the violation info for flake8"""
         colOffset: int = 0  # we don't need column offset to locate the issue
-        return self.line, colOffset, f'{self.fullErrorCode} {self.msg}'
+        msg = f'{self.fullErrorCode} {self.msg}'  # no colon b/c that would cause 'yesqa' issues
+        return self.line, colOffset, msg
