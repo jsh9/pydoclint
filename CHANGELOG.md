@@ -6,7 +6,8 @@
   - A command line option `--version` to show the current version of pydoclint
   - Enabled pydoclint to be used as a pre-commit hook
 - Fixed
-  - Encoding issues in Windows (where non-ASCII characters cause issues with Windows + pre-commit)
+  - Encoding issues in Windows (where non-ASCII characters cause issues with
+    Windows + pre-commit)
 
 ## [0.0.7] - 2023-06-01
 
