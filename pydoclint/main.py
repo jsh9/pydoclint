@@ -12,6 +12,12 @@ from pydoclint.parse_config import (
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 
+# Due to a potential bug in Windows + pre-commit, non-ASCII
+# characters cannot be rendered correctly as stdout in the terminal.
+# Therefore, we set all CLI output as stderr.
+# (More details in https://github.com/jsh9/pydoclint/issues/20)
+echoAsError = True
+
 
 def validateStyleValue(
         context: click.Context,
@@ -166,13 +172,15 @@ def main(  # noqa: C901
     if paths and src is not None:
         click.echo(
             main.get_usage(ctx)
-            + "\n\n'paths' and 'src' cannot be passed simultaneously."
+            + "\n\n'paths' and 'src' cannot be passed simultaneously.",
+            err=echoAsError,
         )
         ctx.exit(1)
 
     if not paths and src is None:
         click.echo(
-            main.get_usage(ctx) + "\n\nOne of 'paths' or 'src' is required."
+            main.get_usage(ctx) + "\n\nOne of 'paths' or 'src' is required.",
+            err=echoAsError,
         )
         ctx.exit(1)
 
@@ -198,12 +206,17 @@ def main(  # noqa: C901
                 if counter > 1:
                     print('')
 
-                click.echo(click.style(filename, fg='yellow', bold=True))
+                click.echo(
+                    click.style(filename, fg='yellow', bold=True),
+                    err=echoAsError,
+                )
                 for violation in violationsInThisFile:
                     violationCounter += 1
                     fourSpaces = '    '
-                    click.echo(fourSpaces, nl=False)
-                    click.echo(f'{violation.line}: ', nl=False)
+                    click.echo(fourSpaces, nl=False, err=echoAsError)
+                    click.echo(
+                        f'{violation.line}: ', nl=False, err=echoAsError
+                    )
                     click.echo(
                         click.style(
                             f'{violation.fullErrorCode}',
@@ -211,14 +224,18 @@ def main(  # noqa: C901
                             bold=True,
                         ),
                         nl=False,
+                        err=echoAsError,
                     )
-                    click.echo(f': {violation.msg}')
+                    click.echo(f': {violation.msg}', err=echoAsError)
 
     if violationCounter > 0:
         ctx.exit(1)
     else:
         if not quiet:
-            click.echo(click.style('🎉 No violations 🎉', fg='green', bold=True))
+            click.echo(
+                click.style('🎉 No violations 🎉', fg='green', bold=True),
+                err=echoAsError,
+            )
 
         ctx.exit(0)
 
@@ -239,7 +256,9 @@ def _checkPaths(
 
     if not quiet:
         skipMsg = f'Skipping files that match this pattern: {exclude}'
-        click.echo(click.style(skipMsg, fg='yellow', bold=True))
+        click.echo(
+            click.style(skipMsg, fg='yellow', bold=True), err=echoAsError
+        )
 
     excludePattern = re.compile(exclude)
 
@@ -257,7 +276,9 @@ def _checkPaths(
             continue
 
         if not quiet:
-            click.echo(click.style(filename, fg='cyan', bold=True))
+            click.echo(
+                click.style(filename, fg='cyan', bold=True), err=echoAsError
+            )
 
         violationsInThisFile: List[Violation] = _checkFile(
             filename,
@@ -284,7 +305,7 @@ def _checkFile(
         allowInitDocstring: bool = False,
         requireReturnSectionWhenReturningNone: bool = False,
 ) -> List[Violation]:
-    with open(filename) as fp:
+    with open(filename, encoding='utf8') as fp:
         src: str = ''.join(fp.readlines())
 
     tree: ast.Module = ast.parse(src)
