@@ -1,4 +1,4 @@
-# Used to test console encoding issues when running with pre-commit on windows
+# Used to test console encoding issues when running with pre-commit on Windows
 # See: https://github.com/jsh9/pydoclint/issues/20
 
 repos:
