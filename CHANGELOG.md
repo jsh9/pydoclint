@@ -8,6 +8,8 @@
 - Fixed
   - Encoding issues in Windows (where non-ASCII characters cause issues with
     Windows + pre-commit)
+  - Stopped using colons (:) in flake8 error messages because they could cause
+    issues with tools like "yesqa"
 
 ## [0.0.7] - 2023-06-01
 
