@@ -16,13 +16,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
         python-version: ["3.8", "3.9", "3.10", "3.11"]
-        include:
-          - os: windows-latest
-            python-version: "3.8"
-          - os: macOS-latest
-            python-version: "3.8"
 
     steps:
     - uses: actions/checkout@v3
@@ -47,6 +42,8 @@ jobs:
     - name: Set up Python 3.8
       uses: actions/setup-python@v3
       with:
+        # This is just a sanity check, so we only run it on one Python version
+        # in order to save some time
         python-version: "3.8"
     - name: Run check-self with pre-commit
       run: |
