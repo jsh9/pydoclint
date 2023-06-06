@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## [0.0.8] - 2023-06-06
 
 - Added
   - A command line option `--version` to show the current version of pydoclint
@@ -12,6 +12,8 @@
     issues with tools like "yesqa"
 - Changed
   - Expanded the logic to identify generator functions
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.7...0.0.8
 
 ## [0.0.7] - 2023-06-01
 
