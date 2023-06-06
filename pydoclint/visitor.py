@@ -15,6 +15,7 @@ from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
+    hasIteratorOrIterableAsReturnAnnotation,
     hasRaiseStatements,
     hasReturnAnnotation,
     hasReturnStatements,
@@ -396,12 +397,20 @@ class Visitor(ast.NodeVisitor):
         hasReturnStmt: bool = hasReturnStatements(node)
         hasReturnAnno: bool = hasReturnAnnotation(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        onlyHasYieldStmt: bool = hasYieldStatements(node) and not hasReturnStmt
+        hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
 
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
         violations: List[Violation] = []
         if not docstringHasReturnSection and not isPropertyMethod(node):
-            if hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno):
+            if (
+                # fmt: off
+                not (onlyHasYieldStmt and hasIterAsRetAnno)
+                and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
+
+                # fmt: on
+            ):
                 # If "Generator[...]" is put in the return type annotation,
                 # we don't need a "Returns" section in the docstring. Instead,
                 # we need a "Yields" section.

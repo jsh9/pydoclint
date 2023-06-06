@@ -4,7 +4,7 @@ from typing import Tuple, Type, Union
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
-from pydoclint.utils.generic import getFunctionId
+from pydoclint.utils.generic import getFunctionId, stringStartsWith
 
 ReturnType = Type[ast.Return]
 ExprType = Type[ast.Expr]
@@ -28,7 +28,19 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
         return False
 
     returnAnnotation: str = unparseAnnotation(node.returns)
-    return returnAnnotation.startswith('Generator')
+    return stringStartsWith(returnAnnotation, ('Generator', 'AsyncGenerator'))
+
+
+def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether `node` has a 'Iterator' or 'Iterable' return annotation"""
+    if node.returns is None:
+        return False
+
+    returnAnnotation: str = unparseAnnotation(node.returns)
+    return stringStartsWith(
+        returnAnnotation,
+        ('Iterator', 'Iterable', 'AsyncIterator', 'AsyncIterable'),
+    )
 
 
 def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:

@@ -133,3 +133,12 @@ def isPropertyMethod(node: FuncOrAsyncFuncDef) -> bool:
         and hasattr(node.decorator_list[-1], 'id')
         and node.decorator_list[-1].id == 'property'
     )
+
+
+def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
+    """Check whether the string starts with any of the substrings"""
+    for substring in substrings:
+        if string.startswith(substring):
+            return True
+
+    return False

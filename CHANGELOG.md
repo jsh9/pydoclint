@@ -10,6 +10,8 @@
     Windows + pre-commit)
   - Stopped using colons (:) in flake8 error messages because they could cause
     issues with tools like "yesqa"
+- Changed
+  - Expanded the logic to identify generator functions
 
 ## [0.0.7] - 2023-06-01
 
