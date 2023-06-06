@@ -4,8 +4,8 @@ A Python docstring linter to check whether a docstring's sections (arguments,
 returns, raises, ...) match the function signature or function implementation.
 
 It runs really fast. In fact, it is at least ~1,475 times faster than
-[darglint](https://github.com/terrencepreilly/darglint) (another linter of the
-same purposes which is no longer maintained).
+[darglint](https://github.com/terrencepreilly/darglint) (or its maintained fork
+[darglint2](https://github.com/akaihola/darglint2)).
 
 Here is a comparison of linting time on some famous Python projects:
 
