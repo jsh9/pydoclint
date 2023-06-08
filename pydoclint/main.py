@@ -68,12 +68,20 @@ def validateStyleValue(
     help='',
 )
 @click.option(
-    '-th',
-    '--check-type-hint',
+    '-ths',
+    '--type-hints-in-signature',
     type=bool,
     show_default=True,
     default=True,
-    help='Whether to check type hints in docstrings',
+    help='Whether to require type hints in function signatures',
+)
+@click.option(
+    '-thd',
+    '--type-hints-in-docstring',
+    type=bool,
+    show_default=True,
+    default=True,
+    help='Whether to require type hints in the argument list in docstrings',
 )
 @click.option(
     '-ao',
@@ -158,13 +166,13 @@ def main(  # noqa: C901
         style: str,
         src: Optional[str],
         paths: Tuple[str, ...],
-        check_type_hint: bool,
+        type_hints_in_signature: bool,
+        type_hints_in_docstring: bool,
         check_arg_order: bool,
         skip_checking_short_docstrings: bool,
         skip_checking_raises: bool,
         allow_init_docstring: bool,
         require_return_section_when_returning_none: bool,
-        config: Optional[str],
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
@@ -189,7 +197,8 @@ def main(  # noqa: C901
         exclude=exclude,
         style=style,
         paths=paths,
-        checkTypeHint=check_type_hint,
+        typeHintsInSignature=type_hints_in_signature,
+        typeHintsInDocstring=type_hints_in_docstring,
         checkArgOrder=check_arg_order,
         skipCheckingShortDocstrings=skip_checking_short_docstrings,
         skipCheckingRaises=skip_checking_raises,
@@ -243,7 +252,8 @@ def main(  # noqa: C901
 def _checkPaths(
         paths: Tuple[str, ...],
         style: str = 'numpy',
-        checkTypeHint: bool = True,
+        typeHintsInSignature: bool = True,
+        typeHintsInDocstring: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
@@ -283,7 +293,8 @@ def _checkPaths(
         violationsInThisFile: List[Violation] = _checkFile(
             filename,
             style=style,
-            checkTypeHint=checkTypeHint,
+            typeHintsInSignature=typeHintsInSignature,
+            typeHintsInDocstring=typeHintsInDocstring,
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
@@ -298,7 +309,8 @@ def _checkPaths(
 def _checkFile(
         filename: Path,
         style: str = 'numpy',
-        checkTypeHint: bool = True,
+        typeHintsInSignature: bool = True,
+        typeHintsInDocstring: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
@@ -311,7 +323,8 @@ def _checkFile(
     tree: ast.Module = ast.parse(src)
     visitor = Visitor(
         style=style,
-        checkTypeHint=checkTypeHint,
+        typeHintsInSignature=typeHintsInSignature,
+        typeHintsInDocstring=typeHintsInDocstring,
         checkArgOrder=checkArgOrder,
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
         skipCheckingRaises=skipCheckingRaises,

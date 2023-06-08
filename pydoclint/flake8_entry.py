@@ -24,12 +24,20 @@ class Plugin:
             help='Which style of docstring is your code base using',
         )
         parser.add_option(
-            '-th',
-            '--check-type-hint',
+            '-ths',
+            '--type-hints-in-signature',
             action='store',
             default='True',
             parse_from_config=True,
-            help='Whether to check type hints in the docstring',
+            help='Whether to require type hints in function signatures',
+        )
+        parser.add_option(
+            '-thd',
+            '--type-hints-in-docstring',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help='Whether to require type hints in the argument list in docstrings',
         )
         parser.add_option(
             '-ao',
@@ -81,7 +89,8 @@ class Plugin:
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
-        cls.check_type_hint = options.check_type_hint
+        cls.type_hints_in_signature = options.type_hints_in_signature
+        cls.type_hints_in_docstring = options.type_hints_in_docstring
         cls.check_arg_order = options.check_arg_order
         cls.skip_checking_short_docstrings = (
             options.skip_checking_short_docstrings
@@ -95,7 +104,14 @@ class Plugin:
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
-        checkTypeHint = self._bool('--check-type-hint', self.check_type_hint)
+        typeHintsInSignature = self._bool(
+            '--type-hints-in-signature',
+            self.type_hints_in_signature,
+        )
+        typeHintsInDocstring = self._bool(
+            '--type-hints-in-docstring',
+            self.type_hints_in_docstring,
+        )
         checkArgOrder = self._bool('--check-arg-order', self.check_arg_order)
         skipCheckingShortDocstrings = self._bool(
             '--skip-checking-short-docstrings',
@@ -120,7 +136,8 @@ class Plugin:
             )
 
         v = Visitor(
-            checkTypeHint=checkTypeHint,
+            typeHintsInSignature=typeHintsInSignature,
+            typeHintsInDocstring=typeHintsInDocstring,
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,

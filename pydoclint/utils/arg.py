@@ -56,6 +56,9 @@ class Arg:
         """More lenient equality: only compare names"""
         return self.name == other.name
 
+    def hasTypeHint(self) -> bool:
+        return self.typeHint != ''
+
     @classmethod
     def fromNumpydocParam(cls, param: Parameter) -> 'Arg':
         """Construct an Arg object from a Numpydoc Parameter object"""
@@ -205,3 +208,11 @@ class ArgList:
     def subtract(self, other: 'ArgList') -> Set[Arg]:
         """Find the args that are in this object but not in `other`."""
         return set(self.infoList) - set(other.infoList)
+
+    def noTypeHints(self) -> bool:
+        """Check whether none of the args have type hints"""
+        return not self.hasTypeHintInAnyArg()
+
+    def hasTypeHintInAnyArg(self) -> bool:
+        """Check whether any arg has a type hint"""
+        return any(_.hasTypeHint for _ in self.infoList)
