@@ -5,9 +5,9 @@ name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
@@ -20,17 +20,17 @@ jobs:
         python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install tox tox-gh-actions
-    - name: Test with tox
-      run: tox
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install tox tox-gh-actions
+      - name: Test with tox
+        run: tox
 
   test-pre-commit-console-encoding:
     # Ref.: https://github.com/jsh9/pydoclint/issues/20
@@ -38,15 +38,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v3
-      with:
-        # This is just a sanity check, so we only run it on one Python version
-        # in order to save some time
-        python-version: "3.8"
-    - name: Run check-self with pre-commit
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install pre-commit -e .
-        python -m pre_commit run -c .github/.pre-commit-config-self-check.yaml check-self --all
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v3
+        with:
+          # This is just a sanity check, so we only run it on one Python version
+          # in order to save some time
+          python-version: "3.8"
+      - name: Run check-self with pre-commit
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pre-commit -e .
+          python -m pre_commit run -c .github/.pre-commit-config-self-check.yaml check-self --all
