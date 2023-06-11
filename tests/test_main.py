@@ -11,15 +11,19 @@ THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'data'
 
 
-expectedViolations_True_True = [
+expectedViolations_True = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
+    'DOC108: Method `MyClass.func1_3`: The option `--type-hints-in-docstring` is `True` '
+    'but there are no type hints in the docstring arg list ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
+    'DOC106: Method `MyClass.func1_6`: The option `--type-hints-in-signature` is `True` '
+    'but there are no type hints in the signature ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the docstring but not in the '
@@ -38,66 +42,33 @@ expectedViolations_True_True = [
     'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
-    'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not '
-    'match ',
+    'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not match ',
     'DOC104: Method `MyClass.func6`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
-    'DOC105: Method `MyClass.func6`: Argument names match, but type hints do not '
-    'match ',
+    'DOC105: Method `MyClass.func6`: Argument names match, but type hints do not match ',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
+    'DOC108: Function `func72`: The option `--type-hints-in-docstring` is `True` '
+    'but there are no type hints in the docstring arg list ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in the '
     'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
-expectedViolations_False_True = [
+expectedViolations_False = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
     'function signature. ',
+    'DOC108: Method `MyClass.func1_3`: The option `--type-hints-in-docstring` is `True` '
+    'but there are no type hints in the docstring arg list ',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
     'function signature. ',
-    'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the docstring but not in the '
-    'function signature: [arg1: int].',
-    'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in '
-    'the docstring: [arg2: float | int | None].',
-    'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
-    'function signature. ',
-    'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the docstring but not in the '
-    'function signature: [arg3: Optional[Union[float, int, str]]].',
-    'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
-    'the function signature, but are in a different order. ',
-    'DOC104: Method `MyClass.func6`: Arguments are the same in the docstring and '
-    'the function signature, but are in a different order. ',
-    'DOC101: Function `func72`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in the '
-    'docstring: [arg3: list, arg4: tuple, arg5: dict].',
-]
-
-expectedViolations_True_False = [
-    'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in '
-    'the docstring: [arg1: str, arg2: list[int]].',
-    'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
-    'function signature. ',
+    'DOC106: Method `MyClass.func1_6`: The option `--type-hints-in-signature` is `True` '
+    'but there are no type hints in the signature ',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the docstring but not in the '
@@ -120,84 +91,36 @@ expectedViolations_True_False = [
     'match ',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
+    'DOC108: Function `func72`: The option `--type-hints-in-docstring` is `True` '
+    'but there are no type hints in the docstring arg list ',
     'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in the '
     'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
-expectedViolations_False_False = [
-    'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in '
-    'the docstring: [arg1: str, arg2: list[int]].',
-    'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
-    'function signature. ',
-    'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the docstring but not in the '
-    'function signature: [arg1: int].',
-    'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in '
-    'the docstring: [arg2: float | int | None].',
-    'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
-    'function signature. ',
-    'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
-    'function arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the docstring but not in the '
-    'function signature: [arg3: Optional[Union[float, int, str]]].',
-    'DOC101: Function `func72`: Docstring contains fewer arguments than in '
-    'function signature. ',
-    'DOC103: Function `func72`: Docstring arguments are different from function '
-    'arguments. (Or could be other formatting issues: '
-    'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in the '
-    'docstring: [arg3: list, arg4: tuple, arg5: dict].',
-]
-
-expectedViolationsLookup: Dict[str, List[str]] = {
-    'true_true': expectedViolations_True_True,
-    'true_false': expectedViolations_True_False,
-    'false_true': expectedViolations_False_True,
-    'false_false': expectedViolations_False_False,
+expectedViolationsLookup: Dict[bool, List[str]] = {
+    True: expectedViolations_True,
+    False: expectedViolations_False,
 }
-
-optionDictLookup: Dict[str, Dict[str, bool]] = {
-    'true_true': {'checkTypeHint': True, 'checkArgOrder': True},
-    'true_false': {'checkTypeHint': True, 'checkArgOrder': False},
-    'false_true': {'checkTypeHint': False, 'checkArgOrder': True},
-    'false_false': {'checkTypeHint': False, 'checkArgOrder': False},
-}
-
-options = [
-    'true_true',
-    'true_false',
-    'false_true',
-    'false_false',
-]
 
 
 @pytest.mark.parametrize(
-    'style, filename, option',
+    'style, filename, checkArgOrder',
     list(
         itertools.product(
             ['numpy', 'google'],
             ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
-            options,
+            [True, False],
         ),
     ),
 )
 def testArguments(
         style: str,
         filename: str,
-        option: str,
+        checkArgOrder: str,
 ) -> None:
-    optionDict: Dict[str, bool] = optionDictLookup[option]
-    expectedViolations: List[str] = expectedViolationsLookup[option]
+    expectedViolations: List[str] = expectedViolationsLookup[checkArgOrder]
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
     if filename == 'function.py':
@@ -205,8 +128,7 @@ def testArguments(
 
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/args/{filename}',
-        checkTypeHint=optionDict['checkTypeHint'],
-        checkArgOrder=optionDict['checkArgOrder'],
+        checkArgOrder=checkArgOrder,
         style=style,
     )
     assert list(map(str, violations)) == expectedViolationsCopy
@@ -262,7 +184,7 @@ def _tweakViolationMsgForFunctions(expectedViolationsCopy: List[str]) -> None:
         )
 
 
-expected_True = [
+expected_skipCheckingShortDocstrings_True = [
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC103: Function `func3`: Docstring arguments are different from function '
@@ -273,9 +195,11 @@ expected_True = [
     'DOC201: Function `func3` does not have a return section in docstring ',
 ]
 
-expected_False = [
+expected_skipCheckingShortDocstrings_False = [
     'DOC101: Function `func1`: Docstring contains fewer arguments than in '
     'function signature. ',
+    'DOC108: Function `func1`: The option `--type-hints-in-docstring` is `True` '
+    'but there are no type hints in the docstring arg list ',
     'DOC103: Function `func1`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in the '
@@ -283,6 +207,8 @@ expected_False = [
     'DOC201: Function `func1` does not have a return section in docstring ',
     'DOC101: Function `func2`: Docstring contains fewer arguments than in '
     'function signature. ',
+    'DOC108: Function `func2`: The option `--type-hints-in-docstring` is `True` '
+    'but there are no type hints in the docstring arg list ',
     'DOC103: Function `func2`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in the '
@@ -302,10 +228,10 @@ expected_False = [
 @pytest.mark.parametrize(
     'style, skipCheckingShortDocstrings, expected',
     [
-        ('numpy', True, expected_True),
-        ('numpy', False, expected_False),
-        ('google', True, expected_True),
-        ('google', False, expected_False),
+        ('numpy', True, expected_skipCheckingShortDocstrings_True),
+        ('numpy', False, expected_skipCheckingShortDocstrings_False),
+        ('google', True, expected_skipCheckingShortDocstrings_True),
+        ('google', False, expected_skipCheckingShortDocstrings_False),
     ],
 )
 def testSkipCheckingShortDocstrings(
