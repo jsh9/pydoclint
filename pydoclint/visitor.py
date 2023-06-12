@@ -321,6 +321,8 @@ class Visitor(ast.NodeVisitor):
         v107 = Violation(code=107, line=lineNum, msgPrefix=msgPrefix)
         v108 = Violation(code=108, line=lineNum, msgPrefix=msgPrefix)
         v109 = Violation(code=109, line=lineNum, msgPrefix=msgPrefix)
+        v110 = Violation(code=110, line=lineNum, msgPrefix=msgPrefix)
+        v111 = Violation(code=111, line=lineNum, msgPrefix=msgPrefix)
 
         docArgs: ArgList = doc.argList
         funcArgs: ArgList = ArgList([Arg.fromAstArg(_) for _ in astArgList])
@@ -338,14 +340,20 @@ class Visitor(ast.NodeVisitor):
         if self.typeHintsInSignature and funcArgs.noTypeHints():
             violations.append(v106)
 
-        if not self.typeHintsInSignature and funcArgs.hasTypeHintInAnyArg():
+        if self.typeHintsInSignature and not funcArgs.hasTypeHintInAllArgs():
             violations.append(v107)
 
-        if self.typeHintsInDocstring and docArgs.noTypeHints():
+        if not self.typeHintsInSignature and funcArgs.hasTypeHintInAnyArg():
             violations.append(v108)
 
-        if not self.typeHintsInDocstring and docArgs.hasTypeHintInAnyArg():
+        if self.typeHintsInDocstring and docArgs.noTypeHints():
             violations.append(v109)
+
+        if self.typeHintsInDocstring and not docArgs.hasTypeHintInAllArgs():
+            violations.append(v110)
+
+        if not self.typeHintsInDocstring and docArgs.hasTypeHintInAnyArg():
+            violations.append(v111)
 
         if not docArgs.equals(
             funcArgs,
