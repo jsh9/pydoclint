@@ -56,6 +56,18 @@ class Arg:
         """More lenient equality: only compare names"""
         return self.name == other.name
 
+    def hasTypeHint(self) -> bool:
+        """Check whether this arg has type hint"""
+        return self.typeHint != ''
+
+    def isStarArg(self) -> bool:
+        """Check whether this arg is a star arg (such as *args, **kwargs)"""
+        return self.name.startswith('*')
+
+    def notStarArg(self) -> bool:
+        """Check whether this arg is not a star arg (*args, **kwargs)"""
+        return not self.isStarArg()
+
     @classmethod
     def fromNumpydocParam(cls, param: Parameter) -> 'Arg':
         """Construct an Arg object from a Numpydoc Parameter object"""
@@ -205,3 +217,25 @@ class ArgList:
     def subtract(self, other: 'ArgList') -> Set[Arg]:
         """Find the args that are in this object but not in `other`."""
         return set(self.infoList) - set(other.infoList)
+
+    def noTypeHints(self) -> bool:
+        """Check whether none of the args have type hints"""
+        return not self.hasTypeHintInAnyArg()
+
+    def hasTypeHintInAnyArg(self) -> bool:
+        """
+        Check whether any arg has a type hint.
+
+        Start arguments (such as `*args` or `**kwargs`) are excluded because
+        they don't need to have type hints.
+        """
+        return any(_.hasTypeHint() for _ in self.infoList if _.notStarArg())
+
+    def hasTypeHintInAllArgs(self) -> bool:
+        """
+        Check whether all args have a type hint.
+
+        Start arguments (such as `*args` or `**kwargs`) are excluded because
+        they don't need to have type hints.
+        """
+        return all(_.hasTypeHint() for _ in self.infoList if _.notStarArg())

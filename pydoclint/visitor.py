@@ -31,7 +31,8 @@ class Visitor(ast.NodeVisitor):
     def __init__(
             self,
             style: str = 'numpy',
-            checkTypeHint: bool = True,
+            typeHintsInSignature: bool = True,
+            typeHintsInDocstring: bool = True,
             checkArgOrder: bool = True,
             skipCheckingShortDocstrings: bool = True,
             skipCheckingRaises: bool = False,
@@ -39,7 +40,8 @@ class Visitor(ast.NodeVisitor):
             requireReturnSectionWhenReturningNone: bool = False,
     ) -> None:
         self.style: str = style
-        self.checkTypeHint: bool = checkTypeHint
+        self.typeHintsInSignature: bool = typeHintsInSignature
+        self.typeHintsInDocstring: bool = typeHintsInDocstring
         self.checkArgOrder: bool = checkArgOrder
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
         self.skipCheckingRaises: bool = skipCheckingRaises
@@ -315,9 +317,15 @@ class Visitor(ast.NodeVisitor):
         v102 = Violation(code=102, line=lineNum, msgPrefix=msgPrefix)
         v104 = Violation(code=104, line=lineNum, msgPrefix=msgPrefix)
         v105 = Violation(code=105, line=lineNum, msgPrefix=msgPrefix)
+        v106 = Violation(code=106, line=lineNum, msgPrefix=msgPrefix)
+        v107 = Violation(code=107, line=lineNum, msgPrefix=msgPrefix)
+        v108 = Violation(code=108, line=lineNum, msgPrefix=msgPrefix)
+        v109 = Violation(code=109, line=lineNum, msgPrefix=msgPrefix)
+        v110 = Violation(code=110, line=lineNum, msgPrefix=msgPrefix)
+        v111 = Violation(code=111, line=lineNum, msgPrefix=msgPrefix)
 
-        docArgs = doc.argList
-        funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
+        docArgs: ArgList = doc.argList
+        funcArgs: ArgList = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
         if docArgs.length == 0 and funcArgs.length == 0:
             return []
@@ -329,14 +337,32 @@ class Visitor(ast.NodeVisitor):
         if docArgs.length > funcArgs.length:
             violations.append(v102)
 
+        if self.typeHintsInSignature and funcArgs.noTypeHints():
+            violations.append(v106)
+
+        if self.typeHintsInSignature and not funcArgs.hasTypeHintInAllArgs():
+            violations.append(v107)
+
+        if not self.typeHintsInSignature and funcArgs.hasTypeHintInAnyArg():
+            violations.append(v108)
+
+        if self.typeHintsInDocstring and docArgs.noTypeHints():
+            violations.append(v109)
+
+        if self.typeHintsInDocstring and not docArgs.hasTypeHintInAllArgs():
+            violations.append(v110)
+
+        if not self.typeHintsInDocstring and docArgs.hasTypeHintInAnyArg():
+            violations.append(v111)
+
         if not docArgs.equals(
             funcArgs,
-            checkTypeHint=self.checkTypeHint,
+            checkTypeHint=True,
             orderMatters=self.checkArgOrder,
         ):
             if docArgs.equals(
                 funcArgs,
-                checkTypeHint=self.checkTypeHint,
+                checkTypeHint=True,
                 orderMatters=False,
             ):
                 violations.append(v104)
@@ -345,7 +371,8 @@ class Visitor(ast.NodeVisitor):
                 checkTypeHint=False,
                 orderMatters=self.checkArgOrder,
             ):
-                violations.append(v105)
+                if self.typeHintsInSignature and self.typeHintsInDocstring:
+                    violations.append(v105)
             elif docArgs.equals(
                 funcArgs,
                 checkTypeHint=False,
