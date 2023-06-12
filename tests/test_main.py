@@ -635,6 +635,17 @@ def testTypeHintChecking(
     assert list(map(str, violations)) == expected
 
 
+def testNonAscii() -> None:
+    """Don't crash on non ASCII arguments."""
+    violations = _checkFile(
+        filename=DATA_DIR / 'common/non_ascii/non_ascii.py',
+        style='numpy',
+        skipCheckingShortDocstrings=False,
+    )
+    expected = []
+    assert list(map(str, violations)) == expected
+
+
 def testPlayground() -> None:
     """
     This is a placeholder test for testing the `playground.py` file.
@@ -645,17 +656,6 @@ def testPlayground() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
         style='google',
-    )
-    expected = []
-    assert list(map(str, violations)) == expected
-
-
-def testNonAscii() -> None:
-    """Don't crash on non ASCII arguments."""
-    violations = _checkFile(
-        filename=DATA_DIR / 'common/non_ascii/non_ascii.py',
-        style='numpy',
-        skipCheckingShortDocstrings=False,
     )
     expected = []
     assert list(map(str, violations)) == expected
