@@ -173,6 +173,7 @@ def main(  # noqa: C901
         skip_checking_raises: bool,
         allow_init_docstring: bool,
         require_return_section_when_returning_none: bool,
+        config: Optional[str],  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
