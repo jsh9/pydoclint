@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- Changed
+  - Replaced the `--check-type-hint` option with two new options:
+    `--type-hints-in-docstring` and `--type-hints-in-signature`
+
 ## [0.0.8] - 2023-06-06
 
 - Added
