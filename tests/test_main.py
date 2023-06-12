@@ -428,6 +428,19 @@ def testStarsInArgumentList(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
+@pytest.mark.parametrize('style', ['numpy', 'google'])
+def testStarsInArgumentList2(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/star_args/cases2.py',
+        typeHintsInSignature=True,
+        typeHintsInDocstring=False,
+        allowInitDocstring=True,
+        style=style,
+    )
+    expected = []
+    assert list(map(str, violations)) == expected
+
+
 def testParsingErrors_google() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'google/parsing_errors/cases.py',

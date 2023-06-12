@@ -223,19 +223,14 @@ class ArgList:
         return not self.hasTypeHintInAnyArg()
 
     def hasTypeHintInAnyArg(self) -> bool:
-        """
-        Check whether any arg has a type hint.
-
-        Start arguments (such as `*args` or `**kwargs`) are excluded because
-        they don't need to have type hints.
-        """
-        return any(_.hasTypeHint() for _ in self.infoList if _.notStarArg())
+        """Check whether any arg has a type hint"""
+        return any(_.hasTypeHint() for _ in self.infoList)
 
     def hasTypeHintInAllArgs(self) -> bool:
         """
         Check whether all args have a type hint.
 
-        Start arguments (such as `*args` or `**kwargs`) are excluded because
+        Star arguments (such as `*args` or `**kwargs`) are excluded because
         they don't need to have type hints.
         """
         return all(_.hasTypeHint() for _ in self.infoList if _.notStarArg())

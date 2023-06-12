@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.0.10] - 2023-06-12
+
+- Fixed
+  - Fixed a bug in checking type hints when the function signature only
+    contains star arguments
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.9...0.0.10
+
 ## [0.0.9] - 2023-06-12
 
 - Changed
