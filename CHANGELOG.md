@@ -1,10 +1,12 @@
 # Change Log
 
-## Unreleased
+## [0.0.9] - 2023-06-12
 
 - Changed
   - Replaced the `--check-type-hint` option with two new options:
     `--type-hints-in-docstring` and `--type-hints-in-signature`
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.8...0.0.9
 
 ## [0.0.8] - 2023-06-06
 
