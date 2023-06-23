@@ -10,11 +10,11 @@ else:
     import tomli as tomllib
 
 
-def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
+def parseConfig(
         ctx: click.Context,
-        param: click.Parameter,
-        value: Optional[str],
-) -> Optional[str]:
+        file: str,
+        quiet: bool = False,
+) -> None:
     """
     Inject default objects from user-specified .toml file path.
 
@@ -22,41 +22,40 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     ----------
     ctx : click.Context
         The "click" context
-    param : click.Parameter
-        The "click" parameter; not used in this function; just a placeholder
-    value : Optional[str]
+    file : str
         The full path of the .toml file. (It needs to be named ``value``
         so that ``click`` can correctly use it as a callback function.)
-
-    Returns
-    -------
-    Optional[str]
-        The full path of the .toml file
+    quiet : bool
+        Should the output be silenced. Defaults to False.
     """
-    if not value:
-        return None
-
-    print(f'Loading config from user-specified .toml file: {value}')
-    config = parseOneTomlFile(tomlFilename=Path(value))
+    if not quiet:
+        click.echo(f'Loading config from user-specified .toml file: {file}')
+    config = parseOneTomlFile(tomlFilename=Path(file), quiet=quiet)
     updateCtxDefaultMap(ctx=ctx, config=config)
-    return value
 
 
-def parseToml(paths: Optional[Sequence[str]]) -> Dict[str, Any]:
+def parseToml(
+        paths: Optional[Sequence[str]], quiet: bool = False
+) -> Dict[str, Any]:
     """Parse the pyproject.toml located in the common parent of ``paths``"""
     if paths is None:
         return {}
 
     commonParent: Path = findCommonParentFolder(paths)
     tomlFilename = commonParent / Path('pyproject.toml')
-    print(f'Loading config from inferred .toml file path: {tomlFilename}')
-    return parseOneTomlFile(tomlFilename)
+    if not quiet:
+        click.echo(
+            f'Loading config from inferred .toml file path: {tomlFilename}'
+        )
+    return parseOneTomlFile(tomlFilename, quiet=quiet)
 
 
-def parseOneTomlFile(tomlFilename: Path) -> Dict[str, Any]:
+def parseOneTomlFile(
+        tomlFilename: Path, quiet: bool = False
+) -> Dict[str, Any]:
     """Parse a .toml file"""
     if not tomlFilename.exists():
-        print(f'File "{tomlFilename}" does not exist; nothing to load.')
+        click.echo(f'File "{tomlFilename}" does not exist; nothing to load.')
         return {}
 
     try:
@@ -70,11 +69,12 @@ def parseOneTomlFile(tomlFilename: Path) -> Dict[str, Any]:
     except Exception:
         finalConfig = {}
 
-    if len(finalConfig) > 0:
-        print(f'Found options defined in {tomlFilename}:')
-        print(finalConfig)
-    else:
-        print(f'No config found in {tomlFilename}.')
+    if not quiet:
+        if len(finalConfig) > 0:
+            click.echo(f'Found options defined in {tomlFilename}:')
+            click.echo(finalConfig)
+        else:
+            click.echo(f'No config found in {tomlFilename}.')
 
     return finalConfig
 
