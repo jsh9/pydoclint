@@ -1,7 +1,10 @@
-from docstring_parser.common import DocstringReturns
+from docstring_parser.common import Docstring, DocstringReturns
 from docstring_parser.google import GoogleParser
 from numpydoc.docscrape import NumpyDocString
 
+from typing import List
+
+from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.arg import ArgList
 from pydoclint.utils.internal_error import InternalError
 
@@ -116,6 +119,32 @@ class Doc:
             return len(self.parsed.raises) > 0
 
         self._raiseException()  # noqa: R503
+
+    @property
+    def returnSection(self) -> List[ReturnArg]:
+        if isinstance(self.parsed, Docstring):  # Google style
+            returnArg = ReturnArg(
+                argName=self.parsed.returns.return_name,
+                argType=self.parsed.returns.type_name,
+                argDescr=self.parsed.returns.description,
+            )
+            return [returnArg]  # Google style always has only 1 return arg
+
+        if isinstance(self.parsed, NumpyDocString):  # numpy style
+            returnSection = self.parsed.get('Returns')
+            result = []
+            for element in returnSection:
+                result.append(
+                    ReturnArg(
+                        argName=element.name,
+                        argType=element.type,
+                        argDescr=' '.join(element.desc),
+                    )
+                )
+
+            return result
+
+        return []
 
     def _raiseException(self) -> None:
         msg = f'Unknown style "{self.style}"; please contact the authors'

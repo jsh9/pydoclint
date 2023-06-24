@@ -23,6 +23,9 @@ from pydoclint.utils.return_yield_raise import (
     isReturnAnnotationNone,
 )
 from pydoclint.utils.violation import Violation
+from pydoclint.utils.annotation import unparseAnnotation
+from pydoclint.utils.return_anno import ReturnAnnotation
+from pydoclint.utils.return_arg import ReturnArg
 
 
 class Visitor(ast.NodeVisitor):
@@ -37,6 +40,7 @@ class Visitor(ast.NodeVisitor):
             skipCheckingShortDocstrings: bool = True,
             skipCheckingRaises: bool = False,
             allowInitDocstring: bool = False,
+            checkReturnTypes: bool = True,
             requireReturnSectionWhenReturningNone: bool = False,
     ) -> None:
         self.style: str = style
@@ -46,6 +50,7 @@ class Visitor(ast.NodeVisitor):
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
         self.skipCheckingRaises: bool = skipCheckingRaises
         self.allowInitDocstring: bool = allowInitDocstring
+        self.checkReturnTypes: bool = checkReturnTypes
         self.requireReturnSectionWhenReturningNone: bool = (
             requireReturnSectionWhenReturningNone
         )
@@ -416,10 +421,20 @@ class Visitor(ast.NodeVisitor):
     ) -> List[Violation]:
         """Check return statement & return type annotation of this function"""
         lineNum: int = node.lineno
+
+        b = unparseAnnotation(node.returns)
+
+        a = doc.returnSection
+
+        cc = ast.parse(b)
+
+        dd = ReturnAnnotation(b)
+
         msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
 
         v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
         v202 = Violation(code=202, line=lineNum, msgPrefix=msgPrefix)
+        v203 = Violation(code=203, line=lineNum, msgPrefix=msgPrefix)
 
         hasReturnStmt: bool = hasReturnStatements(node)
         hasReturnAnno: bool = hasReturnAnnotation(node)
@@ -448,6 +463,35 @@ class Visitor(ast.NodeVisitor):
 
         if docstringHasReturnSection and not (hasReturnStmt or hasReturnAnno):
             violations.append(v202)
+
+        if self.checkReturnTypes:
+            if hasReturnAnno:
+                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+            else:
+                returnAnno = ReturnAnnotation('')
+
+            if docstringHasReturnSection:
+                returnSec: List[ReturnArg] = doc.returnSection
+            else:
+                returnSec = []
+
+            if self.style == 'numpy':
+                returnAnnoItems: List[str] = returnAnno.decompose()
+                if len(returnAnnoItems) != len(returnSec):
+                    msg = f'Return annotation has {len(returnAnnoItems)} types;'
+                    msg += f' docstring return section has {len(returnSec)}'
+                    violations.append(v203.appendMoreMsg(moreMsg=msg))
+                else:
+                    returnSecTypes: List[str] = [_.argType for _ in returnSec]
+                    if returnSecTypes != returnAnnoItems:
+                        msg1 = f'Return annotation types: {returnAnnoItems}; '
+                        msg2 = f'Docstring return section types: {returnSecTypes}'
+                        violations.append(v203.appendMoreMsg(msg1 + msg2))
+            else:  # google style, which only has a compound return type
+                if returnSec[0].argType != returnAnno.annotation:
+                    msg = f'Return annotation: {returnAnno.annotation}; '
+                    msg += f'docstring return section: {returnSec[0].argType}'
+                    violations.append(v203.appendMoreMsg(moreMsg=msg))
 
         return violations
 
