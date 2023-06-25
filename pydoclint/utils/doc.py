@@ -153,7 +153,4 @@ class Doc:
 
     @classmethod
     def _str(cls, something: Any) -> str:
-        if something is None:
-            return ''
-
-        return str(something)
+        return '' if something is None else str(something)
