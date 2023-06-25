@@ -122,6 +122,7 @@ class Doc:
 
     @property
     def returnSection(self) -> List[ReturnArg]:
+        """Get the return section of the docstring"""
         if isinstance(self.parsed, Docstring):  # Google style
             returnArg = ReturnArg(
                 argName=self._str(self.parsed.returns.return_name),

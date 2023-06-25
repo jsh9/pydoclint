@@ -413,7 +413,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkReturns(
+    def checkReturns(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,

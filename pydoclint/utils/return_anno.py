@@ -23,8 +23,13 @@ class ReturnAnnotation:
         -------
         List[str]
             The decomposed element
+
+        Raises
+        ------
+        InternalError
+            When the annotation string has strange values
         """
-        if self._isTuple():
+        if self._isTuple():  # noqa: R506
             if not self.annotation.endswith(']'):
                 raise InternalError('Return annotation not ending with `]`')
 

@@ -84,6 +84,7 @@ class Violation:
         return self.line, colOffset, msg
 
     def appendMoreMsg(self, moreMsg: str) -> 'Violation':
+        """Append more error message, and return a new Violation object"""
         new = deepcopy(self)
         new.msg += moreMsg
         return new
