@@ -118,7 +118,7 @@ expectedViolationsLookup: Dict[bool, List[str]] = {
 def testArguments(
         style: str,
         filename: str,
-        checkArgOrder: str,
+        checkArgOrder: bool,
 ) -> None:
     expectedViolations: List[str] = expectedViolationsLookup[checkArgOrder]
 
@@ -129,6 +129,7 @@ def testArguments(
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/args/{filename}',
         checkArgOrder=checkArgOrder,
+        checkReturnTypes=False,  # because this test only checks arguments
         style=style,
     )
     assert list(map(str, violations)) == expectedViolationsCopy
@@ -146,18 +147,17 @@ def testArguments(
 def testReturns(style: str, filename: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returns/{filename}',
-        skipCheckingShortDocstrings=False,
+        skipCheckingShortDocstrings=True,
         requireReturnSectionWhenReturningNone=True,
         style=style,
     )
 
     expectedViolations: List[str] = [
-        'DOC201: Method `MyClass.func1_3` does not have a return section in '
-        'docstring ',
-        'DOC201: Method `MyClass.func1_5` does not have a return section in '
-        'docstring ',
         'DOC201: Method `MyClass.func1_6` does not have a return section in '
         'docstring ',
+        'DOC203: Method `MyClass.func1_6` return type(s) in docstring not consistent with '
+        'the return annotation. Return annotation has 1 type(s); docstring '
+        'return section has 0 type(s).',
         'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
         'function signature. ',
         'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
@@ -165,10 +165,31 @@ def testReturns(style: str, filename: str) -> None:
         'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in '
         'the docstring: [arg2: float, arg3: str]. Arguments in the docstring but not '
         'in the function signature: [arg1: int].',
-        'DOC201: Function `func52` does not have a return section in docstring ',
+        'DOC203: Method `MyClass.func2` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['int | list[float]']; docstring "
+        "return section types: ['int']",
+        'DOC203: Method `MyClass.func4` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['int']; docstring return "
+        "section types: ['float']",
         'DOC202: Method `MyClass.func6` has a return section in docstring, but there '
         'are no return statements or annotations ',
+        'DOC203: Method `MyClass.func6` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['']; docstring return section "
+        "types: ['int']",
+        'DOC203: Method `MyClass.func62` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['float']; docstring return "
+        "section types: ['int']",
+        'DOC203: Method `MyClass.func7` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['']; docstring return section "
+        "types: ['int']",
     ]
+
+    if style == 'google':
+        expectedViolations.append(
+            'DOC203: Method `MyClass.func82` return type(s) in docstring not consistent with '
+            "the return annotation. Return annotation types: ['Tuple[int, bool]']; "
+            "docstring return section types: ['int']"
+        )
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
     if filename == 'function.py':

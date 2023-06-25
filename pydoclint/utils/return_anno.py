@@ -10,11 +10,20 @@ class ReturnAnnotation:
     def __init__(self, annotation: str) -> None:
         self.annotation = annotation
 
-    def isTuple(self) -> bool:
-        return self.annotation.lower().startswith('tuple[')
-
     def decompose(self) -> List[str]:
-        if self.isTuple():
+        """
+        Numpy style allows decomposing the returning tuple into individual
+        element.  For example, if the return annotation is `Tuple[int, bool]`,
+        you can put 2 return values in the return section: int, and bool.
+
+        This method decomposes such return annotation into individual elements.
+
+        Returns
+        -------
+        List[str]
+            The decomposed element
+        """
+        if self._isTuple():
             if not self.annotation.endswith(']'):
                 raise InternalError('Return annotation not ending with `]`')
 
@@ -38,4 +47,11 @@ class ReturnAnnotation:
 
             raise InternalError('decompose(): This should not have happened')
         else:
-            return [self.annotation]
+            return self.putAnnotationInList()
+
+    def _isTuple(self) -> bool:
+        return self.annotation.lower().startswith('tuple[')
+
+    def putAnnotationInList(self) -> List[str]:
+        """Put annotation string in a list"""
+        return [self.annotation]

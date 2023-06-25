@@ -104,17 +104,17 @@ def func6():
     """
     Returns
     -------
-    int:
+    int :
         Something to return
     """
     print(123)
 
 
-def func6() -> float:
+def func62() -> float:
     """
     Returns
     -------
-    int:
+    int :
         Something to return
     """
     print(123)
@@ -124,7 +124,33 @@ def func7():
     """
     Returns
     -------
-    int:
+    int :
         Something to return
     """
     return 123
+
+
+def func81() -> Tuple[int, bool]:
+    """
+    If no summary here, the parser will mis-parse the return section
+
+    Returns
+    -------
+    Tuple[int, bool] :
+        Something to return
+    """
+    return (1, 1.1)
+
+
+def func82() -> Tuple[int, bool]:
+    """
+    If no summary here, the parser will mis-parse the return section
+
+    Returns
+    -------
+    int :
+        Integer to return
+    bool :
+        Boolean to return
+    """
+    return (1, 1.1)

@@ -2,25 +2,25 @@ class MyClass:
     def __init__(self):
         pass
 
-    def func1_1(cls) -> None:
+    def func1_1(self) -> None:
         pass
 
-    def func1_2(cls) -> None:
+    def func1_2(self) -> None:
         """"""
         pass
 
-    def func1_3(cls) -> bool:
+    def func1_3(self) -> bool:
         """Something"""
         return True
 
-    def func1_4(cls) -> bool:
+    def func1_4(self) -> bool:
         return False
 
-    def func1_5(cls) -> None:
+    def func1_5(self) -> None:
         """Something"""
         return None
 
-    def func1_6(cls, arg1: int) -> None:
+    def func1_6(self, arg1: int) -> None:
         """
         Something
 
@@ -29,7 +29,7 @@ class MyClass:
         """
         return None
 
-    def func2(cls, arg2: float, arg3: str) -> int | list[float]:
+    def func2(self, arg2: float, arg3: str) -> int | list[float]:
         """
         Do something.
 
@@ -41,7 +41,7 @@ class MyClass:
         """
         return 1
 
-    def func3(cls) -> int:
+    def func3(self) -> int:
         """
         Do something.
 
@@ -50,7 +50,7 @@ class MyClass:
         """
         return 1
 
-    def func4(cls) -> int:
+    def func4(self) -> int:
         """
         Do something.
 
@@ -59,7 +59,7 @@ class MyClass:
         """
         return 1.0
 
-    def func5(cls) -> int:
+    def func5(self) -> int:
         """
         Do something.
 
@@ -77,23 +77,48 @@ class MyClass:
 
         return 2
 
-    def func6(cls):
+    def func6(self):
         """
+        If no summary here, the parser will mis-parse the return section
+
         Returns:
             int: Something to return
         """
         print(123)
 
-    def func6(cls) -> float:
+    def func62(self) -> float:
         """
+        If no summary here, the parser will mis-parse the return section
+
         Returns:
             int: Something to return
         """
         print(123)
 
-    def func7(cls):
+    def func7(self):
         """
+        If no summary here, the parser will mis-parse the return section
+
         Returns:
             int: Something to return
         """
         return 123
+
+    def func81(self) -> Tuple[int, bool]:
+        """
+        If no summary here, the parser will mis-parse the return section
+
+        Returns:
+            Tuple[int, bool]: Something to return
+        """
+        return (1, 1.1)
+
+    def func82(self) -> Tuple[int, bool]:
+        """
+        If no summary here, the parser will mis-parse the return section
+
+        Returns:
+            int: Integer to return
+            bool: Boolean to return
+        """
+        return (1, 1.1)

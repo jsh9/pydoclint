@@ -421,15 +421,6 @@ class Visitor(ast.NodeVisitor):
     ) -> List[Violation]:
         """Check return statement & return type annotation of this function"""
         lineNum: int = node.lineno
-
-        b = unparseAnnotation(node.returns)
-
-        a = doc.returnSection
-
-        cc = ast.parse(b)
-
-        dd = ReturnAnnotation(b)
-
         msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
 
         v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
@@ -477,21 +468,35 @@ class Visitor(ast.NodeVisitor):
 
             if self.style == 'numpy':
                 returnAnnoItems: List[str] = returnAnno.decompose()
-                if len(returnAnnoItems) != len(returnSec):
-                    msg = f'Return annotation has {len(returnAnnoItems)} types;'
-                    msg += f' docstring return section has {len(returnSec)}'
-                    violations.append(v203.appendMoreMsg(moreMsg=msg))
-                else:
-                    returnSecTypes: List[str] = [_.argType for _ in returnSec]
-                    if returnSecTypes != returnAnnoItems:
-                        msg1 = f'Return annotation types: {returnAnnoItems}; '
-                        msg2 = f'Docstring return section types: {returnSecTypes}'
-                        violations.append(v203.appendMoreMsg(msg1 + msg2))
+                returnAnnoInList: List[str] = returnAnno.putAnnotationInList()
+
+                returnSecTypes: List[str] = [_.argType for _ in returnSec]
+
+                if returnAnnoInList != returnSecTypes:
+                    if len(returnAnnoItems) != len(returnSec):
+                        msg = f'Return annotation has {len(returnAnnoItems)}'
+                        msg += ' type(s); docstring return section has'
+                        msg += f' {len(returnSec)} type(s).'
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
+                    else:
+                        if returnSecTypes != returnAnnoItems:
+                            msg1 = f'Return annotation types: {returnAnnoItems}; '
+                            msg2 = f'docstring return section types: {returnSecTypes}'
+                            violations.append(v203.appendMoreMsg(msg1 + msg2))
+
             else:  # google style, which only has a compound return type
-                if returnSec[0].argType != returnAnno.annotation:
-                    msg = f'Return annotation: {returnAnno.annotation}; '
-                    msg += f'docstring return section: {returnSec[0].argType}'
-                    violations.append(v203.appendMoreMsg(moreMsg=msg))
+                if len(returnSec) > 0:
+                    if returnSec[0].argType != returnAnno.annotation:
+                        msg = 'Return annotation types: '
+                        msg += str([returnAnno.annotation]) + '; '
+                        msg += 'docstring return section types: '
+                        msg += str([returnSec[0].argType])
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
+                else:
+                    if returnAnno.annotation != '':
+                        msg = 'Return annotation has 1 type(s); docstring'
+                        msg += ' return section has 0 type(s).'
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
 
         return violations
 

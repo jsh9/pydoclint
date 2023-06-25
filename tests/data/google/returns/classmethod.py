@@ -90,14 +90,18 @@ class MyClass:
     @classmethod
     def func6(cls):
         """
+        If no summary here, the parser will mis-parse the return section
+
         Returns:
             int: Something to return
         """
         print(123)
 
     @classmethod
-    def func6(cls) -> float:
+    def func62(cls) -> float:
         """
+        If no summary here, the parser will mis-parse the return section
+
         Returns:
             int: Something to return
         """
@@ -106,7 +110,30 @@ class MyClass:
     @classmethod
     def func7(cls):
         """
+        If no summary here, the parser will mis-parse the return section
+
         Returns:
             int: Something to return
         """
         return 123
+
+    @classmethod
+    def func81(cls) -> Tuple[int, bool]:
+        """
+        If no summary here, the parser will mis-parse the return section
+
+        Returns:
+            Tuple[int, bool]: Something to return
+        """
+        return (1, 1.1)
+
+    @classmethod
+    def func82(cls) -> Tuple[int, bool]:
+        """
+        If no summary here, the parser will mis-parse the return section
+
+        Returns:
+            int: Integer to return
+            bool: Boolean to return
+        """
+        return (1, 1.1)
