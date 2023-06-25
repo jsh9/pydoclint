@@ -48,7 +48,7 @@ def func2(arg2: float, arg3: str) -> int | list[float]:
 
     Returns
     -------
-    int :
+    int
         Result
     """
     return 1
@@ -60,7 +60,7 @@ def func3() -> int:
 
     Returns
     -------
-    int :
+    int
         Result
     """
     return 1
@@ -72,7 +72,7 @@ def func4() -> int:
 
     Returns
     -------
-    float :
+    float
         Result
     """
     return 1.0
@@ -84,7 +84,7 @@ def func5() -> int:
 
     Returns
     -------
-    int :
+    int
         Result
     """
 
@@ -104,7 +104,7 @@ def func6():
     """
     Returns
     -------
-    int :
+    int
         Something to return
     """
     print(123)
@@ -114,7 +114,7 @@ def func62() -> float:
     """
     Returns
     -------
-    int :
+    int
         Something to return
     """
     print(123)
@@ -124,7 +124,7 @@ def func7():
     """
     Returns
     -------
-    int :
+    int
         Something to return
     """
     return 123
@@ -136,7 +136,7 @@ def func81() -> Tuple[int, bool]:
 
     Returns
     -------
-    Tuple[int, bool] :
+    Tuple[int, bool]
         Something to return
     """
     return (1, 1.1)
@@ -148,9 +148,9 @@ def func82() -> Tuple[int, bool]:
 
     Returns
     -------
-    int :
+    int
         Integer to return
-    bool :
+    bool
         Boolean to return
     """
     return (1, 1.1)

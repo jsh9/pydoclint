@@ -49,7 +49,7 @@ class MyClass:
 
         Returns
         -------
-        int :
+        int
             Result
         """
         return 1
@@ -61,7 +61,7 @@ class MyClass:
 
         Returns
         -------
-        int :
+        int
             Result
         """
         return 1
@@ -73,7 +73,7 @@ class MyClass:
 
         Returns
         -------
-        float :
+        float
             Result
         """
         return 1.0
@@ -85,7 +85,7 @@ class MyClass:
 
         Returns
         -------
-        int :
+        int
             Result
         """
 
@@ -105,7 +105,7 @@ class MyClass:
         """
         Returns
         -------
-        int :
+        int
             Something to return
         """
         print(123)
@@ -115,7 +115,7 @@ class MyClass:
         """
         Returns
         -------
-        int :
+        int
             Something to return
         """
         print(123)
@@ -125,7 +125,7 @@ class MyClass:
         """
         Returns
         -------
-        int :
+        int
             Something to return
         """
         return 123
@@ -137,7 +137,7 @@ class MyClass:
 
         Returns
         -------
-        Tuple[int, bool] :
+        Tuple[int, bool]
             Something to return
         """
         return (1, 1.1)
@@ -149,9 +149,9 @@ class MyClass:
 
         Returns
         -------
-        int :
+        int
             Integer to return
-        bool :
+        bool
             Boolean to return
         """
         return (1, 1.1)

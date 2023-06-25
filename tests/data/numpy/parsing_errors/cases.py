@@ -20,7 +20,7 @@ class A:
         """
         Parameters
         ----------
-            arg3 :
-                arg 3
+        arg3 :
+            arg 3
         """
         pass

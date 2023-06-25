@@ -174,14 +174,14 @@ def testReturns(style: str, filename: str) -> None:
         'DOC202: Method `MyClass.func6` has a return section in docstring, but there '
         'are no return statements or annotations ',
         'DOC203: Method `MyClass.func6` return type(s) in docstring not consistent with the '
-        "return annotation. Return annotation types: ['']; docstring return section "
-        "types: ['int']",
+        'return annotation. Return annotation has 0 type(s); docstring return section '
+        'has 1 type(s).',
         'DOC203: Method `MyClass.func62` return type(s) in docstring not consistent with the '
         "return annotation. Return annotation types: ['float']; docstring return "
         "section types: ['int']",
         'DOC203: Method `MyClass.func7` return type(s) in docstring not consistent with the '
-        "return annotation. Return annotation types: ['']; docstring return section "
-        "types: ['int']",
+        'return annotation. Return annotation has 0 type(s); docstring return section '
+        'has 1 type(s).',
     ]
 
     if style == 'google':
@@ -217,7 +217,6 @@ expected_skipCheckingShortDocstrings_True = [
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the function signature but not in the '
     'docstring: [arg1: , arg2: , arg3: ]. Arguments in the docstring but not in '
     'the function signature: [var1: int, var2: str].',
-    'DOC201: Function `func3` does not have a return section in docstring ',
 ]
 
 expected_skipCheckingShortDocstrings_False = [
@@ -234,6 +233,9 @@ expected_skipCheckingShortDocstrings_False = [
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the '
     'function signature but not in the docstring: [arg1: , arg2: , arg3: ].',
     'DOC201: Function `func1` does not have a return section in docstring ',
+    'DOC203: Function `func1` return type(s) in docstring not consistent with the '
+    'return annotation. Return annotation has 1 type(s); docstring return section '
+    'has 0 type(s).',
     'DOC101: Function `func2`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC106: Function `func2`: The option `--type-hints-in-signature` is `True` '
@@ -247,6 +249,9 @@ expected_skipCheckingShortDocstrings_False = [
     'https://github.com/jsh9/pydoclint#notes-on-doc103 ). Arguments in the '
     'function signature but not in the docstring: [arg1: , arg2: , arg3: ].',
     'DOC201: Function `func2` does not have a return section in docstring ',
+    'DOC203: Function `func2` return type(s) in docstring not consistent with the '
+    'return annotation. Return annotation has 1 type(s); docstring return section '
+    'has 0 type(s).',
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC106: Function `func3`: The option `--type-hints-in-signature` is `True` '
@@ -259,7 +264,6 @@ expected_skipCheckingShortDocstrings_False = [
     'function signature but not in the docstring: [arg1: , arg2: , arg3: ]. '
     'Arguments in the docstring but not in the function signature: [var1: int, '
     'var2: str].',
-    'DOC201: Function `func3` does not have a return section in docstring ',
 ]
 
 
@@ -280,6 +284,7 @@ def testSkipCheckingShortDocstrings(
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/short_docstrings/cases.py',
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
+        checkReturnTypes=True,
         style=style,
     )
     assert list(map(str, violations)) == expected
@@ -353,6 +358,7 @@ def testAllowInitDocstring(style: str) -> None:
 def testYields(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/yields/cases.py',
+        checkReturnTypes=False,
         style=style,
     )
     expected = [
@@ -396,6 +402,7 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         skipCheckingRaises=skipRaisesCheck,
         typeHintsInSignature=False,
         typeHintsInDocstring=False,
+        checkReturnTypes=False,
         style=style,
     )
     expected0 = [
@@ -504,6 +511,7 @@ def testNoReturnSection(
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/no_return_section/cases.py',
         style=style,
+        checkReturnTypes=False,
         requireReturnSectionWhenReturningNone=rrs,
     )
     expected_lookup = {

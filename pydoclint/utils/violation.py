@@ -1,5 +1,5 @@
-from copy import deepcopy
 import types
+from copy import deepcopy
 from typing import Tuple
 
 from pydoclint.utils.internal_error import InternalError

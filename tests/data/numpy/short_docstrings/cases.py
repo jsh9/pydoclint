@@ -22,5 +22,10 @@ def func3(arg1, arg2, arg3) -> int:
         Var 1
     var2 : str
         Var 2
+
+    Returns
+    -------
+    int
+        Return value
     """
     return 3

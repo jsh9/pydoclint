@@ -1,6 +1,7 @@
 import ast
 from typing import List, Optional, Set
 
+from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
@@ -13,6 +14,8 @@ from pydoclint.utils.generic import (
 )
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
+from pydoclint.utils.return_anno import ReturnAnnotation
+from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
     hasIteratorOrIterableAsReturnAnnotation,
@@ -23,9 +26,6 @@ from pydoclint.utils.return_yield_raise import (
     isReturnAnnotationNone,
 )
 from pydoclint.utils.violation import Violation
-from pydoclint.utils.annotation import unparseAnnotation
-from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_arg import ReturnArg
 
 
 class Visitor(ast.NodeVisitor):
@@ -459,7 +459,7 @@ class Visitor(ast.NodeVisitor):
             if hasReturnAnno:
                 returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
             else:
-                returnAnno = ReturnAnnotation('')
+                returnAnno = ReturnAnnotation(annotation=None)
 
             if docstringHasReturnSection:
                 returnSec: List[ReturnArg] = doc.returnSection
@@ -480,13 +480,19 @@ class Visitor(ast.NodeVisitor):
                         violations.append(v203.appendMoreMsg(moreMsg=msg))
                     else:
                         if returnSecTypes != returnAnnoItems:
-                            msg1 = f'Return annotation types: {returnAnnoItems}; '
+                            msg1 = (
+                                f'Return annotation types: {returnAnnoItems}; '
+                            )
                             msg2 = f'docstring return section types: {returnSecTypes}'
                             violations.append(v203.appendMoreMsg(msg1 + msg2))
 
             else:  # google style, which only has a compound return type
                 if len(returnSec) > 0:
-                    if returnSec[0].argType != returnAnno.annotation:
+                    if returnAnno.annotation is None:
+                        msg = 'Return annotation has 0 type(s); docstring'
+                        msg += ' return section has 1 type(s).'
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
+                    elif returnSec[0].argType != returnAnno.annotation:
                         msg = 'Return annotation types: '
                         msg += str([returnAnno.annotation]) + '; '
                         msg += 'docstring return section types: '

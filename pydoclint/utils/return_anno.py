@@ -1,13 +1,14 @@
 import ast
-from typing import List
+from typing import List, Optional
 
-from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.annotation import unparseAnnotation
+from pydoclint.utils.internal_error import InternalError
 
 
 class ReturnAnnotation:
     """A class to hold the return annotation in a function's signature"""
-    def __init__(self, annotation: str) -> None:
+
+    def __init__(self, annotation: Optional[str]) -> None:
         self.annotation = annotation
 
     def decompose(self) -> List[str]:
@@ -50,8 +51,11 @@ class ReturnAnnotation:
             return self.putAnnotationInList()
 
     def _isTuple(self) -> bool:
-        return self.annotation.lower().startswith('tuple[')
+        return (
+            self.annotation is not None
+            and self.annotation.lower().startswith('tuple[')
+        )
 
     def putAnnotationInList(self) -> List[str]:
         """Put annotation string in a list"""
-        return [self.annotation]
+        return [] if self.annotation is None else [self.annotation]
