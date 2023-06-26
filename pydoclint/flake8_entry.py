@@ -86,6 +86,17 @@ class Plugin:
                 ' the return type annotation is "-> None".'
             ),
         )
+        parser.add_option(
+            '-crt',
+            '--check-return-types',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, check that the type(s) in the docstring return section and'
+                ' the return annotation in the function signature are consistent'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
