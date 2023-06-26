@@ -467,6 +467,25 @@ class Visitor(ast.NodeVisitor):
                 returnSec = []
 
             if self.style == 'numpy':
+                # If the return annotation is a tuple (such as Tuple[int, str]),
+                # we consider both in the docstring to be a valid style:
+                #
+                # Option 1:
+                #     Returns
+                #     -------
+                #     Tuple[int, str]
+                #         ...
+                #
+                # Option 2:
+                #     Returns
+                #     -------
+                #     int
+                #         ...
+                #     str
+                #         ...
+                #
+                #  This is why we are comparing both the decomposed annotation
+                #  types and the original annotation type
                 returnAnnoItems: List[str] = returnAnno.decompose()
                 returnAnnoInList: List[str] = returnAnno.putAnnotationInList()
 
@@ -486,7 +505,14 @@ class Visitor(ast.NodeVisitor):
                             msg2 = f'docstring return section types: {returnSecTypes}'
                             violations.append(v203.appendMoreMsg(msg1 + msg2))
 
-            else:  # google style, which only has a compound return type
+            else:  # Google style
+                # The Google docstring style does not allow (or at least does
+                # not encourage) splitting tuple return types (such as
+                # Tuple[int, str, bool]) into individual types (int, str, and
+                # bool).
+                # Therefore, in Google-style docstrings, people should always
+                # use one compound style for tuples.
+
                 if len(returnSec) > 0:
                     if returnAnno.annotation is None:
                         msg = 'Return annotation has 0 type(s); docstring'
