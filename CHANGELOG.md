@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.0.11] - 2023-06-26
+
+- Added
+  - A new violation code, DOC203, which is about inconsistency between return
+    types in the docstring and in the return annotation
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.10...0.0.11
+
 ## [0.0.10] - 2023-06-12
 
 - Fixed

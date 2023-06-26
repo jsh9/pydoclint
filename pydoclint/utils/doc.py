@@ -1,9 +1,12 @@
-from docstring_parser.common import DocstringReturns
+from typing import Any, List
+
+from docstring_parser.common import Docstring, DocstringReturns
 from docstring_parser.google import GoogleParser
 from numpydoc.docscrape import NumpyDocString
 
 from pydoclint.utils.arg import ArgList
 from pydoclint.utils.internal_error import InternalError
+from pydoclint.utils.return_arg import ReturnArg
 
 
 class Doc:
@@ -117,6 +120,37 @@ class Doc:
 
         self._raiseException()  # noqa: R503
 
+    @property
+    def returnSection(self) -> List[ReturnArg]:
+        """Get the return section of the docstring"""
+        if isinstance(self.parsed, Docstring):  # Google style
+            returnArg = ReturnArg(
+                argName=self._str(self.parsed.returns.return_name),
+                argType=self._str(self.parsed.returns.type_name),
+                argDescr=self._str(self.parsed.returns.description),
+            )
+            return [returnArg]  # Google style always has only 1 return arg
+
+        if isinstance(self.parsed, NumpyDocString):  # numpy style
+            returnSection = self.parsed.get('Returns')
+            result = []
+            for element in returnSection:
+                result.append(
+                    ReturnArg(
+                        argName=self._str(element.name),
+                        argType=self._str(element.type),
+                        argDescr=' '.join(element.desc),
+                    )
+                )
+
+            return result
+
+        return []
+
     def _raiseException(self) -> None:
         msg = f'Unknown style "{self.style}"; please contact the authors'
         raise InternalError(msg)
+
+    @classmethod
+    def _str(cls, something: Any) -> str:
+        return '' if something is None else str(something)

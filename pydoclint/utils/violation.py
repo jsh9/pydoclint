@@ -1,4 +1,5 @@
 import types
+from copy import deepcopy
 from typing import Tuple
 
 from pydoclint.utils.internal_error import InternalError
@@ -23,6 +24,7 @@ VIOLATION_CODES = types.MappingProxyType({
 
     201: 'does not have a return section in docstring',
     202: 'has a return section in docstring, but there are no return statements or annotations',
+    203: 'return type(s) in docstring not consistent with the return annotation.',
 
     301: '__init__() should not have a docstring; please combine it with the docstring of the class',
     302: 'The class docstring does not need a "Returns" section, because __init__() cannot return anything',
@@ -80,3 +82,9 @@ class Violation:
         colOffset: int = 0  # we don't need column offset to locate the issue
         msg = f'{self.fullErrorCode} {self.msg}'  # no colon b/c that would cause 'yesqa' issues
         return self.line, colOffset, msg
+
+    def appendMoreMsg(self, moreMsg: str) -> 'Violation':
+        """Append more error message, and return a new Violation object"""
+        new = deepcopy(self)
+        new.msg += moreMsg
+        return new

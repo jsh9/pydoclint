@@ -49,7 +49,7 @@ class MyClass:
 
         Returns
         -------
-        int :
+        int
             Result
         """
         return 1
@@ -61,7 +61,7 @@ class MyClass:
 
         Returns
         -------
-        int :
+        int
             Result
         """
         return 1
@@ -73,7 +73,7 @@ class MyClass:
 
         Returns
         -------
-        float :
+        float
             Result
         """
         return 1.0
@@ -85,7 +85,7 @@ class MyClass:
 
         Returns
         -------
-        int :
+        int
             Result
         """
 
@@ -105,17 +105,17 @@ class MyClass:
         """
         Returns
         -------
-        int:
+        int
             Something to return
         """
         print(123)
 
     @staticmethod
-    def func6() -> float:
+    def func62() -> float:
         """
         Returns
         -------
-        int:
+        int
             Something to return
         """
         print(123)
@@ -125,7 +125,33 @@ class MyClass:
         """
         Returns
         -------
-        int:
+        int
             Something to return
         """
         return 123
+
+    @staticmethod
+    def func81() -> Tuple[int, bool]:
+        """
+        If no summary here, the parser will mis-parse the return section
+
+        Returns
+        -------
+        Tuple[int, bool]
+            Something to return
+        """
+        return (1, 1.1)
+
+    @staticmethod
+    def func82() -> Tuple[int, bool]:
+        """
+        If no summary here, the parser will mis-parse the return section
+
+        Returns
+        -------
+        int
+            Integer to return
+        bool
+            Boolean to return
+        """
+        return (1, 1.1)

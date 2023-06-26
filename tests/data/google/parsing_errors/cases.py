@@ -18,6 +18,6 @@ class A:
             arg3 (int): arg3
 
         Returns:
-            int
+            int: The return value
         """
         return 2

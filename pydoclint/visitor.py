@@ -1,6 +1,7 @@
 import ast
 from typing import List, Optional, Set
 
+from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
@@ -13,6 +14,8 @@ from pydoclint.utils.generic import (
 )
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
+from pydoclint.utils.return_anno import ReturnAnnotation
+from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
     hasGeneratorAsReturnAnnotation,
     hasIteratorOrIterableAsReturnAnnotation,
@@ -37,6 +40,7 @@ class Visitor(ast.NodeVisitor):
             skipCheckingShortDocstrings: bool = True,
             skipCheckingRaises: bool = False,
             allowInitDocstring: bool = False,
+            checkReturnTypes: bool = True,
             requireReturnSectionWhenReturningNone: bool = False,
     ) -> None:
         self.style: str = style
@@ -46,6 +50,7 @@ class Visitor(ast.NodeVisitor):
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
         self.skipCheckingRaises: bool = skipCheckingRaises
         self.allowInitDocstring: bool = allowInitDocstring
+        self.checkReturnTypes: bool = checkReturnTypes
         self.requireReturnSectionWhenReturningNone: bool = (
             requireReturnSectionWhenReturningNone
         )
@@ -408,7 +413,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkReturns(
+    def checkReturns(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
@@ -420,6 +425,7 @@ class Visitor(ast.NodeVisitor):
 
         v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
         v202 = Violation(code=202, line=lineNum, msgPrefix=msgPrefix)
+        v203 = Violation(code=203, line=lineNum, msgPrefix=msgPrefix)
 
         hasReturnStmt: bool = hasReturnStatements(node)
         hasReturnAnno: bool = hasReturnAnnotation(node)
@@ -448,6 +454,81 @@ class Visitor(ast.NodeVisitor):
 
         if docstringHasReturnSection and not (hasReturnStmt or hasReturnAnno):
             violations.append(v202)
+
+        if self.checkReturnTypes:
+            if hasReturnAnno:
+                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+            else:
+                returnAnno = ReturnAnnotation(annotation=None)
+
+            if docstringHasReturnSection:
+                returnSec: List[ReturnArg] = doc.returnSection
+            else:
+                returnSec = []
+
+            if self.style == 'numpy':
+                # If the return annotation is a tuple (such as Tuple[int, str]),
+                # we consider both in the docstring to be a valid style:
+                #
+                # Option 1:
+                # >    Returns
+                # >    -------
+                # >    Tuple[int, str]
+                # >        ...
+                #
+                # Option 2:
+                # >    Returns
+                # >    -------
+                # >    int
+                # >        ...
+                # >    str
+                # >        ...
+                #
+                #  This is why we are comparing both the decomposed annotation
+                #  types and the original annotation type
+                returnAnnoItems: List[str] = returnAnno.decompose()
+                returnAnnoInList: List[str] = returnAnno.putAnnotationInList()
+
+                returnSecTypes: List[str] = [_.argType for _ in returnSec]
+
+                if returnAnnoInList != returnSecTypes:
+                    if len(returnAnnoItems) != len(returnSec):
+                        msg = f'Return annotation has {len(returnAnnoItems)}'
+                        msg += ' type(s); docstring return section has'
+                        msg += f' {len(returnSec)} type(s).'
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
+                    else:
+                        if returnSecTypes != returnAnnoItems:
+                            msg1 = (
+                                f'Return annotation types: {returnAnnoItems}; '
+                            )
+                            msg2 = f'docstring return section types: {returnSecTypes}'
+                            violations.append(v203.appendMoreMsg(msg1 + msg2))
+
+            else:  # Google style
+                # The Google docstring style does not allow (or at least does
+                # not encourage) splitting tuple return types (such as
+                # Tuple[int, str, bool]) into individual types (int, str, and
+                # bool).
+                # Therefore, in Google-style docstrings, people should always
+                # use one compound style for tuples.
+
+                if len(returnSec) > 0:
+                    if returnAnno.annotation is None:
+                        msg = 'Return annotation has 0 type(s); docstring'
+                        msg += ' return section has 1 type(s).'
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
+                    elif returnSec[0].argType != returnAnno.annotation:
+                        msg = 'Return annotation types: '
+                        msg += str([returnAnno.annotation]) + '; '
+                        msg += 'docstring return section types: '
+                        msg += str([returnSec[0].argType])
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
+                else:
+                    if returnAnno.annotation != '':
+                        msg = 'Return annotation has 1 type(s); docstring'
+                        msg += ' return section has 0 type(s).'
+                        violations.append(v203.appendMoreMsg(moreMsg=msg))
 
         return violations
 
