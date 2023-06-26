@@ -471,18 +471,18 @@ class Visitor(ast.NodeVisitor):
                 # we consider both in the docstring to be a valid style:
                 #
                 # Option 1:
-                #     Returns
-                #     -------
-                #     Tuple[int, str]
-                #         ...
+                # >    Returns
+                # >    -------
+                # >    Tuple[int, str]
+                # >        ...
                 #
                 # Option 2:
-                #     Returns
-                #     -------
-                #     int
-                #         ...
-                #     str
-                #         ...
+                # >    Returns
+                # >    -------
+                # >    int
+                # >        ...
+                # >    str
+                # >        ...
                 #
                 #  This is why we are comparing both the decomposed annotation
                 #  types and the original annotation type
