@@ -576,6 +576,19 @@ def testPropertyMethod(style: str) -> None:
 
 
 @pytest.mark.parametrize(
+    'style',
+    ['numpy', 'google'],
+)
+def testAbstractMethod(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/abstract_method/cases.py',
+        style=style,
+    )
+    expected = []
+    assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize(
     'style, typeHintsInDocstring, typeHintsInSignature',
     itertools.product(
         ['numpy', 'google'],
