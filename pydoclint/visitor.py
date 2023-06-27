@@ -6,6 +6,7 @@ from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
+    checkIsAbstractMethod,
     collectFuncArgs,
     detectMethodType,
     generateMsgPrefix,
@@ -75,6 +76,8 @@ class Visitor(ast.NodeVisitor):
         )
 
         docstring: str = getDocstring(node)
+
+        self.isAbstractMethod = checkIsAbstractMethod(node)
 
         if isClassConstructor:
             docstring = self._checkClassConstructorDocstrings(
@@ -473,6 +476,13 @@ class Visitor(ast.NodeVisitor):
             ):
                 return violations  # no need to check return type hints at all
 
+            if returnSec == [] and hasGenAsRetAnno:
+                # This is because if the return annotation is `Generator[...]`,
+                # we don't need a "Returns" section. (Instead, we need a
+                # "Yields" section in the docstring.) Therefore, we don't need
+                # to check for DOC203 violations.
+                return violations
+
             if self.style == 'numpy':
                 # If the return annotation is a tuple (such as Tuple[int, str]),
                 # we consider both in the docstring to be a valid style:
@@ -567,9 +577,8 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    @classmethod
     def checkYields(
-            cls,
+            self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
@@ -598,13 +607,13 @@ class Visitor(ast.NodeVisitor):
 
         if docstringHasYieldsSection:
             if not hasYieldStmt and not hasGenAsRetAnno:
-                violations.append(v403)
+                if not self.isAbstractMethod:
+                    violations.append(v403)
 
         return violations
 
-    @classmethod
     def checkRaises(
-            cls,
+            self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
@@ -625,6 +634,7 @@ class Visitor(ast.NodeVisitor):
             violations.append(v501)
 
         if not hasRaiseStmt and docstringHasRaisesSection:
-            violations.append(v502)
+            if not self.isAbstractMethod:
+                violations.append(v502)
 
         return violations

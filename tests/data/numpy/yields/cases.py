@@ -215,7 +215,7 @@ class A:
             The second list
 
         Yields
-        -------
+        ------
         Iterator[Tuple[Any, Any]]
             The zipped result
         """
