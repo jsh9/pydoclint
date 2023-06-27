@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.0.13] - 2023-06-26
+
+- Fixed
+  - False positives when checking abstract methods
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.12...0.0.13
+
 ## [0.0.12] - 2023-06-26
 
 - Fixed
