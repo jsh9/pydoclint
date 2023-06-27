@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.0.12] - 2023-06-26
+
+- Fixed
+  - False positive of DOC203 when
+    `--require-return-section-when-returning-None` is `False`, the docstring
+    has no return section, and the return annotation is `None`
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.11...0.0.12
+
 ## [0.0.11] - 2023-06-26
 
 - Added

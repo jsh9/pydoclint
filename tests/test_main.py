@@ -198,6 +198,35 @@ def testReturns(style: str, filename: str) -> None:
     assert list(map(str, violations)) == expectedViolationsCopy
 
 
+@pytest.mark.parametrize(
+    'style, require',
+    list(
+        itertools.product(
+            ['numpy', 'google'],
+            [True, False],
+        ),
+    ),
+)
+def testReturns_returningNone(style: str, require: bool) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/returning_none/cases.py',
+        skipCheckingShortDocstrings=True,
+        requireReturnSectionWhenReturningNone=require,
+        style=style,
+    )
+    expectedViolationsCopy = (
+        [
+            'DOC201: Function `func` does not have a return section in docstring ',
+            'DOC203: Function `func` return type(s) in docstring not consistent with the '
+            'return annotation. Return annotation has 1 type(s); docstring return section '
+            'has 0 type(s).',
+        ]
+        if require
+        else []
+    )
+    assert list(map(str, violations)) == expectedViolationsCopy
+
+
 def _tweakViolationMsgForFunctions(expectedViolationsCopy: List[str]) -> None:
     for i in range(len(expectedViolationsCopy)):
         expectedViolationsCopy[i] = expectedViolationsCopy[i].replace(
