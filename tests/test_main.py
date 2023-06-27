@@ -599,14 +599,14 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
             'section in docstring ',
             'DOC203: Method `AbstractClass.third_abstract_method` return type(s) in '
             'docstring not consistent with the return annotation. Return annotation has 1 '
-            'type(s); docstring return section has 0 type(s).'
+            'type(s); docstring return section has 0 type(s).',
         ]
     else:
         expected = [
             'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
             'return section in docstring ',
             'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
-            'section in docstring '
+            'section in docstring ',
         ]
 
     assert list(map(str, violations)) == expected
