@@ -479,8 +479,9 @@ class Visitor(ast.NodeVisitor):
 
             if returnSec == [] and hasGenAsRetAnno:
                 # This is because if the return annotation is `Generator[...]`,
-                # we don't need a "Returns" section. Instead, we need a "Yields"
-                # section in the docstring.
+                # we don't need a "Returns" section. (Instead, we need a
+                # "Yields" section in the docstring.) Therefore, we don't need
+                # to check for DOC203 violations.
                 return violations
 
             if self.style == 'numpy':
