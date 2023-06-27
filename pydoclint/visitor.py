@@ -444,7 +444,6 @@ class Visitor(ast.NodeVisitor):
                 # fmt: off
                 not (onlyHasYieldStmt and hasIterAsRetAnno)
                 and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
-                and not self.isAbstractMethod
 
                 # fmt: on
             ):

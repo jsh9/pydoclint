@@ -576,15 +576,39 @@ def testPropertyMethod(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style',
-    ['numpy', 'google'],
+    'style, checkReturnTypes',
+    itertools.product(
+        ['numpy', 'google'],
+        [False, True],
+    ),
 )
-def testAbstractMethod(style: str) -> None:
+def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/abstract_method/cases.py',
+        checkReturnTypes=checkReturnTypes,
         style=style,
     )
-    expected = []
+    if checkReturnTypes:
+        expected = [
+            'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
+            'return section in docstring ',
+            'DOC203: Method `AbstractClass.another_abstract_method` return type(s) in '
+            'docstring not consistent with the return annotation. Return annotation has 1 '
+            'type(s); docstring return section has 0 type(s).',
+            'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
+            'section in docstring ',
+            'DOC203: Method `AbstractClass.third_abstract_method` return type(s) in '
+            'docstring not consistent with the return annotation. Return annotation has 1 '
+            'type(s); docstring return section has 0 type(s).'
+        ]
+    else:
+        expected = [
+            'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
+            'return section in docstring ',
+            'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
+            'section in docstring '
+        ]
+
     assert list(map(str, violations)) == expected
 
 
