@@ -466,6 +466,13 @@ class Visitor(ast.NodeVisitor):
             else:
                 returnSec = []
 
+            if (
+                returnSec == []  # no return section in docstring
+                and returnAnno.annotation == 'None'  # `-> None` in signature
+                and not self.requireReturnSectionWhenReturningNone
+            ):
+                return violations  # no need to check return type hints at all
+
             if self.style == 'numpy':
                 # If the return annotation is a tuple (such as Tuple[int, str]),
                 # we consider both in the docstring to be a valid style:
