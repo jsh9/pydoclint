@@ -2,6 +2,7 @@ import ast
 from typing import List, Optional
 
 from pydoclint.utils.annotation import unparseAnnotation
+from pydoclint.utils.generic import stripQuotes
 from pydoclint.utils.internal_error import InternalError
 
 
@@ -9,7 +10,7 @@ class ReturnAnnotation:
     """A class to hold the return annotation in a function's signature"""
 
     def __init__(self, annotation: Optional[str]) -> None:
-        self.annotation = annotation
+        self.annotation = stripQuotes(annotation)
 
     def decompose(self) -> List[str]:
         """

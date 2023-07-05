@@ -5,6 +5,7 @@ from docstring_parser.common import DocstringParam
 from numpydoc.docscrape import Parameter
 
 from pydoclint.utils.annotation import unparseAnnotation
+from pydoclint.utils.generic import stripQuotes
 
 
 class Arg:
@@ -50,7 +51,7 @@ class Arg:
         return self < other or self == other
 
     def __hash__(self) -> int:
-        return hash((self.name, self._stripQuotes(self.typeHint)))
+        return hash((self.name, stripQuotes(self.typeHint)))
 
     def nameEquals(self, other: 'Arg') -> bool:
         """More lenient equality: only compare names"""
@@ -91,11 +92,7 @@ class Arg:
 
     @classmethod
     def _eq(cls, str1: str, str2: str) -> bool:
-        return cls._stripQuotes(str1) == cls._stripQuotes(str2)
-
-    @classmethod
-    def _stripQuotes(cls, string: str) -> str:
-        return string.replace('"', '').replace("'", '')
+        return stripQuotes(str1) == stripQuotes(str2)
 
 
 class ArgList:

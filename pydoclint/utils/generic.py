@@ -155,3 +155,8 @@ def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
             return True
 
     return False
+
+
+def stripQuotes(string: Optional[str]) -> Optional[str]:
+    """Strip quote (both double and single quote) from the given string"""
+    return None if string is None else string.replace('"', '').replace("'", '')

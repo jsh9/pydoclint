@@ -12,6 +12,7 @@ from pydoclint.utils.generic import (
     generateMsgPrefix,
     getDocstring,
     isPropertyMethod,
+    stripQuotes,
 )
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
@@ -506,7 +507,9 @@ class Visitor(ast.NodeVisitor):
                 returnAnnoItems: List[str] = returnAnno.decompose()
                 returnAnnoInList: List[str] = returnAnno.putAnnotationInList()
 
-                returnSecTypes: List[str] = [_.argType for _ in returnSec]
+                returnSecTypes: List[str] = [
+                    stripQuotes(_.argType) for _ in returnSec
+                ]
 
                 if returnAnnoInList != returnSecTypes:
                     if len(returnAnnoItems) != len(returnSec):
@@ -531,15 +534,16 @@ class Visitor(ast.NodeVisitor):
                 # use one compound style for tuples.
 
                 if len(returnSec) > 0:
+                    retArgType = stripQuotes(returnSec[0].argType)
                     if returnAnno.annotation is None:
                         msg = 'Return annotation has 0 type(s); docstring'
                         msg += ' return section has 1 type(s).'
                         violations.append(v203.appendMoreMsg(moreMsg=msg))
-                    elif returnSec[0].argType != returnAnno.annotation:
+                    elif retArgType != returnAnno.annotation:
                         msg = 'Return annotation types: '
                         msg += str([returnAnno.annotation]) + '; '
                         msg += 'docstring return section types: '
-                        msg += str([returnSec[0].argType])
+                        msg += str([retArgType])
                         violations.append(v203.appendMoreMsg(moreMsg=msg))
                 else:
                     if returnAnno.annotation != '':
