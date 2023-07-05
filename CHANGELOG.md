@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.0.14] - 2023-07-05
+
+- Fixed
+  - Fixed an issue where quotes in return annotations are not properly handled
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.13...0.0.14
+
 ## [0.0.13] - 2023-06-26
 
 - Fixed

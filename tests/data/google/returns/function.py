@@ -132,3 +132,53 @@ def func82() -> Tuple[int, bool]:
         bool: Boolean to return
     """
     return (1, 1.1)
+
+
+def func91() -> Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]:
+    """
+    No violation should be reported here.
+
+    Returns:
+        Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]: Something
+    """
+    print(1)
+
+
+def func92() -> Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]:
+    """
+    No violation should be reported here.
+
+    Returns:
+        Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]: Something
+    """
+    print(1)
+
+
+def func93() -> Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]:
+    """
+    No violation should be reported here.
+
+    Returns:
+        Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]: Something
+    """
+    print(1)
+
+
+def func94() -> Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]:
+    """
+    No violation should be reported here.
+
+    Returns:
+        Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]: Something
+    """
+    print(1)
+
+
+def func95() -> Tuple[Dict[MyClass1, 'MyClass2'], List['MyClass3']]:
+    """
+    No violation should be reported here.
+
+    Returns:
+        Tuple[Dict["MyClass1", MyClass2], List['MyClass3']]: Something
+    """
+    print(1)
