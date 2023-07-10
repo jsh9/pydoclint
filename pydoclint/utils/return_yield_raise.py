@@ -118,7 +118,7 @@ def _isNone(node: ast.AST) -> bool:
 def _getLineNum(node: ast.AST) -> int:
     try:
         lineNum = node.lineno
-    except:
+    except Exception:
         lineNum = -1
 
     return lineNum
