@@ -95,7 +95,7 @@ def _hasExpectedStatements(
                 foundReturnOrRaiseStmt = True
                 break
 
-    return _foundExpectedStatement(
+    return _confirmThisStmtIsNotWithinNestedFunc(
         foundStatementTemp=foundReturnOrRaiseStmt,
         familyTree=familyTree,
         lineNumOfStatement=childLineNum,
@@ -130,22 +130,21 @@ def _getLineNum(node: ast.AST) -> int:
     return lineNum
 
 
-def _foundExpectedStatement(
+def _confirmThisStmtIsNotWithinNestedFunc(
         foundStatementTemp: bool,
         familyTree: Dict[int, Tuple[int, bool]],
         lineNumOfStatement: int,
         lineNumOfThisNode: int,
 ) -> bool:
     """
-    Check whether we REALLY found the expected statment (return, yield,
+    Check whether we REALLY found the expected statement (return, yield,
     or raise).
+
+    Returns True if this statement is not within a nested function of `node`.
+    Returns False if otherwise.
 
     We do this by checking whether the line number of the parent function
     of the statement is the same as the line number of the node.
-
-    If so, we know that this statement is an immediate child of the node.
-    If not, we know that this statement is a child of a nested function of
-    the node.
     """
     if not foundStatementTemp:
         return False
