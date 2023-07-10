@@ -47,7 +47,7 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
 def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any yield statements"""
     childLine: int = -999
-    flag: bool = False
+    foundYieldStmt: bool = False
 
     # key: child lineno, value: (parent lineno, is parent a function?)
     familyLine: Dict[int, Tuple[int, bool]] = {}
@@ -63,14 +63,14 @@ def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
             child.value, (ast.Yield, ast.YieldFrom)
         ):
             if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
-                flag = True
+                foundYieldStmt = True
                 break
 
             if isinstance(parent, BlockType):
-                flag = True
+                foundYieldStmt = True
                 break
 
-    if flag:  # this means we found a `yield` statement within `node`
+    if foundYieldStmt:
         parentFuncLineNum = _lookupParentFunc(familyLine, childLine)
 
         # We consider this `yield` a valid one only when its parent function
