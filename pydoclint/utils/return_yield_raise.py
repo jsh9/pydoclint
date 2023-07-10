@@ -86,7 +86,7 @@ def _hasExpectedStatements(
     raise).
     """
     childLineNum: int = -999
-    foundReturnOrRaiseStmt: bool = False
+    foundExpectedStmt: bool = False
 
     # key: child lineno, value: (parent lineno, is parent a function?)
     familyTree: Dict[int, Tuple[int, bool]] = {}
@@ -96,15 +96,15 @@ def _hasExpectedStatements(
 
         if isThisNodeAnExpectedStmt(child):
             if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
-                foundReturnOrRaiseStmt = True
+                foundExpectedStmt = True
                 break
 
             if isinstance(parent, BlockType):
-                foundReturnOrRaiseStmt = True
+                foundExpectedStmt = True
                 break
 
     return _confirmThisStmtIsNotWithinNestedFunc(
-        foundStatementTemp=foundReturnOrRaiseStmt,
+        foundStatementTemp=foundExpectedStmt,
         familyTree=familyTree,
         lineNumOfStatement=childLineNum,
         lineNumOfThisNode=node.lineno,
