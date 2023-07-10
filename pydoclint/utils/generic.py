@@ -49,6 +49,9 @@ def getFunctionId(node: FuncOrAsyncFuncDef) -> Tuple[int, int, str]:
     """
     Get unique identifier of a function def. We also need line and
     column number because different function can have identical names.
+
+    Note: this function is no longer used by the actual code, but it is
+    still used in unit tests. That's why we did not remove it.
     """
     return node.lineno, node.col_offset, node.name
 

@@ -23,6 +23,10 @@ def isReturnAnnotationNone(node: FuncOrAsyncFuncDef) -> bool:
     return _isNone(node.returns)
 
 
+def _isNone(node: ast.AST) -> bool:
+    return isinstance(node, ast.Constant) and node.value is None
+
+
 def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has a 'Generator' return annotation"""
     if node.returns is None:
@@ -77,6 +81,10 @@ def _hasExpectedStatements(
         node: FuncOrAsyncFuncDef,
         isThisNodeAnExpectedStmt: Callable[[ast.AST], bool],
 ) -> bool:
+    """
+    Check whether the node contains an expected statement (return, yield, or
+    raise).
+    """
     childLineNum: int = -999
     foundReturnOrRaiseStmt: bool = False
 
@@ -103,15 +111,16 @@ def _hasExpectedStatements(
     )
 
 
-def _isNone(node: ast.AST) -> bool:
-    return isinstance(node, ast.Constant) and node.value is None
-
-
 def _updateFamilyTree(
         child: ast.AST,
         parent: ast.AST,
         familyTree: Dict[int, Tuple[int, bool]],
 ) -> int:
+    """
+    Structure of `familyTree`:
+        Key: line number of child node
+        Value: (line number of parent node, whether this parent is a function)
+    """
     childLine = _getLineNum(child)
     parentLine = _getLineNum(parent)
     if childLine != -1 and parentLine != -1 and childLine != parentLine:
@@ -155,12 +164,18 @@ def _confirmThisStmtIsNotWithinNestedFunc(
 
 def _lookupParentFunc(
         familyLine: Dict[int, Tuple[int, bool]],
-        lineNum: int,
+        lineNumOfChildNode: int,
 ) -> int:
-    if lineNum not in familyLine:
+    """
+    Look up the parent function of the given child node.
+
+    Recursion is used in this function, because the key-val pairs in
+    `familyLine` only records immediate child-parent mapping.
+    """
+    if lineNumOfChildNode not in familyLine:
         return -999
 
-    parentLineNum, isParentAFunction = familyLine[lineNum]
+    parentLineNum, isParentAFunction = familyLine[lineNumOfChildNode]
 
     if isParentAFunction:
         return parentLineNum
