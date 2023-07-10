@@ -191,6 +191,18 @@ def testReturns(style: str, filename: str) -> None:
             "docstring return section types: ['int']"
         )
 
+    expectedViolations.extend([
+        'DOC202: Method `MyClass.func101` has a return section in docstring, but '
+        'there are no return statements or annotations ',
+        'DOC203: Method `MyClass.func101` return type(s) in docstring not consistent '
+        'with the return annotation. Return annotation has 0 type(s); docstring '
+        'return section has 1 type(s).',
+        'DOC201: Function `inner101` does not have a return section in docstring ',
+        'DOC203: Function `inner101` return type(s) in docstring not consistent with '
+        'the return annotation. Return annotation has 1 type(s); docstring return '
+        'section has 0 type(s).',
+    ])
+
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
     if filename == 'function.py':
         _tweakViolationMsgForFunctions(expectedViolationsCopy)
@@ -450,6 +462,10 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'are not "raise" statements in the body ',
         'DOC502: Method `B.func7` has a "Raises" section in the docstring, but there '
         'are not "raise" statements in the body ',
+        'DOC502: Method `B.func9a` has a "Raises" section in the docstring, but there '
+        'are not "raise" statements in the body ',
+        'DOC501: Function `inner9a` has "raise" statements, but the docstring does '
+        'not have a "Raises" section ',
     ]
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
