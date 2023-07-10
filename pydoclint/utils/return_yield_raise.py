@@ -50,14 +50,14 @@ def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
     foundYieldStmt: bool = False
 
     # key: child lineno, value: (parent lineno, is parent a function?)
-    familyLine: Dict[int, Tuple[int, bool]] = {}
+    familyTree: Dict[int, Tuple[int, bool]] = {}
 
     for child, parent in walk.walk(node):
         childLine = _getLineNum(child)
         parentLine = _getLineNum(parent)
         if childLine != -1 and parentLine != -1 and childLine != parentLine:
             isFunction = isinstance(parent, FuncOrAsyncFunc)
-            familyLine[childLine] = (parentLine, isFunction)
+            familyTree[childLine] = (parentLine, isFunction)
 
         if isinstance(child, ast.Expr) and isinstance(
             child.value, (ast.Yield, ast.YieldFrom)
@@ -71,7 +71,7 @@ def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
                 break
 
     if foundYieldStmt:
-        parentFuncLineNum = _lookupParentFunc(familyLine, childLine)
+        parentFuncLineNum = _lookupParentFunc(familyTree, childLine)
 
         # We consider this `yield` a valid one only when its parent function
         # is indeed `node`
