@@ -414,6 +414,15 @@ def testYields(style: str) -> None:
         'DOC201: Method `A.zipLists2` does not have a return section in docstring ',
         'DOC403: Method `A.zipLists2` has a "Yields" section in the docstring, but '
         'there are no "yield" statements or a Generator return annotation ',
+        'DOC402: Function `inner9b` has "yield" statements, but the docstring does '
+        'not have a "Yields" section ',
+        'DOC201: Method `A.method9c` does not have a return section in docstring ',
+        'DOC403: Method `A.method9c` has a "Yields" section in the docstring, but '
+        'there are no "yield" statements or a Generator return annotation ',
+        'DOC402: Method `A.method9d` has "yield" statements, but the docstring does '
+        'not have a "Yields" section ',
+        'DOC402: Function `inner9d` has "yield" statements, but the docstring does '
+        'not have a "Yields" section ',
     ]
     assert list(map(str, violations)) == expected
 
