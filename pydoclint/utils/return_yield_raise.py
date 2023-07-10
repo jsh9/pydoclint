@@ -1,5 +1,5 @@
 import ast
-from typing import Dict, Tuple, Type, Union
+from typing import Callable, Dict, Tuple, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
@@ -46,47 +46,36 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
 
 def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any yield statements"""
-    childLineNum: int = -999
-    foundYieldStmtTemp: bool = False  # "temp" b/c it may be false positive
 
-    # key: child lineno, value: (parent lineno, is parent a function?)
-    familyTree: Dict[int, Tuple[int, bool]] = {}
+    def isThisNodeAYieldStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Expr) and isinstance(
+            node_.value, (ast.Yield, ast.YieldFrom)
+        )
 
-    for child, parent in walk.walk(node):
-        childLineNum = _updateFamilyTree(child, parent, familyTree)
-
-        if isinstance(child, ast.Expr) and isinstance(
-            child.value, (ast.Yield, ast.YieldFrom)
-        ):
-            if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
-                foundYieldStmtTemp = True
-                break
-
-            if isinstance(parent, BlockType):
-                foundYieldStmtTemp = True
-                break
-
-    return _foundExpectedStatement(
-        foundStatementTemp=foundYieldStmtTemp,
-        familyTree=familyTree,
-        lineNumOfStatement=childLineNum,
-        lineNumOfThisNode=node.lineno,
-    )
+    return _hasExpectedStatements(node, isThisNodeAYieldStmt)
 
 
 def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any return statements"""
-    return _hasReturnOrRaiseStatements(node, expectedNodeType=ast.Return)
+
+    def isThisNodeAReturnStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Return)
+
+    return _hasExpectedStatements(node, isThisNodeAReturnStmt)
 
 
 def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any raise statements"""
-    return _hasReturnOrRaiseStatements(node, expectedNodeType=ast.Raise)
+
+    def isThisNodeARaiseStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Raise)
+
+    return _hasExpectedStatements(node, isThisNodeARaiseStmt)
 
 
-def _hasReturnOrRaiseStatements(
+def _hasExpectedStatements(
         node: FuncOrAsyncFuncDef,
-        expectedNodeType: Union[Type[ast.Return], Type[ast.Raise]],
+        isThisNodeAnExpectedStmt: Callable[[ast.AST], bool],
 ) -> bool:
     childLineNum: int = -999
     foundReturnOrRaiseStmt: bool = False
@@ -97,7 +86,7 @@ def _hasReturnOrRaiseStatements(
     for child, parent in walk.walk(node):
         childLineNum = _updateFamilyTree(child, parent, familyTree)
 
-        if isinstance(child, expectedNodeType):
+        if isThisNodeAnExpectedStmt(child):
             if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
                 foundReturnOrRaiseStmt = True
                 break
