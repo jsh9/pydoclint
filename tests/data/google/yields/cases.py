@@ -188,3 +188,98 @@ class A:
             The zipped result
         """
         return zip(list1, list2)
+
+    def method9a(self, arg1: List[int]) -> str:
+        """
+        There should not be any violations in this method
+
+        Args:
+            arg1 (List[int]): Arg 1
+
+        Returns:
+            str: Return value
+        """
+
+        def inner9a(inner_arg1: List[int]) -> Iterable[str]:
+            """
+            Do something else
+
+            Args:
+                inner_arg1 (List[int]): Inner arg 1
+
+            Yields:
+                Iterable[str]: Values to yield
+            """
+            for i in inner_arg1:
+                yield str(inner_arg1)
+
+        return ','.join(inner9a(arg1))
+
+    def method9b(self, arg1: List[int]) -> str:
+        """
+        There should not be any violations in the outer method
+
+        Args:
+            arg1 (List[int]): Arg 1
+
+        Returns:
+            str: Return value
+        """
+
+        def inner9b(inner_arg1: List[int]) -> Iterable[str]:
+            """
+            There should be DOC402 in this inner method
+
+            Args:
+                inner_arg1 (List[int]): Inner arg 1
+            """
+            for i in inner_arg1:
+                yield str(inner_arg1)
+
+        return ','.join(inner9b(arg1))
+
+    def method9c(self, arg1: List[int]) -> str:
+        """
+        There should be DOC201 and DOC403 in the outer method
+
+        Args:
+            arg1 (List[int]): Arg 1
+
+        Yields:
+            Iterable[str]: Values to yield
+        """
+
+        def inner9c(inner_arg1: List[int]) -> Iterable[str]:
+            """
+            There shouldn't be any violations in this inner method
+
+            Args:
+                inner_arg1 (List[int]): Inner arg 1
+
+            Yields:
+                Iterable[str]: Values to yield
+            """
+            for i in inner_arg1:
+                yield str(inner_arg1)
+
+        return ','.join(inner9c(arg1))
+
+    def method9d(self, arg1: List[int]) -> Iterable[str]:
+        """
+        There should be DOC402 in this outer method
+
+        Args:
+            arg1 (List[int]): Arg 1
+        """
+
+        def inner9d(inner_arg1: List[int]) -> Iterable[str]:
+            """
+            There should be DOC402 in this inner method
+
+            Args:
+                inner_arg1 (List[int]): Inner arg 1
+            """
+            for i in inner_arg1:
+                yield str(inner_arg1)
+
+        yield inner9d(arg1)

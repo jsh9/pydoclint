@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- Fixed
+  - Fixed false positive `DOC402` when `yield` statements are in a block within
+    a child function
+
 ## [0.0.14] - 2023-07-05
 
 - Fixed
