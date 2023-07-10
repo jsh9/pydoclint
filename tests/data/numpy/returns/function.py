@@ -214,3 +214,67 @@ def func95() -> Tuple[Dict[MyClass1, 'MyClass2'], List['MyClass3']]:
         The return value
     """
     print(1)
+
+
+def func101(arg0: float):
+    """
+    Expected violations: DOC202, DOC203
+
+    Parameters
+    ----------
+    arg0 : float
+        Arg 0
+
+    Returns
+    -------
+    bool
+        Return value
+    """
+
+    def inner101(arg1: str) -> bool:
+        """
+        Expected violations: DOC201, DOC203
+
+        Parameters
+        ----------
+        arg1 : str
+            Arg 1
+        """
+        if arg1 > 'a':
+            return True
+        else:
+            return False
+
+    print(2)
+
+
+def func102(arg0: float):
+    """
+    There should not be any violations
+
+    Parameters
+    ----------
+    arg0 : float
+        Arg 0
+    """
+
+    def inner102(arg1: str) -> bool:
+        """
+        There should not be any violations
+
+        Parameters
+        ----------
+        arg1 : str
+            Arg 1
+
+        Returns
+        -------
+        bool
+            Return value
+        """
+        if arg1 > 'a':
+            return True
+        else:
+            return False
+
+    print(2)

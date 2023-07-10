@@ -546,7 +546,7 @@ class Visitor(ast.NodeVisitor):
                         msg += str([retArgType])
                         violations.append(v203.appendMoreMsg(moreMsg=msg))
                 else:
-                    if returnAnno.annotation != '':
+                    if bool(returnAnno.annotation):  # not empty str or not None
                         msg = 'Return annotation has 1 type(s); docstring'
                         msg += ' return section has 0 type(s).'
                         violations.append(v203.appendMoreMsg(moreMsg=msg))

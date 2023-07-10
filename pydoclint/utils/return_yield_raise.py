@@ -1,10 +1,10 @@
 import ast
-from typing import Dict, Tuple, Type, Union
+from typing import Callable, Dict, Tuple, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
-from pydoclint.utils.generic import getFunctionId, stringStartsWith
+from pydoclint.utils.generic import stringStartsWith
 
 ReturnType = Type[ast.Return]
 ExprType = Type[ast.Expr]
@@ -21,6 +21,10 @@ def hasReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
 def isReturnAnnotationNone(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the return type annotation if `None`"""
     return _isNone(node.returns)
+
+
+def _isNone(node: ast.AST) -> bool:
+    return isinstance(node, ast.Constant) and node.value is None
 
 
 def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
@@ -46,73 +50,84 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
 
 def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any yield statements"""
-    childLine: int = -999
-    foundYieldStmt: bool = False
+
+    def isThisNodeAYieldStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Expr) and isinstance(
+            node_.value, (ast.Yield, ast.YieldFrom)
+        )
+
+    return _hasExpectedStatements(node, isThisNodeAYieldStmt)
+
+
+def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the function node has any return statements"""
+
+    def isThisNodeAReturnStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Return)
+
+    return _hasExpectedStatements(node, isThisNodeAReturnStmt)
+
+
+def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the function node has any raise statements"""
+
+    def isThisNodeARaiseStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Raise)
+
+    return _hasExpectedStatements(node, isThisNodeARaiseStmt)
+
+
+def _hasExpectedStatements(
+        node: FuncOrAsyncFuncDef,
+        isThisNodeAnExpectedStmt: Callable[[ast.AST], bool],
+) -> bool:
+    """
+    Check whether the node contains an expected statement (return, yield, or
+    raise).
+    """
+    childLineNum: int = -999
+    foundReturnOrRaiseStmt: bool = False
 
     # key: child lineno, value: (parent lineno, is parent a function?)
     familyTree: Dict[int, Tuple[int, bool]] = {}
 
     for child, parent in walk.walk(node):
-        childLine = _getLineNum(child)
-        parentLine = _getLineNum(parent)
-        if childLine != -1 and parentLine != -1 and childLine != parentLine:
-            isFunction = isinstance(parent, FuncOrAsyncFunc)
-            familyTree[childLine] = (parentLine, isFunction)
+        childLineNum = _updateFamilyTree(child, parent, familyTree)
 
-        if isinstance(child, ast.Expr) and isinstance(
-            child.value, (ast.Yield, ast.YieldFrom)
-        ):
+        if isThisNodeAnExpectedStmt(child):
             if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
-                foundYieldStmt = True
+                foundReturnOrRaiseStmt = True
                 break
 
             if isinstance(parent, BlockType):
-                foundYieldStmt = True
+                foundReturnOrRaiseStmt = True
                 break
 
-    if foundYieldStmt:
-        parentFuncLineNum = _lookupParentFunc(familyTree, childLine)
-
-        # We consider this `yield` a valid one only when its parent function
-        # is indeed `node`
-        if parentFuncLineNum == node.lineno:
-            return True
-
-    return False
+    return _confirmThisStmtIsNotWithinNestedFunc(
+        foundStatementTemp=foundReturnOrRaiseStmt,
+        familyTree=familyTree,
+        lineNumOfStatement=childLineNum,
+        lineNumOfThisNode=node.lineno,
+    )
 
 
-def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether the function node has any return statements"""
-    return _hasReturnOrRaiseStatements(node, expectedNodeType=ast.Return)
+def _updateFamilyTree(
+        child: ast.AST,
+        parent: ast.AST,
+        familyTree: Dict[int, Tuple[int, bool]],
+) -> int:
+    """
+    Structure of `familyTree`:
+        Key: line number of child node
+        Value: (line number of parent node, whether this parent is a function)
+    """
+    childLine = _getLineNum(child)
+    parentLine = _getLineNum(parent)
+    if childLine != -1 and parentLine != -1 and childLine != parentLine:
+        isFunction = isinstance(parent, FuncOrAsyncFunc)
+        familyTree[childLine] = (parentLine, isFunction)
 
-
-def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether the function node has any raise statements"""
-    return _hasReturnOrRaiseStatements(node, expectedNodeType=ast.Raise)
-
-
-def _hasReturnOrRaiseStatements(
-        node: FuncOrAsyncFuncDef,
-        expectedNodeType: Union[Type[ast.Return], Type[ast.Raise]],
-) -> bool:
-    thisId = getFunctionId(node)
-    for child, parent in walk.walk(node):
-        if isinstance(child, expectedNodeType):
-            if isinstance(parent, (ast.AsyncFunctionDef, ast.FunctionDef)):
-                # Only return True if the parent is `node` (in other words,
-                # this statement doesn't come from a child function of `node`)
-                parentId = getFunctionId(parent)
-                if thisId == parentId:
-                    return True
-
-            if isinstance(parent, BlockType):
-                return True
-
-    return False
-
-
-def _isNone(node: ast.AST) -> bool:
-    return isinstance(node, ast.Constant) and node.value is None
+    return childLine
 
 
 def _getLineNum(node: ast.AST) -> int:
@@ -124,14 +139,43 @@ def _getLineNum(node: ast.AST) -> int:
     return lineNum
 
 
+def _confirmThisStmtIsNotWithinNestedFunc(
+        foundStatementTemp: bool,
+        familyTree: Dict[int, Tuple[int, bool]],
+        lineNumOfStatement: int,
+        lineNumOfThisNode: int,
+) -> bool:
+    """
+    Check whether we REALLY found the expected statement (return, yield,
+    or raise).
+
+    Returns True if this statement is not within a nested function of `node`.
+    Returns False if otherwise.
+
+    We do this by checking whether the line number of the parent function
+    of the statement is the same as the line number of the node.
+    """
+    if not foundStatementTemp:
+        return False
+
+    parentFuncLineNum = _lookupParentFunc(familyTree, lineNumOfStatement)
+    return parentFuncLineNum == lineNumOfThisNode
+
+
 def _lookupParentFunc(
         familyLine: Dict[int, Tuple[int, bool]],
-        lineNum: int,
+        lineNumOfChildNode: int,
 ) -> int:
-    if lineNum not in familyLine:
+    """
+    Look up the parent function of the given child node.
+
+    Recursion is used in this function, because the key-val pairs in
+    `familyLine` only records immediate child-parent mapping.
+    """
+    if lineNumOfChildNode not in familyLine:
         return -999
 
-    parentLineNum, isParentAFunction = familyLine[lineNum]
+    parentLineNum, isParentAFunction = familyLine[lineNumOfChildNode]
 
     if isParentAFunction:
         return parentLineNum

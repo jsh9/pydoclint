@@ -116,3 +116,65 @@ class B:
             open('nonexistent')
         except FileNotFoundError:
             raise
+
+    def func9a(self, arg0) -> None:
+        """
+        There should be DOC502 for this outer method.
+
+        Parameters
+        ----------
+        arg0 :
+            Arg 0
+
+        Raises
+        ------
+        FileNotFoundError
+            If the file does not exist.
+        """
+
+        def inner9a(arg1) -> None:
+            """
+            There should be DOC501 for this inner method
+
+            Parameters
+            ----------
+            arg1
+                Arg 1
+            """
+            try:
+                open('nonexistent')
+            except FileNotFoundError:
+                raise
+
+        print(arg0)
+
+    def func9b(self, arg0) -> None:
+        """
+        There should not be any violations in this outer method.
+
+        Parameters
+        ----------
+        arg0
+            Arg 0
+        """
+
+        def inner9a(arg1) -> None:
+            """
+            There should not be any violations in this inner method.
+
+            Parameters
+            ----------
+            arg1
+                Arg1
+
+            Raises
+            ------
+            FileNotFoundError
+                If the file does not exist.
+            """
+            try:
+                open('nonexistent')
+            except FileNotFoundError:
+                raise
+
+        print(arg0)
