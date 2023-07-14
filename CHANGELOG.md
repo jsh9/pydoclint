@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.0.16] - 2023-07-14
+
+- Fixed
+  - Fixed a bug (https://github.com/jsh9/pydoclint/issues/44) where tuple type annotation is incorrectly detected
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.15...0.0.16
+
 ## [0.0.15] - 2023-07-10
 
 - Fixed
@@ -8,7 +15,7 @@
   - Fixed false positives when `return` and `raise` statements are in a block
     within a nested function
 - Full diff
-  - https://github.com/jsh9/pydoclint/compare/0.0.15...0.0.15
+  - https://github.com/jsh9/pydoclint/compare/0.0.14...0.0.15
 
 ## [0.0.14] - 2023-07-05
 
