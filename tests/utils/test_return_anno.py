@@ -25,6 +25,9 @@ from pydoclint.utils.return_anno import ReturnAnnotation
         ('tuple(int, str, bool)', False),
         ('Tuple(int, str, bool)', False),
         ('tuple(1, 2, 3)', False),
+        ("'tuple[int, int, str]'", True),
+        ('"tuple[int, int, str]"', True),
+        ("'tuple'[int, int, str]", True),
     ],
 )
 def testIsTuple(annotation: str, expected: bool) -> None:
