@@ -19,8 +19,8 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (int):
+        :param arg1:
+        :type arg1: int
         """
         yield 1
 
@@ -28,8 +28,8 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (float):
+        :param arg1:
+        :type arg1: float
         """
         yield 2
 
@@ -37,11 +37,10 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (int):
-
-        Yields:
-            int: Something to yield
+        :param arg1:
+        :type arg1: int
+        :yield: Something to yield
+        :rtype: int
         """
         print(1)
 
@@ -56,8 +55,8 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (int):
+        :param arg1:
+        :type arg1: int
         """
         yield 2
 
@@ -65,11 +64,10 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (int):
-
-        Yields:
-            int: something
+        :param arg1:
+        :type arg1: int
+        :yield: something
+        :rtype: int
         """
         yield 1
         yield 2
@@ -79,8 +77,8 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (int):
+        :param arg1:
+        :type arg1: int
         """
         yield 1
         yield 2
@@ -90,11 +88,10 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (int):
-
-        Yields:
-            int: something
+        :param arg1:
+        :type arg1: int
+        :yield: something
+        :rtype: int
         """
         i = 0
         while i < 10:
@@ -105,8 +102,8 @@ class A:
         """
         Do something
 
-        Args:
-            arg1 (int):
+        :param arg1:
+        :type arg1: int
         """
         i = 0
         while i < 10:
@@ -117,11 +114,10 @@ class A:
         """
         Do something
 
-        Args:
-            data (list):
-
-        Yields:
-            int: something
+        :param data:
+        :type data: list
+        :yield: something
+        :rtype: int
         """
         yield from data
 
@@ -129,8 +125,8 @@ class A:
         """
         Do something
 
-        Args:
-            data (list):
+        :param data:
+        :type data: list
         """
         yield from data
 
@@ -138,11 +134,10 @@ class A:
         """
         Do something
 
-        Args:
-            data (list):
-
-        Yields:
-            int: something
+        :param data:
+        :type data: list
+        :yield: something
+        :rtype: int
         """
         yield from data
 
@@ -150,8 +145,8 @@ class A:
         """
         Do something
 
-        Args:
-            data (list):
+        :param data:
+        :type data: list
         """
         yield from data
 
@@ -163,12 +158,11 @@ class A:
         """
         Zip 2 lists.
 
-        Args:
-            list1 (List[Any]) : The first list
-            list2 (List[Any]) : The second list
-
-        Returns:
-            The zipped result
+        :param list1: The first list
+        :type list1: List[Any]
+        :param list2: The second list
+        :type list2: List[Any]
+        :return: The zipped result
         """
         return zip(list1, list2)
 
@@ -180,12 +174,11 @@ class A:
         """
         Zip 2 lists.
 
-        Args:
-            list1 (List[Any]) : The first list
-            list2 (List[Any]) : The second list
-
-        Yields:
-            The zipped result
+        :param list1: The first list
+        :type list1: List[Any]
+        :param list2: The second list
+        :type list2: List[Any]
+        :yield: The zipped result
         """
         return zip(list1, list2)
 
@@ -193,22 +186,20 @@ class A:
         """
         There should not be any violations in this method
 
-        Args:
-            arg1 (List[int]): Arg 1
-
-        Returns:
-            str: Return value
+        :param arg1: Arg 1
+        :type arg1: List[int]
+        :return: Return value
+        :rtype: str
         """
 
         def inner9a(inner_arg1: List[int]) -> Iterable[str]:
             """
             Do something else
 
-            Args:
-                inner_arg1 (List[int]): Inner arg 1
-
-            Yields:
-                Iterable[str]: Values to yield
+            :param inner_arg1: Inner arg 1
+            :type inner_arg1: List[int]
+            :yield: Values to yield
+            :rtype: Iterable[str]
             """
             for i in inner_arg1:
                 yield str(inner_arg1)
@@ -219,19 +210,18 @@ class A:
         """
         There should not be any violations in the outer method
 
-        Args:
-            arg1 (List[int]): Arg 1
-
-        Returns:
-            str: Return value
+        :param arg1: Arg 1
+        :type arg1: List[int]
+        :return: Return value
+        :rtype: str
         """
 
         def inner9b(inner_arg1: List[int]) -> Iterable[str]:
             """
             There should be DOC402 in this inner method
 
-            Args:
-                inner_arg1 (List[int]): Inner arg 1
+            :param inner_arg1: Inner arg 1
+            :type inner_arg1: List[int]
             """
             for i in inner_arg1:
                 yield str(inner_arg1)
@@ -242,22 +232,20 @@ class A:
         """
         There should be DOC201 and DOC403 in the outer method
 
-        Args:
-            arg1 (List[int]): Arg 1
-
-        Yields:
-            Iterable[str]: Values to yield
+        :param arg1: Arg 1
+        :type arg1: List[int]
+        :yield: Values to yield
+        :rtype: Iterable[str]
         """
 
         def inner9c(inner_arg1: List[int]) -> Iterable[str]:
             """
             There shouldn't be any violations in this inner method
 
-            Args:
-                inner_arg1 (List[int]): Inner arg 1
-
-            Yields:
-                Iterable[str]: Values to yield
+            :param inner_arg1: Inner arg 1
+            :type inner_arg1: List[int]
+            :yield: Values to yield
+            :rtype: Iterable[str]
             """
             for i in inner_arg1:
                 yield str(inner_arg1)
@@ -268,16 +256,16 @@ class A:
         """
         There should be DOC402 in this outer method
 
-        Args:
-            arg1 (List[int]): Arg 1
+        :param arg1: Arg 1
+        :type arg1: List[int]
         """
 
         def inner9d(inner_arg1: List[int]) -> Iterable[str]:
             """
             There should be DOC402 in this inner method
 
-            Args:
-                inner_arg1 (List[int]): Inner arg 1
+            :param inner_arg1: Innter arg 1
+            :type inner_arg1: List[int]
             """
             for i in inner_arg1:
                 yield str(inner_arg1)

@@ -2,9 +2,10 @@ class A:
     """
     A class that does something
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (float): Arg 2
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: float
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
@@ -17,12 +18,12 @@ class B:
     """
     A class that does something
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (float): Arg 2
-
-    Returns:
-        None
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: float
+    :return: None
+    :rtype: None
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
@@ -34,12 +35,12 @@ class C:
     """
     A class that does something
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (float): Arg 2
-
-    Returns:
-        None
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: float
+    :return: None
+    :rtype: None
     """
 
     def __init__(self, arg1: int, arg2: str) -> None:
@@ -51,12 +52,12 @@ class D:
     """
     A class that does something
 
-    Args:
-        var1 (list): Var 1
-        var2 (dict): Var 2
-
-    Returns:
-        None
+    :param var1: Var 1
+    :type var1: list
+    :param var2: Var 2
+    :type var2: dict
+    :return: None
+    :rtype: None
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:

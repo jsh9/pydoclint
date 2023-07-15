@@ -6,14 +6,15 @@ def func1(arg1: int,
     """
     Do something.
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (str): Arg 2
-        arg3 (bool): Arg 3
-        **kwargs: Keyword arguments
-
-    Returns:
-        float: Result
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: str
+    :param arg3: Arg 3
+    :type arg3: bool
+    :param **kwargs: Keyword arguments
+    :return: Result
+    :rtype: float
     """
     return 2.0
 
@@ -24,14 +25,15 @@ def func2(
     """
     Do something.
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (str): Arg 2
-        arg3 (bool): Arg 3
-        kwargs: Keyword arguments
-
-    Returns:
-        float: Result
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: str
+    :param arg3: Arg 3
+    :type arg3: bool
+    :param kwargs: Keyword arguments
+    :return: Result
+    :rtype: float
     """
     return 2.0
 
@@ -44,15 +46,16 @@ def func3(
     """
     Do something.
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (str): Arg 2
-        arg3 (bool): Arg 3
-        *args: Args
-        **kwargs: Keyword arguments
-
-    Returns:
-        float: Result
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: str
+    :param arg3: Arg 3
+    :type arg3: bool
+    :param *args: Args
+    :param **kwargs: Keyword arguments
+    :return: Result
+    :rtype: float
     """
     return 2.0
 
@@ -66,15 +69,17 @@ def func4(arg1: int,
     """
     Do something.
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (str): Arg 2
-        arg3 (bool): Arg 3
-        args: Args
-        **kwargs: Keyword arguments
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: str
+    :param arg3: Arg 3
+    :type arg3: bool
+    :param args: Args
+    :param **kwargs: Keyword arguments
+    :return: Result
+    :rtype: float
 
-    Returns:
-        float: Result
     """
     return 2.0
 
@@ -83,13 +88,14 @@ def func5(arg1: int, *, arg2: str, arg3: bool) -> float:
     """
     Do something.
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (str): Arg 2
-        arg3 (bool): Arg 3
-
-    Returns:
-        float: Result
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: str
+    :param arg3: Arg 3
+    :type arg3: bool
+    :return: Result
+    :rtype: float
     """
     return 2.0
 
@@ -98,13 +104,14 @@ def func6(arg1: int, arg2: str, arg3: bool, *args, **kwargs) -> float:
     """
     Do something.
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (str): Arg 2
-        arg3 (bool): Arg 3
-
-    Returns:
-        float: Result
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: str
+    :param arg3: Arg 3
+    :type arg3: bool
+    :return: Result
+    :rtype: float
     """
     return 2.0
 
@@ -113,12 +120,13 @@ def func7(arg1: float, arg2: str, arg3: bool, *args, **kwargs) -> float:
     """
     Do something.
 
-    Args:
-        arg2 (dict): Arg 2
-        arg1 (int): Arg 1
-        arg3 (bool): Arg 3
-
-    Returns:
-        float: Result
+    :param arg2: Arg 2
+    :type arg2: dict
+    :param arg1: Arg 1
+    :type arg2: int
+    :param arg3: Arg 3
+    :type arg3: bool
+    :return: Result
+    :rtype: float
     """
     return 2.0

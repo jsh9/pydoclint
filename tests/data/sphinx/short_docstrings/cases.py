@@ -16,11 +16,11 @@ def func3(arg1, arg2, arg3) -> int:
     """
     This is a function.
 
-    Args:
-        var1 (int): Var 1
-        var2 (str): Var 2
-
-    Returns:
-        int: The return value
+    :param var1: Var 1
+    :type var1: int
+    :param var2: Var 2
+    :type var2: str
+    :return: The return value
+    :rtype: int
     """
     return 3

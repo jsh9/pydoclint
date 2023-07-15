@@ -6,8 +6,7 @@ class A:
         """
         Do something.
 
-        Args:
-            *args: Args
-            **kwargs: Keyword args
+        :param *args: Args
+        :param **kwargs: Keyword args
         """
         pass

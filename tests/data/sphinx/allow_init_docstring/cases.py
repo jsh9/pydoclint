@@ -2,9 +2,10 @@ class A:
     """
     A class that does something
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (float): Arg 2
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: float
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
@@ -17,24 +18,24 @@ class B:
     """
     A class that does something
 
-    Args:
-        arg1 (int): Arg 1
-        arg2 (float): Arg 2
-
-    Returns:
-        None
+    :param arg1: Arg 1
+    :type arg1: int
+    :param arg2: Arg 2
+    :type arg2: float
+    :return: None
+    :rtype: None
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
-
-        Returns:
-            None
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
+        :return: None
+        :rtype: None
         """
         self.arg1 = arg1
         self.arg2 = arg2
@@ -44,20 +45,19 @@ class C:
     """
     A class that does something
 
-    Raises:
-        TypeError: Type error
+    :raises TypeError: Type error
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
 
-        Raises:
-            TypeError: Type error
+        :raises TypeError: Type error
         """
         self.arg1 = arg1
         self.arg2 = arg2
@@ -70,20 +70,21 @@ class D:
     """
     A class that does something
 
-    Yields:
-        int
+    :yield: Thing to yield
+    :rtype: int
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
 
-        Yields:
-            int
+        :yield: Thing to yield
+        :rtype: int
         """
         self.arg1 = arg1
         self.arg2 = arg2
@@ -93,21 +94,20 @@ class E:
     """
     A class that does something
 
-    Attributes:
-        attr1:
-        attr2:
+    :param attr1:
+    :param attr1: Arg 2
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
 
-        Raises:
-            ValueError: When some values are invalid
+        :raises: ValueError: When some values are invalid
         """
         self.arg1 = arg1
         self.arg2 = arg2

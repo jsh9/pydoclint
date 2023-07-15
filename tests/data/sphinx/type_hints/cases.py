@@ -6,12 +6,10 @@ class MyClass:
         """
         Do something
 
-        Args:
-            arg1: Arg 1
-            arg2: Arg 2
-
-        Returns:
-            int: The return value
+        :param arg1: Arg 1
+        :param arg2: Arg 2
+        :return: The return value
+        :rtype: int
         """
         return 1
 
@@ -19,12 +17,10 @@ class MyClass:
         """
         Do something
 
-        Args:
-            arg1: Arg 1
-            arg2: Arg 2
-
-        Returns:
-            int: The return value
+        :param arg1: Arg 1
+        :param arg2: Arg 2
+        :return: The return value
+        :rtype: int
         """
         return 1
 
@@ -32,12 +28,12 @@ class MyClass:
         """
         Do something
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
-
-        Returns:
-            int: The return value
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
+        :return: The return value
+        :rtype: int
         """
         return 1
 
@@ -45,12 +41,12 @@ class MyClass:
         """
         Do something
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
-
-        Returns:
-            int: The return value
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
+        :return: The return value
+        :rtype: int
         """
         return 1
 
@@ -58,12 +54,11 @@ class MyClass:
         """
         Do something
 
-        Args:
-            arg1 (int): Arg 1
-            arg2: Arg 2
-
-        Returns:
-            int: The return value
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :return: The return value
+        :rtype: int
         """
         return 1
 
@@ -71,12 +66,12 @@ class MyClass:
         """
         Do something
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
-
-        Returns:
-            int: The return value
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
+        :return: The return value
+        :rtype: int
         """
         return 1
 
@@ -84,11 +79,10 @@ class MyClass:
         """
         Do something
 
-        Args:
-            arg1: Arg 1
-            arg2 (float): Arg 2
-
-        Returns:
-            int: The return value
+        :param arg1: Arg 1
+        :param arg2: Arg 2
+        :type arg2: float
+        :return: The return value
+        :rtype: int
         """
         return 1

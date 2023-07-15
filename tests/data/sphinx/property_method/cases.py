@@ -17,7 +17,7 @@ class B:
         """
         Return the 1st attribute
 
-        Returns:
-            int: the 1st attribute
+        :return: the 1st attribute
+        :rtype: int
         """
         return 1

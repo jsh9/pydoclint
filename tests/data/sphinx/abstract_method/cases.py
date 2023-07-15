@@ -11,14 +11,13 @@ class AbstractClass(ABC):
 
         No violations in this method.
 
-        Args:
-            var1 (str): Variable.
+        :param var1: Variable.
+        :type var1: str
 
-        Raises:
-            ValueError: Example exception
+        :raises: ValueError: Example exception
 
-        Yields:
-            str: Paths to the files and directories listed.
+        :yield: Paths to the files and directories listed.
+        :rtype: str
         """
 
     @abstractmethod
@@ -30,14 +29,13 @@ class AbstractClass(ABC):
         returning something, rather than yielding something.  (To yield
         something, use `Generator` as the return type annotation.)
 
-        Args:
-            var1 (str): Variable.
+        :param var1: Variable.
+        :type var1: str
 
-        Raises:
-            ValueError: Example exception
+        :raises: ValueError: Example exception
 
-        Yields:
-            str: Paths to the files and directories listed.
+        :yield: Paths to the files and directories listed.
+        :rtype: str
         """
 
     @abstractmethod
@@ -46,9 +44,8 @@ class AbstractClass(ABC):
 
         The linter will complain about not having a return section.
 
-        Args:
-            var1 (str): Variable.
+        :param var1: Variable.
+        :type var1: str
 
-        Raises:
-            ValueError: Example exception
+        :raises: ValueError: Example exception
         """

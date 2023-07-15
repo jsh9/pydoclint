@@ -7,11 +7,9 @@ class B:
         """
         Do something
 
-        Args:
-            arg1: Arg 1
-
-        Returns:
-            None
+        :param arg1: Arg 1
+        :return: None
+        :rtype: None
         """
         a = 1
         b = 2
@@ -29,8 +27,7 @@ class B:
         """
         Do something.
 
-        Raises:
-            CurtomError: When something goes wrong
+        :raises: CurtomError: When something goes wrong
         """
         raise CustomError('CustomError')
 
@@ -38,11 +35,9 @@ class B:
         """
         Do something
 
-        Returns:
-            int: Result
-
-        Raises:
-            TypeError: When something goes wrong
+        :return: Result
+        :rtype: int
+        :raises: TypeError: When something goes wrong
         """
 
         def func5_child1():
@@ -54,14 +49,10 @@ class B:
         """
         Do something
 
-        Args:
-            arg1: Arg 1
-
-        Returns:
-            int: Result
-
-        Raises:
-            TypeError: When something goes wrong
+        :param arg1: Arg1
+        :return: Result
+        :rtype: int
+        :raises: TypeError: When something goes wrong
         """
         if arg1 is None:
             raise TypeError
@@ -72,22 +63,17 @@ class B:
         """
         Do something
 
-        Args:
-            arg1: Arg 1
-
-        Returns:
-            int: Result
-
-        Raises:
-            Exception: When something goes wrong
+        :param arg1: Arg1
+        :return: Result
+        :rtype: int
+        :raises: TypeError: When something goes wrong
         """
         return 2
 
     def func8(self) -> None:
         """This is a function.
 
-        Raises:
-            FileNotFoundError: If the file does not exist.
+        :raises: FileNotFoundError: If the file does not exist.
         """
         try:
             open('nonexistent')
@@ -98,19 +84,15 @@ class B:
         """
         There should be DOC502 for this outer method.
 
-        Args:
-            arg0: Arg 0
-
-        Raises:
-            FileNotFoundError: If the file does not exist.
+        :param arg0: Arg 0
+        :raises: FileNotFoundError: If the file does not exist.
         """
 
         def inner9a(arg1) -> None:
             """
             There should be DOC501 for this inner method
 
-            Args:
-                arg1: Arg 1
+            :param arg1: Arg 1
             """
             try:
                 open('nonexistent')
@@ -123,19 +105,15 @@ class B:
         """
         There should not be any violations in this outer method.
 
-        Args:
-            arg0: Arg 0
+        :param arg0: Arg 0
         """
 
         def inner9a(arg1) -> None:
             """
             There should not be any violations in this inner method.
 
-            Args:
-                arg1: Arg1
-
-            Raises:
-                FileNotFoundError: If the file does not exist.
+            :param arg1: Arg1
+            :raises: FileNotFoundError: If the file does not exist.
             """
             try:
                 open('nonexistent')

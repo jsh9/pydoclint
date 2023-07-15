@@ -2,9 +2,8 @@ class A:
     """
     Some class
 
-    Args:
-        arg1
-        arg2
+    :param arg1:
+    :param arg2:
     """
 
     def __init__(self):
@@ -14,10 +13,9 @@ class A:
         """
         Do something
 
-        Args:
-            arg3 (int): arg3
-
-        Returns:
-            int: The return value
+        :param arg3: arg3
+        :type arg3: int
+        :return: The return value
+        :rtype: int
         """
         return 2

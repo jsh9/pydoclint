@@ -30,8 +30,8 @@ class MyClass:
         """
         Something
 
-        Args:
-            arg1 (int): Arg 1
+        :param arg1: Arg 1
+        :type arg1: int
         """
         return None
 
@@ -40,11 +40,10 @@ class MyClass:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-
-        Returns:
-            int: Result
+        :param arg1: Arg 1
+        :type arg1: int
+        :return: Result
+        :rtype: int
         """
         return 1
 
@@ -53,8 +52,8 @@ class MyClass:
         """
         Do something.
 
-        Returns:
-            int: Result
+        :return: Result
+        :rtype: int
         """
         return 1
 
@@ -63,8 +62,8 @@ class MyClass:
         """
         Do something.
 
-        Returns:
-            float: Result
+        :return: Result
+        :rtype: float
         """
         return 1.0
 
@@ -73,15 +72,16 @@ class MyClass:
         """
         Do something.
 
-        Returns:
-            int: Result
+        :return: Result
+        :rtype: int
         """
 
         def func52() -> None:
             """
             Do something else
 
-            arg100 (int): Some arg
+            :param arg100: Some arg
+            :type arg100: int
             """
             return None
 
@@ -92,8 +92,8 @@ class MyClass:
         """
         If no summary here, the parser will mis-parse the return section
 
-        Returns:
-            int: Something to return
+        :return: Something to return
+        :rtype: int
         """
         print(123)
 
@@ -102,8 +102,8 @@ class MyClass:
         """
         If no summary here, the parser will mis-parse the return section
 
-        Returns:
-            int: Something to return
+        :return: Something to return
+        :rtype: int
         """
         print(123)
 
@@ -112,8 +112,8 @@ class MyClass:
         """
         If no summary here, the parser will mis-parse the return section
 
-        Returns:
-            int: Something to return
+        :return: Something to return
+        :rtype: int
         """
         return 123
 
@@ -122,8 +122,8 @@ class MyClass:
         """
         If no summary here, the parser will mis-parse the return section
 
-        Returns:
-            Tuple[int, bool]: Something to return
+        :return: Something to return
+        :rtype: Tuple[int, bool]
         """
         return (1, 1.1)
 
@@ -132,9 +132,10 @@ class MyClass:
         """
         If no summary here, the parser will mis-parse the return section
 
-        Returns:
-            int: Integer to return
-            bool: Boolean to return
+        :return: Integer to return
+        :rtype: int
+        :return: Boolean to return
+        :rtype: bool
         """
         return (1, 1.1)
 
@@ -143,8 +144,8 @@ class MyClass:
         """
         No violation should be reported here.
 
-        Returns:
-            Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]: Something
+        :return: Something
+        :rtype: Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]
         """
         print(1)
 
@@ -153,8 +154,8 @@ class MyClass:
         """
         No violation should be reported here.
 
-        Returns:
-            Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]: Something
+        :return: Something
+        :rtype: Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]
         """
         print(1)
 
@@ -163,8 +164,8 @@ class MyClass:
         """
         No violation should be reported here.
 
-        Returns:
-            Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]: Something
+        :return: Something
+        :rtype: Tuple[Dict['MyClass1', 'MyClass2'], List['MyClass3']]
         """
         print(1)
 
@@ -173,8 +174,8 @@ class MyClass:
         """
         No violation should be reported here.
 
-        Returns:
-            Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]: Something
+        :return: Something
+        :rtype: Tuple[Dict[MyClass1, MyClass2], List[MyClass3]]
         """
         print(1)
 
@@ -183,8 +184,8 @@ class MyClass:
         """
         No violation should be reported here.
 
-        Returns:
-            Tuple[Dict["MyClass1", MyClass2], List['MyClass3']]: Something
+        :return: Something
+        :rtype: Tuple[Dict["MyClass1", MyClass2], List['MyClass3']]
         """
         print(1)
 
@@ -193,19 +194,18 @@ class MyClass:
         """
         Expected violations: DOC202, DOC203
 
-        Args:
-            arg0 (float): Arg 0
-
-        Returns:
-            bool: Return value
+        :param arg0: Arg 0
+        :type arg0: float
+        :return: Return value
+        :rtype: bool
         """
 
         def inner101(arg1: str) -> bool:
             """
             Expected violations: DOC201, DOC203
 
-            Args:
-                arg1 (str): Arg 1
+            :param arg1: Arg 1
+            :type arg1: str
             """
             if arg1 > 'a':
                 return True
@@ -219,19 +219,18 @@ class MyClass:
         """
         There should not be any violations
 
-        Args:
-            arg0 (float): Arg 0
+        :param arg0: Arg 0
+        :type arg0: float
         """
 
         def inner102(arg1: str) -> bool:
             """
             There should not be any violations
 
-            Args:
-                arg1 (str): Arg 1
-
-            Returns:
-                bool: Return value
+            :param arg1: Arg 1
+            :type arg1: str
+            :return: Return value
+            :rtype: bool
             """
             if arg1 > 'a':
                 return True

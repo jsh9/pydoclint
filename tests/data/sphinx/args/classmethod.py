@@ -19,8 +19,8 @@ class MyClass:
     def func1_3(cls, arg1: str, arg2: list[int]) -> bool:
         """Something
 
-        Returns:
-            bool: Something else
+        :return: Something else
+        :rtype: bool
         """
         return True
 
@@ -32,8 +32,8 @@ class MyClass:
     def func1_5(cls) -> None:
         """Something
 
-        Returns:
-            None
+        :return: None
+        :rtype: None
         """
         return None
 
@@ -42,11 +42,10 @@ class MyClass:
         """
         Something
 
-        Args:
-            arg1 (int): Arg 1
-
-        Returns:
-            None
+        :param arg1: Arg 1
+        :type arg1: int
+        :return: None
+        :rtype: None
         """
         return None
 
@@ -55,11 +54,10 @@ class MyClass:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-
-        Returns:
-            int: Result
+        :param arg1: Arg 1
+        :type arg1: int
+        :return: Result
+        :rtype: int
         """
         return 1
 
@@ -68,13 +66,14 @@ class MyClass:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
-            arg3 (Optional[Union[float, int, str]]): Arg 3
-
-        Returns:
-            int: Result
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
+        :param arg3: Arg 3
+        :type arg3: Optional[Union[float, int, str]]
+        :return: Result
+        :rtype: int
         """
         return 1
 
@@ -83,12 +82,12 @@ class MyClass:
         """
         Do something.
 
-        Args:
-            arg2 (float): Arg 2
-            arg1 (int): Arg 1
-
-        Returns:
-            int: Result
+        :param arg2: Arg 2
+        :type arg2: float
+        :param arg1: Arg 1
+        :type arg1: int
+        :return: Result
+        :rtype: int
         """
         return 1
 
@@ -97,12 +96,12 @@ class MyClass:
         """
         Do something.
 
-        Args:
-            arg1 (list[str]): Arg 1
-            arg2 (str): Arg 2
-
-        Returns:
-            int: Result
+        :param arg1: Arg 1
+        :type arg1: list[str]
+        :param arg2: Arg 2
+        :type arg2: str
+        :return: Result
+        :rtype: int
         """
         return 1
 
@@ -111,12 +110,12 @@ class MyClass:
         """
         Do something.
 
-        Args:
-            arg2 (str): Arg 2
-            arg1 (list[str]): Arg 1
-
-        Returns:
-            int: Result
+        :param arg2: Arg 2
+        :type arg2: str
+        :param arg1: Arg 1
+        :type: arg2: list[str]
+        :return: Result
+        :rtype: int
         """
         return 1
 
@@ -125,22 +124,22 @@ class MyClass:
         """
         Do something.
 
-        Args:
-            arg1 (int): Arg 1
-            arg2 (float): Arg 2
-
-        Returns:
-            int: Result
+        :param arg1: Arg 1
+        :type arg1: int
+        :param arg2: Arg 2
+        :type arg2: float
+        :return: Result
+        :rtype: int
         """
 
         def func72(arg3: list, arg4: tuple, arg5: dict) -> None:
             """
             Do something else
 
-            arg100 (int): Some arg
-
-            Returns:
-                None
+            :param arg100: Some arg
+            :type arg100: int
+            :return: None
+            :rtype: None
             """
             return None
 
@@ -151,11 +150,11 @@ class MyClass:
         """
         Something
 
-        Args:
-            arg1 (MyClass): Arg 1
-            arg2 (SomeClass): Arg 2
-
-        Returns:
-            int: Result
+        :param arg1: Arg 1
+        :type arg1: MyClass
+        :param arg2: Arg 2
+        :type arg2: SomeClass
+        :return: Result
+        :rtype: int
         """
         return MyClass()
