@@ -57,10 +57,11 @@ class ReturnAnnotation:
             return self.putAnnotationInList()
 
     def _isTuple(self) -> bool:
-        return (
-            self.annotation is not None
-            and self.annotation.lower().startswith('tuple[')
-        )
+        try:
+            annoHead = ast.parse(self.annotation).body[0].value.value.id
+            return annoHead in {'tuple', 'Tuple'}
+        except Exception:
+            return False
 
     def putAnnotationInList(self) -> List[str]:
         """Put annotation string in a list"""
