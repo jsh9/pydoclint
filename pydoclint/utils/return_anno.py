@@ -63,7 +63,6 @@ class ReturnAnnotation:
         except Exception:
             return False
 
-
     def putAnnotationInList(self) -> List[str]:
         """Put annotation string in a list"""
         return [] if self.annotation is None else [self.annotation]

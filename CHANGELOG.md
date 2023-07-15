@@ -3,7 +3,8 @@
 ## [0.0.16] - 2023-07-14
 
 - Fixed
-  - Fixed a bug (https://github.com/jsh9/pydoclint/issues/44) where tuple type annotation is incorrectly detected
+  - Fixed a bug (https://github.com/jsh9/pydoclint/issues/44) where tuple type
+    annotation is incorrectly detected
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.0.15...0.0.16
 
