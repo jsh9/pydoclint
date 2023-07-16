@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.1.0] - 2023-07-15
+
+- Added
+  - Added support for the
+    [Sphinx docstring style](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.0.16...0.1.0
+
 ## [0.0.16] - 2023-07-14
 
 - Fixed
