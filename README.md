@@ -14,7 +14,7 @@ Here is a comparison of linting time on some famous Python projects:
 | [numpy](https://github.com/numpy/numpy)                      | 2.0 sec   | 49 min 9 sec (1,475x slower)      |
 | [scikit-learn](https://github.com/scikit-learn/scikit-learn) | 2.4 sec   | 3 hr 5 min 33 sec (4,639x slower) |
 
-Currently, _pydoclint_ supports two docstring styles:
+Currently, _pydoclint_ supports three docstring styles:
 
 - The [numpy stlyle](https://numpydoc.readthedocs.io/en/latest/format.html)
 - The
