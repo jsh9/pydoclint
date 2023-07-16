@@ -3,7 +3,7 @@ def func1_1(arg1: int, arg2: float) -> None:
 
 
 def func1_1a(arg1: int, arg2: float) -> None:
-    cls.func2(arg1, arg2)
+    func2(arg1, arg2)
 
 
 def func1_2(arg1: int, arg2: float) -> None:
@@ -20,11 +20,11 @@ def func1_3(arg1: str, arg2: list[int]) -> bool:
     return True
 
 
-def func1_4(cls) -> bool:
+def func1_4() -> bool:
     return False
 
 
-def func1_5(cls) -> None:
+def func1_5() -> None:
     """Something
 
     :return: None
@@ -33,7 +33,7 @@ def func1_5(cls) -> None:
     return None
 
 
-def func1_6(cls) -> None:
+def func1_6() -> None:
     """
     Something
 
@@ -108,7 +108,7 @@ def func6(arg1: int, arg2: float) -> int:
     :param arg2: Arg 2
     :type arg2: str
     :param arg1: Arg 1
-    :type: arg2: list[str]
+    :type arg1: list[str]
     :return: Result
     :rtype: int
     """
@@ -131,7 +131,7 @@ def func7(arg1: int, arg2: float) -> int:
         """
         Do something else
 
-        :param arg100: Some arg
+        arg100: Some arg
         :type arg100: int
         :return: None
         :rtype: None

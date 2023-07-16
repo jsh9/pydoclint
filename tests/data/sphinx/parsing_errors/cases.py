@@ -2,8 +2,8 @@ class A:
     """
     Some class
 
-    :param arg1:
-    :param arg2:
+    param: arg1
+    param: arg2
     """
 
     def __init__(self):

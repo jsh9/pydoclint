@@ -113,7 +113,7 @@ class MyClass:
         :param arg2: Arg 2
         :type arg2: str
         :param arg1: Arg 1
-        :type: arg2: list[str]
+        :type arg1: list[str]
         :return: Result
         :rtype: int
         """
@@ -136,7 +136,7 @@ class MyClass:
             """
             Do something else
 
-            :param arg100: Some arg
+            arg100: Some arg
             :type arg100: int
             :return: None
             :rtype: None

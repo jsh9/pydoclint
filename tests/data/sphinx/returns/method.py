@@ -70,7 +70,7 @@ class MyClass:
             """
             Do something else
 
-            :param arg100: Some arg
+            arg100: Some arg
             :type arg100: int
             """
             return None

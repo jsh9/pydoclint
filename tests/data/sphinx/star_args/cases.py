@@ -123,7 +123,7 @@ def func7(arg1: float, arg2: str, arg3: bool, *args, **kwargs) -> float:
     :param arg2: Arg 2
     :type arg2: dict
     :param arg1: Arg 1
-    :type arg2: int
+    :type arg1: int
     :param arg3: Arg 3
     :type arg3: bool
     :return: Result

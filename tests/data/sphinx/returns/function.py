@@ -75,7 +75,7 @@ def func5() -> int:
         """
         Do something else
 
-        :param arg100: Some arg
+        arg100: Some arg
         :type arg100: int
         """
         return None
