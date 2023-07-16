@@ -1,8 +1,8 @@
 from typing import Any, List
 
+import docstring_parser.parser as sphinx_parser
 from docstring_parser.common import Docstring, DocstringReturns
 from docstring_parser.google import GoogleParser
-import docstring_parser.parser as sphinx_parser
 from numpydoc.docscrape import NumpyDocString
 
 from pydoclint.utils.arg import ArgList
