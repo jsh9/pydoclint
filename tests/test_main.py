@@ -109,7 +109,7 @@ expectedViolationsLookup: Dict[bool, List[str]] = {
     'style, filename, checkArgOrder',
     list(
         itertools.product(
-            ['numpy', 'google'],
+            ['numpy', 'google', 'sphinx'],
             ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
             [True, False],
         ),
@@ -139,7 +139,7 @@ def testArguments(
     'style, filename',
     list(
         itertools.product(
-            ['numpy', 'google'],
+            ['numpy', 'google', 'sphinx'],
             ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
         ),
     ),
@@ -191,6 +191,13 @@ def testReturns(style: str, filename: str) -> None:
             "docstring return section types: ['int']"
         )
 
+    if style == 'sphinx':
+        expectedViolations.append(
+            'DOC203: Method `MyClass.func82` return type(s) in docstring not consistent with '
+            "the return annotation. Return annotation types: ['Tuple[int, bool]']; "
+            "docstring return section types: ['bool']"
+        )
+
     expectedViolations.extend([
         'DOC202: Method `MyClass.func101` has a return section in docstring, but '
         'there are no return statements or annotations ',
@@ -214,7 +221,7 @@ def testReturns(style: str, filename: str) -> None:
     'style, require',
     list(
         itertools.product(
-            ['numpy', 'google'],
+            ['numpy', 'google', 'sphinx'],
             [True, False],
         ),
     ),
@@ -315,6 +322,8 @@ expected_skipCheckingShortDocstrings_False = [
         ('numpy', False, expected_skipCheckingShortDocstrings_False),
         ('google', True, expected_skipCheckingShortDocstrings_True),
         ('google', False, expected_skipCheckingShortDocstrings_False),
+        ('sphinx', True, expected_skipCheckingShortDocstrings_True),
+        ('sphinx', False, expected_skipCheckingShortDocstrings_False),
     ],
 )
 def testSkipCheckingShortDocstrings(
@@ -333,7 +342,7 @@ def testSkipCheckingShortDocstrings(
 
 @pytest.mark.parametrize(
     'style',
-    ['numpy', 'google'],
+    ['numpy', 'google', 'sphinx'],
 )
 def testInit(style: str) -> None:
     violations = _checkFile(
@@ -362,7 +371,7 @@ def testInit(style: str) -> None:
 
 @pytest.mark.parametrize(
     'style',
-    ['numpy', 'google'],
+    ['numpy', 'google', 'sphinx'],
 )
 def testAllowInitDocstring(style: str) -> None:
     violations = _checkFile(
@@ -395,7 +404,7 @@ def testAllowInitDocstring(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['numpy', 'google'])
+@pytest.mark.parametrize('style', ['numpy', 'google', 'sphinx'])
 def testYields(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/yields/cases.py',
@@ -442,7 +451,7 @@ def testYields(style: str) -> None:
 @pytest.mark.parametrize(
     'style, skipRaisesCheck',
     itertools.product(
-        ['numpy', 'google'],
+        ['numpy', 'google', 'sphinx'],
         [False, True],
     ),
 )
@@ -472,7 +481,7 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['numpy', 'google'])
+@pytest.mark.parametrize('style', ['numpy', 'google', 'sphinx'])
 def testStarsInArgumentList(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/star_args/cases.py',
@@ -510,7 +519,7 @@ def testStarsInArgumentList(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['numpy', 'google'])
+@pytest.mark.parametrize('style', ['numpy', 'google', 'sphinx'])
 def testStarsInArgumentList2(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/star_args/cases2.py',
@@ -535,6 +544,15 @@ def testParsingErrors_google() -> None:
     assert list(map(str, violations)) == expected
 
 
+def testParsingErrors_sphinx() -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'sphinx/parsing_errors/cases.py',
+        style='sphinx',
+    )
+    expected = []  # not sure how to craft docstrings with parsing errors yet
+    assert list(map(str, violations)) == expected
+
+
 def testParsingErrors_numpy() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'numpy/parsing_errors/cases.py',
@@ -554,7 +572,7 @@ def testParsingErrors_numpy() -> None:
 @pytest.mark.parametrize(
     'style, rrs',
     itertools.product(
-        ['numpy', 'google'],
+        ['numpy', 'google', 'sphinx'],
         [False, True],
     ),
 )
@@ -588,7 +606,7 @@ def testNoReturnSection(
 
 @pytest.mark.parametrize(
     'style',
-    ['numpy', 'google'],
+    ['numpy', 'google', 'sphinx'],
 )
 def testPropertyMethod(style: str) -> None:
     violations = _checkFile(
@@ -603,7 +621,7 @@ def testPropertyMethod(style: str) -> None:
 @pytest.mark.parametrize(
     'style, checkReturnTypes',
     itertools.product(
-        ['numpy', 'google'],
+        ['numpy', 'google', 'sphinx'],
         [False, True],
     ),
 )
@@ -640,7 +658,7 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
 @pytest.mark.parametrize(
     'style, typeHintsInDocstring, typeHintsInSignature',
     itertools.product(
-        ['numpy', 'google'],
+        ['numpy', 'google', 'sphinx'],
         [False, True],
         [False, True],
     ),

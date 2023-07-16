@@ -1,5 +1,6 @@
 from typing import Any, List
 
+import docstring_parser.parser as sphinx_parser
 from docstring_parser.common import Docstring, DocstringReturns
 from docstring_parser.google import GoogleParser
 from numpydoc.docscrape import NumpyDocString
@@ -27,6 +28,8 @@ class Doc:
         elif style == 'google':
             parser = GoogleParser()
             self.parsed = parser.parse(docstring)
+        elif style == 'sphinx':
+            self.parsed = sphinx_parser.parse(docstring)
         else:
             self._raiseException()
 
@@ -56,7 +59,7 @@ class Doc:
                 and not bool(self.parsed.get('index'))
             )
 
-        if self.style == 'google':
+        if self.style in {'google', 'sphinx'}:
             # API documentation:
             # https://rr-.github.io/docstring_parser/docstring_parser.Docstring.html
             return (
@@ -80,7 +83,7 @@ class Doc:
         if self.style == 'numpy':
             return ArgList.fromNumpydocParam(self.parsed.get('Parameters', []))
 
-        if self.style == 'google':
+        if self.style in {'google', 'sphinx'}:
             return ArgList.fromGoogleParsedParam(self.parsed.params)
 
         self._raiseException()  # noqa: R503
@@ -91,7 +94,7 @@ class Doc:
         if self.style == 'numpy':
             return bool(self.parsed.get('Returns'))
 
-        if self.style == 'google':
+        if self.style in {'google', 'sphinx'}:
             retSection: DocstringReturns = self.parsed.returns
             return retSection is not None and not retSection.is_generator
 
@@ -103,7 +106,7 @@ class Doc:
         if self.style == 'numpy':
             return bool(self.parsed.get('Yields'))
 
-        if self.style == 'google':
+        if self.style in {'google', 'sphinx'}:
             retSection: DocstringReturns = self.parsed.returns
             return retSection is not None and retSection.is_generator
 
@@ -115,7 +118,7 @@ class Doc:
         if self.style == 'numpy':
             return bool(self.parsed.get('Raises'))
 
-        if self.style == 'google':
+        if self.style in {'google', 'sphinx'}:
             return len(self.parsed.raises) > 0
 
         self._raiseException()  # noqa: R503

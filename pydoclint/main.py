@@ -26,7 +26,9 @@ def validateStyleValue(
 ) -> Optional[str]:
     """Validate the value of the 'style' option"""
     if value not in {'numpy', 'google'}:
-        raise click.BadParameter('"--style" must be "numpy" or "google"')
+        raise click.BadParameter(
+            '"--style" must be "numpy", "google", or "sphinx"'
+        )
 
     return value
 
