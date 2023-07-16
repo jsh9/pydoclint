@@ -25,6 +25,30 @@ Currently, _pydoclint_ supports three docstring styles:
 Another note: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle)
 serves complementary purposes. It is recommended that you use both together.
 
+**Table of Contents**
+
+<!--TOC-->
+
+- [1. Installation](#1-installation)
+- [2. Usage](#2-usage)
+  - [2.1. As a native command line tool](#21-as-a-native-command-line-tool)
+  - [2.2. As a _flake8_ plugin](#22-as-a-flake8-plugin)
+  - [2.3. As a pre-commit hook](#23-as-a-pre-commit-hook)
+  - [2.4. Native vs _flake8_](#24-native-vs-flake8)
+  - [2.5. Configuration](#25-configuration)
+    - [2.5.1. Setting options inline](#251-setting-options-inline)
+    - [2.5.2. Setting options in a configuration file](#252-setting-options-in-a-configuration-file)
+- [3. Style violation codes](#3-style-violation-codes)
+  - [3.0. `DOC0xx`: Docstring parsing issues](#30-doc0xx-docstring-parsing-issues)
+  - [3.1. `DOC1xx`: Violations about input arguments](#31-doc1xx-violations-about-input-arguments)
+    - [Notes on `DOC103`:](#notes-on-doc103)
+  - [3.2. `DOC2xx`: Violations about return argument(s)](#32-doc2xx-violations-about-return-arguments)
+  - [3.3. `DOC3xx`: Violations about class docstring and class constructor](#33-doc3xx-violations-about-class-docstring-and-class-constructor)
+  - [3.4. `DOC4xx`: Violations about "yield" statements](#34-doc4xx-violations-about-yield-statements)
+  - [3.5. `DOC5xx`: Violations about "raise" statements](#35-doc5xx-violations-about-raise-statements)
+
+<!--TOC-->
+
 ## 1. Installation
 
 ```
