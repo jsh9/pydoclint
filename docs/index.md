@@ -1,4 +1,4 @@
 # pydoclint: additional documentation
 
-- [Configuration options](./subpages/config_options.md)
-- [Misc](./subpages/misc.md)
+- [Configuration options](./config_options.md)
+- [Additional notes](./addl_notes.md)

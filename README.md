@@ -3,7 +3,7 @@
 A Python docstring linter to check whether a docstring's sections (arguments,
 returns, raises, ...) match the function signature or function implementation.
 
-It runs really fast. In fact, it is at least ~1,475 times faster than
+It runs really fast. In fact, it can be thousands of times faster than
 [darglint](https://github.com/terrencepreilly/darglint) (or its maintained fork
 [darglint2](https://github.com/akaihola/darglint2)).
 
@@ -13,6 +13,9 @@ Here is a comparison of linting time on some famous Python projects:
 | ------------------------------------------------------------ | --------- | --------------------------------- |
 | [numpy](https://github.com/numpy/numpy)                      | 2.0 sec   | 49 min 9 sec (1,475x slower)      |
 | [scikit-learn](https://github.com/scikit-learn/scikit-learn) | 2.4 sec   | 3 hr 5 min 33 sec (4,639x slower) |
+
+Additionally, _pydoclint_ can detect some quite a few style violations that
+darglint cannot.
 
 Currently, _pydoclint_ supports three docstring styles:
 
@@ -46,6 +49,7 @@ serves complementary purposes. It is recommended that you use both together.
   - [3.3. `DOC3xx`: Violations about class docstring and class constructor](#33-doc3xx-violations-about-class-docstring-and-class-constructor)
   - [3.4. `DOC4xx`: Violations about "yield" statements](#34-doc4xx-violations-about-yield-statements)
   - [3.5. `DOC5xx`: Violations about "raise" statements](#35-doc5xx-violations-about-raise-statements)
+- [4. Additional notes](#4-additional-notes)
 
 <!--TOC-->
 
@@ -82,7 +86,7 @@ other built-in _flake8_ linters on your code.
 
 ### 2.3. As a pre-commit hook
 
-`pydoclint` is configured for [pre-commit](https://pre-commit.com/) and can be
+_pydoclint_ is configured for [pre-commit](https://pre-commit.com/) and can be
 set up as a hook with the following `.pre-commit-config.yaml` configuration:
 
 ```yaml
@@ -111,7 +115,7 @@ Here's comparison:
 ### 2.5. Configuration
 
 Here is how to configure _pydoclint_. For detailed explanations of all options,
-see [Section 4](#4-configuration-options) below.
+please read [this page](https://jsh9.github.io/pydoclint/config_options.html).
 
 #### 2.5.1. Setting options inline
 
@@ -219,3 +223,9 @@ have a return section.
 | -------- | --------------------------------------------------------------------------------------------------------- |
 | `DOC501` | Function/method has "raise" statements, but the docstring does not have a "Raises" section                |
 | `DOC502` | Function/method has a "Raises" section in the docstring, but there are not "raise" statements in the body |
+
+## 4. Additional notes
+
+If you'd like to use _pydoclint_ for your project, it is recommended that you
+read these additional notes
+[here](https://jsh9.github.io/pydoclint/addl_notes.html).
