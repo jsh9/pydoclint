@@ -141,9 +141,9 @@ class Plugin:
             self.require_return_section_when_returning_none,
         )
 
-        if self.style not in {'numpy', 'google'}:
+        if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
-                'Invalid value for "--style": must be "numpy" or "google"'
+                'Invalid value for "--style": must be "numpy", "google", or "sphinx"'
             )
 
         v = Visitor(
