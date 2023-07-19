@@ -25,8 +25,7 @@ repos:
     hooks:
       - id: validate_manifest
 
-  - repo: https://github.com/frnmst/md-toc
-    rev: 8.1.9
+  - repo: https://github.com/jsh9/markdown-toc-creator
+    rev: 0.0.3
     hooks:
-      - id: md-toc
-        args: [-p, "--skip-lines", "1", "github", "-l", "4"]
+      - id: markdown-toc-creator

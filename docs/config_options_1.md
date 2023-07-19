@@ -7,6 +7,15 @@ or together.
 
 <!--TOC-->
 
+- [1. `--quiet` (shortform: `-q`)](#1---quiet-shortform--q)
+- [2. `--exclude`](#2---exclude)
+- [3. `--style`](#3---style)
+- [4. `--type-hints-in-docstring` and `--type-hints-in-signature`](#4---type-hints-in-docstring-and---type-hints-in-signature)
+- [5. `--check-arg-order` (shortform: `-ao`, default: `True`)](#5---check-arg-order-shortform--ao-default-true)
+- [6. `--skip-checking-short-docstrings` (shortform: `-scsd`, default: `True`)](#6---skip-checking-short-docstrings-shortform--scsd-default-true)
+- [7. `--skip-checking-raises` (shortform: `-scr`, default: `False`)](#7---skip-checking-raises-shortform--scr-default-false)
+- [8. `--allow-init-docstring` (shortform: `-aid`, default: `False`)](#8---allow-init-docstring-shortform--aid-default-false)
+- [9. `--require-return-section-when-returning-none` (shortform: `-rrs`, default: `False`)](#9---require-return-section-when-returning-none-shortform--rrs-default-false)
 
 <!--TOC-->
 
