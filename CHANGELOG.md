@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.1.1] - 2023-07-18
+
+- Fixed
+  - Fixed incorrect blocking of "sphinx" style in CLI arguments
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.0...0.1.1
+
 ## [0.1.0] - 2023-07-15
 
 - Added
