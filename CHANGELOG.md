@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.1.2] - 2023-07-20
+
+- Fixed
+  - Fixed outdated naming of options `--type-hints-in-docstring` and
+    `--type-hints-in-signature`
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.1...0.1.2
+
 ## [0.1.1] - 2023-07-18
 
 - Fixed
