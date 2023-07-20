@@ -72,14 +72,28 @@ def validateStyleValue(
 @click.option(
     '-ths',
     '--type-hints-in-signature',
+    show_default=True,
+    default='None',
+    help='(Deprecated) Please use --arg-type-hints-in-signature instead',
+)
+@click.option(
+    '-aths',
+    '--arg-type-hints-in-signature',
     type=bool,
     show_default=True,
     default=True,
-    help='Whether to require type hints in function signatures',
+    help='Whether to require argument type hints in function signatures',
 )
 @click.option(
     '-thd',
     '--type-hints-in-docstring',
+    show_default=True,
+    default='None',
+    help='(Deprecated) Please use --arg-type-hints-in-docstring instead',
+)
+@click.option(
+    '-athd',
+    '--arg-type-hints-in-docstring',
     type=bool,
     show_default=True,
     default=True,
@@ -179,8 +193,10 @@ def main(  # noqa: C901
         style: str,
         src: Optional[str],
         paths: Tuple[str, ...],
-        type_hints_in_signature: bool,
-        type_hints_in_docstring: bool,
+        type_hints_in_signature: str,
+        type_hints_in_docstring: str,
+        arg_type_hints_in_signature: bool,
+        arg_type_hints_in_docstring: bool,
         check_arg_order: bool,
         skip_checking_short_docstrings: bool,
         skip_checking_raises: bool,
@@ -191,6 +207,34 @@ def main(  # noqa: C901
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
+
+    if type_hints_in_docstring != 'None':  # it means users supply this option
+        click.echo(
+            click.style(
+                ''.join([
+                    'The option `--type-hints-in-docstring` has been renamed;',
+                    ' please use `--arg-type-hints-in-docstring` instead',
+                ]),
+                fg='red',
+                bold=True,
+            ),
+            err=echoAsError,
+        )
+        ctx.exit(1)
+
+    if type_hints_in_signature != 'None':  # it means users supply this option
+        click.echo(
+            click.style(
+                ''.join([
+                    'The option `--type-hints-in-signature` has been renamed;',
+                    ' please use `--arg-type-hints-in-signature` instead',
+                ]),
+                fg='red',
+                bold=True,
+            ),
+            err=echoAsError,
+        )
+        ctx.exit(1)
 
     if paths and src is not None:
         click.echo(
@@ -212,8 +256,8 @@ def main(  # noqa: C901
         exclude=exclude,
         style=style,
         paths=paths,
-        typeHintsInSignature=type_hints_in_signature,
-        typeHintsInDocstring=type_hints_in_docstring,
+        argTypeHintsInSignature=arg_type_hints_in_signature,
+        argTypeHintsInDocstring=arg_type_hints_in_docstring,
         checkArgOrder=check_arg_order,
         skipCheckingShortDocstrings=skip_checking_short_docstrings,
         skipCheckingRaises=skip_checking_raises,
@@ -268,8 +312,8 @@ def main(  # noqa: C901
 def _checkPaths(
         paths: Tuple[str, ...],
         style: str = 'numpy',
-        typeHintsInSignature: bool = True,
-        typeHintsInDocstring: bool = True,
+        argTypeHintsInSignature: bool = True,
+        argTypeHintsInDocstring: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
@@ -310,8 +354,8 @@ def _checkPaths(
         violationsInThisFile: List[Violation] = _checkFile(
             filename,
             style=style,
-            typeHintsInSignature=typeHintsInSignature,
-            typeHintsInDocstring=typeHintsInDocstring,
+            argTypeHintsInSignature=argTypeHintsInSignature,
+            argTypeHintsInDocstring=argTypeHintsInDocstring,
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
@@ -327,8 +371,8 @@ def _checkPaths(
 def _checkFile(
         filename: Path,
         style: str = 'numpy',
-        typeHintsInSignature: bool = True,
-        typeHintsInDocstring: bool = True,
+        argTypeHintsInSignature: bool = True,
+        argTypeHintsInDocstring: bool = True,
         checkArgOrder: bool = True,
         skipCheckingShortDocstrings: bool = True,
         skipCheckingRaises: bool = False,
@@ -342,8 +386,8 @@ def _checkFile(
     tree: ast.Module = ast.parse(src)
     visitor = Visitor(
         style=style,
-        typeHintsInSignature=typeHintsInSignature,
-        typeHintsInDocstring=typeHintsInDocstring,
+        argTypeHintsInSignature=argTypeHintsInSignature,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
         checkArgOrder=checkArgOrder,
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
         skipCheckingRaises=skipCheckingRaises,

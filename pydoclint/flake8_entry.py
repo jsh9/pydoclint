@@ -27,13 +27,29 @@ class Plugin:
             '-ths',
             '--type-hints-in-signature',
             action='store',
+            default='None',
+            parse_from_config=True,
+            help='(Deprecated) Please use --arg-type-hints-in-signature instead',
+        )
+        parser.add_option(
+            '-aths',
+            '--arg-type-hints-in-signature',
+            action='store',
             default='True',
             parse_from_config=True,
-            help='Whether to require type hints in function signatures',
+            help='Whether to require argument type hints in function signatures',
         )
         parser.add_option(
             '-thd',
             '--type-hints-in-docstring',
+            action='store',
+            default='None',
+            parse_from_config=True,
+            help='(Deprecated) Please use --arg-type-hints-in-docstring instead',
+        )
+        parser.add_option(
+            '-athd',
+            '--arg-type-hints-in-docstring',
             action='store',
             default='True',
             parse_from_config=True,
@@ -102,6 +118,8 @@ class Plugin:
     def parse_options(cls, options):  # noqa: D102
         cls.type_hints_in_signature = options.type_hints_in_signature
         cls.type_hints_in_docstring = options.type_hints_in_docstring
+        cls.arg_type_hints_in_signature = options.arg_type_hints_in_signature
+        cls.arg_type_hints_in_docstring = options.arg_type_hints_in_docstring
         cls.check_arg_order = options.check_arg_order
         cls.skip_checking_short_docstrings = (
             options.skip_checking_short_docstrings
@@ -115,13 +133,25 @@ class Plugin:
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
-        typeHintsInSignature = self._bool(
-            '--type-hints-in-signature',
-            self.type_hints_in_signature,
+        if self.type_hints_in_docstring != 'None':  # user supplies this option
+            raise ValueError(
+                'The option `--type-hints-in-docstring` has been renamed;'
+                ' please use `--arg-type-hints-in-docstring` instead'
+            )
+
+        if self.type_hints_in_signature != 'None':  # user supplies this option
+            raise ValueError(
+                'The option `--type-hints-in-signature` has been renamed;'
+                ' please use `--arg-type-hints-in-signature` instead'
+            )
+
+        argTypeHintsInSignature = self._bool(
+            '--arg-type-hints-in-signature',
+            self.arg_type_hints_in_signature,
         )
-        typeHintsInDocstring = self._bool(
-            '--type-hints-in-docstring',
-            self.type_hints_in_docstring,
+        argTypeHintsInDocstring = self._bool(
+            '--arg-type-hints-in-docstring',
+            self.arg_type_hints_in_docstring,
         )
         checkArgOrder = self._bool('--check-arg-order', self.check_arg_order)
         skipCheckingShortDocstrings = self._bool(
@@ -147,8 +177,8 @@ class Plugin:
             )
 
         v = Visitor(
-            typeHintsInSignature=typeHintsInSignature,
-            typeHintsInDocstring=typeHintsInDocstring,
+            argTypeHintsInSignature=argTypeHintsInSignature,
+            argTypeHintsInDocstring=argTypeHintsInDocstring,
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,

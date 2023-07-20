@@ -137,3 +137,8 @@ under `__init__()` rather than in the class docstring.
 If `False`, a "return" section is not necessary in the docstring if the
 function implicitly returns `None` (for example, doesn't have a return
 statement, or has `-> None` as the return annotation).
+
+### 10. `--check-return-types` (shortform: `-crt`, default: `True`)
+
+If True, check that the type(s) in the docstring return section and the return
+annotation in the function signature are consistent

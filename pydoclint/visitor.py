@@ -36,8 +36,8 @@ class Visitor(ast.NodeVisitor):
     def __init__(
             self,
             style: str = 'numpy',
-            typeHintsInSignature: bool = True,
-            typeHintsInDocstring: bool = True,
+            argTypeHintsInSignature: bool = True,
+            argTypeHintsInDocstring: bool = True,
             checkArgOrder: bool = True,
             skipCheckingShortDocstrings: bool = True,
             skipCheckingRaises: bool = False,
@@ -46,8 +46,8 @@ class Visitor(ast.NodeVisitor):
             requireReturnSectionWhenReturningNone: bool = False,
     ) -> None:
         self.style: str = style
-        self.typeHintsInSignature: bool = typeHintsInSignature
-        self.typeHintsInDocstring: bool = typeHintsInDocstring
+        self.argTypeHintsInSignature: bool = argTypeHintsInSignature
+        self.argTypeHintsInDocstring: bool = argTypeHintsInDocstring
         self.checkArgOrder: bool = checkArgOrder
         self.skipCheckingShortDocstrings: bool = skipCheckingShortDocstrings
         self.skipCheckingRaises: bool = skipCheckingRaises
@@ -346,22 +346,25 @@ class Visitor(ast.NodeVisitor):
         if docArgs.length > funcArgs.length:
             violations.append(v102)
 
-        if self.typeHintsInSignature and funcArgs.noTypeHints():
+        if self.argTypeHintsInSignature and funcArgs.noTypeHints():
             violations.append(v106)
 
-        if self.typeHintsInSignature and not funcArgs.hasTypeHintInAllArgs():
+        if (
+            self.argTypeHintsInSignature
+            and not funcArgs.hasTypeHintInAllArgs()
+        ):
             violations.append(v107)
 
-        if not self.typeHintsInSignature and funcArgs.hasTypeHintInAnyArg():
+        if not self.argTypeHintsInSignature and funcArgs.hasTypeHintInAnyArg():
             violations.append(v108)
 
-        if self.typeHintsInDocstring and docArgs.noTypeHints():
+        if self.argTypeHintsInDocstring and docArgs.noTypeHints():
             violations.append(v109)
 
-        if self.typeHintsInDocstring and not docArgs.hasTypeHintInAllArgs():
+        if self.argTypeHintsInDocstring and not docArgs.hasTypeHintInAllArgs():
             violations.append(v110)
 
-        if not self.typeHintsInDocstring and docArgs.hasTypeHintInAnyArg():
+        if not self.argTypeHintsInDocstring and docArgs.hasTypeHintInAnyArg():
             violations.append(v111)
 
         if not docArgs.equals(
@@ -380,7 +383,10 @@ class Visitor(ast.NodeVisitor):
                 checkTypeHint=False,
                 orderMatters=self.checkArgOrder,
             ):
-                if self.typeHintsInSignature and self.typeHintsInDocstring:
+                if (
+                    self.argTypeHintsInSignature
+                    and self.argTypeHintsInDocstring
+                ):
                     violations.append(v105)
             elif docArgs.equals(
                 funcArgs,

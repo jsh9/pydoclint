@@ -175,6 +175,12 @@ _pydoclint_ currently has the following style violation codes:
 | `DOC103` | Docstring arguments are different from function arguments. (Or could be other formatting issues: https://github.com/jsh9/pydoclint#notes-on-doc103) |
 | `DOC104` | Arguments are the same in the docstring and the function signature, but are in a different order.                                                   |
 | `DOC105` | Argument names match, but type hints do not match                                                                                                   |
+| `DOC106` | The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature                                          |
+| `DOC107` | The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints                                              |
+| `DOC108` | The option `--arg-type-hints-in-signature` is `False` but there are argument type hints in the signature                                            |
+| `DOC109` | The option `--arg-type-hints-in-docstring` is `True` but there are no type hints in the docstring arg list                                          |
+| `DOC110` | The option `--arg-type-hints-in-docstring` is `True` but not all args in the docstring arg list have type hints                                     |
+| `DOC111` | The option `--arg-type-hints-in-docstring` is `False` but there are type hints in the docstring arg list                                            |
 
 #### Notes on `DOC103`:
 
