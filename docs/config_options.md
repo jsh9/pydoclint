@@ -16,6 +16,7 @@ or together.
 - [7. `--skip-checking-raises` (shortform: `-scr`, default: `False`)](#7---skip-checking-raises-shortform--scr-default-false)
 - [8. `--allow-init-docstring` (shortform: `-aid`, default: `False`)](#8---allow-init-docstring-shortform--aid-default-false)
 - [9. `--require-return-section-when-returning-none` (shortform: `-rrs`, default: `False`)](#9---require-return-section-when-returning-none-shortform--rrs-default-false)
+  - [10. `--check-return-types` (shortform: `-crt`, default: `True`)](#10---check-return-types-shortform--crt-default-true)
 
 <!--TOC-->
 
