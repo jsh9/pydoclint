@@ -147,6 +147,12 @@ _pydoclint_ currently has the following style violation codes:
 | `DOC103` | Docstring arguments are different from function arguments. (Or could be other formatting issues: https://github.com/jsh9/pydoclint#notes-on-doc103) |
 | `DOC104` | Arguments are the same in the docstring and the function signature, but are in a different order.                                                   |
 | `DOC105` | Argument names match, but type hints do not match                                                                                                   |
+| `DOC106` | The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature                                          |
+| `DOC107` | The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints                                              |
+| `DOC108` | The option `--arg-type-hints-in-signature` is `False` but there are argument type hints in the signature                                            |
+| `DOC109` | The option `--arg-type-hints-in-docstring` is `True` but there are no type hints in the docstring arg list                                          |
+| `DOC110` | The option `--arg-type-hints-in-docstring` is `True` but not all args in the docstring arg list have type hints                                     |
+| `DOC111` | The option `--arg-type-hints-in-docstring` is `False` but there are type hints in the docstring arg list                                            |
 
 #### Notes on `DOC103`:
 
@@ -247,9 +253,9 @@ or
 flake8 --style=google <FILE_OR_FOLDER>
 ```
 
-### 4.4. `--type-hints-in-docstring` and `--type-hints-in-signature`
+### 4.4. `--arg-type-hints-in-docstring` and `--arg-type-hints-in-signature`
 
-- `--type-hints-in-docstring`
+- `--arg-type-hints-in-docstring`
   - Shortform: `-thd`
   - Default: `True`
   - Meaning:
@@ -257,16 +263,18 @@ flake8 --style=google <FILE_OR_FOLDER>
       docstring
     - If `False`, there cannot be any type hints in the argument list of a
       docstring
-- `--type-hints-in-signature`
+- `--arg-type-hints-in-signature`
   - Shortform: `-ths`
   - Default: `True`
   - Meaning:
-    - If `True`, there need to be type hints in the function/method signature
-    - If `False`, there cannot be any type hints in the function/method
+    - If `True`, there need to be argument type hints in the function/method
       signature
+    - If `False`, there cannot be any argument type hints in the
+      function/method signature
 
-Note: if users choose `True` for both options, the type hints in the signature
-and in the docstring need to match, otherwise there will be a style violation.
+Note: if users choose `True` for both options, the argument type hints in the
+signature and in the docstring need to match, otherwise there will be a style
+violation.
 
 ### 4.5. `--check-arg-order` (shortform: `-ao`, default: `True`)
 
@@ -319,3 +327,8 @@ under `__init__()` rather than in the class docstring.
 If `False`, a "return" section is not necessary in the docstring if the
 function implicitly returns `None` (for example, doesn't have a return
 statement, or has `-> None` as the return annotation).
+
+### 4.10. `--check-return-types` (shortform: `-crt`, default: `True`)
+
+If True, check that the type(s) in the docstring return section and the return
+annotation in the function signature are consistent
