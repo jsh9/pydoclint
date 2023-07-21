@@ -129,6 +129,7 @@ class Plugin:
         cls.require_return_section_when_returning_none = (
             options.require_return_section_when_returning_none
         )
+        cls.check_return_types = options.check_return_types
         cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
@@ -170,6 +171,10 @@ class Plugin:
             '--require-return-section-when-returning-none',
             self.require_return_section_when_returning_none,
         )
+        checkReturnTypes = self._bool(
+            '--check-return-types',
+            self.check_return_types,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -184,6 +189,7 @@ class Plugin:
             skipCheckingRaises=skipCheckingRaises,
             allowInitDocstring=allowInitDocstring,
             requireReturnSectionWhenReturningNone=requireReturnSectionWhenReturningNone,
+            checkReturnTypes=checkReturnTypes,
             style=self.style,
         )
         v.visit(self._tree)
