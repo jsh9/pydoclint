@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.1.3] - 2023-07-21
+
+- Fixed
+  - Pass `--check-return-types` option to flake8 plugin
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.2...0.1.3
+
 ## [0.1.2] - 2023-07-20
 
 - Fixed
