@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.1.4] - 2023-07-23
+
+- Added
+  - A documentation site to complement README
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.3...0.1.4
+
+
 ## [0.1.3] - 2023-07-21
 
 - Fixed
