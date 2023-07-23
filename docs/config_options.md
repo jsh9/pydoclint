@@ -1,7 +1,11 @@
-# Configuration options of pydoclint
+# Configuration options of _pydoclint_
 
 There are several configuration options available. They can be used invidually
 or together.
+
+For how to actually implement these options in your commands, please read this
+page:
+[How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html).
 
 **Table of Contents**
 

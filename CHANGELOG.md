@@ -7,7 +7,6 @@
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.1.3...0.1.4
 
-
 ## [0.1.3] - 2023-07-21
 
 - Fixed
