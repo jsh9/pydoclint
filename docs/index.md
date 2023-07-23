@@ -108,7 +108,8 @@ Here's comparison:
 
 ### 2.5. How to configure _pydoclint_
 
-Please read this page: https://jsh9.github.io/pydoclint/how_to_config.html
+Please read this page:
+[How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html)
 
 ## 3. Style violation codes
 
