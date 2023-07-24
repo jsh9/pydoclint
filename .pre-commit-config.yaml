@@ -29,3 +29,11 @@ repos:
     rev: 0.0.4
     hooks:
       - id: markdown-toc-creator
+
+  - repo: local
+    hooks:
+      - id: copy_readme
+        name: copy_readme
+        entry: python .pre_commit_helper_scripts/copy_readme.py
+        language: system
+        types: [python]
