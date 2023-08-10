@@ -148,7 +148,7 @@ def testReturns(style: str, filename: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returns/{filename}',
         skipCheckingShortDocstrings=True,
-        requireReturnSectionWhenReturningNone=True,
+        requireReturnSectionWhenReturningNothing=True,
         style=style,
     )
 
@@ -230,7 +230,36 @@ def testReturns_returningNone(style: str, require: bool) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returning_none/cases.py',
         skipCheckingShortDocstrings=True,
-        requireReturnSectionWhenReturningNone=require,
+        requireReturnSectionWhenReturningNothing=require,
+        style=style,
+    )
+    expectedViolationsCopy = (
+        [
+            'DOC201: Function `func` does not have a return section in docstring ',
+            'DOC203: Function `func` return type(s) in docstring not consistent with the '
+            'return annotation. Return annotation has 1 type(s); docstring return section '
+            'has 0 type(s).',
+        ]
+        if require
+        else []
+    )
+    assert list(map(str, violations)) == expectedViolationsCopy
+
+
+@pytest.mark.parametrize(
+    'style, require',
+    list(
+        itertools.product(
+            ['numpy', 'google', 'sphinx'],
+            [True, False],
+        ),
+    ),
+)
+def testReturns_returningNoReturn(style: str, require: bool) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/returning_noreturn/cases.py',
+        skipCheckingShortDocstrings=True,
+        requireReturnSectionWhenReturningNothing=require,
         style=style,
     )
     expectedViolationsCopy = (
@@ -584,7 +613,7 @@ def testNoReturnSection(
         filename=DATA_DIR / f'{style}/no_return_section/cases.py',
         style=style,
         checkReturnTypes=False,
-        requireReturnSectionWhenReturningNone=rrs,
+        requireReturnSectionWhenReturningNothing=rrs,
     )
     expected_lookup = {
         True: [
@@ -593,6 +622,7 @@ def testNoReturnSection(
             'DOC201: Function `func3` does not have a return section in docstring ',
             'DOC201: Function `func4` does not have a return section in docstring ',
             'DOC201: Function `func5` does not have a return section in docstring ',
+            'DOC201: Function `func7` does not have a return section in docstring ',
         ],
         False: [
             'DOC201: Function `func2` does not have a return section in docstring ',

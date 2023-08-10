@@ -26,6 +26,7 @@ from pydoclint.utils.return_yield_raise import (
     hasReturnStatements,
     hasYieldStatements,
     isReturnAnnotationNone,
+    isReturnAnnotationNoReturn,
 )
 from pydoclint.utils.violation import Violation
 
@@ -43,7 +44,7 @@ class Visitor(ast.NodeVisitor):
             skipCheckingRaises: bool = False,
             allowInitDocstring: bool = False,
             checkReturnTypes: bool = True,
-            requireReturnSectionWhenReturningNone: bool = False,
+            requireReturnSectionWhenReturningNothing: bool = False,
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -53,8 +54,8 @@ class Visitor(ast.NodeVisitor):
         self.skipCheckingRaises: bool = skipCheckingRaises
         self.allowInitDocstring: bool = allowInitDocstring
         self.checkReturnTypes: bool = checkReturnTypes
-        self.requireReturnSectionWhenReturningNone: bool = (
-            requireReturnSectionWhenReturningNone
+        self.requireReturnSectionWhenReturningNothing: bool = (
+            requireReturnSectionWhenReturningNothing
         )
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
@@ -457,9 +458,15 @@ class Visitor(ast.NodeVisitor):
                 # If "Generator[...]" is put in the return type annotation,
                 # we don't need a "Returns" section in the docstring. Instead,
                 # we need a "Yields" section.
-                if self.requireReturnSectionWhenReturningNone:
+                if self.requireReturnSectionWhenReturningNothing:
                     violations.append(v201)
-                elif not isReturnAnnotationNone(node):
+                elif (
+                    # fmt: off
+                    not isReturnAnnotationNone(node)
+                    and not isReturnAnnotationNoReturn(node)
+
+                    # fmt: on
+                ):
                     violations.append(v201)
 
         if docstringHasReturnSection and not (hasReturnStmt or hasReturnAnno):
@@ -478,8 +485,11 @@ class Visitor(ast.NodeVisitor):
 
             if (
                 returnSec == []  # no return section in docstring
-                and returnAnno.annotation == 'None'  # `-> None` in signature
-                and not self.requireReturnSectionWhenReturningNone
+                and (
+                    returnAnno.annotation == 'None'  # `-> None` in signature
+                    or returnAnno.annotation == 'NoReturn'  # `-> NoReturn` in signature
+                )
+                and not self.requireReturnSectionWhenReturningNothing
             ):
                 return violations  # no need to check return type hints at all
 

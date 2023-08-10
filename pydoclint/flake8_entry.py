@@ -91,15 +91,25 @@ class Plugin:
             help='If True, allow both __init__() and the class def to have docstrings',
         )
         parser.add_option(
-            '-rrs',
             '--require-return-section-when-returning-none',
+            action='store',
+            default='None',
+            parse_from_config=True,
+            help=(
+                '(Deprecated) Please use'
+                ' --require-return-section-when-returning-nothing instead.'
+            ),
+        )
+        parser.add_option(
+            '-rrs',
+            '--require-return-section-when-returning-nothing',
             action='store',
             default='False',
             parse_from_config=True,
             help=(
                 'If False, a return section is not needed in docstring if'
                 ' the function body does not have a "return" statement and'
-                ' the return type annotation is "-> None".'
+                ' the return type annotation is "-> None" or "-> NoReturn".'
             ),
         )
         parser.add_option(
@@ -129,6 +139,9 @@ class Plugin:
         cls.require_return_section_when_returning_none = (
             options.require_return_section_when_returning_none
         )
+        cls.require_return_section_when_returning_nothing = (
+            options.require_return_section_when_returning_nothing
+        )
         cls.check_return_types = options.check_return_types
         cls.style = options.style
 
@@ -144,6 +157,14 @@ class Plugin:
             raise ValueError(
                 'The option `--type-hints-in-signature` has been renamed;'
                 ' please use `--arg-type-hints-in-signature` instead'
+            )
+
+        # user supplies this option
+        if self.require_return_section_when_returning_none != 'None':
+            raise ValueError(
+                'The option `--require-return-section-when-returning-none`'
+                ' has been renamed; please use'
+                '`--require-return-section-when-returning-nothing` instead'
             )
 
         argTypeHintsInSignature = self._bool(
@@ -167,9 +188,9 @@ class Plugin:
             '--allow-init-docstring',
             self.allow_init_docstring,
         )
-        requireReturnSectionWhenReturningNone = self._bool(
-            '--require-return-section-when-returning-none',
-            self.require_return_section_when_returning_none,
+        requireReturnSectionWhenReturningNothing = self._bool(
+            '--require-return-section-when-returning-nothing',
+            self.require_return_section_when_returning_nothing,
         )
         checkReturnTypes = self._bool(
             '--check-return-types',
@@ -188,7 +209,9 @@ class Plugin:
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
             allowInitDocstring=allowInitDocstring,
-            requireReturnSectionWhenReturningNone=requireReturnSectionWhenReturningNone,
+            requireReturnSectionWhenReturningNothing=(
+                requireReturnSectionWhenReturningNothing
+            ),
             checkReturnTypes=checkReturnTypes,
             style=self.style,
         )
