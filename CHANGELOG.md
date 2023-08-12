@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.1.5] - 2023-08-12
+
+- Improved
+  - Improved algorithm to compare type hints, so that type hints are considered
+    equal if their actual meanings are the same.
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.4...0.1.5
+
 ## [0.1.4] - 2023-07-23
 
 - Added

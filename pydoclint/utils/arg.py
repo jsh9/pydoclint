@@ -92,7 +92,19 @@ class Arg:
 
     @classmethod
     def _eq(cls, str1: str, str2: str) -> bool:
-        return stripQuotes(str1) == stripQuotes(str2)
+        # We parse and then unparse so that cases like this can be
+        # treated as equal:
+        #
+        # >>> Literal['abc', 'def', 'ghi']
+        #
+        # >>> Literal[
+        # >>>     "abc",
+        # >>>     "def",
+        # >>>     "ghi",
+        # >>> ]
+        str1_: str = unparseAnnotation(ast.parse(stripQuotes(str1)))
+        str2_: str = unparseAnnotation(ast.parse(stripQuotes(str2)))
+        return str1_ == str2_
 
 
 class ArgList:
