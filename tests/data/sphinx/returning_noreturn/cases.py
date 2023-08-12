@@ -1,5 +1,6 @@
 from typing import NoReturn
 
+
 def func(arg1: int) -> NoReturn:
     """
     Do something
