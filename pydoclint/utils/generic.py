@@ -1,6 +1,7 @@
 import ast
 import copy
-from typing import List, Optional, Tuple
+import re
+from typing import List, Match, Optional, Tuple
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
@@ -162,4 +163,16 @@ def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
 
 def stripQuotes(string: Optional[str]) -> Optional[str]:
     """Strip quote (both double and single quote) from the given string"""
-    return None if string is None else string.replace('"', '').replace("'", '')
+    if string is None:
+        return None
+
+    return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)
+
+
+def _replacer(match: Match[str]) -> str:
+    # If the matched string starts with 'Literal', return it unmodified
+    if match.group(0).startswith('Literal'):
+        return match.group(0)
+
+    # Otherwise, remove all quotes
+    return match.group(0).replace('"', '').replace("'", '')

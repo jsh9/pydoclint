@@ -1,7 +1,7 @@
 import copy
 import itertools
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import pytest
 
@@ -797,6 +797,24 @@ def testNonAscii() -> None:
     )
     expected = []
     assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize(
+    'filename, options, expectedViolations',
+    [
+        ('edge_case_01.py', {'style': 'sphinx'}, []),
+    ],
+)
+def testEdgeCases(
+        filename: str,
+        options: Dict[str, Any],
+        expectedViolations: List[str],
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'edge_cases' / filename,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations
 
 
 def testPlayground() -> None:
