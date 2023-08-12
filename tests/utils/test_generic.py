@@ -3,7 +3,11 @@ from typing import List, Optional
 
 import pytest
 
-from pydoclint.utils.generic import collectFuncArgs, isPropertyMethod
+from pydoclint.utils.generic import (
+    collectFuncArgs,
+    isPropertyMethod,
+    stripQuotes,
+)
 
 src1 = """
 def func1(
@@ -119,3 +123,24 @@ def testIsPropertyMethod(src: str, expected: bool) -> None:
     node = getMethod1(tree)
     result = isPropertyMethod(node)
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    'string, expected',
+    [
+        ('"Hello" \'world\'!', 'Hello world!'),
+        (
+            '"Hello" and "Goodbye", but Literal["This"] remains untouched',
+            'Hello and Goodbye, but Literal["This"] remains untouched',
+        ),
+        ('Literal["abc", \'def\']', 'Literal["abc", \'def\']'),
+        (
+            'Union["MyClass", Literal["abc", "def"]]',
+            'Union[MyClass, Literal["abc", "def"]]',
+        ),
+        ('Optional["MyClass"]', 'Optional[MyClass]'),
+        ('Optional[MyClass]', 'Optional[MyClass]'),
+    ],
+)
+def testStripQuotes(string: str, expected: str) -> None:
+    assert stripQuotes(string) == expected

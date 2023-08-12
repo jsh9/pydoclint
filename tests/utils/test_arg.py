@@ -127,6 +127,21 @@ def testArg_sorting(original: Set[Arg], after: List[Arg]) -> None:
 
 
 @pytest.mark.parametrize(
+    'str1, str2, expected',
+    [
+        ('int', 'int', True),
+        ('int', 'float', False),
+        ('List[int]', 'list[int]', False),
+        ('Tuple[int, ...]', 'Tuple[int,...]', True),
+        ('Optional[int]', 'int | None', False),
+        ('Literal["abc", "def"]', "Literal[\n  'abc',\n  'def',\n]", True),
+    ],
+)
+def testArg_eq(str1: str, str2: str, expected: bool) -> None:
+    assert Arg._eq(str1, str2) == expected
+
+
+@pytest.mark.parametrize(
     'input_, expected',
     [
         (ArgList([]), '[]'),
