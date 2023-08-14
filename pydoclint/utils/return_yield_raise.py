@@ -1,5 +1,5 @@
 import ast
-from typing import Callable, Dict, NoReturn, Tuple, Type
+from typing import Callable, Dict, Tuple, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
@@ -33,11 +33,7 @@ def isReturnAnnotationNoReturn(node: FuncOrAsyncFuncDef) -> bool:
         return False
 
     returnAnnotation: str = unparseAnnotation(node.returns)
-    return returnAnnotation.startswith('NoReturn')
-
-
-def _isNoReturn(node: ast.AST) -> bool:
-    return isinstance(node, ast.Constant) and node.value is NoReturn
+    return returnAnnotation == 'NoReturn'
 
 
 def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
