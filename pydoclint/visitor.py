@@ -485,10 +485,8 @@ class Visitor(ast.NodeVisitor):
 
             if (
                 returnSec == []  # no return section in docstring
-                and (
-                    returnAnno.annotation == 'None'  # `-> None` in signature
-                    or returnAnno.annotation == 'NoReturn'  # `-> NoReturn` in signature
-                )
+                # `-> None` or `-> NoReturn` in signature
+                and returnAnno.annotation in {'None', 'NoReturn'}
                 and not self.requireReturnSectionWhenReturningNothing
             ):
                 return violations  # no need to check return type hints at all
