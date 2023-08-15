@@ -30,7 +30,7 @@ For detailed explanations of all options, please read this page:
     [tool.pydoclint]
     style = 'google'
     exclude = '\.git|\.tox|tests/data|some_script\.py'
-    require-return-section-when-returning-none = true
+    require-return-section-when-returning-nothing = true
     ```
 
   - Then, specify the path of the `.toml` file in your command:

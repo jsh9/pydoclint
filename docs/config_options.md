@@ -19,7 +19,7 @@ page:
 - [6. `--skip-checking-short-docstrings` (shortform: `-scsd`, default: `True`)](#6---skip-checking-short-docstrings-shortform--scsd-default-true)
 - [7. `--skip-checking-raises` (shortform: `-scr`, default: `False`)](#7---skip-checking-raises-shortform--scr-default-false)
 - [8. `--allow-init-docstring` (shortform: `-aid`, default: `False`)](#8---allow-init-docstring-shortform--aid-default-false)
-- [9. `--require-return-section-when-returning-none` (shortform: `-rrs`, default: `False`)](#9---require-return-section-when-returning-none-shortform--rrs-default-false)
+- [9. `--require-return-section-when-returning-nothing` (shortform: `-rrs`, default: `False`)](#9---require-return-section-when-returning-nothing-shortform--rrs-default-false)
 - [10. `--check-return-types` (shortform: `-crt`, default: `True`)](#10---check-return-types-shortform--crt-default-true)
 
 <!--TOC-->
@@ -137,11 +137,12 @@ If it is set to `True`, having a docstring for class constructors
 (`__init__()`) is allowed, and the arguments are expected to be documented
 under `__init__()` rather than in the class docstring.
 
-## 9. `--require-return-section-when-returning-none` (shortform: `-rrs`, default: `False`)
+## 9. `--require-return-section-when-returning-nothing` (shortform: `-rrs`, default: `False`)
 
 If `False`, a "return" section is not necessary in the docstring if the
 function implicitly returns `None` (for example, doesn't have a return
-statement, or has `-> None` as the return annotation).
+statement, or has `-> None` as the return annotation) or doesn't return at all
+(has return type `NoReturn`).
 
 ## 10. `--check-return-types` (shortform: `-crt`, default: `True`)
 

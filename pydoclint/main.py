@@ -132,15 +132,24 @@ def validateStyleValue(
     help='If True, allow both __init__() and the class def to have docstrings',
 )
 @click.option(
-    '-rrs',
     '--require-return-section-when-returning-none',
+    show_default=True,
+    default='None',
+    help=(
+        '(Deprecated) Please use'
+        ' --require-return-section-when-returning-nothing instead.'
+    ),
+)
+@click.option(
+    '-rrs',
+    '--require-return-section-when-returning-nothing',
     type=bool,
     show_default=True,
     default=False,
     help=(
         'If False, a return section is not needed in docstring if'
         ' the function body does not have a "return" statement and'
-        ' the return type annotation is "-> None".'
+        ' the return type annotation is "-> None" or "-> NoReturn".'
     ),
 )
 @click.option(
@@ -203,6 +212,7 @@ def main(  # noqa: C901
         allow_init_docstring: bool,
         check_return_types: bool,
         require_return_section_when_returning_none: bool,
+        require_return_section_when_returning_nothing: bool,
         config: Optional[str],  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
@@ -228,6 +238,22 @@ def main(  # noqa: C901
                 ''.join([
                     'The option `--type-hints-in-signature` has been renamed;',
                     ' please use `--arg-type-hints-in-signature` instead',
+                ]),
+                fg='red',
+                bold=True,
+            ),
+            err=echoAsError,
+        )
+        ctx.exit(1)
+
+    # it means users supply this option
+    if require_return_section_when_returning_none != 'None':
+        click.echo(
+            click.style(
+                ''.join([
+                    'The option `--require-return-section-when-returning-none`',
+                    ' has been renamed; please use',
+                    '`--require-return-section-when-returning-nothing` instead',
                 ]),
                 fg='red',
                 bold=True,
@@ -263,7 +289,9 @@ def main(  # noqa: C901
         skipCheckingRaises=skip_checking_raises,
         allowInitDocstring=allow_init_docstring,
         checkReturnTypes=check_return_types,
-        requireReturnSectionWhenReturningNone=require_return_section_when_returning_none,
+        requireReturnSectionWhenReturningNothing=(
+            require_return_section_when_returning_nothing
+        ),
     )
 
     violationCounter: int = 0
@@ -319,7 +347,7 @@ def _checkPaths(
         skipCheckingRaises: bool = False,
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
-        requireReturnSectionWhenReturningNone: bool = False,
+        requireReturnSectionWhenReturningNothing: bool = False,
         quiet: bool = False,
         exclude: str = '',
 ) -> Dict[str, List[Violation]]:
@@ -361,7 +389,9 @@ def _checkPaths(
             skipCheckingRaises=skipCheckingRaises,
             allowInitDocstring=allowInitDocstring,
             checkReturnTypes=checkReturnTypes,
-            requireReturnSectionWhenReturningNone=requireReturnSectionWhenReturningNone,
+            requireReturnSectionWhenReturningNothing=(
+                requireReturnSectionWhenReturningNothing
+            ),
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -378,7 +408,7 @@ def _checkFile(
         skipCheckingRaises: bool = False,
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
-        requireReturnSectionWhenReturningNone: bool = False,
+        requireReturnSectionWhenReturningNothing: bool = False,
 ) -> List[Violation]:
     with open(filename, encoding='utf8') as fp:
         src: str = ''.join(fp.readlines())
@@ -393,7 +423,9 @@ def _checkFile(
         skipCheckingRaises=skipCheckingRaises,
         allowInitDocstring=allowInitDocstring,
         checkReturnTypes=checkReturnTypes,
-        requireReturnSectionWhenReturningNone=requireReturnSectionWhenReturningNone,
+        requireReturnSectionWhenReturningNothing=(
+            requireReturnSectionWhenReturningNothing
+        ),
     )
     visitor.visit(tree)
     return visitor.violations

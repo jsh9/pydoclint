@@ -1,8 +1,8 @@
-from typing import Optional
+from typing import NoReturn, Optional
 
 
 def func1(text: str) -> None:
-    """A return section can be omitted if requireReturnSectionWhenReturningNone
+    """A return section can be omitted if requireReturnSectionWhenReturningNothing
     is set to False.
 
     Parameters
@@ -69,3 +69,15 @@ def func6(text: str):
         Text for the function
     """
     print(123)
+
+
+def func7(text: str) -> NoReturn:
+    """A return section is never necessary because it doesn't return
+    anything or even return ever, as there is a NoReturn annotation.
+
+    Parameters
+    ----------
+    text : str
+        Text for the function
+    """
+    exit(1)

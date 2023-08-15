@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.1.6] - 2023-08-13
+
+- Added
+  - Added handling of the `NoReturn` type annotation
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.5...0.1.6
+
 ## [0.1.5] - 2023-08-12
 
 - Improved
