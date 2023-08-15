@@ -1,3 +1,6 @@
+# Related issue: https://github.com/jsh9/pydoclint/issues/59
+
+
 def func1(a='a'):
     """
     Title
