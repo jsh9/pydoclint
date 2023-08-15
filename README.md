@@ -41,6 +41,7 @@ serves complementary purposes. It is recommended that you use both together.
   - [2.3. As a pre-commit hook](#23-as-a-pre-commit-hook)
   - [2.4. Native vs _flake8_](#24-native-vs-flake8)
   - [2.5. How to configure _pydoclint_](#25-how-to-configure-pydoclint)
+  - [2.6. How to ignore certain violations in _flake8_ mode](#26-how-to-ignore-certain-violations-in-flake8-mode)
 - [3. Style violation codes](#3-style-violation-codes)
 - [4. Notes for users](#4-notes-for-users)
 - [5. Notes for developers](#5-notes-for-developers)
@@ -110,6 +111,11 @@ Here's comparison:
 
 Please read this page:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html)
+
+### 2.6. How to ignore certain violations in _flake8_ mode
+
+Please read this page:
+[How to ignore certain violations](https://jsh9.github.io/pydoclint/how_to_ignore.html)
 
 ## 3. Style violation codes
 
