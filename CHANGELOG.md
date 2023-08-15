@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.1.7] - 2023-08-15
+
+- Fixed
+  - Correctly handle potentially unacceptable type hint formats
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.6...0.1.7
+
 ## [0.1.6] - 2023-08-13
 
 - Added
