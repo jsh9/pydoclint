@@ -833,6 +833,27 @@ def testNonAscii() -> None:
     'filename, options, expectedViolations',
     [
         ('edge_case_01.py', {'style': 'sphinx'}, []),
+        (
+            'edge_case_02_syntax_error_in_type_hints.py',
+            {'style': 'numpy'},
+            [
+                'DOC106: Function `func1`: The option `--arg-type-hints-in-signature` is '
+                '`True` but there are no argument type hints in the signature ',
+                'DOC107: Function `func1`: The option `--arg-type-hints-in-signature` is '
+                '`True` but not all args in the signature have type hints ',
+                'DOC105: Function `func1`: Argument names match, but type hints do not match ',
+                'DOC106: Function `func2`: The option `--arg-type-hints-in-signature` is '
+                '`True` but there are no argument type hints in the signature ',
+                'DOC107: Function `func2`: The option `--arg-type-hints-in-signature` is '
+                '`True` but not all args in the signature have type hints ',
+                'DOC105: Function `func2`: Argument names match, but type hints do not match ',
+                'DOC106: Function `func3`: The option `--arg-type-hints-in-signature` is '
+                '`True` but there are no argument type hints in the signature ',
+                'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is '
+                '`True` but not all args in the signature have type hints ',
+                'DOC105: Function `func3`: Argument names match, but type hints do not match ',
+            ],
+        ),
     ],
 )
 def testEdgeCases(
