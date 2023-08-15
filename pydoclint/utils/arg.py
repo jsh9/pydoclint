@@ -102,8 +102,16 @@ class Arg:
         # >>>     "def",
         # >>>     "ghi",
         # >>> ]
-        str1_: str = unparseAnnotation(ast.parse(stripQuotes(str1)))
-        str2_: str = unparseAnnotation(ast.parse(stripQuotes(str2)))
+        try:
+            str1_: str = unparseAnnotation(ast.parse(stripQuotes(str1)))
+        except SyntaxError:
+            str1_ = str1
+
+        try:
+            str2_: str = unparseAnnotation(ast.parse(stripQuotes(str2)))
+        except SyntaxError:
+            str2_ = str2
+
         return str1_ == str2_
 
 
