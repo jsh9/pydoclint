@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.1.8] - 2023-08-16
+
+- Fixed
+  - Fixed a broken URL that used to point to `DOC103` notes ([Issue #61](https://github.com/jsh9/pydoclint/issues/61))
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.7...0.1.8
+
 ## [0.1.7] - 2023-08-15
 
 - Fixed
