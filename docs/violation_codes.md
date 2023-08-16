@@ -6,6 +6,7 @@
 
 - [0. `DOC0xx`: Docstring parsing issues](#0-doc0xx-docstring-parsing-issues)
 - [1. `DOC1xx`: Violations about input arguments](#1-doc1xx-violations-about-input-arguments)
+  - [Notes on `DOC103`](#notes-on-doc103)
 - [2. `DOC2xx`: Violations about return argument(s)](#2-doc2xx-violations-about-return-arguments)
 - [3. `DOC3xx`: Violations about class docstring and class constructor](#3-doc3xx-violations-about-class-docstring-and-class-constructor)
 - [4. `DOC4xx`: Violations about "yield" statements](#4-doc4xx-violations-about-yield-statements)
@@ -37,7 +38,7 @@
 | `DOC110` | The option `--arg-type-hints-in-docstring` is `True` but not all args in the docstring arg list have type hints                                     |
 | `DOC111` | The option `--arg-type-hints-in-docstring` is `False` but there are type hints in the docstring arg list                                            |
 
-**Notes on `DOC103`:**
+### Notes on `DOC103`
 
 Other potential causes to `DOC103` include:
 
