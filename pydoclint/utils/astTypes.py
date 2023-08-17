@@ -28,6 +28,6 @@ LegacyBlockTypes = [
 if sys.version_info < (3, 10):
     BlockType = tuple(LegacyBlockTypes)
 elif sys.version_info < (3, 11):
-    BlockType = tuple(LegacyBlockTypes + [ast.Match])
+    BlockType = tuple(LegacyBlockTypes + [ast.match_case])
 else:
-    BlockType = tuple(LegacyBlockTypes + [ast.Match, ast.TryStar])
+    BlockType = tuple(LegacyBlockTypes + [ast.match_case, ast.TryStar])

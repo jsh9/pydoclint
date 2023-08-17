@@ -278,3 +278,26 @@ def func102(arg0: float):
             return False
 
     print(2)
+
+
+def func11(arg0: str) -> int:
+    """
+    There should be DOC201 and DOC203 violations for this function
+
+    Parameters
+    ----------
+    arg0 : str
+        Arg 0
+
+    Raises
+    ------
+    ValueError
+        When there is a value error
+    """
+    match arg0:
+        case 'a':
+            return 1
+        case 'b':
+            return 2
+        case _:
+            raise ValueError('Hello world')

@@ -271,3 +271,20 @@ class A:
                 yield str(inner_arg1)
 
         yield inner9d(arg1)
+
+    def func10(self, arg0: bool) -> Iterable[int]:
+        """
+        There should be a DOC402 violation for this function
+
+        :param arg0: Arg 0
+        :type arg0: bool
+        :raises ValueError: When there is a value error
+        """
+        for i in range(10):
+            match i:
+                case [0, 1]:
+                    yield i
+                case [2, 3]:
+                    yield i + 1
+                case _:
+                    raise ValueError('Hello world')

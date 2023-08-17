@@ -141,7 +141,12 @@ def _updateFamilyTree(
 
 def _getLineNum(node: ast.AST) -> int:
     try:
-        lineNum = node.lineno
+        if 'lineno' in node.__dict__:  # normal case
+            lineNum = node.lineno
+        elif 'pattern' in node.__dict__:  # the node is a `case ...:`
+            lineNum = node.pattern.lineno
+        else:
+            lineNum = node.lineno  # this could fail
     except Exception:
         lineNum = -1
 
