@@ -854,6 +854,15 @@ def testNonAscii() -> None:
                 'DOC105: Function `func3`: Argument names match, but type hints do not match ',
             ],
         ),
+        (
+            'edge_case_03_union_return_type.py',
+            {'style': 'google'},
+            [
+                'DOC203: Function `myFunc` return type(s) in docstring not consistent with '
+                "the return annotation. Return annotation types: ['str | bool | None']; "
+                "docstring return section types: ['str | bool | float']"
+            ],
+        ),
     ],
 )
 def testEdgeCases(
