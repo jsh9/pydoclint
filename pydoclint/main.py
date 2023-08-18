@@ -163,6 +163,17 @@ def validateStyleValue(
         ' the return annotation in the function signature are consistent'
     ),
 )
+@click.option(
+    '-cyt',
+    '--check-yield-types',
+    type=bool,
+    show_default=True,
+    default=True,
+    help=(
+        'If True, check that the type(s) in the docstring "yields" section and'
+        ' the return annotation in the function signature are consistent'
+    ),
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -211,6 +222,7 @@ def main(  # noqa: C901
         skip_checking_raises: bool,
         allow_init_docstring: bool,
         check_return_types: bool,
+        check_yield_types: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
         config: Optional[str],  # don't remove it b/c it's required by `click`
@@ -289,6 +301,7 @@ def main(  # noqa: C901
         skipCheckingRaises=skip_checking_raises,
         allowInitDocstring=allow_init_docstring,
         checkReturnTypes=check_return_types,
+        checkYieldTypes=check_yield_types,
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
         ),
@@ -347,6 +360,7 @@ def _checkPaths(
         skipCheckingRaises: bool = False,
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
+        checkYieldTypes: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
         quiet: bool = False,
         exclude: str = '',
@@ -389,6 +403,7 @@ def _checkPaths(
             skipCheckingRaises=skipCheckingRaises,
             allowInitDocstring=allowInitDocstring,
             checkReturnTypes=checkReturnTypes,
+            checkYieldTypes=checkYieldTypes,
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
@@ -408,6 +423,7 @@ def _checkFile(
         skipCheckingRaises: bool = False,
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
+        checkYieldTypes: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
 ) -> List[Violation]:
     with open(filename, encoding='utf8') as fp:
@@ -423,6 +439,7 @@ def _checkFile(
         skipCheckingRaises=skipCheckingRaises,
         allowInitDocstring=allowInitDocstring,
         checkReturnTypes=checkReturnTypes,
+        checkYieldTypes=checkYieldTypes,
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing
         ),

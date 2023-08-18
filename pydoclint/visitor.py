@@ -29,6 +29,7 @@ from pydoclint.utils.return_yield_raise import (
     isReturnAnnotationNoReturn,
 )
 from pydoclint.utils.violation import Violation
+from pydoclint.utils.yield_arg import YieldArg
 
 
 class Visitor(ast.NodeVisitor):
@@ -44,6 +45,7 @@ class Visitor(ast.NodeVisitor):
             skipCheckingRaises: bool = False,
             allowInitDocstring: bool = False,
             checkReturnTypes: bool = True,
+            checkYieldTypes: bool = True,
             requireReturnSectionWhenReturningNothing: bool = False,
     ) -> None:
         self.style: str = style
@@ -54,6 +56,7 @@ class Visitor(ast.NodeVisitor):
         self.skipCheckingRaises: bool = skipCheckingRaises
         self.allowInitDocstring: bool = allowInitDocstring
         self.checkReturnTypes: bool = checkReturnTypes
+        self.checkYieldTypes: bool = checkYieldTypes
         self.requireReturnSectionWhenReturningNothing: bool = (
             requireReturnSectionWhenReturningNothing
         )
@@ -610,6 +613,7 @@ class Visitor(ast.NodeVisitor):
         v401 = Violation(code=401, line=lineNum, msgPrefix=msgPrefix)
         v402 = Violation(code=402, line=lineNum, msgPrefix=msgPrefix)
         v403 = Violation(code=403, line=lineNum, msgPrefix=msgPrefix)
+        v404 = Violation(code=404, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasYieldsSection: bool = doc.hasYieldsSection
 
@@ -627,6 +631,42 @@ class Visitor(ast.NodeVisitor):
             if not hasYieldStmt and not hasGenAsRetAnno:
                 if not self.isAbstractMethod:
                     violations.append(v403)
+
+        if hasYieldStmt and self.checkYieldTypes:
+            if hasGenAsRetAnno:
+                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+            else:
+                returnAnno = ReturnAnnotation(None)
+
+            if docstringHasYieldsSection:
+                yieldSec: List[YieldArg] = doc.yieldSection
+            else:
+                yieldSec = []
+
+            # Even though the numpy docstring guide demonstrates that we can
+            # write multiple values in the "Yields" section
+            # (https://numpydoc.readthedocs.io/en/latest/format.html#yields),
+            # in pydoclint we still only require putting all the yielded
+            # values into one `Generator[..., ..., ...]`, because it is easier
+            # to check and less ambiguous.
+
+            if len(yieldSec) > 0:
+                if returnAnno.annotation is None:
+                    msg = 'Return annotation does not exist or is not'
+                    msg += ' `Generator[...]`,'
+                    msg += ' but docstring "yields" section has 1 type(s).'
+                    violations.append(v404.appendMoreMsg(moreMsg=msg))
+                elif yieldSec[0].argType != returnAnno.annotation:
+                    msg = 'Return annotation types: '
+                    msg += str([returnAnno.annotation]) + '; '
+                    msg += 'docstring return section types: '
+                    msg += str([yieldSec[0].argType])
+                    violations.append(v404.appendMoreMsg(moreMsg=msg))
+            else:
+                if returnAnno.annotation != '':
+                    msg = 'Return annotation exists, but docstring'
+                    msg += ' "yields" section does not exist or has 0 type(s).'
+                    violations.append(v404.appendMoreMsg(moreMsg=msg))
 
         return violations
 
