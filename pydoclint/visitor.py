@@ -598,7 +598,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkYields(
+    def checkYields(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
