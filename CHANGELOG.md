@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.2.0] - 2023-08-18
+
+- Added
+  - Added checking of yield types (between function signature and the
+    docstring's Yields section)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.9...0.2.0
+
 ## [0.1.9] - 2023-08-18
 
 - Fixed
