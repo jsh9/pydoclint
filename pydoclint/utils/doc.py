@@ -8,6 +8,7 @@ from numpydoc.docscrape import NumpyDocString
 from pydoclint.utils.arg import ArgList
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.return_arg import ReturnArg
+from pydoclint.utils.yield_arg import YieldArg
 
 
 class Doc:
@@ -140,6 +141,33 @@ class Doc:
             for element in returnSection:
                 result.append(
                     ReturnArg(
+                        argName=self._str(element.name),
+                        argType=self._str(element.type),
+                        argDescr=' '.join(element.desc),
+                    )
+                )
+
+            return result
+
+        return []
+
+    @property
+    def yieldSection(self) -> List[YieldArg]:
+        """Get the yield section of the docstring"""
+        if isinstance(self.parsed, Docstring):  # Google or Sphinx style
+            yieldArg = YieldArg(
+                argName=self._str(self.parsed.returns.return_name),
+                argType=self._str(self.parsed.returns.type_name),
+                argDescr=self._str(self.parsed.returns.description),
+            )
+            return [yieldArg]  # Google/Sphinx style always has only 1 yield arg
+
+        if isinstance(self.parsed, NumpyDocString):  # numpy style
+            yieldSection = self.parsed.get('Yields')
+            result = []
+            for element in yieldSection:
+                result.append(
+                    YieldArg(
                         argName=self._str(element.name),
                         argType=self._str(element.type),
                         argDescr=' '.join(element.desc),
