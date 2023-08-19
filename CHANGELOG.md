@@ -7,6 +7,9 @@
     docstring's Yields section), as well as a corresponding violation: `DOC404`
   - Added checking of incompatibility between `Generator`/`Iterator` and the
     `yield`/`return` statements, as well as a corresponding violation: `DOC405`
+- Fixed
+  - Fixed a bug where raise/return/yield statements in match-case blocks are
+    incorrectly identified
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.1.9...0.2.0
 
