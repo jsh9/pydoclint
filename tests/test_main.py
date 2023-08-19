@@ -1,5 +1,6 @@
 import copy
 import itertools
+import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -9,6 +10,10 @@ from pydoclint.main import _checkFile
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'data'
+
+
+def pythonVersionBelow310():
+    return sys.version_info < (3, 10)
 
 
 expectedViolations_True = [
@@ -209,6 +214,41 @@ def testReturns(style: str, filename: str) -> None:
         'the return annotation. Return annotation has 1 type(s); docstring return '
         'section has 0 type(s).',
     ])
+
+    expectedViolationsCopy = copy.deepcopy(expectedViolations)
+    if filename == 'function.py':
+        _tweakViolationMsgForFunctions(expectedViolationsCopy)
+
+    assert list(map(str, violations)) == expectedViolationsCopy
+
+
+@pytest.mark.parametrize(
+    'style, filename',
+    list(
+        itertools.product(
+            ['numpy', 'google', 'sphinx'],
+            ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
+        ),
+    ),
+)
+@pytest.mark.skipif(
+    pythonVersionBelow310(),
+    reason='Python 3.8 and 3.9 do not support match-case syntax',
+)
+def testReturnsPy310plus(style: str, filename: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/returns/py310+/{filename}',
+        skipCheckingShortDocstrings=True,
+        requireReturnSectionWhenReturningNothing=True,
+        style=style,
+    )
+
+    expectedViolations: List[str] = [
+        'DOC201: Method `MyClass.func11` does not have a return section in docstring ',
+        'DOC203: Method `MyClass.func11` return type(s) in docstring not consistent '
+        'with the return annotation. Return annotation has 1 type(s); docstring '
+        'return section has 0 type(s).',
+    ]
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
     if filename == 'function.py':
@@ -564,6 +604,30 @@ def testYields(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
+@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.skipif(
+    pythonVersionBelow310(),
+    reason='Python 3.8 and 3.9 do not support match-case syntax',
+)
+def testYieldsPy310plus(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/yields/py310+/cases.py',
+        checkReturnTypes=False,
+        style=style,
+    )
+    expected = [
+        'DOC405: Method `A.func10` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
+        'DOC402: Method `A.func10` has "yield" statements, but the docstring does not '
+        'have a "Yields" section ',
+        'DOC404: Method `A.func10` yield type(s) in docstring not consistent with the '
+        'return annotation. Return annotation exists, but docstring "yields" section '
+        'does not exist or has 0 type(s).',
+    ]
+    assert list(map(str, violations)) == expected
+
+
 @pytest.mark.parametrize(
     'style, skipRaisesCheck',
     itertools.product(
@@ -591,6 +655,35 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'are not "raise" statements in the body ',
         'DOC501: Function `inner9a` has "raise" statements, but the docstring does '
         'not have a "Raises" section ',
+    ]
+    expected1 = []
+    expected = expected1 if skipRaisesCheck else expected0
+    assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize(
+    'style, skipRaisesCheck',
+    itertools.product(
+        ['numpy', 'google', 'sphinx'],
+        [False, True],
+    ),
+)
+@pytest.mark.skipif(
+    pythonVersionBelow310(),
+    reason='Python 3.8 and 3.9 do not support match-case syntax',
+)
+def testRaisesPy310plus(style: str, skipRaisesCheck: bool) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/raises/py310+/cases.py',
+        skipCheckingRaises=skipRaisesCheck,
+        argTypeHintsInSignature=False,
+        argTypeHintsInDocstring=False,
+        checkReturnTypes=False,
+        style=style,
+    )
+    expected0 = [
+        'DOC501: Method `B.func10` has "raise" statements, but the docstring does not '
+        'have a "Raises" section ',
     ]
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
