@@ -123,6 +123,17 @@ class Plugin:
                 ' the return annotation in the function signature are consistent'
             ),
         )
+        parser.add_option(
+            '-cyt',
+            '--check-yield-types',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, check that the type(s) in the docstring "yields" section and'
+                ' the return annotation in the function signature are consistent'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
@@ -143,6 +154,7 @@ class Plugin:
             options.require_return_section_when_returning_nothing
         )
         cls.check_return_types = options.check_return_types
+        cls.check_yield_types = options.check_yield_types
         cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
@@ -196,6 +208,10 @@ class Plugin:
             '--check-return-types',
             self.check_return_types,
         )
+        checkYieldTypes = self._bool(
+            '--check-yield-types',
+            self.check_yield_types,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -213,6 +229,7 @@ class Plugin:
                 requireReturnSectionWhenReturningNothing
             ),
             checkReturnTypes=checkReturnTypes,
+            checkYieldTypes=checkYieldTypes,
             style=self.style,
         )
         v.visit(self._tree)
