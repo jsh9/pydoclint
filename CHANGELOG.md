@@ -1,5 +1,24 @@
 # Change Log
 
+## [0.2.0] - 2023-08-18
+
+- Added
+  - Added checking of yield types (between function signature and the
+    docstring's Yields section), as well as a corresponding violation: `DOC404`
+  - Added checking of incompatibility between `Generator`/`Iterator` and the
+    `yield`/`return` statements, as well as a corresponding violation: `DOC405`
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.9...0.2.0
+
+## [0.1.9] - 2023-08-18
+
+- Fixed
+  - Fixed a bug where union-style return types (such as `int | str`) in
+    Google-style docstrings cannot be correctly parsed
+    ([Issue #66](https://github.com/jsh9/pydoclint/issues/66))
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.1.8...0.1.9
+
 ## [0.1.8] - 2023-08-16
 
 - Fixed

@@ -437,7 +437,7 @@ def testAllowInitDocstring(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['numpy', 'google', 'sphinx'])
+@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
 def testYields(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/yields/cases.py',
@@ -449,34 +449,121 @@ def testYields(style: str) -> None:
         'have a "Yields" section ',
         'DOC402: Method `A.method1` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method1` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
         'DOC402: Method `A.method2` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method2` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
         'DOC403: Method `A.method3` has a "Yields" section in the docstring, but '
         'there are no "yield" statements or a Generator return annotation ',
         'DOC401: Method `A.method6` returns a Generator, but the docstring does not '
         'have a "Yields" section ',
         'DOC402: Method `A.method6` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method6` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
+        'DOC405: Method `A.method7a` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
+        'DOC404: Method `A.method7a` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation does not exist or is not '
+        '`Generator[...]`, but docstring "yields" section has 1 type(s).',
+        'DOC405: Method `A.method8a` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Method `A.method8a` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method8a` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
+        'DOC405: Method `A.method7b` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
+        'DOC404: Method `A.method7b` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation does not exist or is not '
+        '`Generator[...]`, but docstring "yields" section has 1 type(s).',
+        'DOC405: Method `A.method8b` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Method `A.method8b` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method8b` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
+        'DOC405: Method `A.method7c` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
+        'DOC404: Method `A.method7c` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation does not exist or is not '
+        '`Generator[...]`, but docstring "yields" section has 1 type(s).',
+        'DOC405: Method `A.method8c` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Method `A.method8c` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method8c` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
+        'DOC405: Method `A.method7d` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
+        'DOC404: Method `A.method7d` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation does not exist or is not '
+        '`Generator[...]`, but docstring "yields" section has 1 type(s).',
+        'DOC405: Method `A.method8d` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Method `A.method8d` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method8d` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
         'DOC201: Method `A.zipLists2` does not have a return section in docstring ',
         'DOC403: Method `A.zipLists2` has a "Yields" section in the docstring, but '
         'there are no "yield" statements or a Generator return annotation ',
+        'DOC405: Function `inner9a` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
+        'DOC404: Function `inner9a` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation does not exist or is not '
+        '`Generator[...]`, but docstring "yields" section has 1 type(s).',
+        'DOC405: Function `inner9b` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Function `inner9b` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Function `inner9b` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
         'DOC201: Method `A.method9c` does not have a return section in docstring ',
         'DOC403: Method `A.method9c` has a "Yields" section in the docstring, but '
         'there are no "yield" statements or a Generator return annotation ',
+        'DOC405: Function `inner9c` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
+        'DOC404: Function `inner9c` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation does not exist or is not '
+        '`Generator[...]`, but docstring "yields" section has 1 type(s).',
+        'DOC405: Method `A.method9d` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Method `A.method9d` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Method `A.method9d` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
+        'DOC405: Function `inner9d` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Function `inner9d` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
+        'DOC404: Function `inner9d` yield type(s) in docstring not consistent with '
+        'the return annotation. Return annotation exists, but docstring "yields" '
+        'section does not exist or has 0 type(s).',
         'DOC402: Method `A.func10` has "yield" statements, but the docstring does not '
         'have a "Yields" section ',
     ]
@@ -860,6 +947,15 @@ def testNonAscii() -> None:
                 'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is '
                 '`True` but not all args in the signature have type hints ',
                 'DOC105: Function `func3`: Argument names match, but type hints do not match ',
+            ],
+        ),
+        (
+            'edge_case_03_union_return_type.py',
+            {'style': 'google'},
+            [
+                'DOC203: Function `myFunc` return type(s) in docstring not consistent with '
+                "the return annotation. Return annotation types: ['str | bool | None']; "
+                "docstring return section types: ['str | bool | float']"
             ],
         ),
     ],

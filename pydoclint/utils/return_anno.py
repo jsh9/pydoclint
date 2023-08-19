@@ -1,4 +1,5 @@
 import ast
+import json
 from typing import List, Optional
 
 from pydoclint.utils.annotation import unparseAnnotation
@@ -10,7 +11,13 @@ class ReturnAnnotation:
     """A class to hold the return annotation in a function's signature"""
 
     def __init__(self, annotation: Optional[str]) -> None:
-        self.annotation = stripQuotes(annotation)
+        self.annotation: Optional[str] = stripQuotes(annotation)
+
+    def __str__(self) -> str:
+        return f'ReturnAnnotation(annotation={json.dumps(self.annotation)})'
+
+    def __repr__(self) -> str:
+        return self.__str__()
 
     def decompose(self) -> List[str]:
         """
