@@ -40,8 +40,8 @@ VIOLATION_CODES = types.MappingProxyType({
     404: 'yield type(s) in docstring not consistent with the return annotation.',
     405: (
         'has has "yield" statements, but the return signature is `Iterator`.'
-        ' Please use `Generator` when you have "yield" statements in your function body.'
-        ' (Read more about this topic here: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 )'
+        ' Please use `Generator` instead.'
+        ' (Read more about this topic here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html )'
     ),
 
     501: 'has "raise" statements, but the docstring does not have a "Raises" section',
