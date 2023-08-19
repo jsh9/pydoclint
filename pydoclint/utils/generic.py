@@ -18,7 +18,13 @@ def collectFuncArgs(node: FuncOrAsyncFuncDef) -> List[ast.arg]:
     allArgs.extend(node.args.kwonlyargs)
 
     if node.args.vararg is not None:
-        vararg = copy.deepcopy(node.args.vararg)
+        try:
+            vararg = copy.deepcopy(node.args.vararg)
+        except RecursionError:
+            # In rare occasions, using deepcopy could trigger recursion errors
+            # if the underlying Python code is too complex. And example for
+            # it is https://github.com/jsh9/pydoclint/issues/65
+            vararg = copy.copy(node.args.vararg)
 
         # This is a hacky way to ensure that users write '*args' instead
         # of 'args' in the docstring, as per the style guide of numpy:
@@ -29,7 +35,13 @@ def collectFuncArgs(node: FuncOrAsyncFuncDef) -> List[ast.arg]:
         allArgs.append(vararg)
 
     if node.args.kwarg is not None:
-        kwarg = copy.deepcopy(node.args.kwarg)
+        try:
+            kwarg = copy.deepcopy(node.args.kwarg)
+        except RecursionError:
+            # In rare occasions, using deepcopy could trigger recursion errors
+            # if the underlying Python code is too complex. And example for
+            # it is https://github.com/jsh9/pydoclint/issues/65
+            kwarg = copy.copy(node.args.kwarg)
 
         # This is a hacky way to ensure that users write '**kwargs' instead
         # of 'kwargs' in the docstring, as per the style guide of numpy:

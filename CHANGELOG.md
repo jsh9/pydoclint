@@ -10,6 +10,10 @@
 - Fixed
   - Fixed a bug where raise/return/yield statements in match-case blocks are
     incorrectly identified
+- Improved
+  - Used a try/catch block to capture potential recursion error, potentially
+    due to too complex functions/classes
+    (https://github.com/jsh9/pydoclint/issues/65)
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.1.9...0.2.0
 
