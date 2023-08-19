@@ -619,6 +619,7 @@ class Visitor(ast.NodeVisitor):
 
         hasYieldStmt: bool = hasYieldStatements(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
 
         if not docstringHasYieldsSection:
             if hasGenAsRetAnno:
