@@ -614,11 +614,16 @@ class Visitor(ast.NodeVisitor):
         v402 = Violation(code=402, line=lineNum, msgPrefix=msgPrefix)
         v403 = Violation(code=403, line=lineNum, msgPrefix=msgPrefix)
         v404 = Violation(code=404, line=lineNum, msgPrefix=msgPrefix)
+        v405 = Violation(code=405, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasYieldsSection: bool = doc.hasYieldsSection
 
         hasYieldStmt: bool = hasYieldStatements(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
+
+        if hasIterAsRetAnno and hasYieldStmt:
+            violations.append(v405)
 
         if not docstringHasYieldsSection:
             if hasGenAsRetAnno:
