@@ -564,8 +564,14 @@ def testYields(style: str) -> None:
         'DOC404: Function `inner9d` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
+        'DOC405: Method `A.func10` has "yield" statements, but the return signature '
+        'is `Iterator`. Please use `Generator` instead. (Read more about this topic '
+        'here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ) ',
         'DOC402: Method `A.func10` has "yield" statements, but the docstring does not '
         'have a "Yields" section ',
+        'DOC404: Method `A.func10` yield type(s) in docstring not consistent with the '
+        'return annotation. Return annotation exists, but docstring "yields" section '
+        'does not exist or has 0 type(s).',
     ]
     assert list(map(str, violations)) == expected
 
