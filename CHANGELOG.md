@@ -4,7 +4,9 @@
 
 - Added
   - Added checking of yield types (between function signature and the
-    docstring's Yields section)
+    docstring's Yields section), as well as a corresponding violation: `DOC404`
+  - Added checking of incompatibility between `Generator`/`Iterator` and the
+    `yield`/`return` statements, as well as a corresponding violation: `DOC405`
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.1.9...0.2.0
 
