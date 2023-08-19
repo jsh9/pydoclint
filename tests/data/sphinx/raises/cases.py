@@ -121,18 +121,3 @@ class B:
                 raise
 
         print(arg0)
-
-    def func10(self, arg0) -> int:
-        """
-        There should be a DOC501 violation for this function
-
-        :param arg0: Arg 0
-        :return: The return value
-        """
-        match arg0:
-            case 1:
-                return 1
-            case 2:
-                return 2
-            case _:
-                raise ValueError('Hello world')
