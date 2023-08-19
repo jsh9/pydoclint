@@ -21,6 +21,7 @@ page:
 - [8. `--allow-init-docstring` (shortform: `-aid`, default: `False`)](#8---allow-init-docstring-shortform--aid-default-false)
 - [9. `--require-return-section-when-returning-nothing` (shortform: `-rrs`, default: `False`)](#9---require-return-section-when-returning-nothing-shortform--rrs-default-false)
 - [10. `--check-return-types` (shortform: `-crt`, default: `True`)](#10---check-return-types-shortform--crt-default-true)
+- [11. `--check-yield-types` (shortform: `-cyt`, default: `True`)](#11---check-yield-types-shortform--cyt-default-true)
 
 <!--TOC-->
 
@@ -148,3 +149,8 @@ statement, or has `-> None` as the return annotation) or doesn't return at all
 
 If True, check that the type(s) in the docstring return section and the return
 annotation in the function signature are consistent
+
+## 11. `--check-yield-types` (shortform: `-cyt`, default: `True`)
+
+If True, check that the type(s) in the docstring "yields" section and the
+return annotation in the function signature are consistent.

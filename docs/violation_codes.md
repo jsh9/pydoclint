@@ -78,6 +78,7 @@ have a return section.
 | `DOC401` | Function/method returns a Generator, but the docstring does not have a "Yields" section                                       |
 | `DOC402` | Function/method has "yield" statements, but the docstring does not have a "Yields" section                                    |
 | `DOC403` | Function/method has a "Yields" section in the docstring, but there are no "yield" statements or a Generator return annotation |
+| `DOC404` | The types in the docstring's Yields section and the return annotation in the signature are not consistent                     |
 
 ## 5. `DOC5xx`: Violations about "raise" statements
 
