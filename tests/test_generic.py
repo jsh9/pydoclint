@@ -15,6 +15,12 @@ from pydoclint.utils.generic import stripQuotes
         ("''''''''''''''''", ''),
         ('""" """  """', '   '),
         ('List["Something", \'Else\']', 'List[Something, Else]'),
+        ('`something`', 'something'),
+        ('``something``', 'something'),
+        ('`List["Something", \'Else\']`', 'List[Something, Else]'),
+        ('``List["Something", \'Else\']``', 'List[Something, Else]'),
+        ('`""" """  """`', '   '),
+        ('``""" """  """``', '   '),
     ],
 )
 def testStripQuotes(inputStr: str, expected: str) -> None:

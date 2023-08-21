@@ -1043,6 +1043,21 @@ def testNonAscii() -> None:
                 "docstring return section types: ['str | bool | float']"
             ],
         ),
+        (
+            '04_backticks/google.py',
+            {'style': 'google'},
+            [],
+        ),
+        (
+            '04_backticks/numpy.py',
+            {'style': 'numpy'},
+            [],
+        ),
+        (
+            '04_backticks/numpy.py',
+            {'style': 'numpy'},
+            [],
+        ),
     ],
 )
 def testEdgeCases(

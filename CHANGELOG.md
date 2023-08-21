@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.2.1] - 2023-08-21
+
+- Improved
+
+  - Improved handling of backticks or double backticks being used in type hints
+    in docstrings
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.2.0...0.2.1
+
 ## [0.2.0] - 2023-08-18
 
 - Added
