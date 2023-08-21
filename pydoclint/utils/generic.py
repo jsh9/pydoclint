@@ -174,9 +174,20 @@ def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
 
 
 def stripQuotes(string: Optional[str]) -> Optional[str]:
-    """Strip quote (both double and single quote) from the given string"""
+    """
+    Strip quotes (both double and single quotes) from the given string.
+    Also, strip backticks (`) or double backticks (``) from the beginning
+    and the end of the given string.  (Some people use backticks around
+    type hints so that they show up more nicely on the HTML documentation
+    page.)
+    """
     if string is None:
         return None
+
+    if string.startswith('``') and string.endswith('``') and len(string) > 4:
+        string = string[2:-2]
+    elif string.startswith('`') and string.endswith('`') and len(string) > 3:
+        string = string[1:-1]
 
     return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)
 
