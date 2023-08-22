@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.2.2] - 2023-08-22
+
+- Improved
+
+  - Improved handling of escape symbol (`\`) in docstrings
+    (https://github.com/jsh9/pydoclint/issues/73)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.2.1...0.2.2
+
 ## [0.2.1] - 2023-08-21
 
 - Improved

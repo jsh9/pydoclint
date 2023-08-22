@@ -1058,6 +1058,9 @@ def testNonAscii() -> None:
             {'style': 'numpy'},
             [],
         ),
+        ('05_escape_char/google.py', {'style': 'google'}, []),
+        ('05_escape_char/numpy.py', {'style': 'numpy'}, []),
+        ('05_escape_char/sphinx.py', {'style': 'sphinx'}, []),
     ],
 )
 def testEdgeCases(
