@@ -29,11 +29,13 @@ class Arg:
     def __str__(self) -> str:
         return f'{self.name}: {self.typeHint}'
 
-    def __eq__(self, o: 'Arg') -> bool:
-        if not isinstance(o, Arg):
+    def __eq__(self, other: 'Arg') -> bool:
+        if not isinstance(other, Arg):
             return False
 
-        return self.name == o.name and self._eq(self.typeHint, o.typeHint)
+        argNamesEqual: bool = self._argNamesEq(self.name, other.name)
+        typeHintsEqual: bool = self._typeHintsEq(self.typeHint, other.typeHint)
+        return argNamesEqual and typeHintsEqual
 
     def __lt__(self, other: 'Arg') -> bool:
         if not isinstance(other, Arg):
@@ -91,7 +93,7 @@ class Arg:
         return '' if typeName is None else typeName
 
     @classmethod
-    def _eq(cls, str1: str, str2: str) -> bool:
+    def _typeHintsEq(cls, hint1: str, hint2: str) -> bool:
         # We parse and then unparse so that cases like this can be
         # treated as equal:
         #
@@ -103,16 +105,32 @@ class Arg:
         # >>>     "ghi",
         # >>> ]
         try:
-            str1_: str = unparseAnnotation(ast.parse(stripQuotes(str1)))
+            hint1_: str = unparseAnnotation(ast.parse(stripQuotes(hint1)))
         except SyntaxError:
-            str1_ = str1
+            hint1_ = hint1
 
         try:
-            str2_: str = unparseAnnotation(ast.parse(stripQuotes(str2)))
+            hint2_: str = unparseAnnotation(ast.parse(stripQuotes(hint2)))
         except SyntaxError:
-            str2_ = str2
+            hint2_ = hint2
 
-        return str1_ == str2_
+        return hint1_ == hint2_
+
+    @classmethod
+    def _argNamesEq(cls, name1: str, name2: str) -> bool:
+        return cls._removeEscapeChar(name1) == cls._removeEscapeChar(name2)
+
+    @classmethod
+    def _removeEscapeChar(cls, string: str) -> str:
+        # We need to remove `\` from the arg names before comparing them,
+        # because when there are 1 or 2 trailing underscores in an argument,
+        # people need to use `\_` or `\_\_`, otherwise Sphinx will somehow
+        # not render the underscores (and for some reason, 3 or more trailing
+        # underscores are fine).
+        #
+        # For example:
+        #     arg1\_\_ (int): The first argument
+        return string.replace('\\', '')
 
 
 class ArgList:

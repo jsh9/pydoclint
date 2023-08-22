@@ -138,7 +138,7 @@ def testArg_sorting(original: Set[Arg], after: List[Arg]) -> None:
     ],
 )
 def testArg_eq(str1: str, str2: str, expected: bool) -> None:
-    assert Arg._eq(str1, str2) == expected
+    assert Arg._typeHintsEq(str1, str2) == expected
 
 
 @pytest.mark.parametrize(
