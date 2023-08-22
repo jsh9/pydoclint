@@ -1012,9 +1012,9 @@ def testNonAscii() -> None:
 @pytest.mark.parametrize(
     'filename, options, expectedViolations',
     [
-        ('edge_case_01.py', {'style': 'sphinx'}, []),
+        ('01/case.py', {'style': 'sphinx'}, []),
         (
-            'edge_case_02_syntax_error_in_type_hints.py',
+            '02/syntax_error_in_type_hints.py',
             {'style': 'numpy'},
             [
                 'DOC106: Function `func1`: The option `--arg-type-hints-in-signature` is '
@@ -1035,7 +1035,7 @@ def testNonAscii() -> None:
             ],
         ),
         (
-            'edge_case_03_union_return_type.py',
+            '03/union_return_type.py',
             {'style': 'google'},
             [
                 'DOC203: Function `myFunc` return type(s) in docstring not consistent with '
@@ -1043,21 +1043,9 @@ def testNonAscii() -> None:
                 "docstring return section types: ['str | bool | float']"
             ],
         ),
-        (
-            '04_backticks/google.py',
-            {'style': 'google'},
-            [],
-        ),
-        (
-            '04_backticks/numpy.py',
-            {'style': 'numpy'},
-            [],
-        ),
-        (
-            '04_backticks/numpy.py',
-            {'style': 'numpy'},
-            [],
-        ),
+        ('04_backticks/google.py', {'style': 'google'}, []),
+        ('04_backticks/numpy.py', {'style': 'numpy'}, []),
+        ('04_backticks/numpy.py', {'style': 'numpy'}, []),
         ('05_escape_char/google.py', {'style': 'google'}, []),
         ('05_escape_char/numpy.py', {'style': 'numpy'}, []),
         ('05_escape_char/sphinx.py', {'style': 'sphinx'}, []),
