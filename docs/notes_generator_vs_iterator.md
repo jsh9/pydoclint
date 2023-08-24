@@ -5,6 +5,11 @@ Most likely, you landed on this page because you saw a `DOC405` violation:
 > DOC405: Method `myMethod` has "yield" statements, but the return signature is
 > `Iterator`. Please use `Generator` instead.
 
+or a `DOC403` violation:
+
+> DOC403: Method `myMethod` has a "Yields" section in the docstring, but there
+> are no "yield" statements or a Generator return annotation
+
 This is because _pydoclint_ uses the following criteria:
 
 - If the return annotation in the signature is `Generator` or `AsyncGenerator`,
@@ -15,7 +20,7 @@ This is because _pydoclint_ uses the following criteria:
 
 Here is the rationale behind:
 
-Firstly, `(Async)Generator` is a sub type of `(Async)Iterator/ble`:
+Firstly, `(Async)Generator` is a subtype of `(Async)Iterator/ble`:
 
 ```python
 >>> from typing import Iterator, Iterable, Generator

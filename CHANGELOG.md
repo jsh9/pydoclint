@@ -4,6 +4,7 @@
 
 - Fixed
   - A bug with yields type checking
+  - A typo in `DOC403` code logic
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.2.2...0.2.3
 

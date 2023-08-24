@@ -36,7 +36,11 @@ VIOLATION_CODES = types.MappingProxyType({
 
     401: 'returns a Generator, but the docstring does not have a "Yields" section',
     402: 'has "yield" statements, but the docstring does not have a "Yields" section',
-    403: 'has a "Yields" section in the docstring, but there are no "yield" statements or a Generator return annotation',
+    403: (  # noqa: PAR001
+        'has a "Yields" section in the docstring, but there are no "yield"'
+        ' statements or a Generator return annotation.'
+        ' (Read more about this topic here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html )'
+    ),
     404: 'yield type(s) in docstring not consistent with the return annotation.',
     405: (  # noqa: PAR001
         'has "yield" statements, but the return signature is `Iterator`.'

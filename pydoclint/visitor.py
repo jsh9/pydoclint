@@ -633,7 +633,7 @@ class Visitor(ast.NodeVisitor):
                 violations.append(v402)
 
         if docstringHasYieldsSection:
-            if not hasYieldStmt and not hasGenAsRetAnno:
+            if not hasYieldStmt or not hasGenAsRetAnno:
                 if not self.isAbstractMethod:
                     violations.append(v403)
 
