@@ -632,7 +632,7 @@ def testYields(style: str) -> None:
         'DOC404: Function `inner9d` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
-        'DOC404: Method `A.method10` yield type(s) in docstring not consistent with '
+        'DOC404: Method `A.method10a` yield type(s) in docstring not consistent with '
         'the return annotation. The yield type (the 0th arg in Generator[...]): str; '
         'docstring "yields" section types: int',
     ]

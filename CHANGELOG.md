@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.2.4] - 2023-08-24
+
+- Fixed
+  - A bug with unparsing yield types
+    (https://github.com/jsh9/pydoclint/issues/75#issuecomment-1691398673)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.2.3...0.2.4
+
 ## [0.2.3] - 2023-08-24
 
 - Fixed

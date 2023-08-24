@@ -671,18 +671,16 @@ class Visitor(ast.NodeVisitor):
                         yieldType: str
 
                         if sys.version_info >= (3, 9):
-                            yieldType = (
+                            yieldType = unparseAnnotation(
                                 ast.parse(returnAnno.annotation)
                                 .body[0]
                                 .value.slice.elts[0]
-                                .id
                             )
                         else:
-                            yieldType = (
+                            yieldType = unparseAnnotation(
                                 ast.parse(returnAnno.annotation)
                                 .body[0]
                                 .value.slice.value.elts[0]  # here is different
-                                .id
                             )
 
                     except Exception:

@@ -272,7 +272,7 @@ class A:
 
         yield inner9d(arg1)
 
-    def method10(self, n: int) -> Generator[str, None, None]:
+    def method10a(self, n: int) -> Generator[str, None, None]:
         """Description
 
         :param n: Description
@@ -281,3 +281,13 @@ class A:
         :rtype: int
         """
         yield from range(n)
+
+    def method10b(self, n: int) -> Generator[tuple[float, ...], None, None]:
+        """Foo
+
+        :param n: Description
+        :type n: int
+        :yield: Description
+        :rtype: tuple[float, ...]
+        """
+        yield from ((*self.bar, i) for i in range(self.baz))
