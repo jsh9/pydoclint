@@ -661,12 +661,29 @@ class Visitor(ast.NodeVisitor):
                     msg += ' `Generator[...]`,'
                     msg += ' but docstring "yields" section has 1 type(s).'
                     violations.append(v404.appendMoreMsg(moreMsg=msg))
-                elif yieldSec[0].argType != returnAnno.annotation:
-                    msg = 'Return annotation types: '
-                    msg += str([returnAnno.annotation]) + '; '
-                    msg += 'docstring return section types: '
-                    msg += str([yieldSec[0].argType])
-                    violations.append(v404.appendMoreMsg(moreMsg=msg))
+                else:
+                    try:
+                        # "Yield type" is the 0th element in a Generator
+                        # type annotation (Generator[YieldType, SendType,
+                        # ReturnType])
+                        # https://docs.python.org/3/library/typing.html#typing.Generator
+                        yieldType: str = (
+                            ast.parse(returnAnno.annotation)
+                            .body[0]
+                            .value.slice.elts[0]
+                            .id
+                        )
+                    except Exception:
+                        yieldType = returnAnno.annotation
+
+                    if yieldSec[0].argType != yieldType:
+                        msg = (
+                            'The yield type (the 0th arg in Generator[...]): '
+                        )
+                        msg += str(yieldType) + '; '
+                        msg += 'docstring "yields" section types: '
+                        msg += str(yieldSec[0].argType)
+                        violations.append(v404.appendMoreMsg(moreMsg=msg))
             else:
                 if returnAnno.annotation != '':
                     msg = 'Return annotation exists, but docstring'

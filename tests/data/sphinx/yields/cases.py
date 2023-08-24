@@ -271,3 +271,13 @@ class A:
                 yield str(inner_arg1)
 
         yield inner9d(arg1)
+
+    def method10(self, n: int) -> Generator[str, None, None]:
+        """Description
+
+        :param n: Description
+        :type n: int
+        :yield: Description
+        :rtype: int
+        """
+        yield from range(n)

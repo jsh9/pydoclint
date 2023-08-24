@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.2.3] - 2023-08-24
+
+- Fixed
+  - A bug with yields type checking
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.2.2...0.2.3
+
 ## [0.2.2] - 2023-08-22
 
 - Improved
