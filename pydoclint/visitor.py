@@ -1,4 +1,5 @@
 import ast
+import sys
 from typing import List, Optional, Set
 
 from pydoclint.utils.annotation import unparseAnnotation
@@ -667,12 +668,23 @@ class Visitor(ast.NodeVisitor):
                         # type annotation (Generator[YieldType, SendType,
                         # ReturnType])
                         # https://docs.python.org/3/library/typing.html#typing.Generator
-                        yieldType: str = (
-                            ast.parse(returnAnno.annotation)
-                            .body[0]
-                            .value.slice.elts[0]
-                            .id
-                        )
+                        yieldType: str
+
+                        if sys.version_info >= (3, 9):
+                            yieldType = (
+                                ast.parse(returnAnno.annotation)
+                                .body[0]
+                                .value.slice.elts[0]
+                                .id
+                            )
+                        else:
+                            yieldType = (
+                                ast.parse(returnAnno.annotation)
+                                .body[0]
+                                .value.slice.value.elts[0]  # here is different
+                                .id
+                            )
+
                     except Exception:
                         yieldType = returnAnno.annotation
 
