@@ -34,19 +34,13 @@ VIOLATION_CODES = types.MappingProxyType({
     306: 'The class docstring does not need a "Yields" section, because __init__() cannot yield anything',
     307: 'The __init__() docstring does not need a "Yields" section, because __init__() cannot yield anything',
 
-    401: 'returns a Generator, but the docstring does not have a "Yields" section',
+    401: '',  # Deprecated
     402: 'has "yield" statements, but the docstring does not have a "Yields" section',
     403: (  # noqa: PAR001
         'has a "Yields" section in the docstring, but there are no "yield"'
-        ' statements or a Generator return annotation.'
-        ' (Read more about this topic here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html )'
+        ' statements, or the return annotation is not a Generator/Iterator/Iterable.'
     ),
     404: 'yield type(s) in docstring not consistent with the return annotation.',
-    405: (  # noqa: PAR001
-        'has "yield" statements, but the return signature is `Iterator`.'
-        ' Please use `Generator` instead.'
-        ' (Read more about this topic here: https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html )'
-    ),
 
     501: 'has "raise" statements, but the docstring does not have a "Raises" section',
     502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',

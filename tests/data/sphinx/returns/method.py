@@ -216,3 +216,20 @@ class MyClass:
                 return False
 
         print(2)
+
+    def zipLists1(
+            self,
+            list1: List[Any],
+            list2: List[Any],
+    ) -> Iterator[Tuple[Any, Any]]:
+        """
+        Zip 2 lists.
+
+        :param list1: The first list
+        :type list1: List[Any]
+        :param list2: The second list
+        :type list2: List[Any]
+        :return: The zipped list
+        :rtype: Iterator[Tuple[Any, int]]
+        """
+        return zip(list1, list2)

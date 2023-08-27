@@ -495,8 +495,9 @@ class Visitor(ast.NodeVisitor):
             ):
                 return violations  # no need to check return type hints at all
 
-            if returnSec == [] and hasGenAsRetAnno:
+            if returnSec == [] and (hasGenAsRetAnno or hasIterAsRetAnno):
                 # This is because if the return annotation is `Generator[...]`,
+                # `Iterator[...]`, or `Iterable[...]`,
                 # we don't need a "Returns" section. (Instead, we need a
                 # "Yields" section in the docstring.) Therefore, we don't need
                 # to check for DOC203 violations.
@@ -611,37 +612,32 @@ class Visitor(ast.NodeVisitor):
         lineNum: int = node.lineno
         msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
 
-        v401 = Violation(code=401, line=lineNum, msgPrefix=msgPrefix)
         v402 = Violation(code=402, line=lineNum, msgPrefix=msgPrefix)
         v403 = Violation(code=403, line=lineNum, msgPrefix=msgPrefix)
         v404 = Violation(code=404, line=lineNum, msgPrefix=msgPrefix)
-        v405 = Violation(code=405, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasYieldsSection: bool = doc.hasYieldsSection
 
         hasYieldStmt: bool = hasYieldStatements(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
-
-        if hasIterAsRetAnno and hasYieldStmt:
-            violations.append(v405)
+        noGenNorIterAsRetAnno = not hasGenAsRetAnno and not hasIterAsRetAnno
 
         if not docstringHasYieldsSection:
-            if hasGenAsRetAnno:
-                violations.append(v401)
-
             if hasYieldStmt:
                 violations.append(v402)
 
         if docstringHasYieldsSection:
-            if not hasYieldStmt or not hasGenAsRetAnno:
+            if not hasYieldStmt or noGenNorIterAsRetAnno:
                 if not self.isAbstractMethod:
                     violations.append(v403)
 
         if hasYieldStmt and self.checkYieldTypes:
-            if hasGenAsRetAnno:
+            if hasGenAsRetAnno or hasIterAsRetAnno:
                 returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
             else:
+                # We don't check other return annotations here, because they
+                # are checked above, in `checkReturns()`.
                 returnAnno = ReturnAnnotation(None)
 
             if docstringHasYieldsSection:
@@ -659,7 +655,7 @@ class Visitor(ast.NodeVisitor):
             if len(yieldSec) > 0:
                 if returnAnno.annotation is None:
                     msg = 'Return annotation does not exist or is not'
-                    msg += ' `Generator[...]`,'
+                    msg += ' Generator[...]/Iterator[...]/Iterable[...],'
                     msg += ' but docstring "yields" section has 1 type(s).'
                     violations.append(v404.appendMoreMsg(moreMsg=msg))
                 else:
@@ -668,27 +664,38 @@ class Visitor(ast.NodeVisitor):
                         # type annotation (Generator[YieldType, SendType,
                         # ReturnType])
                         # https://docs.python.org/3/library/typing.html#typing.Generator
+                        # Or it's the 0th (only) element in Iterator
                         yieldType: str
 
-                        if sys.version_info >= (3, 9):
+                        if hasGenAsRetAnno:
+                            if sys.version_info >= (3, 9):
+                                yieldType = unparseAnnotation(
+                                    ast.parse(returnAnno.annotation)
+                                    .body[0]
+                                    .value.slice.elts[0]
+                                )
+                            else:
+                                yieldType = unparseAnnotation(
+                                    ast.parse(returnAnno.annotation)
+                                    .body[0]
+                                    .value.slice.value.elts[0]
+                                )
+                        elif hasIterAsRetAnno:
                             yieldType = unparseAnnotation(
                                 ast.parse(returnAnno.annotation)
                                 .body[0]
-                                .value.slice.elts[0]
+                                .value.slice
                             )
                         else:
-                            yieldType = unparseAnnotation(
-                                ast.parse(returnAnno.annotation)
-                                .body[0]
-                                .value.slice.value.elts[0]  # here is different
-                            )
+                            yieldType = returnAnno.annotation
 
                     except Exception:
                         yieldType = returnAnno.annotation
 
                     if yieldSec[0].argType != yieldType:
                         msg = (
-                            'The yield type (the 0th arg in Generator[...]): '
+                            'The yield type (the 0th arg in Generator[...]'
+                            '/Iterator[...]): '
                         )
                         msg += str(yieldType) + '; '
                         msg += 'docstring "yields" section types: '
