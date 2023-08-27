@@ -132,41 +132,20 @@ def checkYieldTypesForViolations(
     # values into one `Generator[..., ..., ...]`, because it is easier
     # to check and less ambiguous.
 
-    retAnn: Optional[str] = returnAnnotation.annotation
+    returnAnnoText: Optional[str] = returnAnnotation.annotation
 
     if len(yieldSection) > 0:
-        if retAnn is None:
+        if returnAnnoText is None:
             msg = 'Return annotation does not exist or is not'
             msg += ' Generator[...]/Iterator[...]/Iterable[...],'
             msg += ' but docstring "yields" section has 1 type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
         else:
-            try:
-                # "Yield type" is the 0th element in a Generator
-                # type annotation (Generator[YieldType, SendType,
-                # ReturnType])
-                # https://docs.python.org/3/library/typing.html#typing.Generator
-                # Or it's the 0th (only) element in Iterator
-                yieldType: str
-
-                if hasGeneratorAsReturnAnnotation:
-                    if sys.version_info >= (3, 9):
-                        yieldType = unparseAnnotation(
-                            ast.parse(retAnn).body[0].value.slice.elts[0]
-                        )
-                    else:
-                        yieldType = unparseAnnotation(
-                            ast.parse(retAnn).body[0].value.slice.value.elts[0]
-                        )
-                elif hasIteratorOrIterableAsReturnAnnotation:
-                    yieldType = unparseAnnotation(
-                        ast.parse(retAnn).body[0].value.slice
-                    )
-                else:
-                    yieldType = returnAnnotation.annotation
-
-            except Exception:
-                yieldType = returnAnnotation.annotation
+            yieldType: str = extractYieldTypeFromGeneratorOrIteratorAnnotation(
+                returnAnnoText,
+                hasGeneratorAsReturnAnnotation,
+                hasIteratorOrIterableAsReturnAnnotation,
+            )
 
             if yieldSection[0].argType != yieldType:
                 msg = (
@@ -178,7 +157,66 @@ def checkYieldTypesForViolations(
                 msg += str(yieldSection[0].argType)
                 violationList.append(violation.appendMoreMsg(moreMsg=msg))
     else:
-        if retAnn != '':
+        if returnAnnoText != '':
             msg = 'Return annotation exists, but docstring'
             msg += ' "yields" section does not exist or has 0 type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
+
+
+def extractYieldTypeFromGeneratorOrIteratorAnnotation(
+        returnAnnoText: str,
+        hasGeneratorAsReturnAnnotation: bool,
+        hasIteratorOrIterableAsReturnAnnotation: bool,
+) -> str:
+    """Extract yield type from Generator or Iterator annotations"""
+
+    try:
+        # "Yield type" is the 0th element in a Generator
+        # type annotation (Generator[YieldType, SendType,
+        # ReturnType])
+        # https://docs.python.org/3/library/typing.html#typing.Generator
+        # Or it's the 0th (only) element in Iterator
+        yieldType: str
+
+        if hasGeneratorAsReturnAnnotation:
+            if sys.version_info >= (3, 9):
+                yieldType = unparseAnnotation(
+                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]
+                )
+            else:
+                yieldType = unparseAnnotation(
+                    ast.parse(returnAnnoText).body[0].value.slice.value.elts[0]
+                )
+        elif hasIteratorOrIterableAsReturnAnnotation:
+            yieldType = unparseAnnotation(
+                ast.parse(returnAnnoText).body[0].value.slice
+            )
+        else:
+            yieldType = returnAnnoText
+    except Exception:
+        yieldType = returnAnnoText
+
+    return stripQuotes(yieldType)
+
+
+def extractReturnTypeFromGenerator(returnAnnoText: str) -> str:
+    """Extract return type from Generator annotations"""
+
+    try:
+        # "Return type" is the last element in a Generator
+        # type annotation (Generator[YieldType, SendType,
+        # ReturnType])
+        # https://docs.python.org/3/library/typing.html#typing.Generator
+        returnType: str
+        if sys.version_info >= (3, 9):
+            returnType = unparseAnnotation(
+                ast.parse(returnAnnoText).body[0].value.slice.elts[-1]
+            )
+        else:
+            returnType = unparseAnnotation(
+                ast.parse(returnAnnoText).body[0].value.slice.value.elts[-1]
+            )
+    except Exception:
+        returnType = returnAnnoText
+
+    return stripQuotes(returnType)

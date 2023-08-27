@@ -41,7 +41,13 @@ VIOLATION_CODES = types.MappingProxyType({
         ' statements, or the return annotation is not a Generator/Iterator/Iterable.'
     ),
     404: 'yield type(s) in docstring not consistent with the return annotation.',
-    405: '',
+    405: (
+        'has both "return" and "yield" statements. Please use'
+        ' Generator[YieldType, SendType, ReturnType] as the return type'
+        ' annotation, and put your yield type in YieldType and return type'
+        ' in ReturnType. More details in'
+        ' https://docs.python.org/3/library/typing.html#typing.Generator'
+    ),
 
     501: 'has "raise" statements, but the docstring does not have a "Raises" section',
     502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',
