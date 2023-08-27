@@ -108,8 +108,8 @@ class Doc:
             return bool(self.parsed.get('Yields'))
 
         if self.style in {'google', 'sphinx'}:
-            retSection: DocstringReturns = self.parsed.returns
-            return retSection is not None and retSection.is_generator
+            yieldSection: DocstringReturns = self.parsed.yields
+            return yieldSection is not None
 
         self._raiseException()  # noqa: R503
 

@@ -41,6 +41,7 @@ VIOLATION_CODES = types.MappingProxyType({
         ' statements, or the return annotation is not a Generator/Iterator/Iterable.'
     ),
     404: 'yield type(s) in docstring not consistent with the return annotation.',
+    405: '',
 
     501: 'has "raise" statements, but the docstring does not have a "Raises" section',
     502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',
