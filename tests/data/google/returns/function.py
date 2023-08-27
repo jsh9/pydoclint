@@ -234,3 +234,20 @@ def func102(arg0: float):
             return False
 
     print(2)
+
+
+def zipLists1(
+        list1: List[Any],
+        list2: List[Any],
+) -> Iterator[Tuple[Any, Any]]:
+    """
+    Zip 2 lists.
+
+    Args:
+        list1 (List[Any]) : The first list
+        list2 (List[Any]) : The second list
+
+    Returns:
+        Iterator[Tuple[Any, int]]: The zipped result
+    """
+    return zip(list1, list2)
