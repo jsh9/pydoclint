@@ -1023,7 +1023,7 @@ def testPlayground() -> None:
     """
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
-        style='sphinx',
+        style='google',
     )
     expected = []
     assert list(map(str, violations)) == expected
