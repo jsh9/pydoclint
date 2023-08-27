@@ -3,7 +3,9 @@
 ## [0.3.0] - 2023-08-26
 
 - Improved
-  - Relaxed Generator/Iterator checking: stop enforcing the return annotation to be Generator if a function yields something (https://github.com/jsh9/pydoclint/issues/76)
+  - Relaxed Generator/Iterator checking: stop enforcing the return annotation
+    to be Generator if a function yields something
+    (https://github.com/jsh9/pydoclint/issues/76)
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.2.4...0.3.0
 
