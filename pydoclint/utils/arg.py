@@ -176,12 +176,7 @@ class ArgList:
         return len(self.infoList)
 
     @classmethod
-    def fromNumpydocParam(cls, params: List[Parameter]) -> 'ArgList':
-        """Construct an Arglist from a list of Parameter objects"""
-        return ArgList([Arg.fromNumpydocParam(_) for _ in params])
-
-    @classmethod
-    def fromGoogleParsedParam(cls, params: List[DocstringParam]) -> 'ArgList':
+    def fromDocstringParam(cls, params: List[DocstringParam]) -> 'ArgList':
         """Construct an ArgList from a list of DocstringParam objects"""
         infoList = [
             Arg.fromGoogleParsedParam(_)

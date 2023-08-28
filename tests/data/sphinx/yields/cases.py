@@ -40,7 +40,7 @@ class A:
         :param arg1:
         :type arg1: int
         :yield: Something to yield
-        :rtype: int
+        :ytype: int
         """
         print(1)
 
@@ -67,7 +67,7 @@ class A:
         :param arg1:
         :type arg1: int
         :yield: something
-        :rtype: int
+        :ytype: int
         """
         yield 1
         yield 2
@@ -91,7 +91,7 @@ class A:
         :param arg1:
         :type arg1: int
         :yield: something
-        :rtype: int
+        :ytype: int
         """
         i = 0
         while i < 10:
@@ -117,7 +117,7 @@ class A:
         :param data:
         :type data: list
         :yield: something
-        :rtype: int
+        :ytype: int
         """
         yield from data
 
@@ -137,7 +137,7 @@ class A:
         :param data:
         :type data: list
         :yield: something
-        :rtype: int
+        :ytype: int
         """
         yield from data
 
@@ -199,7 +199,7 @@ class A:
             :param inner_arg1: Inner arg 1
             :type inner_arg1: List[int]
             :yield: Values to yield
-            :rtype: Iterable[str]
+            :ytype: Iterable[str]
             """
             for i in inner_arg1:
                 yield str(inner_arg1)
@@ -235,7 +235,7 @@ class A:
         :param arg1: Arg 1
         :type arg1: List[int]
         :yield: Values to yield
-        :rtype: Iterable[str]
+        :ytype: Iterable[str]
         """
 
         def inner9c(inner_arg1: List[int]) -> Iterable[str]:
@@ -245,7 +245,7 @@ class A:
             :param inner_arg1: Inner arg 1
             :type inner_arg1: List[int]
             :yield: Values to yield
-            :rtype: Iterable[str]
+            :ytype: Iterable[str]
             """
             for i in inner_arg1:
                 yield str(inner_arg1)
@@ -278,7 +278,7 @@ class A:
         :param n: Description
         :type n: int
         :yield: Description
-        :rtype: int
+        :ytype: int
         """
         yield from range(n)
 
@@ -288,6 +288,6 @@ class A:
         :param n: Description
         :type n: int
         :yield: Description
-        :rtype: tuple[float, ...]
+        :ytype: tuple[float, ...]
         """
         yield from ((*self.bar, i) for i in range(self.baz))

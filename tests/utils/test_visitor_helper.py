@@ -9,6 +9,8 @@ from pydoclint.utils.visitor_helper import (
 @pytest.mark.parametrize(
     'returnAnnoText, hasGen, hasIter, expected',
     [
+        ('Generator', True, False, 'Generator'),
+        ('AsyncGenerator', True, False, 'AsyncGenerator'),
         ('Generator[None, None, None]', True, False, 'None'),
         ('Generator[int, None, str]', True, False, 'int'),
         ('AsyncGenerator[int, None, str]', True, False, 'int'),
@@ -38,6 +40,10 @@ from pydoclint.utils.visitor_helper import (
             False,
             "Literal['a', 'b', 'c']",
         ),
+        ('Iterator', False, True, 'Iterator'),
+        ('AsyncIterator', False, True, 'AsyncIterator'),
+        ('Iterable', False, True, 'Iterable'),
+        ('AsyncIterable', False, True, 'AsyncIterable'),
         ('Iterator[None]', False, True, 'None'),
         ('Iterator[int]', False, True, 'int'),
         ('AsyncIterator[int]', False, True, 'int'),

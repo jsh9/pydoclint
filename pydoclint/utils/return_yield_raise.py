@@ -42,7 +42,9 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
         return False
 
     returnAnno: str = unparseAnnotation(node.returns)
-    return stringStartsWith(returnAnno, ('Generator[', 'AsyncGenerator['))
+    return returnAnno in {'Generator', 'AsyncGenerator'} or stringStartsWith(
+        returnAnno, ('Generator[', 'AsyncGenerator[')
+    )
 
 
 def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
@@ -51,7 +53,12 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
         return False
 
     returnAnnotation: str = unparseAnnotation(node.returns)
-    return stringStartsWith(
+    return returnAnnotation in {
+        'Iterator',
+        'Iterable',
+        'AsyncIterator',
+        'AsyncIterable',
+    } or stringStartsWith(
         returnAnnotation,
         ('Iterator', 'Iterable', 'AsyncIterator', 'AsyncIterable'),
     )

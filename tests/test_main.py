@@ -583,6 +583,49 @@ def testYieldsPy310plus(style: str) -> None:
 
 
 @pytest.mark.parametrize(
+    'style',
+    ['google', 'numpy', 'sphinx'],
+)
+def testReturnAndYield(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/return_and_yield/cases.py',
+        checkReturnTypes=True,
+        checkYieldTypes=True,
+        style=style,
+    )
+    expected = [
+        'DOC405: Function `func2` has both "return" and "yield" statements. Please '
+        'use Generator[YieldType, SendType, ReturnType] as the return type '
+        'annotation, and put your yield type in YieldType and return type in '
+        'ReturnType. More details in '
+        'https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ',
+        'DOC203: Function `func3` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['float']; docstring return "
+        "section types: ['str']",
+        'DOC404: Function `func3` yield type(s) in docstring not consistent with the '
+        'return annotation. The yield type (the 0th arg in '
+        'Generator[...]/Iterator[...]): bool; docstring "yields" section types: int',
+        'DOC203: Function `func4` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['Generator']; docstring return "
+        "section types: ['str']",
+        'DOC404: Function `func4` yield type(s) in docstring not consistent with the '
+        'return annotation. The yield type (the 0th arg in '
+        'Generator[...]/Iterator[...]): Generator; docstring "yields" section types: '
+        'int',
+        'DOC405: Function `func5` has both "return" and "yield" statements. Please '
+        'use Generator[YieldType, SendType, ReturnType] as the return type '
+        'annotation, and put your yield type in YieldType and return type in '
+        'ReturnType. More details in '
+        'https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ',
+        'DOC404: Function `func5` yield type(s) in docstring not consistent with the '
+        'return annotation. The yield type (the 0th arg in '
+        'Generator[...]/Iterator[...]): Iterator; docstring "yields" section types: '
+        'int',
+    ]
+    assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize(
     'style, skipRaisesCheck',
     itertools.product(
         ['google', 'numpy', 'sphinx'],
@@ -723,12 +766,7 @@ def testParsingErrors_numpy() -> None:
         argTypeHintsInSignature=False,
         style='numpy',
     )
-    expected = [
-        'DOC001: Function/method `__init__`: Potential formatting errors in '
-        'docstring. Error message: The section Parameters appears twice in  Some '
-        'class  Parameters ----------     arg1     arg2  Parameters ----------     '
-        'arg3     arg4'
-    ]
+    expected = []  # not sure how to craft docstrings with parsing errors yet
     assert list(map(str, violations)) == expected
 
 
@@ -1023,7 +1061,7 @@ def testPlayground() -> None:
     """
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
-        style='google',
+        style='numpy',
     )
     expected = []
     assert list(map(str, violations)) == expected

@@ -1,5 +1,4 @@
 import ast
-import sys
 from typing import List, Optional, Set
 
 from pydoclint.utils.annotation import unparseAnnotation
@@ -139,14 +138,19 @@ class Visitor(ast.NodeVisitor):
                     yieldViolations = []
                     raiseViolations = []
                 else:
-                    # if hasYieldStatements(node) and hasReturnStatements(node):
-                    #     pass
-                    # else:
-                    #     returnViolations = self.checkReturns(node, parent_, doc)
-                    #     yieldViolations = self.checkYields(node, parent_, doc)
-
-                    returnViolations = self.checkReturns(node, parent_, doc)
-                    yieldViolations = self.checkYields(node, parent_, doc)
+                    if hasYieldStatements(node) and hasReturnStatements(node):
+                        returnViolations = self.checkReturnAndYield(
+                            node, parent_, doc
+                        )
+                        # It doesn't matter what violations fall into which
+                        # list, so we put everything in `returnViolations`
+                        # and then keep `yieldViolations` empty.
+                        yieldViolations = []
+                    else:
+                        returnViolations = self.checkReturns(
+                            node, parent_, doc
+                        )
+                        yieldViolations = self.checkYields(node, parent_, doc)
 
                     if not self.skipCheckingRaises:
                         raiseViolations = self.checkRaises(node, parent_, doc)
@@ -610,7 +614,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkReturnAndYield(
+    def checkReturnAndYield(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
@@ -620,7 +624,6 @@ class Visitor(ast.NodeVisitor):
         Check violations when a function has both `return` and `yield`
         statements in it.
         """
-
         """
         Here is an example of a Python function containing both `return` and
         `yield` statements:

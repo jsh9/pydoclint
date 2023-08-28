@@ -19,6 +19,7 @@ def checkReturnTypesForViolations(
         returnSection: List[ReturnArg],
         violation: Violation,
 ) -> None:
+    """Check return types between function signature and docstring"""
     if style == 'numpy':
         checkReturnTypesForNumpyStyle(
             returnAnnotation=returnAnnotation,
@@ -43,7 +44,6 @@ def checkReturnTypesForNumpyStyle(
         violation: Violation,
 ) -> None:
     """Check return types for numpy docstring style"""
-
     # If the return annotation is a tuple (such as Tuple[int, str]),
     # we consider both in the docstring to be a valid style:
     #
@@ -89,7 +89,6 @@ def checkReturnTypesForGoogleOrSphinxStyle(
         violation: Violation,
 ) -> None:
     """Check return types for Google or Sphinx docstring style"""
-
     # The Google docstring style does not allow (or at least does
     # not encourage) splitting tuple return types (such as
     # Tuple[int, str, bool]) into individual types (int, str, and
@@ -125,6 +124,7 @@ def checkYieldTypesForViolations(
         hasGeneratorAsReturnAnnotation: bool,
         hasIteratorOrIterableAsReturnAnnotation: bool,
 ) -> None:
+    """Check yield types between function signature and docstring"""
     # Even though the numpy docstring guide demonstrates that we can
     # write multiple values in the "Yields" section
     # (https://numpydoc.readthedocs.io/en/latest/format.html#yields),
@@ -169,7 +169,6 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         hasIteratorOrIterableAsReturnAnnotation: bool,
 ) -> str:
     """Extract yield type from Generator or Iterator annotations"""
-
     try:
         # "Yield type" is the 0th element in a Generator
         # type annotation (Generator[YieldType, SendType,
@@ -201,7 +200,6 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 
 def extractReturnTypeFromGenerator(returnAnnoText: str) -> str:
     """Extract return type from Generator annotations"""
-
     try:
         # "Return type" is the last element in a Generator
         # type annotation (Generator[YieldType, SendType,
