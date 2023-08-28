@@ -7,6 +7,7 @@
 - [1. Why is _pydoclint_ so much faster than _darglint_](#1-why-is-pydoclint-so-much-faster-than-darglint)
 - [2. Cases that _pydoclint_ is not designed to handle](#2-cases-that-pydoclint-is-not-designed-to-handle)
 - [3. Notes on writing type hints](#3-notes-on-writing-type-hints)
+- [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
 
 <!--TOC-->
 
@@ -121,3 +122,17 @@ annotations verbatim.
 
 Again, the authors of _pydoclint_ feel that this is a reasonable price to pay
 in order to achieve fast linting and reduce ambiguity.
+
+## 4. Notes on writing Sphinx-style docstrings
+
+The
+[official Sphinx documentation](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html)
+does not explicitly state this, so it is unclear what header to use to specify
+the type of what a function yields.
+
+Many people use `rtype`, but the authors of _pydoclint_ find it difficult to
+differentiate the type of return value and the type of yield value.
+
+Therefore, _pydoclint_ expects the convention of `ytype` for yield types. This
+is actually common practice, as evident from a code search on GitHub:
+https://github.com/search?q=%3Aytype%3A+language%3APython&type=code&l=Python
