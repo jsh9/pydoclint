@@ -17,7 +17,7 @@ class AbstractClass(ABC):
         :raises: ValueError: Example exception
 
         :yield: Paths to the files and directories listed.
-        :rtype: str
+        :ytype: str
         """
 
     @abstractmethod
@@ -35,7 +35,7 @@ class AbstractClass(ABC):
         :raises: ValueError: Example exception
 
         :yield: Paths to the files and directories listed.
-        :rtype: str
+        :ytype: str
         """
 
     @abstractmethod

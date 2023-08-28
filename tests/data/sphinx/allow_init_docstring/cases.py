@@ -71,7 +71,7 @@ class D:
     A class that does something
 
     :yield: Thing to yield
-    :rtype: int
+    :ytype: int
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
@@ -84,7 +84,7 @@ class D:
         :type arg2: float
 
         :yield: Thing to yield
-        :rtype: int
+        :ytype: int
         """
         self.arg1 = arg1
         self.arg2 = arg2

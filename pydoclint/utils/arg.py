@@ -2,7 +2,6 @@ import ast
 from typing import List, Optional, Set
 
 from docstring_parser.common import DocstringParam
-from numpydoc.docscrape import Parameter
 
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.generic import stripQuotes
@@ -72,12 +71,7 @@ class Arg:
         return not self.isStarArg()
 
     @classmethod
-    def fromNumpydocParam(cls, param: Parameter) -> 'Arg':
-        """Construct an Arg object from a Numpydoc Parameter object"""
-        return Arg(name=param.name, typeHint=param.type)
-
-    @classmethod
-    def fromGoogleParsedParam(cls, param: DocstringParam) -> 'Arg':
+    def fromDocstringParam(cls, param: DocstringParam) -> 'Arg':
         """Construct an Arg object from a GoogleParser Parameter object"""
         return Arg(name=param.arg_name, typeHint=cls._str(param.type_name))
 
@@ -176,15 +170,10 @@ class ArgList:
         return len(self.infoList)
 
     @classmethod
-    def fromNumpydocParam(cls, params: List[Parameter]) -> 'ArgList':
-        """Construct an Arglist from a list of Parameter objects"""
-        return ArgList([Arg.fromNumpydocParam(_) for _ in params])
-
-    @classmethod
-    def fromGoogleParsedParam(cls, params: List[DocstringParam]) -> 'ArgList':
+    def fromDocstringParam(cls, params: List[DocstringParam]) -> 'ArgList':
         """Construct an ArgList from a list of DocstringParam objects"""
         infoList = [
-            Arg.fromGoogleParsedParam(_)
+            Arg.fromDocstringParam(_)
             for _ in params
             if _.args[0] != 'attribute'  # we only need 'param' not 'attribute'
         ]

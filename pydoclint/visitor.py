@@ -1,5 +1,4 @@
 import ast
-import sys
 from typing import List, Optional, Set
 
 from pydoclint.utils.annotation import unparseAnnotation
@@ -13,7 +12,6 @@ from pydoclint.utils.generic import (
     generateMsgPrefix,
     getDocstring,
     isPropertyMethod,
-    stripQuotes,
 )
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
@@ -30,6 +28,12 @@ from pydoclint.utils.return_yield_raise import (
     isReturnAnnotationNoReturn,
 )
 from pydoclint.utils.violation import Violation
+from pydoclint.utils.visitor_helper import (
+    checkReturnTypesForViolations,
+    checkYieldTypesForViolations,
+    extractReturnTypeFromGenerator,
+    extractYieldTypeFromGeneratorOrIteratorAnnotation,
+)
 from pydoclint.utils.yield_arg import YieldArg
 
 
@@ -134,8 +138,20 @@ class Visitor(ast.NodeVisitor):
                     yieldViolations = []
                     raiseViolations = []
                 else:
-                    returnViolations = self.checkReturns(node, parent_, doc)
-                    yieldViolations = self.checkYields(node, parent_, doc)
+                    if hasYieldStatements(node) and hasReturnStatements(node):
+                        returnViolations = self.checkReturnAndYield(
+                            node, parent_, doc
+                        )
+                        # It doesn't matter what violations fall into which
+                        # list, so we put everything in `returnViolations`
+                        # and then keep `yieldViolations` empty.
+                        yieldViolations = []
+                    else:
+                        returnViolations = self.checkReturns(
+                            node, parent_, doc
+                        )
+                        yieldViolations = self.checkYields(node, parent_, doc)
+
                     if not self.skipCheckingRaises:
                         raiseViolations = self.checkRaises(node, parent_, doc)
                     else:
@@ -443,9 +459,10 @@ class Visitor(ast.NodeVisitor):
         v203 = Violation(code=203, line=lineNum, msgPrefix=msgPrefix)
 
         hasReturnStmt: bool = hasReturnStatements(node)
+        hasYieldStmt: bool = hasYieldStatements(node)
         hasReturnAnno: bool = hasReturnAnnotation(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
-        onlyHasYieldStmt: bool = hasYieldStatements(node) and not hasReturnStmt
+        onlyHasYieldStmt: bool = hasYieldStmt and not hasReturnStmt
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
 
         docstringHasReturnSection: bool = doc.hasReturnsSection
@@ -503,72 +520,13 @@ class Visitor(ast.NodeVisitor):
                 # to check for DOC203 violations.
                 return violations
 
-            if self.style == 'numpy':
-                # If the return annotation is a tuple (such as Tuple[int, str]),
-                # we consider both in the docstring to be a valid style:
-                #
-                # Option 1:
-                # >    Returns
-                # >    -------
-                # >    Tuple[int, str]
-                # >        ...
-                #
-                # Option 2:
-                # >    Returns
-                # >    -------
-                # >    int
-                # >        ...
-                # >    str
-                # >        ...
-                #
-                #  This is why we are comparing both the decomposed annotation
-                #  types and the original annotation type
-                returnAnnoItems: List[str] = returnAnno.decompose()
-                returnAnnoInList: List[str] = returnAnno.putAnnotationInList()
-
-                returnSecTypes: List[str] = [
-                    stripQuotes(_.argType) for _ in returnSec
-                ]
-
-                if returnAnnoInList != returnSecTypes:
-                    if len(returnAnnoItems) != len(returnSec):
-                        msg = f'Return annotation has {len(returnAnnoItems)}'
-                        msg += ' type(s); docstring return section has'
-                        msg += f' {len(returnSec)} type(s).'
-                        violations.append(v203.appendMoreMsg(moreMsg=msg))
-                    else:
-                        if returnSecTypes != returnAnnoItems:
-                            msg1 = (
-                                f'Return annotation types: {returnAnnoItems}; '
-                            )
-                            msg2 = f'docstring return section types: {returnSecTypes}'
-                            violations.append(v203.appendMoreMsg(msg1 + msg2))
-
-            else:  # Google style
-                # The Google docstring style does not allow (or at least does
-                # not encourage) splitting tuple return types (such as
-                # Tuple[int, str, bool]) into individual types (int, str, and
-                # bool).
-                # Therefore, in Google-style docstrings, people should always
-                # use one compound style for tuples.
-
-                if len(returnSec) > 0:
-                    retArgType = stripQuotes(returnSec[0].argType)
-                    if returnAnno.annotation is None:
-                        msg = 'Return annotation has 0 type(s); docstring'
-                        msg += ' return section has 1 type(s).'
-                        violations.append(v203.appendMoreMsg(moreMsg=msg))
-                    elif retArgType != returnAnno.annotation:
-                        msg = 'Return annotation types: '
-                        msg += str([returnAnno.annotation]) + '; '
-                        msg += 'docstring return section types: '
-                        msg += str([retArgType])
-                        violations.append(v203.appendMoreMsg(moreMsg=msg))
-                else:
-                    if bool(returnAnno.annotation):  # not empty str or not None
-                        msg = 'Return annotation has 1 type(s); docstring'
-                        msg += ' return section has 0 type(s).'
-                        violations.append(v203.appendMoreMsg(moreMsg=msg))
+            checkReturnTypesForViolations(
+                style=self.style,
+                returnAnnotation=returnAnno,
+                violationList=violations,
+                returnSection=returnSec,
+                violation=v203,
+            )
 
         return violations
 
@@ -645,67 +603,125 @@ class Visitor(ast.NodeVisitor):
             else:
                 yieldSec = []
 
-            # Even though the numpy docstring guide demonstrates that we can
-            # write multiple values in the "Yields" section
-            # (https://numpydoc.readthedocs.io/en/latest/format.html#yields),
-            # in pydoclint we still only require putting all the yielded
-            # values into one `Generator[..., ..., ...]`, because it is easier
-            # to check and less ambiguous.
+            checkYieldTypesForViolations(
+                returnAnnotation=returnAnno,
+                violationList=violations,
+                yieldSection=yieldSec,
+                violation=v404,
+                hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+            )
 
-            if len(yieldSec) > 0:
-                if returnAnno.annotation is None:
-                    msg = 'Return annotation does not exist or is not'
-                    msg += ' Generator[...]/Iterator[...]/Iterable[...],'
-                    msg += ' but docstring "yields" section has 1 type(s).'
-                    violations.append(v404.appendMoreMsg(moreMsg=msg))
+        return violations
+
+    def checkReturnAndYield(  # noqa: C901
+            self,
+            node: FuncOrAsyncFuncDef,
+            parent: ast.AST,
+            doc: Doc,
+    ) -> List[Violation]:
+        """
+        Check violations when a function has both `return` and `yield`
+        statements in it.
+        """
+        """
+        Here is an example of a Python function containing both `return` and
+        `yield` statements:
+
+        ```python
+        from typing import Generator
+        def my_function(num: int) -> Generator[int, None, str]:
+            for i in range(num):
+                yield i
+            return 'All numbers yielded!'
+        ```
+
+        For this function, the return section of the docstring should be:
+
+            Returns:
+                str: The return value
+
+        And the yield section of the docstring should be:
+
+            Yields:
+                int: The value being yielded
+        """
+
+        # Just a sanity check:
+        assert (hasYieldStatements(node) and hasReturnStatements(node)) is True
+
+        violations: List[Violation] = []
+
+        lineNum: int = node.lineno
+        msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
+
+        v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
+        v203 = Violation(code=203, line=lineNum, msgPrefix=msgPrefix)
+        v402 = Violation(code=402, line=lineNum, msgPrefix=msgPrefix)
+        v404 = Violation(code=404, line=lineNum, msgPrefix=msgPrefix)
+        v405 = Violation(code=405, line=lineNum, msgPrefix=msgPrefix)
+
+        docstringHasReturnSection: bool = doc.hasReturnsSection
+        docstringHasYieldsSection: bool = doc.hasYieldsSection
+
+        hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
+
+        # Check the return section in the docstring
+        if not docstringHasReturnSection:
+            if not self.skipCheckingShortDocstrings:
+                violations.append(v201)
+        else:
+            if self.checkReturnTypes:
+                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+                returnSec: List[ReturnArg] = doc.returnSection
+
+                if hasGenAsRetAnno:
+                    retTypeInGenerator: str = extractReturnTypeFromGenerator(
+                        returnAnnoText=returnAnno.annotation,
+                    )
+                    checkReturnTypesForViolations(
+                        style=self.style,
+                        returnAnnotation=ReturnAnnotation(retTypeInGenerator),
+                        violationList=violations,
+                        returnSection=returnSec,
+                        violation=v203,
+                    )
                 else:
-                    try:
-                        # "Yield type" is the 0th element in a Generator
-                        # type annotation (Generator[YieldType, SendType,
-                        # ReturnType])
-                        # https://docs.python.org/3/library/typing.html#typing.Generator
-                        # Or it's the 0th (only) element in Iterator
-                        yieldType: str
-
-                        if hasGenAsRetAnno:
-                            if sys.version_info >= (3, 9):
-                                yieldType = unparseAnnotation(
-                                    ast.parse(returnAnno.annotation)
-                                    .body[0]
-                                    .value.slice.elts[0]
-                                )
-                            else:
-                                yieldType = unparseAnnotation(
-                                    ast.parse(returnAnno.annotation)
-                                    .body[0]
-                                    .value.slice.value.elts[0]
-                                )
-                        elif hasIterAsRetAnno:
-                            yieldType = unparseAnnotation(
-                                ast.parse(returnAnno.annotation)
-                                .body[0]
-                                .value.slice
-                            )
-                        else:
-                            yieldType = returnAnno.annotation
-
-                    except Exception:
-                        yieldType = returnAnno.annotation
-
-                    if yieldSec[0].argType != yieldType:
-                        msg = (
-                            'The yield type (the 0th arg in Generator[...]'
-                            '/Iterator[...]): '
-                        )
-                        msg += str(yieldType) + '; '
-                        msg += 'docstring "yields" section types: '
-                        msg += str(yieldSec[0].argType)
-                        violations.append(v404.appendMoreMsg(moreMsg=msg))
+                    violations.append(v405)
             else:
-                if returnAnno.annotation != '':
-                    msg = 'Return annotation exists, but docstring'
-                    msg += ' "yields" section does not exist or has 0 type(s).'
-                    violations.append(v404.appendMoreMsg(moreMsg=msg))
+                if not hasGenAsRetAnno:
+                    violations.append(v405)
+
+        # Check the yield section in the docstring
+        if not docstringHasYieldsSection:
+            if not self.skipCheckingShortDocstrings:
+                violations.append(v402)
+        else:
+            if self.checkYieldTypes:
+                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+                yieldSec: List[YieldArg] = doc.yieldSection
+
+                if hasGenAsRetAnno or hasIterAsRetAnno:
+                    extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
+                    yieldType: str = extract(
+                        returnAnnoText=returnAnno.annotation,
+                        hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                    )
+                    checkYieldTypesForViolations(
+                        returnAnnotation=ReturnAnnotation(yieldType),
+                        violationList=violations,
+                        yieldSection=yieldSec,
+                        violation=v404,
+                        hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                    )
+                else:
+                    violations.append(v405)
+            else:
+                if not hasGenAsRetAnno or not hasIterAsRetAnno:
+                    violations.append(v405)
 
         return violations
 
