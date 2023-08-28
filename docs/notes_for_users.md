@@ -15,11 +15,10 @@
 Based on the best understanding of the authors of _pydoclint_, here are some
 reasons (this may not be an exhaustive list):
 
-- _pydoclint_ uses reputable official or 3rd party docstring parsers:
-  [numpydoc](https://github.com/numpy/numpydoc) and
-  [docstring_parser](https://github.com/rr-/docstring_parser)
-  - _darglint_ implements
-    [its own docstring parser](https://github.com/terrencepreilly/darglint/tree/abc26b768cd7135d848223ba53f68323593c33d5/darglint/parse)
+- _pydoclint_ uses reputable docstring parsers:
+  [docstring_parser](https://github.com/rr-/docstring_parser), while _darglint_
+  implements
+  [its own docstring parser](https://github.com/terrencepreilly/darglint/tree/abc26b768cd7135d848223ba53f68323593c33d5/darglint/parse)
 - _pydoclint_ uses a static syntax analyzer: Python's
   [official AST module](https://docs.python.org/3/library/ast.html)
   - On the other hand _darglint_ uses
