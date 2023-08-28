@@ -6,6 +6,13 @@
   - Relaxed Generator/Iterator checking: stop enforcing the return annotation
     to be Generator if a function yields something
     (https://github.com/jsh9/pydoclint/issues/76)
+  - Added handling of functions that both return something and yield something
+- Changed
+  - Used docstring_parser_fork to parse numpy-style docstrings, because the
+    official numpydoc doesn't support both Yields and Returns sections in a
+    single docstring
+- Removed
+  - Dependency on numpydoc
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.2.4...0.3.0
 
