@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.3.1] - 2023-08-28
+
+- Added
+
+  - Added an option `--require-yield-section-when-yielding-nothing` (defaulting
+    to `False`). When it's False, we don't need a "Yields" section when a
+    function yields None (https://github.com/jsh9/pydoclint/issues/79)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.0...0.3.1
+
 ## [0.3.0] - 2023-08-26
 
 - Improved

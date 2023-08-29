@@ -123,6 +123,7 @@ def checkYieldTypesForViolations(
         violation: Violation,
         hasGeneratorAsReturnAnnotation: bool,
         hasIteratorOrIterableAsReturnAnnotation: bool,
+        requireYieldSectionWhenYieldingNothing: bool,
 ) -> None:
     """Check yield types between function signature and docstring"""
     # Even though the numpy docstring guide demonstrates that we can
@@ -133,6 +134,11 @@ def checkYieldTypesForViolations(
     # to check and less ambiguous.
 
     returnAnnoText: Optional[str] = returnAnnotation.annotation
+    yieldType: str = extractYieldTypeFromGeneratorOrIteratorAnnotation(
+        returnAnnoText,
+        hasGeneratorAsReturnAnnotation,
+        hasIteratorOrIterableAsReturnAnnotation,
+    )
 
     if len(yieldSection) > 0:
         if returnAnnoText is None:
@@ -141,12 +147,6 @@ def checkYieldTypesForViolations(
             msg += ' but docstring "yields" section has 1 type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
         else:
-            yieldType: str = extractYieldTypeFromGeneratorOrIteratorAnnotation(
-                returnAnnoText,
-                hasGeneratorAsReturnAnnotation,
-                hasIteratorOrIterableAsReturnAnnotation,
-            )
-
             if yieldSection[0].argType != yieldType:
                 msg = (
                     'The yield type (the 0th arg in Generator[...]'
@@ -157,7 +157,18 @@ def checkYieldTypesForViolations(
                 msg += str(yieldSection[0].argType)
                 violationList.append(violation.appendMoreMsg(moreMsg=msg))
     else:
-        if returnAnnoText != '':
+        if (
+            (
+                hasGeneratorAsReturnAnnotation
+                or hasIteratorOrIterableAsReturnAnnotation
+            )
+            and yieldType == 'None'
+            and not requireYieldSectionWhenYieldingNothing
+        ):
+            # This means that we don't need to have a "Yields" section in the
+            # docstring if the yield type is None.
+            pass
+        elif returnAnnoText != '':
             msg = 'Return annotation exists, but docstring'
             msg += ' "yields" section does not exist or has 0 type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))

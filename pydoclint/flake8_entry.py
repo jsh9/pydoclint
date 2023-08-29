@@ -124,6 +124,17 @@ class Plugin:
             ),
         )
         parser.add_option(
+            '-rys',
+            '--require-yield-section-when-yielding-nothing',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If False, a yields section is not needed in docstring if'
+                ' the function yields None.'
+            ),
+        )
+        parser.add_option(
             '-cyt',
             '--check-yield-types',
             action='store',
@@ -152,6 +163,9 @@ class Plugin:
         )
         cls.require_return_section_when_returning_nothing = (
             options.require_return_section_when_returning_nothing
+        )
+        cls.require_yield_section_when_yielding_nothing = (
+            options.require_yield_section_when_yielding_nothing
         )
         cls.check_return_types = options.check_return_types
         cls.check_yield_types = options.check_yield_types
@@ -204,6 +218,10 @@ class Plugin:
             '--require-return-section-when-returning-nothing',
             self.require_return_section_when_returning_nothing,
         )
+        requireYieldSectionWhenYieldingNothing = self._bool(
+            '--require-yield-section-when-yielding-nothing',
+            self.require_yield_section_when_yielding_nothing,
+        )
         checkReturnTypes = self._bool(
             '--check-return-types',
             self.check_return_types,
@@ -227,6 +245,9 @@ class Plugin:
             allowInitDocstring=allowInitDocstring,
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
+            ),
+            requireYieldSectionWhenYieldingNothing=(
+                requireYieldSectionWhenYieldingNothing
             ),
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
