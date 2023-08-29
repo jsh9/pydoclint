@@ -164,6 +164,17 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-rys',
+    '--require-yield-section-when-yielding-nothing',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If False, a yields section is not needed in docstring if'
+        ' the function yields None.'
+    ),
+)
+@click.option(
     '-cyt',
     '--check-yield-types',
     type=bool,
@@ -225,6 +236,7 @@ def main(  # noqa: C901
         check_yield_types: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
+        require_yield_section_when_yielding_nothing: bool,
         config: Optional[str],  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
@@ -305,6 +317,9 @@ def main(  # noqa: C901
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
         ),
+        requireYieldSectionWhenYieldingNothing=(
+            require_yield_section_when_yielding_nothing
+        ),
     )
 
     violationCounter: int = 0
@@ -362,6 +377,7 @@ def _checkPaths(
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
+        requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
         exclude: str = '',
 ) -> Dict[str, List[Violation]]:
@@ -407,6 +423,9 @@ def _checkPaths(
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
+            requireYieldSectionWhenYieldingNothing=(
+                requireYieldSectionWhenYieldingNothing
+            ),
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -425,6 +444,7 @@ def _checkFile(
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
+        requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> List[Violation]:
     with open(filename, encoding='utf8') as fp:
         src: str = ''.join(fp.readlines())
@@ -442,6 +462,9 @@ def _checkFile(
         checkYieldTypes=checkYieldTypes,
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing
+        ),
+        requireYieldSectionWhenYieldingNothing=(
+            requireYieldSectionWhenYieldingNothing
         ),
     )
     visitor.visit(tree)

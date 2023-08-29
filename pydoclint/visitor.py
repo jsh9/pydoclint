@@ -52,6 +52,7 @@ class Visitor(ast.NodeVisitor):
             checkReturnTypes: bool = True,
             checkYieldTypes: bool = True,
             requireReturnSectionWhenReturningNothing: bool = False,
+            requireYieldSectionWhenYieldingNothing: bool = False,
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -64,6 +65,9 @@ class Visitor(ast.NodeVisitor):
         self.checkYieldTypes: bool = checkYieldTypes
         self.requireReturnSectionWhenReturningNothing: bool = (
             requireReturnSectionWhenReturningNothing
+        )
+        self.requireYieldSectionWhenYieldingNothing: bool = (
+            requireYieldSectionWhenYieldingNothing
         )
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
@@ -581,9 +585,30 @@ class Visitor(ast.NodeVisitor):
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
         noGenNorIterAsRetAnno = not hasGenAsRetAnno and not hasIterAsRetAnno
 
+        if hasGenAsRetAnno or hasIterAsRetAnno:
+            returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+        else:
+            # We don't check other return annotations here, because they
+            # are checked above, in `checkReturns()`.
+            returnAnno = ReturnAnnotation(None)
+
         if not docstringHasYieldsSection:
+            yieldType: str = extractYieldTypeFromGeneratorOrIteratorAnnotation(
+                returnAnnoText=returnAnno.annotation,
+                hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+            )
             if hasYieldStmt:
-                violations.append(v402)
+                if (
+                    yieldType == 'None'
+                    and not self.requireYieldSectionWhenYieldingNothing
+                ):
+                    # This means that people don't need to add a "Yields"
+                    # section in the docstring, if the yield type in the
+                    # signature's return annotation is None.
+                    pass
+                else:
+                    violations.append(v402)
 
         if docstringHasYieldsSection:
             if not hasYieldStmt or noGenNorIterAsRetAnno:
@@ -591,13 +616,6 @@ class Visitor(ast.NodeVisitor):
                     violations.append(v403)
 
         if hasYieldStmt and self.checkYieldTypes:
-            if hasGenAsRetAnno or hasIterAsRetAnno:
-                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
-            else:
-                # We don't check other return annotations here, because they
-                # are checked above, in `checkReturns()`.
-                returnAnno = ReturnAnnotation(None)
-
             if docstringHasYieldsSection:
                 yieldSec: List[YieldArg] = doc.yieldSection
             else:
@@ -610,6 +628,9 @@ class Visitor(ast.NodeVisitor):
                 violation=v404,
                 hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                requireYieldSectionWhenYieldingNothing=(
+                    self.requireYieldSectionWhenYieldingNothing
+                ),
             )
 
         return violations
@@ -667,15 +688,40 @@ class Visitor(ast.NodeVisitor):
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
 
+        hasReturnStmt: bool = hasReturnStatements(node)
+        hasYieldStmt: bool = hasYieldStatements(node)
+        onlyHasYieldStmt: bool = hasYieldStmt and not hasReturnStmt
+        hasReturnAnno: bool = hasReturnAnnotation(node)
+
+        returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+        returnSec: List[ReturnArg] = doc.returnSection
+
         # Check the return section in the docstring
         if not docstringHasReturnSection:
-            if not self.skipCheckingShortDocstrings:
-                violations.append(v201)
+            if doc.isShortDocstring and self.skipCheckingShortDocstrings:
+                pass
+            else:
+                if (
+                    # fmt: off
+                    not (onlyHasYieldStmt and hasIterAsRetAnno)
+                    and (hasReturnStmt or (
+                        hasReturnAnno and not hasGenAsRetAnno
+                    ))
+
+                    # fmt: on
+                ):
+                    retTypeInGenerator: str = extractReturnTypeFromGenerator(
+                        returnAnnoText=returnAnno.annotation,
+                    )
+                    # If "Generator[...]" is put in the return type annotation,
+                    # we don't need a "Returns" section in the docstring. Instead,
+                    # we need a "Yields" section.
+                    if self.requireReturnSectionWhenReturningNothing:
+                        violations.append(v201)
+                    elif retTypeInGenerator not in {'None', 'NoReturn'}:
+                        violations.append(v201)
         else:
             if self.checkReturnTypes:
-                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
-                returnSec: List[ReturnArg] = doc.returnSection
-
                 if hasGenAsRetAnno:
                     retTypeInGenerator: str = extractReturnTypeFromGenerator(
                         returnAnnoText=returnAnno.annotation,
@@ -716,6 +762,9 @@ class Visitor(ast.NodeVisitor):
                         violation=v404,
                         hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                         hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                        requireYieldSectionWhenYieldingNothing=(
+                            self.requireYieldSectionWhenYieldingNothing
+                        ),
                     )
                 else:
                     violations.append(v405)

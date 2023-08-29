@@ -81,3 +81,48 @@ def func7(text: str) -> NoReturn:
         Text for the function
     """
     exit(1)
+
+
+def func8(num: int) -> Generator[None, None, None]:
+    """
+    Do something
+
+    Parameters
+    ----------
+    num : int
+        A number
+    """
+    for i in range(num):
+        yield i
+
+    return 'All numbers yielded!'
+
+
+def func9(num: int) -> Generator[None, None, NoReturn]:
+    """
+    Do something
+
+    Parameters
+    ----------
+    num : int
+        A number
+    """
+    for i in range(num):
+        yield i
+
+    return 'All numbers yielded!'
+
+
+def func10(num: int) -> Generator[bool, None, str]:
+    """
+    Do something
+
+    Parameters
+    ----------
+    num : int
+        A number
+    """
+    for i in range(num):
+        yield i
+
+    return 'All numbers yielded!'

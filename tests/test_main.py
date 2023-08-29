@@ -795,15 +795,61 @@ def testNoReturnSection(
             'DOC201: Function `func4` does not have a return section in docstring ',
             'DOC201: Function `func5` does not have a return section in docstring ',
             'DOC201: Function `func7` does not have a return section in docstring ',
+            'DOC201: Function `func8` does not have a return section in docstring ',
+            'DOC201: Function `func9` does not have a return section in docstring ',
+            'DOC201: Function `func10` does not have a return section in docstring ',
         ],
         False: [
             'DOC201: Function `func2` does not have a return section in docstring ',
             'DOC201: Function `func3` does not have a return section in docstring ',
             'DOC201: Function `func4` does not have a return section in docstring ',
             'DOC201: Function `func5` does not have a return section in docstring ',
+            'DOC201: Function `func10` does not have a return section in docstring ',
         ],
     }
     assert list(map(str, violations)) == expected_lookup[rrs]
+
+
+@pytest.mark.parametrize(
+    'style, rys',
+    itertools.product(
+        ['google', 'numpy', 'sphinx'],
+        [False, True],
+    ),
+)
+def testNoYieldSection(style: str, rys: bool) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/no_yield_section/cases.py',
+        style=style,
+        requireYieldSectionWhenYieldingNothing=rys,
+    )
+    expected_lookup = {
+        True: [
+            'DOC402: Function `func1` has "yield" statements, but the docstring does not '
+            'have a "Yields" section ',
+            'DOC404: Function `func1` yield type(s) in docstring not consistent with the '
+            'return annotation. Return annotation exists, but docstring "yields" section '
+            'does not exist or has 0 type(s).',
+            'DOC402: Function `func2` has "yield" statements, but the docstring does not '
+            'have a "Yields" section ',
+            'DOC404: Function `func2` yield type(s) in docstring not consistent with the '
+            'return annotation. Return annotation exists, but docstring "yields" section '
+            'does not exist or has 0 type(s).',
+            'DOC402: Function `func3` has "yield" statements, but the docstring does not '
+            'have a "Yields" section ',
+            'DOC404: Function `func3` yield type(s) in docstring not consistent with the '
+            'return annotation. Return annotation exists, but docstring "yields" section '
+            'does not exist or has 0 type(s).',
+        ],
+        False: [
+            'DOC402: Function `func3` has "yield" statements, but the docstring does not '
+            'have a "Yields" section ',
+            'DOC404: Function `func3` yield type(s) in docstring not consistent with the '
+            'return annotation. Return annotation exists, but docstring "yields" section '
+            'does not exist or has 0 type(s).',
+        ],
+    }
+    assert list(map(str, violations)) == expected_lookup[rys]
 
 
 @pytest.mark.parametrize(
@@ -1061,7 +1107,7 @@ def testPlayground() -> None:
     """
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
-        style='numpy',
+        style='google',
     )
     expected = []
     assert list(map(str, violations)) == expected
