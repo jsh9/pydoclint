@@ -50,8 +50,17 @@ serves complementary purposes. It is recommended that you use both together.
 
 ## 1. Installation
 
+To install only the native _pydoclint_ tooling, run this command:
+
 ```
 pip install pydoclint
+```
+
+To use _pydoclint_ as a _flake8_ plugin, please run this command, which will
+also install _flake8_ to the current Python environment:
+
+```
+pip install pydoclint[flake8]
 ```
 
 Note that _pydoclint_ currently only supports Python 3.8 and above. (Python 3.7
