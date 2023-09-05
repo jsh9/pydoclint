@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.3.2] - 2023-09-04
+
+- Changed
+
+  - Make `flake8` an optional dependency
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.1...0.3.2
+
 ## [0.3.1] - 2023-08-28
 
 - Added
