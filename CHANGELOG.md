@@ -4,7 +4,7 @@
 
 - Changed
 
-  - Make `flake8` an optional dependencc
+  - Make `flake8` an optional dependency
 
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.1...0.3.2
