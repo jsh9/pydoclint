@@ -22,6 +22,7 @@ For detailed explanations of all options, please read this page:
 ## 2. Specifying options in a configuration file
 
 - Native:
+  - default value for `--config` option is `pyproject.toml`. All options are automatically read from there.
 
   - In a `.toml` file somewhere in your project folder, add a section like this
     (put in the config that you need):
