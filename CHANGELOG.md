@@ -10,6 +10,7 @@
     2. `--baseline <PATH>` Specify path to file with baseline content.
 
 - Changed
+
   - For the `--config` option, the default value is now `pyproject.toml`.
 
 - Full diff
