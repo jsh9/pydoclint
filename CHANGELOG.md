@@ -12,6 +12,9 @@
 - Changed
   - For the `--config` option, the default value is now `pyproject.toml`.
 
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.2...0.3.3
+
 ## [0.3.2] - 2023-09-04
 
 - Changed
