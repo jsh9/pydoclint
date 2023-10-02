@@ -201,7 +201,9 @@ def validateStyleValue(
         allow_dash=True,
     ),
     help=(
-        'If specified, checks all errors according to the file, and ignores old errors.'
+        'The file name containing the existing violations (the "baseline").'
+        ' If specified, only new violations will be reported, and the'
+        ' violations in the baseline file are ignored.'
     ),
 )
 @click.option(
@@ -210,7 +212,8 @@ def validateStyleValue(
     show_default=True,
     default=False,
     help=(
-        'If True, generates a new baseline file that was specified by the --baseline option'
+        'If True, generates a new baseline file. (The name of the baseline'
+        ' file should be specified by the --baseline option.)'
     ),
 )
 @click.argument(
