@@ -111,10 +111,13 @@ Here's comparison:
 
 |                 | Pros                                     | Cons                                                          |
 | --------------- | ---------------------------------------- | ------------------------------------------------------------- |
-| Native tool     | Slightly faster                          | No inline or project-wide omission support right now [*]      |
+| Native tool     | Slightly faster; supports "baseline" [*] | No inline or project-wide omission support right now [**]     |
 | _flake8_ plugin | Supports inline or project-wide omission | Slightly slower because other flake8 plugins are run together |
 
-\*) This feature may be added in the near future
+\*) "Baseline" allows you to log the current violation state of your existing
+project, making adoption of _pydoclint_ much easier.
+
+\*\*) This feature may be added in the near future
 
 ### 2.5. How to configure _pydoclint_
 
