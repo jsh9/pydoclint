@@ -337,8 +337,8 @@ def main(  # noqa: C901
 
     # it means users supply this option
     if baseline is not None:
-        baseline_path = Path(baseline)
-        if not (generate_baseline or baseline_path.exists()):
+        baselinePath = Path(baseline)
+        if not (generate_baseline or baselinePath.exists()):
             click.echo(
                 click.style(
                     "The baseline file was specified but it doesn't exist.\n"
@@ -384,7 +384,7 @@ def main(  # noqa: C901
             )
             ctx.exit(1)
 
-        generateBaseline(violationsInAllFiles, baseline_path)
+        generateBaseline(violationsInAllFiles, baselinePath)
         click.echo(
             click.style(
                 'Baseline file was sucessfuly generated', fg='green', bold=True
@@ -394,7 +394,7 @@ def main(  # noqa: C901
         ctx.exit(0)
 
     if baseline is not None:
-        parsedBaseline = parseBaseline(baseline_path)
+        parsedBaseline = parseBaseline(baselinePath)
         (
             baselineRegenerationNeeded,
             violationsInAllFiles,
@@ -402,7 +402,8 @@ def main(  # noqa: C901
         if baselineRegenerationNeeded:
             click.echo(
                 click.style(
-                    'Some old violations was fixed. Please regenerate your baseline file after fixing new problems.\n'
+                    'Some old violations was fixed. Please regenerate'
+                    ' your baseline file after fixing new problems.\n'
                     'Use option --generate-baseline True',
                     fg='red',
                     bold=True,
