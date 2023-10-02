@@ -5,10 +5,9 @@
 - Added
 
   - Added baseline file integration and 2 options:
-    1. `--generate-baseline True`  
-      Generate baseline content, and write it to a file specified from `--baseline` option path.
-    2. `--baseline <PATH>`  
-      Specify path to file with baseline content.
+    1. `--generate-baseline True` Generate baseline content, and write it to a
+       file specified from `--baseline` option path.
+    2. `--baseline <PATH>` Specify path to file with baseline content.
 
 - Changed
   - For the `--config` option, the default value is now `pyproject.toml`.

@@ -159,25 +159,31 @@ If True, check that the type(s) in the docstring "yields" section and the
 return annotation in the function signature are consistent.
 
 ## 12. `--baseline`
-Baseline allows you to remember the current project state and then show only new errors, ignoring old ones.
 
-The path to the file is expected.
-It is recommended to add this option to config file. (Default is `pyproject.toml`)
+Baseline allows you to remember the current project state and then show only
+new errors, ignoring old ones.
+
+The path to the file is expected. It is recommended to add this option to
+config file. (Default is `pyproject.toml`)
+
 ```toml
 [tool.pydoclint]
 baseline = "pydoclint-baseline.txt"
 ```
 
-if `--generate-baseline True` is passed, then pydoclint generate file, that contains all current errors of project.  
-If `--generate-baseline` is not passed (default value is `False`) then pydoclint will read your baseline file, and ignore all errors, specified in that file.  
+if `--generate-baseline True` is passed, then pydoclint generate file, that
+contains all current errors of project. If `--generate-baseline` is not passed
+(default value is `False`) then pydoclint will read your baseline file, and
+ignore all errors, specified in that file.
 
 ## 13. `--generate-baseline` (default: `False`)
 
-Required to use with `--baseline` option.
-If `True`, generate file, that contains all current errors of project.
+Required to use with `--baseline` option. If `True`, generate file, that
+contains all current errors of project.
 
 ## 14. `--config` (default: `pyproject.toml`)
-The full path of the .toml config file that contains the config options.  
-Note that the command line options take precedence over the .toml file.  
-Look at this page:
+
+The full path of the .toml config file that contains the config options. Note
+that the command line options take precedence over the .toml file. Look at this
+page:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html)
