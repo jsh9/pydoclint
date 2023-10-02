@@ -1,7 +1,8 @@
 # pydoclint
 
-A Python docstring linter to check whether a docstring's sections (arguments,
-returns, raises, ...) match the function signature or function implementation.
+[_Pydoclint_](https://github.com/jsh9/pydoclint) is a Python docstring linter
+to check whether a docstring's sections (arguments, returns, raises, ...) match
+the function signature or function implementation.
 
 It runs really fast. In fact, it can be thousands of times faster than
 [darglint](https://github.com/terrencepreilly/darglint) (or its maintained fork
