@@ -6,6 +6,11 @@ from typing import Dict, List, Optional, Tuple
 import click
 
 from pydoclint import __version__
+from pydoclint.baseline import (
+    generateBaseline,
+    parseBaseline,
+    removeBaselineViolations,
+)
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
@@ -185,6 +190,32 @@ def validateStyleValue(
         ' the return annotation in the function signature are consistent'
     ),
 )
+@click.option(
+    '--baseline',
+    type=click.Path(
+        exists=False,
+        file_okay=True,
+        dir_okay=False,
+        readable=True,
+        writable=True,
+        allow_dash=True,
+    ),
+    help=(
+        'The file name containing the existing violations (the "baseline").'
+        ' If specified, only new violations will be reported, and the'
+        ' violations in the baseline file are ignored.'
+    ),
+)
+@click.option(
+    '--generate-baseline',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, generates a new baseline file. (The name of the baseline'
+        ' file should be specified by the --baseline option.)'
+    ),
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -200,7 +231,7 @@ def validateStyleValue(
 @click.option(
     '--config',
     type=click.Path(
-        exists=True,
+        exists=False,
         file_okay=True,
         dir_okay=False,
         readable=True,
@@ -209,6 +240,7 @@ def validateStyleValue(
     ),
     is_eager=True,
     callback=injectDefaultOptionsFromUserSpecifiedTomlFilePath,
+    default='pyproject.toml',
     help=(
         'The full path of the .toml config file that contains the config'
         ' options; note that the command line options take precedence'
@@ -237,6 +269,8 @@ def main(  # noqa: C901
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
+        generate_baseline: bool,
+        baseline: str,
         config: Optional[str],  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
@@ -301,6 +335,21 @@ def main(  # noqa: C901
         )
         ctx.exit(1)
 
+    # it means users supply this option
+    if baseline is not None:
+        baselinePath = Path(baseline)
+        if not (generate_baseline or baselinePath.exists()):
+            click.echo(
+                click.style(
+                    "The baseline file was specified but it doesn't exist.\n"
+                    'Use --generate-baseline True to generate it.',
+                    fg='red',
+                    bold=True,
+                ),
+                err=echoAsError,
+            )
+            ctx.exit(1)
+
     violationsInAllFiles: Dict[str, List[Violation]] = _checkPaths(
         quiet=quiet,
         exclude=exclude,
@@ -321,6 +370,46 @@ def main(  # noqa: C901
             require_yield_section_when_yielding_nothing
         ),
     )
+
+    if generate_baseline:
+        if baseline is None:
+            click.echo(
+                click.style(
+                    'The baseline file was not specified. '
+                    'Use --baseline option or specify it in your config file',
+                    fg='red',
+                    bold=True,
+                ),
+                err=echoAsError,
+            )
+            ctx.exit(1)
+
+        generateBaseline(violationsInAllFiles, baselinePath)
+        click.echo(
+            click.style(
+                'Baseline file was sucessfuly generated', fg='green', bold=True
+            ),
+            err=echoAsError,
+        )
+        ctx.exit(0)
+
+    if baseline is not None:
+        parsedBaseline = parseBaseline(baselinePath)
+        (
+            baselineRegenerationNeeded,
+            violationsInAllFiles,
+        ) = removeBaselineViolations(parsedBaseline, violationsInAllFiles)
+        if baselineRegenerationNeeded:
+            click.echo(
+                click.style(
+                    'Some old violations was fixed. Please regenerate'
+                    ' your baseline file after fixing new problems.\n'
+                    'Use option --generate-baseline True',
+                    fg='red',
+                    bold=True,
+                ),
+                err=echoAsError,
+            )
 
     violationCounter: int = 0
     if len(violationsInAllFiles) > 0:

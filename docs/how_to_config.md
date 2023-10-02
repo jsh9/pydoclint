@@ -39,6 +39,9 @@ For detailed explanations of all options, please read this page:
     pydoclint --config=path/to/my/config.toml <FILE_OR_FOLDER_PATH>
     ```
 
+  - Note: the default value for `--config` option is `pyproject.toml` (in the
+    root directory of your project) if you do not specify the config file name.
+
 - Flake8:
   - In your flake8 config file (see
     [flake8's official doc](https://flake8.pycqa.org/en/latest/user/configuration.html#configuration-locations)),

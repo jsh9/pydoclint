@@ -1,5 +1,21 @@
 # Change Log
 
+## [0.3.3] - 2023-10-01
+
+- Added
+
+  - Added baseline file integration and 2 options:
+    1. `--generate-baseline True` Generate baseline content, and write it to a
+       file specified from `--baseline` option path.
+    2. `--baseline <PATH>` Specify path to file with baseline content.
+
+- Changed
+
+  - For the `--config` option, the default value is now `pyproject.toml`.
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.2...0.3.3
+
 ## [0.3.2] - 2023-09-04
 
 - Changed
