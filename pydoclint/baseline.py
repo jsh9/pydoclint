@@ -9,7 +9,7 @@ SEPARATOR = '--------------------\n'
 
 def generateBaseline(
         violationsInAllFiles: Dict[str, List[Violation]], path: Path
-):
+) -> None:
     """Generate baseline file based of passed violations."""
     with path.open('w', encoding='utf-8') as baseline:
         for file, violations in violationsInAllFiles.items():
@@ -38,11 +38,14 @@ def parseBaseline(path: Path) -> Dict[str, Set[str]]:
         return parsed
 
 
-def clearAllFilesViolations(
+def removeBaselineViolations(
         baseline: Dict[str, Set[str]],
         violationsInAllFiles: Dict[str, List[Violation]],
 ) -> Tuple[bool, Dict[str, List[Violation]]]:
-    """Remove from the violation dictionary the already existing violations specified in the baseline file."""
+    """
+    Remove from the violation dictionary the already existing violations
+    specified in the baseline file.
+    """
     baselineRegenerationNeeded = False
     clearedViolationsAllFiles: Dict[str, List[Violation]] = {}
     for file, violations in violationsInAllFiles.items():

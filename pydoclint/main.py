@@ -7,9 +7,9 @@ import click
 
 from pydoclint import __version__
 from pydoclint.baseline import (
-    clearAllFilesViolations,
     generateBaseline,
     parseBaseline,
+    removeBaselineViolations,
 )
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
@@ -398,7 +398,7 @@ def main(  # noqa: C901
         (
             baselineRegenerationNeeded,
             violationsInAllFiles,
-        ) = clearAllFilesViolations(parsedBaseline, violationsInAllFiles)
+        ) = removeBaselineViolations(parsedBaseline, violationsInAllFiles)
         if baselineRegenerationNeeded:
             click.echo(
                 click.style(

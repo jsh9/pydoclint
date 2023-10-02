@@ -4,9 +4,9 @@ from pathlib import Path
 import pytest
 
 from pydoclint.baseline import (
-    clearAllFilesViolations,
     generateBaseline,
     parseBaseline,
+    removeBaselineViolations,
 )
 from pydoclint.main import _checkPaths
 from tests.test_main import DATA_DIR, pythonVersionBelow310
@@ -36,7 +36,7 @@ def testBaselineCreation(baselineFile, style: str):
     (
         baselineRegenerationNeeded,
         clearedViolations,
-    ) = clearAllFilesViolations(parsedBaseline, violationsInAllFiles)
+    ) = removeBaselineViolations(parsedBaseline, violationsInAllFiles)
     assert baselineRegenerationNeeded is False
     assert clearedViolations == {}
 
@@ -84,7 +84,7 @@ def testBaselineNewViolations(baselineFile, violationsFile: Path):
     newViolationsInAllFiles = _checkPaths(
         (violationsFile,), exclude=EXCLUDE_PATTERN
     )
-    baselineRegenerationNeeded, clearedViolations = clearAllFilesViolations(
+    baselineRegenerationNeeded, clearedViolations = removeBaselineViolations(
         parsedBaseline, newViolationsInAllFiles
     )
 
@@ -112,7 +112,7 @@ def testBaselineRegenerationNeeded(baselineFile, tmpFile: Path):
         pass
 
     newViolationsInAllFiles = _checkPaths((tmpFile,), exclude=EXCLUDE_PATTERN)
-    baselineRegenerationNeeded, clearedViolations = clearAllFilesViolations(
+    baselineRegenerationNeeded, clearedViolations = removeBaselineViolations(
         parsedBaseline, newViolationsInAllFiles
     )
 
