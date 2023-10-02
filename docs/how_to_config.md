@@ -23,9 +23,6 @@ For detailed explanations of all options, please read this page:
 
 - Native:
 
-  - default value for `--config` option is `pyproject.toml`. All options are
-    automatically read from there.
-
   - In a `.toml` file somewhere in your project folder, add a section like this
     (put in the config that you need):
 
@@ -41,6 +38,9 @@ For detailed explanations of all options, please read this page:
     ```bash
     pydoclint --config=path/to/my/config.toml <FILE_OR_FOLDER_PATH>
     ```
+
+  - Note: the default value for `--config` option is `pyproject.toml` (in the
+    root directory of your project) if you do not specify the config file name.
 
 - Flake8:
   - In your flake8 config file (see
