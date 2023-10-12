@@ -1094,7 +1094,7 @@ def testNonAscii() -> None:
                 'arguments. (Or could be other formatting issues: '
                 'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
                 'Arguments in the function signature but not in the docstring: [x: int].',
-            ]
+            ],
         ),
     ],
 )

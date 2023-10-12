@@ -243,10 +243,10 @@ class ArgList:
         if checkTypeHint:
             return set(self.infoList) - set(other.infoList)
 
-        argNamesSelf = set(_.name for _ in self.infoList)
-        argNamesOther = set(_.name for _ in other.infoList)
+        argNamesSelf = {_.name for _ in self.infoList}
+        argNamesOther = {_.name for _ in other.infoList}
         diffArgName = argNamesSelf - argNamesOther
-        return set(Arg(name=_, typeHint=self.lookup[_]) for _ in diffArgName)
+        return {Arg(name=_, typeHint=self.lookup[_]) for _ in diffArgName}
 
     def noTypeHints(self) -> bool:
         """Check whether none of the args have type hints"""
