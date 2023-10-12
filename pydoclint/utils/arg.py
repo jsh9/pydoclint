@@ -238,9 +238,15 @@ class ArgList:
 
         return verdict  # noqa: R504
 
-    def subtract(self, other: 'ArgList') -> Set[Arg]:
+    def subtract(self, other: 'ArgList', checkTypeHint=True) -> Set[Arg]:
         """Find the args that are in this object but not in `other`."""
-        return set(self.infoList) - set(other.infoList)
+        if checkTypeHint:
+            return set(self.infoList) - set(other.infoList)
+
+        argNamesSelf = {_.name for _ in self.infoList}
+        argNamesOther = {_.name for _ in other.infoList}
+        diffArgName = argNamesSelf - argNamesOther
+        return {Arg(name=_, typeHint=self.lookup[_]) for _ in diffArgName}
 
     def noTypeHints(self) -> bool:
         """Check whether none of the args have type hints"""
