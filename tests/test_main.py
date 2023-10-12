@@ -718,9 +718,9 @@ def testStarsInArgumentList(style: str) -> None:
         'function signature. ',
         'DOC103: Function `func7`: Docstring arguments are different from function '
         'arguments. (Or could be other formatting issues: '
-        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
-        'docstring: [**kwargs: , *args: , arg1: float, arg2: str]. Arguments in the '
-        'docstring but not in the function signature: [arg1: int, arg2: dict].',
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Arguments in the function signature but not in the docstring: [**kwargs: , '
+        '*args: ].',
     ]
     assert list(map(str, violations)) == expected
 
@@ -1084,6 +1084,18 @@ def testNonAscii() -> None:
         ('05_escape_char/google.py', {'style': 'google'}, []),
         ('05_escape_char/numpy.py', {'style': 'numpy'}, []),
         ('05_escape_char/sphinx.py', {'style': 'sphinx'}, []),
+        (
+            '06_no_type_hints_in_doc/numpy.py',
+            {'style': 'numpy', 'argTypeHintsInDocstring': False},
+            [
+                'DOC101: Function `f`: Docstring contains fewer arguments than in function '
+                'signature. ',
+                'DOC103: Function `f`: Docstring arguments are different from function '
+                'arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [x: int].',
+            ]
+        ),
     ],
 )
 def testEdgeCases(

@@ -421,8 +421,14 @@ class Visitor(ast.NodeVisitor):
                 violations.append(v104)
                 violations.append(v105)
             else:
-                argsInFuncNotInDoc: Set[Arg] = funcArgs.subtract(docArgs)
-                argsInDocNotInFunc: Set[Arg] = docArgs.subtract(funcArgs)
+                argsInFuncNotInDoc: Set[Arg] = funcArgs.subtract(
+                    docArgs,
+                    checkTypeHint=False,
+                )
+                argsInDocNotInFunc: Set[Arg] = docArgs.subtract(
+                    funcArgs,
+                    checkTypeHint=False,
+                )
 
                 msgPostfixParts: List[str] = []
                 if argsInFuncNotInDoc:
