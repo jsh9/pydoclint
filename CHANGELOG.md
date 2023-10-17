@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.3.4] - 2023-10-12
+
+- Changed
+
+  - Don't check type hints for DOC103
+    (https://github.com/jsh9/pydoclint/pull/86)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.3...0.3.4
+
 ## [0.3.3] - 2023-10-01
 
 - Added
