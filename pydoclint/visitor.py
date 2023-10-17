@@ -51,6 +51,7 @@ class Visitor(ast.NodeVisitor):
             allowInitDocstring: bool = False,
             checkReturnTypes: bool = True,
             checkYieldTypes: bool = True,
+            ignoreUnderscoreArgs: bool = True,
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
     ) -> None:
@@ -63,6 +64,7 @@ class Visitor(ast.NodeVisitor):
         self.allowInitDocstring: bool = allowInitDocstring
         self.checkReturnTypes: bool = checkReturnTypes
         self.checkYieldTypes: bool = checkYieldTypes
+        self.ignoreUnderscoreArgs: bool = ignoreUnderscoreArgs
         self.requireReturnSectionWhenReturningNothing: bool = (
             requireReturnSectionWhenReturningNothing
         )
@@ -360,6 +362,15 @@ class Visitor(ast.NodeVisitor):
 
         docArgs: ArgList = doc.argList
         funcArgs: ArgList = ArgList([Arg.fromAstArg(_) for _ in astArgList])
+
+        if self.ignoreUnderscoreArgs:
+            # Ignore underscore arguments (such as _, __, ___, ...).
+            # This is because these arguments are only placeholders and do not
+            # need to be explained in the docstring.  (This is often used in
+            # functions that must accept a certain number of input arguments.)
+            funcArgs = ArgList(
+                [_ for _ in funcArgs.infoList if set(_.name) != {'_'}]
+            )
 
         if docArgs.length == 0 and funcArgs.length == 0:
             return []

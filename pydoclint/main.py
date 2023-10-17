@@ -191,6 +191,17 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '--iua',
+    '--ignore-underscore-args',
+    type=bool,
+    show_default=True,
+    default=True,
+    help=(
+        'If True, underscore arguments (such as _, __, ...) in the function'
+        ' signature do not need to appear in the docstring.'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -266,6 +277,7 @@ def main(  # noqa: C901
         allow_init_docstring: bool,
         check_return_types: bool,
         check_yield_types: bool,
+        ignore_underscore_args: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
@@ -363,6 +375,7 @@ def main(  # noqa: C901
         allowInitDocstring=allow_init_docstring,
         checkReturnTypes=check_return_types,
         checkYieldTypes=check_yield_types,
+        ignoreUnderscoreArgs=ignore_underscore_args,
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
         ),
@@ -465,6 +478,7 @@ def _checkPaths(
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
+        ignoreUnderscoreArgs: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
@@ -509,6 +523,7 @@ def _checkPaths(
             allowInitDocstring=allowInitDocstring,
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
+            ignoreUnderscoreArgs=ignoreUnderscoreArgs,
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
@@ -532,6 +547,7 @@ def _checkFile(
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
+        ignoreUnderscoreArgs: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> List[Violation]:
@@ -549,6 +565,7 @@ def _checkFile(
         allowInitDocstring=allowInitDocstring,
         checkReturnTypes=checkReturnTypes,
         checkYieldTypes=checkYieldTypes,
+        ignoreUnderscoreArgs=ignoreUnderscoreArgs,
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing
         ),
