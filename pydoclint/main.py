@@ -191,7 +191,7 @@ def validateStyleValue(
     ),
 )
 @click.option(
-    '--iua',
+    '-iua',
     '--ignore-underscore-args',
     type=bool,
     show_default=True,
