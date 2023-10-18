@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.3.6] - 2023-10-18
+
+- Fixed
+
+  - Updated dependency (docstring_parser_fork) to 0.0.5 to fix issues when
+    parsing Google-style return section
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.5...0.3.6
+
 ## [0.3.5] - 2023-10-17
 
 - Changed
