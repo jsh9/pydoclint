@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.3.5] - 2023-10-17
+
+- Changed
+
+  - When checking for consistency betwene the docstring arguments and the
+    arguments in the function signature, ignore underscore arguments (`_`,
+    `__`, `___`, ...) in the arguments in the function signature
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.4...0.3.5
+
 ## [0.3.4] - 2023-10-12
 
 - Changed

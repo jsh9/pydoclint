@@ -145,6 +145,17 @@ class Plugin:
                 ' the return annotation in the function signature are consistent'
             ),
         )
+        parser.add_option(
+            '-iua',
+            '--ignore-underscore-args',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, underscore arguments (such as _, __, ...) in the function'
+                ' signature do not need to appear in the docstring.'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
@@ -169,6 +180,7 @@ class Plugin:
         )
         cls.check_return_types = options.check_return_types
         cls.check_yield_types = options.check_yield_types
+        cls.ignore_underscore_args = options.ignore_underscore_args
         cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
@@ -230,6 +242,10 @@ class Plugin:
             '--check-yield-types',
             self.check_yield_types,
         )
+        ignoreUnderscoreArgs = self._bool(
+            '--ignore-underscore-args',
+            self.ignore_underscore_args,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -251,6 +267,7 @@ class Plugin:
             ),
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
+            ignoreUnderscoreArgs=ignoreUnderscoreArgs,
             style=self.style,
         )
         v.visit(self._tree)

@@ -1096,6 +1096,21 @@ def testNonAscii() -> None:
                 'Arguments in the function signature but not in the docstring: [x: int].',
             ],
         ),
+        ('07_underscore_args/google.py', {'style': 'google'}, []),
+        ('07_underscore_args/numpy.py', {'style': 'numpy'}, []),
+        ('07_underscore_args/sphinx.py', {'style': 'sphinx'}, []),
+        (
+            '07_underscore_args/google_with_violations.py',
+            {'style': 'google'},
+            [
+                'DOC101: Function `foo`: Docstring contains fewer arguments than in function '
+                'signature. ',
+                'DOC103: Function `foo`: Docstring arguments are different from function '
+                'arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [c: list].',
+            ],
+        ),
     ],
 )
 def testEdgeCases(
