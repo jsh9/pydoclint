@@ -100,7 +100,7 @@ set up as a hook with the following `.pre-commit-config.yaml` configuration:
   hooks:
     - id: pydoclint
       args:
-        - "--config=pyproject.toml"
+        - [--style=google, --check-return-types=False]
 ```
 
 You will need to install `pre-commit` and run `pre-commit install`.

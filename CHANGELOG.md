@@ -1,5 +1,10 @@
 # Change Log
 
+## [Unpublished]
+
+- Changed
+  - Improved documentation
+
 ## [0.3.6] - 2023-10-18
 
 - Fixed

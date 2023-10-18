@@ -14,7 +14,7 @@ page:
 - [1. `--quiet` (shortform: `-q`)](#1---quiet-shortform--q)
 - [2. `--exclude`](#2---exclude)
 - [3. `--style`](#3---style)
-- [4. `--type-hints-in-docstring` and `--type-hints-in-signature`](#4---type-hints-in-docstring-and---type-hints-in-signature)
+- [4. `--arg-type-hints-in-docstring` and `--arg-type-hints-in-signature`](#4---arg-type-hints-in-docstring-and---arg-type-hints-in-signature)
 - [5. `--check-arg-order` (shortform: `-ao`, default: `True`)](#5---check-arg-order-shortform--ao-default-true)
 - [6. `--skip-checking-short-docstrings` (shortform: `-scsd`, default: `True`)](#6---skip-checking-short-docstrings-shortform--scsd-default-true)
 - [7. `--skip-checking-raises` (shortform: `-scr`, default: `False`)](#7---skip-checking-raises-shortform--scr-default-false)
@@ -74,26 +74,28 @@ or
 flake8 --style=google <FILE_OR_FOLDER>
 ```
 
-## 4. `--type-hints-in-docstring` and `--type-hints-in-signature`
+## 4. `--arg-type-hints-in-docstring` and `--arg-type-hints-in-signature`
 
-- `--type-hints-in-docstring`
-  - Shortform: `-thd`
+- `--arg-type-hints-in-docstring`
+  - Shortform: `-athd`
   - Default: `True`
   - Meaning:
     - If `True`, there need to be type hints in the argument list of a
       docstring
     - If `False`, there cannot be any type hints in the argument list of a
       docstring
-- `--type-hints-in-signature`
-  - Shortform: `-ths`
+- `--arg-type-hints-in-signature`
+  - Shortform: `-aths`
   - Default: `True`
   - Meaning:
-    - If `True`, there need to be type hints in the function/method signature
-    - If `False`, there cannot be any type hints in the function/method
-      signature
+    - If `True`, there need to be type hints for input arguments in the
+      function/method signature
+    - If `False`, there cannot be any type hints for input arguments in the
+      function/method signature
 
-Note: if users choose `True` for both options, the type hints in the signature
-and in the docstring need to match, otherwise there will be a style violation.
+Note: if users choose `True` for both options, the argument type hints in the
+signature and in the docstring need to match, otherwise there will be a style
+violation.
 
 ## 5. `--check-arg-order` (shortform: `-ao`, default: `True`)
 

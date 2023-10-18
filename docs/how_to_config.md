@@ -7,17 +7,22 @@ For detailed explanations of all options, please read this page:
 
 ## 1. Specifying options inline
 
-- Native:
+In either your terminal window or your CI/CD file (such as `tox.ini`):
+
+- Native _pydoclint_:
 
   ```bash
   pydoclint --check-arg-order=False <FILE_OR_FOLDER_PATH>
   ```
 
-- Flake8:
+- Via Flake8:
 
   ```bash
   flake8 --check-arg-order=False <FILE_OR_FOLDER_PATH>
   ```
+
+(Note: the `=` sign is not necessary but it is encouraged, because it's just a
+bit more "Pythonic" and easier to read.)
 
 ## 2. Specifying options in a configuration file
 
@@ -46,3 +51,28 @@ For detailed explanations of all options, please read this page:
   - In your flake8 config file (see
     [flake8's official doc](https://flake8.pycqa.org/en/latest/user/configuration.html#configuration-locations)),
     add the config you need under the section `[flake8]`
+
+## 3. Specifying options in `.pre-commit-config.yaml`
+
+This is a template for `.pre-commit-config.yaml`:
+
+```yaml
+- repo: https://github.com/jsh9/pydoclint
+  rev: <latest_tag>
+  hooks:
+    - id: pydoclint
+      args:
+        - [--style=google, --check-return-types=False]
+```
+
+If you've already specified all the configuration options in a config file,
+here is how to cite them in `.pre-commit-config.yaml`:
+
+```yaml
+- repo: https://github.com/jsh9/pydoclint
+  rev: <latest_tag>
+  hooks:
+    - id: pydoclint
+      args:
+        - "--config=pyproject.toml"
+```
