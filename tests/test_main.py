@@ -1111,6 +1111,7 @@ def testNonAscii() -> None:
                 'Arguments in the function signature but not in the docstring: [c: list].',
             ],
         ),
+        ('08_return_section_parsing/google.py', {'style': 'google'}, []),
     ],
 )
 def testEdgeCases(
