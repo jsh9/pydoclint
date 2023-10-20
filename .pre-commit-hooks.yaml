@@ -4,3 +4,4 @@
   entry: pydoclint
   language: python
   types: [python]
+  require_serial: true
