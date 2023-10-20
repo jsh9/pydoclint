@@ -150,6 +150,9 @@ If you'd like to use _pydoclint_ for your project, it is recommended that you
 read these additional notes
 [here](https://jsh9.github.io/pydoclint/notes_for_users.html).
 
+Specifically, there is a section in the additional notes on how to easily adopt
+_pydoclint_ for existing legacy projects.
+
 ## 5. Notes for developers
 
 If you'd like to contribute to the code base of _pydoclint_, thank you!

@@ -6,6 +6,10 @@
 
   - A bug in handling prepended escape characters in docstrings
 
+- Changed
+
+  - Improved documentation
+
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.7...0.3.8
 

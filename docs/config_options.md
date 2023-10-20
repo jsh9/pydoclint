@@ -163,26 +163,27 @@ return annotation in the function signature are consistent.
 ## 12. `--baseline`
 
 Baseline allows you to remember the current project state and then show only
-new errors, ignoring old ones. This can be very useful when you'd like to
+new violations, ignoring old ones. This can be very useful when you'd like to
 gradually adopt _pydoclint_ in existing projects.
 
-The path to the file is expected. It is recommended to add this option to
-config file. (The default config file is `pyproject.toml`.)
+A path to the file is expected. It is recommended to add this option to config
+file. (The default config file is `pyproject.toml`.)
 
 ```toml
 [tool.pydoclint]
 baseline = "pydoclint-baseline.txt"
 ```
 
-If `--generate-baseline True` (or `--generate-baseline=True`) is passed,
-_pydoclint_ would generate a file that contains all current errors of project.
-If `--generate-baseline` is not passed (default value is `False`), _pydoclint_
-would read your baseline file, and ignore all errors specified in that file.
+If `--generate-baseline=True` (or `--generate-baseline True`) is passed,
+_pydoclint_ will generate a file that contains all current violations of your
+project. If `--generate-baseline` is not passed (default value is `False`),
+_pydoclint_ will read your baseline file, and ignore all violations specified
+in that file.
 
 ## 13. `--generate-baseline` (default: `False`)
 
-Required to use with `--baseline` option. If `True`, generate file, that
-contains all current errors of project.
+Required to use with `--baseline` option. If `True`, generate the baseline file
+that contains all current violations.
 
 ## 14. `--config` (default: `pyproject.toml`)
 

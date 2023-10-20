@@ -9,6 +9,7 @@
 - [3. Notes on writing type hints](#3-notes-on-writing-type-hints)
 - [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
 - [5. Notes for Google-style users](#5-notes-for-google-style-users)
+- [6. How to adopt _pydoclint_ more easily in legacy projects](#6-how-to-adopt-pydoclint-more-easily-in-legacy-projects)
 
 <!--TOC-->
 
@@ -171,3 +172,18 @@ But do not worry: here are some config options to tweak:
 configurable options of _pydoclint_, and
 [here](https://jsh9.github.io/pydoclint/how_to_config.html) is how to configure
 _pydoclint_.
+
+## 6. How to adopt _pydoclint_ more easily in legacy projects
+
+If you have large legacy projects, adoting a new linter may be daunting: you'll
+see hundreds or even thousands of violations at first.
+
+Fortunately, _pydoclint_ offers a "baseline" feature, which ignores existing
+violations for now, and will only report new violations.
+
+To use this feature, you only need to generate a "baseline violations" file
+(containing the hundreds or thousands of existing violations) once, and save it
+somewhere in your repo.
+
+For more details, please check out
+[this section](https://jsh9.github.io/pydoclint/config_options.html#12---baseline).
