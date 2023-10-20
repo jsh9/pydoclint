@@ -2,6 +2,7 @@
 #   https://github.com/jsh9/pydoclint/issues/73
 #   https://github.com/jsh9/pydoclint/issues/92
 
+
 def myFunc(
         arg1_: int,
         arg2__: int,
