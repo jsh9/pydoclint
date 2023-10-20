@@ -19,7 +19,7 @@ class Arg:
         if len(name) == 0:
             raise ValueError('`name` cannot be an empty string')
 
-        self.name: str = name
+        self.name: str = self._removeEscapeChar(name)
         self.typeHint: str = typeHint
 
     def __repr__(self) -> str:
@@ -32,7 +32,7 @@ class Arg:
         if not isinstance(other, Arg):
             return False
 
-        argNamesEqual: bool = self._argNamesEq(self.name, other.name)
+        argNamesEqual: bool = self.name == other.name
         typeHintsEqual: bool = self._typeHintsEq(self.typeHint, other.typeHint)
         return argNamesEqual and typeHintsEqual
 
@@ -111,19 +111,13 @@ class Arg:
         return hint1_ == hint2_
 
     @classmethod
-    def _argNamesEq(cls, name1: str, name2: str) -> bool:
-        return cls._removeEscapeChar(name1) == cls._removeEscapeChar(name2)
-
-    @classmethod
     def _removeEscapeChar(cls, string: str) -> str:
-        # We need to remove `\` from the arg names before comparing them,
-        # because when there are 1 or 2 trailing underscores in an argument,
-        # people need to use `\_` or `\_\_`, otherwise Sphinx will somehow
-        # not render the underscores (and for some reason, 3 or more trailing
-        # underscores are fine).
-        #
+        # We need to remove `\` from the arg names for proper comparison.
+        # This is because it is often necessary to add `\` in docstrings in
+        # order for Sphinx to correctly render them.
         # For example:
-        #     arg1\_\_ (int): The first argument
+        #    arg1\_\_
+        #    \\**kwargs
         return string.replace('\\', '')
 
 

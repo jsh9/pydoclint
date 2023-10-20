@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.3.8] - 2023-10-20
+
+- Fixed
+
+  - A bug in handling prepended escape characters in docstrings
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.7...0.3.8
+
 ## [0.3.7] - 2023-10-19
 
 - Changed
