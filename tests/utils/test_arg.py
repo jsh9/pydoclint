@@ -16,6 +16,9 @@ def testArg_initializationCheck():
         (Arg(name='1', typeHint='2'), '1: 2'),
         (Arg(name='arg1', typeHint='str'), 'arg1: str'),
         (Arg(name='obj', typeHint='int | float'), 'obj: int | float'),
+        (Arg(name='arg1\_\_', typeHint='Any'), 'arg1__: Any'),
+        (Arg(name='**kwargs', typeHint='Any'), '**kwargs: Any'),
+        (Arg(name='\\**kwargs', typeHint='Any'), '**kwargs: Any'),
     ],
 )
 def testArg_str(arg: Arg, string_repr: str) -> None:
@@ -28,6 +31,10 @@ def testArg_str(arg: Arg, string_repr: str) -> None:
         (Arg(name='1', typeHint='2'), Arg(name='1', typeHint='2')),
         (Arg(name='abc', typeHint='12345'), Arg(name='abc', typeHint='12345')),
         (Arg(name='aa', typeHint=''), Arg(name='aa', typeHint='')),
+        (Arg(name='\\**kw', typeHint=''), Arg(name='**kw', typeHint='')),
+        (Arg(name='**kw', typeHint=''), Arg(name='\\**kw', typeHint='')),
+        (Arg(name='\\*args', typeHint=''), Arg(name='*args', typeHint='')),
+        (Arg(name='*args', typeHint=''), Arg(name='\\*args', typeHint='')),
     ],
 )
 def testArg_equal(arg1: Arg, arg2: Arg) -> None:
@@ -137,7 +144,7 @@ def testArg_sorting(original: Set[Arg], after: List[Arg]) -> None:
         ('Literal["abc", "def"]', "Literal[\n  'abc',\n  'def',\n]", True),
     ],
 )
-def testArg_eq(str1: str, str2: str, expected: bool) -> None:
+def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
     assert Arg._typeHintsEq(str1, str2) == expected
 
 
@@ -192,6 +199,14 @@ def testArgList_length(input_: ArgList, expected: int) -> None:
         (
             ArgList([Arg('1', '2'), Arg('2', '3'), Arg('3', '4')]),
             ArgList([Arg('1', '2'), Arg('2', '3'), Arg('3', '4')]),
+        ),
+        (
+            ArgList([Arg('*args', '1'), Arg('\\**kwargs', '2')]),
+            ArgList([Arg('\\*args', '1'), Arg('**kwargs', '2')]),
+        ),
+        (
+            ArgList([Arg('arg1\_', '1'), Arg('arg2__', '2')]),
+            ArgList([Arg('arg1_', '1'), Arg('arg2\_\_', '2')]),
         ),
     ],
 )
@@ -297,6 +312,16 @@ def testArgList_contains(
             ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
             ArgList([]),
             {Arg('a', '1'), Arg('b', '2'), Arg('c', '3')},
+        ),
+        (
+            ArgList([Arg('*args', '1'), Arg('\\**kwargs', '2')]),
+            ArgList([Arg('\\*args', '1')]),
+            {Arg('**kwargs', '2')},
+        ),
+        (
+            ArgList([Arg('arg1\_', '1'), Arg('arg2__', '2')]),
+            ArgList([Arg('arg2\_\_', '2')]),
+            {Arg('arg1_', '1')},
         ),
     ],
 )

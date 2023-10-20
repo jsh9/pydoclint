@@ -1,3 +1,7 @@
+# From these issues:
+#   https://github.com/jsh9/pydoclint/issues/73
+#   https://github.com/jsh9/pydoclint/issues/92
+
 def myFunc(
         arg1_: int,
         arg2__: int,
@@ -8,6 +12,8 @@ def myFunc(
         some_thing_3___: int,
         some_thing_4____: int,
         some_thing_5_____: str,
+        *args: Any,
+        **kwargs: Any,
 ) -> None:
     r"""
     Do something.
@@ -30,6 +36,10 @@ def myFunc(
     :type some_thing_4\_\_\_\_: int
     :param some_thing_5_____: Arg
     :type some_thing_5_____: str
+    :param \\*args: Args
+    :type \\*args: Any
+    :param \\**kwargs: Args
+    :type \\**kwargs: Any
     :return: Return value
     :rtype: None
     """
