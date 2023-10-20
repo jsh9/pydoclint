@@ -1,9 +1,15 @@
 # Change Log
 
-## [Unpublished]
+## [0.3.7] - 2023-10-19
 
 - Changed
+
   - Improved documentation
+  - Disabled parallel mode for pre-commit
+    (https://github.com/jsh9/pydoclint/pull/93)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.6...0.3.7
 
 ## [0.3.6] - 2023-10-18
 
