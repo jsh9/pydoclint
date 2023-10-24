@@ -1,8 +1,8 @@
 # pydoclint
 
-[_Pydoclint_](https://github.com/jsh9/pydoclint) is a Python docstring linter
-to check whether a docstring's sections (arguments, returns, raises, ...) match
-the function signature or function implementation.
+_Pydoclint_ is a Python docstring linter to check whether a docstring's
+sections (arguments, returns, raises, ...) match the function signature or
+function implementation.
 
 It runs really fast. In fact, it can be thousands of times faster than
 [darglint](https://github.com/terrencepreilly/darglint) (or its maintained fork
@@ -19,15 +19,19 @@ Additionally, _pydoclint_ can detect some quite a few style violations that
 darglint cannot.
 
 Currently, _pydoclint_ supports three docstring styles:
-
-- The [numpy stlyle](https://numpydoc.readthedocs.io/en/latest/format.html)
-- The
-  [Google style](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html)
-- The
-  [Sphinx style](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html)
+[numpy](https://numpydoc.readthedocs.io/en/latest/format.html),
+[Google](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html),
+and
+[Sphinx](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html).
 
 Another note: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle)
 serves complementary purposes. It is recommended that you use both together.
+
+The full documentation of _pydoclint_ (including this README) can be found
+here: https://jsh9.github.io/pydoclint
+
+The corresponding Github repository of _pydoclint_ is:
+https://github.com/jsh9/pydoclint
 
 ---
 
