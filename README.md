@@ -28,10 +28,10 @@ Another note: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle)
 serves complementary purposes. It is recommended that you use both together.
 
 The full documentation of _pydoclint_ (including this README) can be found
-here: https://jsh9.github.io/pydoclint
+here: [https://jsh9.github.io/pydoclint](https://jsh9.github.io/pydoclint)
 
 The corresponding Github repository of _pydoclint_ is:
-https://github.com/jsh9/pydoclint
+[https://github.com/jsh9/pydoclint](https://github.com/jsh9/pydoclint)
 
 ---
 
