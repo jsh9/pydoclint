@@ -103,8 +103,7 @@ set up as a hook with the following `.pre-commit-config.yaml` configuration:
   rev: <latest_tag>
   hooks:
     - id: pydoclint
-      args:
-        - [--style=google, --check-return-types=False]
+      args: [--style=google, --check-return-types=False]
 ```
 
 You will need to install `pre-commit` and run `pre-commit install`.
