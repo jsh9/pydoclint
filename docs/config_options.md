@@ -143,6 +143,10 @@ If it is set to `True`, having a docstring for class constructors
 (`__init__()`) is allowed, and the arguments are expected to be documented
 under `__init__()` rather than in the class docstring.
 
+Note: the default is set to `False` because not every class has an `__init__`
+method (such as classes that inherit from parent classes), but every class must
+have the `class ClassName` declaration.
+
 ## 9. `--require-return-section-when-returning-nothing` (shortform: `-rrs`, default: `False`)
 
 If `False`, a "return" section is not necessary in the docstring if the
