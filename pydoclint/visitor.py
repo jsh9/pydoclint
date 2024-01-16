@@ -6,12 +6,10 @@ from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
-    checkIsAbstractMethod,
     collectFuncArgs,
     detectMethodType,
     generateMsgPrefix,
     getDocstring,
-    isPropertyMethod,
 )
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
@@ -26,6 +24,10 @@ from pydoclint.utils.return_yield_raise import (
     hasYieldStatements,
     isReturnAnnotationNone,
     isReturnAnnotationNoReturn,
+)
+from pydoclint.utils.special_methods import (
+    checkIsAbstractMethod,
+    checkIsPropertyMethod,
 )
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.visitor_helper import (
@@ -485,11 +487,12 @@ class Visitor(ast.NodeVisitor):
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
         onlyHasYieldStmt: bool = hasYieldStmt and not hasReturnStmt
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
+        isPropertyMethod: bool = checkIsPropertyMethod(node)
 
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
         violations: List[Violation] = []
-        if not docstringHasReturnSection and not isPropertyMethod(node):
+        if not docstringHasReturnSection and not isPropertyMethod:
             if (
                 # fmt: off
                 not (onlyHasYieldStmt and hasIterAsRetAnno)
@@ -539,6 +542,12 @@ class Visitor(ast.NodeVisitor):
                 # we don't need a "Returns" section. (Instead, we need a
                 # "Yields" section in the docstring.) Therefore, we don't need
                 # to check for DOC203 violations.
+                return violations
+
+            if returnSec == [] and isPropertyMethod:
+                # No need to check return type for methods with "@property"
+                # decorator. This is because it's OK for @property methods
+                # to have no return section in the docstring.
                 return violations
 
             checkReturnTypesForViolations(

@@ -900,6 +900,16 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     assert list(map(str, violations)) == expected
 
 
+@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+def testNoReturnSectionInPropertyMethod(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'common/property_method.py',
+        style=style,
+        skipCheckingShortDocstrings=False,
+    )
+    assert len(violations) == 0
+
+
 @pytest.mark.parametrize(
     'style, argTypeHintsInDocstring, argTypeHintsInSignature',
     itertools.product(
