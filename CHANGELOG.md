@@ -8,7 +8,7 @@
     for methods with `@property` decorator
 
 - Full diff
-  - https://github.com/jsh9/pydoclint/compare/0.3.7...0.3.8
+  - https://github.com/jsh9/pydoclint/compare/0.3.8...0.3.9
 
 ## [0.3.8] - 2023-10-20
 
