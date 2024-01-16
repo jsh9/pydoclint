@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.3.9] - 2024-01-16
+
+- Fixed
+
+  - False positive violation `DOC203` when there is no docstring return section
+    for methods with `@property` decorator
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.7...0.3.8
+
 ## [0.3.8] - 2023-10-20
 
 - Fixed

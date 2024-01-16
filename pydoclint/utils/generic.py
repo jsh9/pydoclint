@@ -92,19 +92,6 @@ def detectMethodType(node: ast.FunctionDef) -> MethodType:
     return MethodType.INSTANCE_METHOD
 
 
-def checkIsAbstractMethod(node: ast.FunctionDef) -> bool:
-    """Check whether `node` is an abstract method"""
-    if len(node.decorator_list) == 0:
-        return False
-
-    for decorator in node.decorator_list:
-        if isinstance(decorator, ast.Name):
-            if decorator.id == 'abstractmethod':
-                return True
-
-    return False
-
-
 def getDocstring(node: ClassOrFunctionDef) -> str:
     """Get docstring from a class definition or a function definition"""
     docstring_: Optional[str] = ast.get_docstring(node)
@@ -151,17 +138,6 @@ def getNodeName(node: ast.AST) -> str:
         return ''
 
     return node.name if 'name' in node.__dict__ else ''
-
-
-def isPropertyMethod(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether a function has `@property` as its last decorator"""
-    return (
-        isinstance(node.decorator_list, list)
-        and len(node.decorator_list) > 0
-        and isinstance(node.decorator_list[-1], ast.Name)
-        and hasattr(node.decorator_list[-1], 'id')
-        and node.decorator_list[-1].id == 'property'
-    )
 
 
 def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
