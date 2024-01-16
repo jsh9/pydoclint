@@ -56,7 +56,6 @@ class Visitor(ast.NodeVisitor):
             ignoreUnderscoreArgs: bool = True,
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
-            propertyMethodOptions: str = '-1,-2,-3,+4',
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -74,7 +73,6 @@ class Visitor(ast.NodeVisitor):
         self.requireYieldSectionWhenYieldingNothing: bool = (
             requireYieldSectionWhenYieldingNothing
         )
-        self.propertyMethodOptions = propertyMethodOptions
 
         self.parent: Optional[ast.AST] = None  # keep track of parent node
         self.violations: List[Violation] = []
