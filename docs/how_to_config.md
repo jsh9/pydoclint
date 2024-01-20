@@ -56,23 +56,91 @@ bit more "Pythonic" and easier to read.)
 
 This is a template for `.pre-commit-config.yaml`:
 
+<table>
+<tr><th>As a native tool</th><th>As a flake8 plugin</th></tr>
+<tr><td>
+
 ```yaml
 - repo: https://github.com/jsh9/pydoclint
   rev: <latest_tag>
   hooks:
     - id: pydoclint
       args:
-        - [--style=google, --check-return-types=False]
+        - --style=google
+        - --check-return-types=False
 ```
+
+</td><td>
+
+```yaml
+- repo: https://github.com/pycqa/flake8
+  rev: <latest_tag>
+  hooks:
+    - id: flake8
+      additional_dependencies:
+        - pydoclint==<latest_tag>
+      args:
+        - --style=google
+        - --check-return-types=False
+```
+
+</td></tr>
+</table>
 
 If you've already specified all the configuration options in a config file,
 here is how to cite them in `.pre-commit-config.yaml`:
 
+<table>
+<tr><th>As a native tool</th><th>As a flake8 plugin</th></tr>
+<tr><td>
+
 ```yaml
 - repo: https://github.com/jsh9/pydoclint
   rev: <latest_tag>
   hooks:
     - id: pydoclint
       args:
-        - "--config=pyproject.toml"
+        - --config=pyproject.toml
 ```
+
+</td><td>
+
+```yaml
+- repo: https://github.com/pycqa/flake8
+  rev: <latest_tag>
+  hooks:
+    - id: flake8
+      additional_dependencies:
+        - Flake8-pyproject>=1.2.0
+        - pydoclint==<latest_tag>
+      args:
+        - --toml-config=pyproject.toml
+        - --style=google
+        - --check-return-types=False
+```
+
+</td></tr>
+</table>
+
+Here is an example accompanying `pyproject.toml` config file:
+
+<table>
+<tr><th>As a native tool</th><th>As a flake8 plugin</th></tr>
+<tr><td>
+
+```toml
+[tool.pydoclint]
+check-return-types = false
+style = "google"
+```
+
+</td><td>
+
+```toml
+[tool.flake8]
+check-return-types = false
+style = "google"
+```
+
+</td></tr>
+</table>
