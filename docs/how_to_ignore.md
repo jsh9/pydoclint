@@ -26,3 +26,17 @@ def my_function(  # noqa: DOC2
 All the usage is consistent with how you would use _flake8_. Please read the
 official _flake8_ documentation for full details:
 https://flake8.pycqa.org/en/latest/user/violations.html.
+
+### Usage with [Ruff](https://github.com/astral-sh/ruff)
+
+With `ruff>=0.1.3`, allowlist `DOC` codes using the
+[`external` setting](https://docs.astral.sh/ruff/settings/#external):
+
+Put the following in your `pyproject.toml` file:
+
+```toml
+[tool.ruff]
+external = [
+    "DOC",  # pydoclint
+]
+```
