@@ -1,4 +1,12 @@
-# How to ignore certain violations in _flake8_ mode
+# How to ignore certain violations
+
+## As a native tool
+
+Currently, pydoclint does not support ignoring certain violations as a native
+tool. Please use it as a _flake8_ plugin to achieve that, or feel free to
+contribute this feature.
+
+## As a _flake8_ plugin
 
 In _flake8_ mode (meaning that you use _pydoclint_ as a flake8 plugin), if
 you'd like to ignore a specific violation code (such as `DOC201` and `DOC301`)
