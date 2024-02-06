@@ -56,6 +56,14 @@ def validateStyleValue(
     help='If True, do not print the file names being checked to the terminal.',
 )
 @click.option(
+    '-h/-H',
+    '--heading/--noheading',
+    is_flag=True,
+    show_default=True,
+    default=True,
+    help="If True, do print file names once before all the file's errors.",
+)
+@click.option(
     '--exclude',
     type=str,
     show_default=True,
@@ -263,6 +271,7 @@ def validateStyleValue(
 def main(  # noqa: C901
         ctx: click.Context,
         quiet: bool,
+        heading: bool,
         exclude: str,
         style: str,
         src: Optional[str],
@@ -433,14 +442,23 @@ def main(  # noqa: C901
                 if counter > 1:
                     print('')
 
-                click.echo(
-                    click.style(filename, fg='yellow', bold=True),
-                    err=echoAsError,
-                )
+                if heading:
+                    click.echo(
+                        click.style(filename, fg='yellow', bold=True),
+                        err=echoAsError,
+                    )
                 for violation in violationsInThisFile:
                     violationCounter += 1
-                    fourSpaces = '    '
-                    click.echo(fourSpaces, nl=False, err=echoAsError)
+                    if heading:
+                        fourSpaces = '    '
+                        click.echo(fourSpaces, nl=False, err=echoAsError)
+                    else:
+                        click.echo(
+                            click.style(filename, fg='yellow', bold=True),
+                            nl=False,
+                            err=echoAsError,
+                        )
+                        click.echo(':', nl=False, err=echoAsError)
                     click.echo(
                         f'{violation.line}: ', nl=False, err=echoAsError
                     )
