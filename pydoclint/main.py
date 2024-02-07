@@ -227,6 +227,14 @@ def validateStyleValue(
         ' file should be specified by the --baseline option.)'
     ),
 )
+@click.option(
+    '-sfn',
+    '--show-filenames-in-every-violation-message',
+    type=bool,
+    show_default=True,
+    default=False,
+    help='If True, show file names in the front of every violation message.',
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -283,6 +291,7 @@ def main(  # noqa: C901
         require_yield_section_when_yielding_nothing: bool,
         generate_baseline: bool,
         baseline: str,
+        show_filenames_in_every_violation_message: bool,
         config: Optional[str],  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
@@ -433,14 +442,25 @@ def main(  # noqa: C901
                 if counter > 1:
                     print('')
 
-                click.echo(
-                    click.style(filename, fg='yellow', bold=True),
-                    err=echoAsError,
-                )
+                if not show_filenames_in_every_violation_message:
+                    click.echo(
+                        click.style(filename, fg='yellow', bold=True),
+                        err=echoAsError,
+                    )
+
                 for violation in violationsInThisFile:
                     violationCounter += 1
-                    fourSpaces = '    '
-                    click.echo(fourSpaces, nl=False, err=echoAsError)
+                    if not show_filenames_in_every_violation_message:
+                        fourSpaces = '    '
+                        click.echo(fourSpaces, nl=False, err=echoAsError)
+                    else:
+                        click.echo(
+                            click.style(filename, fg='yellow', bold=True),
+                            nl=False,
+                            err=echoAsError,
+                        )
+                        click.echo(':', nl=False, err=echoAsError)
+
                     click.echo(
                         f'{violation.line}: ', nl=False, err=echoAsError
                     )
