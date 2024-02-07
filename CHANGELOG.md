@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.3.10] - 2024-02-07
+
+- Added
+
+  - A new config option `--show-filenames-in-every-violation-message` (or
+    `-sfn`), which makes it more convenient to jump to the corresponding line
+    in IDEs by clicking on the violation message in the terminal
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.9...0.3.10
+
 ## [0.3.9] - 2024-01-16
 
 - Fixed

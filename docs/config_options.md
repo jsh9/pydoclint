@@ -24,7 +24,8 @@ page:
 - [11. `--check-yield-types` (shortform: `-cyt`, default: `True`)](#11---check-yield-types-shortform--cyt-default-true)
 - [12. `--baseline`](#12---baseline)
 - [13. `--generate-baseline` (default: `False`)](#13---generate-baseline-default-false)
-- [14. `--config` (default: `pyproject.toml`)](#14---config-default-pyprojecttoml)
+- [14. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#14---show-filenames-in-every-violation-message-shortform--sfn-default-false)
+- [15. `--config` (default: `pyproject.toml`)](#15---config-default-pyprojecttoml)
 
 <!--TOC-->
 
@@ -189,7 +190,41 @@ in that file.
 Required to use with `--baseline` option. If `True`, generate the baseline file
 that contains all current violations.
 
-## 14. `--config` (default: `pyproject.toml`)
+## 14. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
+
+If False, in the terminal the violation messages are grouped by file names:
+
+```
+file_01.py
+    10: DOC101: ...
+    25: DOC105: ...
+    37: DOC203: ...
+
+file_02.py
+    24: DOC102: ...
+    51: DOC107: ...
+    126: DOC203: ...
+    246: DOC105: ...
+```
+
+If True, the file names are printed in the front of every violation message:
+
+```
+file_01.py:10: DOC101: ...
+file_01.py:25: DOC105: ...
+file_01.py:37: DOC203: ...
+
+file_02.py:24: DOC102: ...
+file_02.py:51: DOC107: ...
+file_02.py:126: DOC203: ...
+file_02.py:246: DOC105: ...
+```
+
+This can be convenient if you would like to click on each violation message and
+go to the corresponding line in your IDE. (Note: not all terminal app offers
+this functionality.)
+
+## 15. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this
