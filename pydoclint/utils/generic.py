@@ -181,10 +181,10 @@ def _replacer(match: Match[str]) -> str:
 def appendArgsToCheckToV105(
         *,
         original_v105: Violation,
-        funcArgs: 'ArgList',
-        docArgs: 'ArgList',
+        funcArgs: 'ArgList',  # noqa: F821
+        docArgs: 'ArgList',  # noqa: F821
 ) -> Violation:
     """Append the arg names to check to the error message of v105"""
-    argsToCheck: List['Arg'] = funcArgs.findArgsWithDifferentTypeHints(docArgs)
+    argsToCheck: List['Arg'] = funcArgs.findArgsWithDifferentTypeHints(docArgs)  # noqa: F821
     argNames: str = ', '.join(_.name for _ in argsToCheck)
     return original_v105.appendMoreMsg(moreMsg=argNames)
