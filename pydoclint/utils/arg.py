@@ -5,6 +5,7 @@ from docstring_parser.common import DocstringParam
 
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.generic import stripQuotes
+from pydoclint.utils.internal_error import InternalError
 
 
 class Arg:
@@ -231,6 +232,21 @@ class ArgList:
                 verdict = set(self_names) == set(other_names)
 
         return verdict  # noqa: R504
+
+    def findArgsWithDifferentTypeHints(self, other: 'ArgList') -> List[Arg]:
+        """Find args with unmatched type hints."""
+        if not self.equals(other, checkTypeHint=False, orderMatters=False):
+            msg = 'These 2 arg lists do not have the same arg names'
+            raise InternalError(msg)
+
+        result: List[Arg] = []
+        for selfArg in self.infoList:
+            selfArgTypeHint: str = selfArg.typeHint
+            otherArgTypeHint: str = other.lookup[selfArg.name]
+            if selfArgTypeHint != otherArgTypeHint:
+                result.append(selfArg)
+
+        return result
 
     def subtract(self, other: 'ArgList', checkTypeHint=True) -> Set[Arg]:
         """Find the args that are in this object but not in `other`."""

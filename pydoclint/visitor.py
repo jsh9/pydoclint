@@ -6,6 +6,7 @@ from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
+    appendArgsToCheckToV105,
     collectFuncArgs,
     detectMethodType,
     generateMsgPrefix,
@@ -425,14 +426,24 @@ class Visitor(ast.NodeVisitor):
                     self.argTypeHintsInSignature
                     and self.argTypeHintsInDocstring
                 ):
-                    violations.append(v105)
+                    v105_new = appendArgsToCheckToV105(
+                        original_v105=v105,
+                        funcArgs=funcArgs,
+                        docArgs=docArgs,
+                    )
+                    violations.append(v105_new)
             elif docArgs.equals(
                 funcArgs,
                 checkTypeHint=False,
                 orderMatters=False,
             ):
+                v105_new = appendArgsToCheckToV105(
+                    original_v105=v105,
+                    funcArgs=funcArgs,
+                    docArgs=docArgs,
+                )
                 violations.append(v104)
-                violations.append(v105)
+                violations.append(v105_new)
             else:
                 argsInFuncNotInDoc: Set[Arg] = funcArgs.subtract(
                     docArgs,
