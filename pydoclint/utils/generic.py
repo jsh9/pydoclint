@@ -5,6 +5,7 @@ from typing import List, Match, Optional, Tuple
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
+from pydoclint.utils.violation import Violation
 
 
 def collectFuncArgs(node: FuncOrAsyncFuncDef) -> List[ast.arg]:
@@ -175,3 +176,15 @@ def _replacer(match: Match[str]) -> str:
 
     # Otherwise, remove all quotes
     return match.group(0).replace('"', '').replace("'", '')
+
+
+def appendArgsToCheckToV105(
+        *,
+        original_v105: Violation,
+        funcArgs: 'ArgList',
+        docArgs: 'ArgList',
+) -> Violation:
+    """Append the arg names to check to the error message of v105"""
+    argsToCheck: List['Arg'] = funcArgs.findArgsWithDifferentTypeHints(docArgs)
+    argNames: str = ', '.join(_.name for _ in argsToCheck)
+    return original_v105.appendMoreMsg(moreMsg=argNames)

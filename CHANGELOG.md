@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.4.0] - 2024-02-08
+
+- Changed
+
+  - Improved the violation message of DOC105: the arguments with inconsistent
+    type hints are now shown in the violation message to make violation
+    correction much easier
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.3.10...0.4.0
+
 ## [0.3.10] - 2024-02-07
 
 - Added

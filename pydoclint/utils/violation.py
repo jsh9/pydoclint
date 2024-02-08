@@ -14,7 +14,7 @@ VIOLATION_CODES = types.MappingProxyType({
         ' (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
     ),
     104: 'Arguments are the same in the docstring and the function signature, but are in a different order.',
-    105: 'Argument names match, but type hints do not match',
+    105: 'Argument names match, but type hints in these args do not match:',
     106: 'The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature',
     107: 'The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints',
     108: 'The option `--arg-type-hints-in-signature` is `False` but there are argument type hints in the signature',

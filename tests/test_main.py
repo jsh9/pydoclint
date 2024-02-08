@@ -47,10 +47,12 @@ expectedViolations_True = [
     'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
-    'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not match ',
+    'DOC105: Method `MyClass.func5`: Argument names match, but type hints in these args '
+    'do not match: arg1, arg2',
     'DOC104: Method `MyClass.func6`: Arguments are the same in the docstring and '
     'the function signature, but are in a different order. ',
-    'DOC105: Method `MyClass.func6`: Argument names match, but type hints do not match ',
+    'DOC105: Method `MyClass.func6`: Argument names match, but type hints in these args '
+    'do not match: arg1, arg2',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC109: Function `func72`: The option `--arg-type-hints-in-docstring` is `True` '
@@ -90,10 +92,10 @@ expectedViolations_False = [
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the docstring but not in the '
     'function signature: [arg3: Optional[Union[float, int, str]]].',
-    'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not '
-    'match ',
-    'DOC105: Method `MyClass.func6`: Argument names match, but type hints do not '
-    'match ',
+    'DOC105: Method `MyClass.func5`: Argument names match, but type hints in '
+    'these args do not match: arg1, arg2',
+    'DOC105: Method `MyClass.func6`: Argument names match, but type hints in '
+    'these args do not match: arg1, arg2',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
     'function signature. ',
     'DOC109: Function `func72`: The option `--arg-type-hints-in-docstring` is `True` '
@@ -426,8 +428,8 @@ def testInit(style: str) -> None:
         'with the docstring of the class ',
         'DOC302: Class `B`: The class docstring does not need a "Returns" section, '
         'because __init__() cannot return anything ',
-        'DOC105: Method `C.__init__`: Argument names match, but type hints do not '
-        'match ',
+        'DOC105: Method `C.__init__`: Argument names match, but type hints in these '
+        'args do not match: arg2',
         'DOC302: Class `C`: The class docstring does not need a "Returns" section, '
         'because __init__() cannot return anything ',
         'DOC103: Method `D.__init__`: Docstring arguments are different from function '
@@ -1014,22 +1016,22 @@ def testTypeHintChecking(
             '`True` but there are no type hints in the docstring arg list ',
             'DOC110: Method `MyClass.func2`: The option `--arg-type-hints-in-docstring` is '
             '`True` but not all args in the docstring arg list have type hints ',
-            'DOC105: Method `MyClass.func2`: Argument names match, but type hints do not '
-            'match ',
+            'DOC105: Method `MyClass.func2`: Argument names match, but type hints in '
+            'these args do not match: arg1, arg2',
             'DOC106: Method `MyClass.func3`: The option `--arg-type-hints-in-signature` is '
             '`True` but there are no argument type hints in the signature ',
             'DOC107: Method `MyClass.func3`: The option `--arg-type-hints-in-signature` is '
             '`True` but not all args in the signature have type hints ',
-            'DOC105: Method `MyClass.func3`: Argument names match, but type hints do not '
-            'match ',
+            'DOC105: Method `MyClass.func3`: Argument names match, but type hints in '
+            'these args do not match: arg1, arg2',
             'DOC107: Method `MyClass.func5`: The option `--arg-type-hints-in-signature` is '
             '`True` but not all args in the signature have type hints ',
             'DOC110: Method `MyClass.func5`: The option `--arg-type-hints-in-docstring` is '
             '`True` but not all args in the docstring arg list have type hints ',
-            'DOC105: Method `MyClass.func5`: Argument names match, but type hints do not '
-            'match ',
-            'DOC105: Method `MyClass.func6`: Argument names match, but type hints do not '
-            'match ',
+            'DOC105: Method `MyClass.func5`: Argument names match, but type hints in '
+            'these args do not match: arg1, arg2',
+            'DOC105: Method `MyClass.func6`: Argument names match, but type hints in '
+            'these args do not match: arg1',
             'DOC107: Method `MyClass.func7`: The option `--arg-type-hints-in-signature` is '
             '`True` but not all args in the signature have type hints ',
             'DOC110: Method `MyClass.func7`: The option `--arg-type-hints-in-docstring` is '
@@ -1066,17 +1068,20 @@ def testNonAscii() -> None:
                 '`True` but there are no argument type hints in the signature ',
                 'DOC107: Function `func1`: The option `--arg-type-hints-in-signature` is '
                 '`True` but not all args in the signature have type hints ',
-                'DOC105: Function `func1`: Argument names match, but type hints do not match ',
+                'DOC105: Function `func1`: Argument names match, but type hints in these args '
+                'do not match: a',
                 'DOC106: Function `func2`: The option `--arg-type-hints-in-signature` is '
                 '`True` but there are no argument type hints in the signature ',
                 'DOC107: Function `func2`: The option `--arg-type-hints-in-signature` is '
                 '`True` but not all args in the signature have type hints ',
-                'DOC105: Function `func2`: Argument names match, but type hints do not match ',
+                'DOC105: Function `func2`: Argument names match, but type hints in these args '
+                'do not match: a',
                 'DOC106: Function `func3`: The option `--arg-type-hints-in-signature` is '
                 '`True` but there are no argument type hints in the signature ',
                 'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is '
                 '`True` but not all args in the signature have type hints ',
-                'DOC105: Function `func3`: Argument names match, but type hints do not match ',
+                'DOC105: Function `func3`: Argument names match, but type hints in these args '
+                'do not match: a',
             ],
         ),
         (
