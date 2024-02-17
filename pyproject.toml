@@ -5,6 +5,7 @@ skip = ['unparser.py']
 
 [tool.cercis]
 wrap-line-with-long-string = true
+extend-exclude = 'tests/data'
 
 [tool.pydoclint]
 style = 'numpy'

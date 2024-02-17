@@ -1,5 +1,11 @@
 # Change Log
 
+## [unpublished] - 2024-02-17
+
+- Fixed
+  - A bug where using double quotes in Literal type (such as `Literal["foo"]`
+    could produce a false positive `DOC203` violation.
+
 ## [0.4.0] - 2024-02-08
 
 - Changed

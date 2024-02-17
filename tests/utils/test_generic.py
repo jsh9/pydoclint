@@ -3,7 +3,7 @@ from typing import List
 
 import pytest
 
-from pydoclint.utils.generic import collectFuncArgs, stripQuotes
+from pydoclint.utils.generic import collectFuncArgs, specialEqual, stripQuotes
 
 src1 = """
 def func1(
@@ -91,3 +91,21 @@ def testCollectFuncArgs(src: str, expected: List[str]) -> None:
 )
 def testStripQuotes(string: str, expected: str) -> None:
     assert stripQuotes(string) == expected
+
+
+@pytest.mark.parametrize(
+    'str1, str2, expected',
+    [
+        ('', '', True),  # truly equal
+        ('"', '"', True),  # truly equal
+        ("'", "'", True),  # truly equal
+        ('"', "'", True),
+        ('Hello" world\' 123', 'Hello" world\' 123', True),  # truly equal
+        ('Hello" world\' 123', "Hello' world' 123", True),
+        ('Hello" world\' 123', 'Hello\' world" 123', True),
+        ('Hello" world\' 123', "Hello' world` 123", False),
+        ('Hello" world\' 123', 'Hello\' world" 1234', False),
+    ],
+)
+def testSpecialEqual(str1: str, str2: str, expected: bool) -> None:
+    assert specialEqual(str1, str2) == expected
