@@ -1127,6 +1127,8 @@ def testNonAscii() -> None:
             ],
         ),
         ('08_return_section_parsing/google.py', {'style': 'google'}, []),
+        ('09_double_quotes_in_Literal/google.py', {'style': 'google'}, []),
+        ('09_double_quotes_in_Literal/numpy.py', {'style': 'numpy'}, []),
     ],
 )
 def testEdgeCases(

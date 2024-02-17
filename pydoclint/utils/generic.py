@@ -188,3 +188,27 @@ def appendArgsToCheckToV105(
     argsToCheck: List['Arg'] = funcArgs.findArgsWithDifferentTypeHints(docArgs)  # noqa: F821
     argNames: str = ', '.join(_.name for _ in argsToCheck)
     return original_v105.appendMoreMsg(moreMsg=argNames)
+
+
+def specialEqual(str1: str, str2: str) -> bool:
+    """
+    Check string equality but treat any single quotes as the same as
+    double quotes.
+    """
+    if str1 == str2:
+        return True  # using shortcuts to speed up evaluation
+
+    if len(str1) != len(str2):
+        return False  # using shortcuts to speed up evaluation
+
+    quotes = {'"', "'"}
+    for char1, char2 in zip(str1, str2):
+        if char1 == char2:
+            continue
+
+        if char1 in quotes and char2 in quotes:
+            continue
+
+        return False
+
+    return True

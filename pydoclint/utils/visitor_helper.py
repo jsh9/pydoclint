@@ -4,7 +4,7 @@ import sys
 from typing import List, Optional
 
 from pydoclint.utils.annotation import unparseAnnotation
-from pydoclint.utils.generic import stripQuotes
+from pydoclint.utils.generic import specialEqual, stripQuotes
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.violation import Violation
@@ -75,7 +75,10 @@ def checkReturnTypesForNumpyStyle(
             msg += f' {len(returnSection)} type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
         else:
-            if returnSecTypes != returnAnnoItems:
+            if not all(
+                specialEqual(x, y)
+                for x, y in zip(returnSecTypes, returnAnnoItems)
+            ):
                 msg1 = f'Return annotation types: {returnAnnoItems}; '
                 msg2 = f'docstring return section types: {returnSecTypes}'
                 violationList.append(violation.appendMoreMsg(msg1 + msg2))
@@ -97,12 +100,12 @@ def checkReturnTypesForGoogleOrSphinxStyle(
     # use one compound style for tuples.
 
     if len(returnSection) > 0:
-        retArgType = stripQuotes(returnSection[0].argType)
+        retArgType: str = stripQuotes(returnSection[0].argType)
         if returnAnnotation.annotation is None:
             msg = 'Return annotation has 0 type(s); docstring'
             msg += ' return section has 1 type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
-        elif retArgType != returnAnnotation.annotation:
+        elif not specialEqual(retArgType, returnAnnotation.annotation):
             msg = 'Return annotation types: '
             msg += str([returnAnnotation.annotation]) + '; '
             msg += 'docstring return section types: '
