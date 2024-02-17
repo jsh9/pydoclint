@@ -3,9 +3,13 @@
 ## [0.4.1] - 2024-02-17
 
 - Fixed
+
   - A bug where using double quotes in Literal type (such as `Literal["foo"]`
     could produce a false positive `DOC203` violation.
   - Removed useless argument `--src`
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.4.0...0.4.1
 
 ## [0.4.0] - 2024-02-08
 
