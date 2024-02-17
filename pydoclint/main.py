@@ -43,12 +43,6 @@ def validateStyleValue(
     help='Pydoclint, a linter for Python docstring styles',
 )
 @click.option(
-    '-s',
-    '--src',
-    type=str,
-    help='The source code to check',
-)
-@click.option(
     '-q',
     '--quiet',
     is_flag=True,
@@ -273,7 +267,6 @@ def main(  # noqa: C901
         quiet: bool,
         exclude: str,
         style: str,
-        src: Optional[str],
         paths: Tuple[str, ...],
         type_hints_in_signature: str,
         type_hints_in_docstring: str,
@@ -337,21 +330,6 @@ def main(  # noqa: C901
                 fg='red',
                 bold=True,
             ),
-            err=echoAsError,
-        )
-        ctx.exit(1)
-
-    if paths and src is not None:
-        click.echo(
-            main.get_usage(ctx)
-            + "\n\n'paths' and 'src' cannot be passed simultaneously.",
-            err=echoAsError,
-        )
-        ctx.exit(1)
-
-    if not paths and src is None:
-        click.echo(
-            main.get_usage(ctx) + "\n\nOne of 'paths' or 'src' is required.",
             err=echoAsError,
         )
         ctx.exit(1)
