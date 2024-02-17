@@ -1,4 +1,7 @@
 # fmt: off
+
+# This edge case comes from https://github.com/jsh9/pydoclint/issues/105
+
 from __future__ import annotations
 
 from typing import Literal
