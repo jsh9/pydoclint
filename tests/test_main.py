@@ -474,7 +474,8 @@ def testAllowInitDocstring(style: str) -> None:
         'because __init__() cannot yield anything ',
         'DOC403: Method `D.__init__` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
-        'Generator/Iterator/Iterable. ',
+        'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
+        'return annotation.) ',
     ]
     assert list(map(str, violations)) == expected
 
@@ -499,7 +500,8 @@ def testYields(style: str) -> None:
         'section does not exist or has 0 type(s).',
         'DOC403: Method `A.method3` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
-        'Generator/Iterator/Iterable. ',
+        'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
+        'return annotation.) ',
         'DOC402: Method `A.method6` has "yield" statements, but the docstring does '
         'not have a "Yields" section ',
         'DOC404: Method `A.method6` yield type(s) in docstring not consistent with '
@@ -528,7 +530,8 @@ def testYields(style: str) -> None:
         'DOC201: Method `A.zipLists2` does not have a return section in docstring ',
         'DOC403: Method `A.zipLists2` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
-        'Generator/Iterator/Iterable. ',
+        'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
+        'return annotation.) ',
         'DOC404: Function `inner9a` yield type(s) in docstring not consistent with '
         'the return annotation. The yield type (the 0th arg in '
         'Generator[...]/Iterator[...]): str; docstring "yields" section types: '
@@ -541,7 +544,8 @@ def testYields(style: str) -> None:
         'DOC201: Method `A.method9c` does not have a return section in docstring ',
         'DOC403: Method `A.method9c` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
-        'Generator/Iterator/Iterable. ',
+        'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
+        'return annotation.) ',
         'DOC404: Function `inner9c` yield type(s) in docstring not consistent with '
         'the return annotation. The yield type (the 0th arg in '
         'Generator[...]/Iterator[...]): str; docstring "yields" section types: '
@@ -1129,6 +1133,20 @@ def testNonAscii() -> None:
         ('08_return_section_parsing/google.py', {'style': 'google'}, []),
         ('09_double_quotes_in_Literal/google.py', {'style': 'google'}, []),
         ('09_double_quotes_in_Literal/numpy.py', {'style': 'numpy'}, []),
+        (
+            '10_absent_return_anno/numpy.py',
+            {'style': 'numpy'},
+            [
+                'DOC403: Function `f1` has a "Yields" section in the docstring, but there are '
+                'no "yield" statements, or the return annotation is not a '
+                'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
+                'return annotation.) ',
+                'DOC404: Function `f1` yield type(s) in docstring not consistent with the '
+                'return annotation. Return annotation does not exist or is not '
+                'Generator[...]/Iterator[...]/Iterable[...], but docstring "yields" section '
+                'has 1 type(s).',
+            ],
+        ),
     ],
 )
 def testEdgeCases(

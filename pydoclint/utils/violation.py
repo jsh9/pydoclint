@@ -39,6 +39,7 @@ VIOLATION_CODES = types.MappingProxyType({
     403: (  # noqa: PAR001
         'has a "Yields" section in the docstring, but there are no "yield"'
         ' statements, or the return annotation is not a Generator/Iterator/Iterable.'
+        ' (Or it could be because the function lacks a return annotation.)'
     ),
     404: 'yield type(s) in docstring not consistent with the return annotation.',
     405: (  # noqa: PAR001
