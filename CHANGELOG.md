@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.4.2] - 2024-05-29
+
+- Changed
+
+  - Improved the violation message of DOC403 to remind users to add a return
+    annotation
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.4.1...0.4.2
+
 ## [0.4.1] - 2024-02-17
 
 - Fixed
