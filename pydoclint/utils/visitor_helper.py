@@ -32,10 +32,6 @@ def checkClassAttributesAgainstClassDocstring(
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
     classAttributes = _collectClassAttributes(node)
-
-    if len(classAttributes) == 0:
-        return
-
     actualArgs: ArgList = _convertClassAttributesIntoArgList(classAttributes)
 
     classDocstring: str = getDocstring(node)

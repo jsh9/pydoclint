@@ -101,3 +101,24 @@ class MyClass3:
         :rtype: int
         """
         return 2
+
+
+class MyClass4:
+    """
+    This is a class
+
+    :attr name: My name
+    :type name: str
+    """
+
+    def __int__(self):
+        pass
+
+
+@dataclass
+class MyClass5:
+    """
+    This is a class
+    """
+
+    morning: str

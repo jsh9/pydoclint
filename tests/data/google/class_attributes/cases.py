@@ -100,3 +100,24 @@ class MyClass3:
             int: Result
         """
         return 2
+
+
+class MyClass4:
+    """
+    This is a class
+
+    Attributes:
+        name (str): My name
+    """
+
+    def __int__(self):
+        pass
+
+
+@dataclass
+class MyClass5:
+    """
+    This is a class
+    """
+
+    morning: str

@@ -201,6 +201,19 @@ def testClassAttributes(
             'name: str].',
             'DOC105: Method `MyClass3.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
+            'DOC602: Class `MyClass4`: Class docstring contains more class attributes '
+            'than in actual class attributes. ',
+            'DOC603: Class `MyClass4`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Arguments in the docstring but not in the actual class attributes: [name: '
+            'str].',
+            'DOC601: Class `MyClass5`: Class docstring contains fewer class attributes '
+            'than actual class attributes. ',
+            'DOC603: Class `MyClass5`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: [morning: str].',
         ],
         False: [
             'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
