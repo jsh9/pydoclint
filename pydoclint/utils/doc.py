@@ -1,6 +1,5 @@
 from typing import Any, List
 
-import docstring_parser.parser as sphinx_parser
 from docstring_parser.common import (
     Docstring,
     DocstringReturns,
@@ -8,6 +7,7 @@ from docstring_parser.common import (
 )
 from docstring_parser.google import GoogleParser
 from docstring_parser.numpydoc import NumpydocParser
+from docstring_parser.rest import parse as parseSphinx
 
 from pydoclint.utils.arg import ArgList
 from pydoclint.utils.internal_error import InternalError
@@ -29,7 +29,7 @@ class Doc:
             parser = GoogleParser()
             self.parsed = parser.parse(docstring)
         elif style == 'sphinx':
-            self.parsed = sphinx_parser.parse(docstring)
+            self.parsed = parseSphinx(docstring)
         else:
             self._raiseException()
 
@@ -59,6 +59,14 @@ class Doc:
         """The argument info in the docstring, presented as an ArgList"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringParam(self.parsed.params)
+
+        self._raiseException()  # noqa: R503
+
+    @property
+    def attrList(self) -> ArgList:
+        """The attributes info in the docstring, presented as an ArgList"""
+        if self.style in {'google', 'numpy', 'sphinx'}:
+            return ArgList.fromDocstringAttr(self.parsed.attrs)
 
         self._raiseException()  # noqa: R503
 

@@ -99,13 +99,34 @@ def getDocstring(node: ClassOrFunctionDef) -> str:
     return '' if docstring_ is None else docstring_
 
 
-def generateMsgPrefix(
+def generateClassMsgPrefix(node: ast.ClassDef, appendColon: bool) -> str:
+    """
+    Generate violation message prefix for classes.
+
+    Parameters
+    ----------
+    node : ast.ClassDef
+        The current node.
+    appendColon : bool
+        Whether to append a colon (':') at the end of the message prefix
+
+    Returns
+    -------
+    str
+        The violation message prefix
+    """
+    selfName: str = getNodeName(node)
+    colon = ':' if appendColon else ''
+    return f'Class `{selfName}`{colon}'
+
+
+def generateFuncMsgPrefix(
         node: FuncOrAsyncFuncDef,
         parent: ast.AST,
         appendColon: bool,
 ) -> str:
     """
-    Generate violation message prefix.
+    Generate violation message prefix for function def.
 
     Parameters
     ----------
@@ -184,7 +205,7 @@ def appendArgsToCheckToV105(
         funcArgs: 'ArgList',  # noqa: F821
         docArgs: 'ArgList',  # noqa: F821
 ) -> Violation:
-    """Append the arg names to check to the error message of v105"""
+    """Append the arg names to check to the error message of v105 or v605"""
     argsToCheck: List['Arg'] = funcArgs.findArgsWithDifferentTypeHints(docArgs)  # noqa: F821
     argNames: str = ', '.join(_.name for _ in argsToCheck)
     return original_v105.appendMoreMsg(moreMsg=argNames)

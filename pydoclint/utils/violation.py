@@ -52,6 +52,15 @@ VIOLATION_CODES = types.MappingProxyType({
 
     501: 'has "raise" statements, but the docstring does not have a "Raises" section',
     502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',
+
+    601: 'Class docstring contains fewer class attributes than actual class attributes.',
+    602: 'Class docstring contains more class attributes than in actual class attributes.',
+    603: (  # noqa: PAR001
+        'Class docstring attributes are different from actual class attributes.'
+        ' (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
+    ),
+    604: 'Attributes are the same in docstring and class def, but are in a different order.',
+    605: 'Attribute names match, but type hints in these attributes do not match:',
 })
 
 
