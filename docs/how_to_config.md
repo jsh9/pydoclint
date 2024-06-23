@@ -1,11 +1,13 @@
 # How to configure _pydoclint_
 
-Here is how to configure _pydoclint_.
+This document shows you how to configure _pydoclint_.
+
+## 1. All configuration options
 
 For detailed explanations of all options, please read this page:
 [Configuration options of _pydoclint_](https://jsh9.github.io/pydoclint/config_options.html).
 
-## 1. Specifying options inline
+## 2. Specifying options inline
 
 In either your terminal window or your CI/CD file (such as `tox.ini`):
 
@@ -24,7 +26,7 @@ In either your terminal window or your CI/CD file (such as `tox.ini`):
 (Note: the `=` sign is not necessary but it is encouraged, because it's just a
 bit more "Pythonic" and easier to read.)
 
-## 2. Specifying options in a configuration file
+## 3. Specifying options in a configuration file
 
 - Native:
 
@@ -52,7 +54,7 @@ bit more "Pythonic" and easier to read.)
     [flake8's official doc](https://flake8.pycqa.org/en/latest/user/configuration.html#configuration-locations)),
     add the config you need under the section `[flake8]`
 
-## 3. Specifying options in `.pre-commit-config.yaml`
+## 4. Specifying options in `.pre-commit-config.yaml`
 
 This is a template for `.pre-commit-config.yaml`:
 

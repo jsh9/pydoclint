@@ -125,7 +125,11 @@ project, making adoption of _pydoclint_ much easier.
 
 ### 2.5. How to configure _pydoclint_
 
-Please read this page:
+_pydoclint_ offers many
+[configuration options](https://jsh9.github.io/pydoclint/config_options.html)
+for you to tune it according to your team's style convention and preference.
+
+Please read this page for instructions on configuring _pydoclint_:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html)
 
 ### 2.6. How to ignore certain violations in _flake8_ mode
