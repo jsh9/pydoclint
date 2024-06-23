@@ -1,6 +1,6 @@
 # Checking class attributes
 
-Class attributes are similar to function arguments.  They look like this:
+Class attributes are similar to function arguments. They look like this:
 
 ```python
 class MyPet:
@@ -10,9 +10,9 @@ class MyPet:
     is_very_cute_or_not: bool = True
 ```
 
-And we'd like to also document them in docstrings.  However, none of the
+And we'd like to also document them in docstrings. However, none of the
 mainstream docstring styles (Google, numpy, or Sphinx) offers explicit
-guidelines on documenting class attributes.  Therefore, in _pydoclint_, we
+guidelines on documenting class attributes. Therefore, in _pydoclint_, we
 designed a new (but not totally surprising) docstring section: "attributes"
 under which we can document the class attributes.
 
@@ -50,10 +50,10 @@ class MyPet:
 
 From this example, we can see a few things:
 
-1. The class attributes should be put in a different docstring section than
-   the argument passed into the class constructor (`__init__()`)
-2. Both the class attributes and the input arguments to `__init__()` are
-   in the same docstring.  (This is assuming the _pydoclint_ option
+1. The class attributes should be put in a different docstring section than the
+   argument passed into the class constructor (`__init__()`)
+2. Both the class attributes and the input arguments to `__init__()` are in the
+   same docstring. (This is assuming the _pydoclint_ option
    `--allow-init-docstring` is `False`)
 
 If `--allow-init-docstring` is set to `True`, we can write two separate

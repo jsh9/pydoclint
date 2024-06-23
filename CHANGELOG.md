@@ -11,9 +11,9 @@
       which defaults to `True`. Therefore, this breaks backward compatibility.
     - To maintain backward compatibility, set `--check-class-attributes` to
       `False`
-    - Options like `--check-arg-order`, `--arg-type-hints-in-signature`,
-      and `--arg-type-hints-in-docstring` are still effective in checking
-      class attributes
+    - Options like `--check-arg-order`, `--arg-type-hints-in-signature`, and
+      `--arg-type-hints-in-docstring` are still effective in checking class
+      attributes
 
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.4.2...0.5.0
