@@ -1,4 +1,6 @@
-from typing import NoReturn, Optional
+from __future__ import annotations
+
+from typing import NoReturn
 
 
 def func1(text: str) -> None:
@@ -20,7 +22,7 @@ def func2(text: str) -> int:
     return 1
 
 
-def func3(text: str) -> Optional[int]:
+def func3(text: str) -> int | None:
     """A return section is always required because it returns something
 
     Args:

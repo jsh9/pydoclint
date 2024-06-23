@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import ast
 import re
 import sys
-from typing import Optional, Union
 
 from pydoclint.utils.astTypes import AnnotationType
 
@@ -39,8 +40,8 @@ else:  # python 3.8
 
 
 def unparseAnnotation(
-        node: Union[AnnotationType, ast.Module, None],
-) -> Optional[str]:
+        node: AnnotationType | ast.Module | None,
+) -> str | None:
     """Parse type annotations from argument list or return annotation."""
     if node is None:
         return None

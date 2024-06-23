@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Sequence
 
 import click
 
@@ -13,8 +15,8 @@ else:
 def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
         ctx: click.Context,
         param: click.Parameter,
-        value: Optional[str],
-) -> Optional[str]:
+        value: str | None,
+) -> str | None:
     """
     Inject default objects from user-specified .toml file path.
 
@@ -42,7 +44,7 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     return value
 
 
-def parseToml(paths: Optional[Sequence[str]]) -> Dict[str, Any]:
+def parseToml(paths: Sequence[str] | None) -> dict[str, Any]:
     """Parse the pyproject.toml located in the common parent of ``paths``"""
     if paths is None:
         return {}
@@ -53,7 +55,7 @@ def parseToml(paths: Optional[Sequence[str]]) -> Dict[str, Any]:
     return parseOneTomlFile(tomlFilename)
 
 
-def parseOneTomlFile(tomlFilename: Path) -> Dict[str, Any]:
+def parseOneTomlFile(tomlFilename: Path) -> dict[str, Any]:
     """Parse a .toml file"""
     if not tomlFilename.exists():
         print(f'File "{tomlFilename}" does not exist; nothing to load.')
@@ -102,9 +104,9 @@ def findCommonParentFolder(
     return common_parent
 
 
-def updateCtxDefaultMap(ctx: click.Context, config: Dict[str, Any]) -> None:
+def updateCtxDefaultMap(ctx: click.Context, config: dict[str, Any]) -> None:
     """Update the ``click`` context default map with the provided ``config``"""
-    default_map: Dict[str, Any] = {}
+    default_map: dict[str, Any] = {}
     if ctx.default_map:
         default_map.update(ctx.default_map)
 

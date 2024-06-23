@@ -1,4 +1,6 @@
-from typing import Any, List, Set
+from __future__ import annotations
+
+from typing import Any
 
 import pytest
 
@@ -129,7 +131,7 @@ def testArg_greaterThanOrEqualTo(arg1: Arg, arg2: Arg) -> None:
         ),
     ],
 )
-def testArg_sorting(original: Set[Arg], after: List[Arg]) -> None:
+def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
     assert sorted(original) == after
 
 
@@ -328,6 +330,6 @@ def testArgList_contains(
 def testArgList_subtract(
         obj1: ArgList,
         obj2: ArgList,
-        expected: Set[Arg],
+        expected: set[Arg],
 ) -> None:
     assert obj1.subtract(obj2) == expected

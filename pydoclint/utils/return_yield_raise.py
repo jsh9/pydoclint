@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import ast
-from typing import Callable, Dict, Tuple, Type
+from typing import Callable, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
@@ -8,8 +10,8 @@ from pydoclint.utils.generic import stringStartsWith
 
 ReturnType = Type[ast.Return]
 ExprType = Type[ast.Expr]
-YieldAndYieldFromTypes = Tuple[Type[ast.Yield], Type[ast.YieldFrom]]
-FuncOrAsyncFuncTypes = Tuple[Type[ast.FunctionDef], Type[ast.AsyncFunctionDef]]
+YieldAndYieldFromTypes = tuple[Type[ast.Yield], Type[ast.YieldFrom]]
+FuncOrAsyncFuncTypes = tuple[Type[ast.FunctionDef], Type[ast.AsyncFunctionDef]]
 FuncOrAsyncFunc = (ast.FunctionDef, ast.AsyncFunctionDef)
 
 
@@ -105,7 +107,7 @@ def _hasExpectedStatements(
     foundExpectedStmt: bool = False
 
     # key: child lineno, value: (parent lineno, is parent a function?)
-    familyTree: Dict[int, Tuple[int, bool]] = {}
+    familyTree: dict[int, tuple[int, bool]] = {}
 
     for child, parent in walk.walk(node):
         childLineNum = _updateFamilyTree(child, parent, familyTree)
@@ -130,7 +132,7 @@ def _hasExpectedStatements(
 def _updateFamilyTree(
         child: ast.AST,
         parent: ast.AST,
-        familyTree: Dict[int, Tuple[int, bool]],
+        familyTree: dict[int, tuple[int, bool]],
 ) -> int:
     """
     Structure of `familyTree`:
@@ -162,7 +164,7 @@ def _getLineNum(node: ast.AST) -> int:
 
 def _confirmThisStmtIsNotWithinNestedFunc(
         foundStatementTemp: bool,
-        familyTree: Dict[int, Tuple[int, bool]],
+        familyTree: dict[int, tuple[int, bool]],
         lineNumOfStatement: int,
         lineNumOfThisNode: int,
 ) -> bool:
@@ -184,7 +186,7 @@ def _confirmThisStmtIsNotWithinNestedFunc(
 
 
 def _lookupParentFunc(
-        familyLine: Dict[int, Tuple[int, bool]],
+        familyLine: dict[int, tuple[int, bool]],
         lineNumOfChildNode: int,
 ) -> int:
     """

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import ast
 import sys
-from typing import Dict, Optional
 
 import pytest
 
@@ -50,7 +51,7 @@ def foo(
         if isinstance(node, ast.FunctionDef):
             result = _getArgTypeHints(node)
 
-    expected: Dict[str, str] = {
+    expected: dict[str, str] = {
         'arg01': 'Optional[Union[int, float]]',
         'arg02': 'Tuple[str, int, float]',
         'arg03': 'Dict[str, Any]',
@@ -108,7 +109,7 @@ def foo(
         if isinstance(node, ast.FunctionDef):
             result = _getArgTypeHints(node)
 
-    expected: Dict[str, str] = {
+    expected: dict[str, str] = {
         'arg01': 'tuple[T, *Ts]',
         'arg02': 'tuple[*Ts, T]',
         'arg03': 'Callable[[*Ts], None]',
@@ -147,7 +148,7 @@ def _getArgTypeHints(node: ast.FunctionDef) -> Dict[str, str]:
 def testParseReturnAnnotation(src: str, expectedAnnotation: str):
     tree = ast.parse(src)
 
-    returnAnnotation: Optional[str] = None
+    returnAnnotation: str | None = None
     for node in tree.body:
         if isinstance(node, ast.FunctionDef):
             returnAnnotation: str = unparseAnnotation(node.returns)

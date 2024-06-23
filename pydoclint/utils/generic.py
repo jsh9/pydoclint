@@ -1,19 +1,21 @@
+from __future__ import annotations
+
 import ast
 import copy
 import re
-from typing import List, Match, Optional, Tuple
+from typing import Match
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.violation import Violation
 
 
-def collectFuncArgs(node: FuncOrAsyncFuncDef) -> List[ast.arg]:
+def collectFuncArgs(node: FuncOrAsyncFuncDef) -> list[ast.arg]:
     """
     Collect all arguments from a function node, and return them in
     their original order in the function signature.
     """
-    allArgs: List[ast.arg] = []
+    allArgs: list[ast.arg] = []
     allArgs.extend(node.args.args)
     allArgs.extend(node.args.posonlyargs)
     allArgs.extend(node.args.kwonlyargs)
@@ -59,7 +61,7 @@ def collectFuncArgs(node: FuncOrAsyncFuncDef) -> List[ast.arg]:
     )
 
 
-def getFunctionId(node: FuncOrAsyncFuncDef) -> Tuple[int, int, str]:
+def getFunctionId(node: FuncOrAsyncFuncDef) -> tuple[int, int, str]:
     """
     Get unique identifier of a function def. We also need line and
     column number because different function can have identical names.
@@ -95,7 +97,7 @@ def detectMethodType(node: ast.FunctionDef) -> MethodType:
 
 def getDocstring(node: ClassOrFunctionDef) -> str:
     """Get docstring from a class definition or a function definition"""
-    docstring_: Optional[str] = ast.get_docstring(node)
+    docstring_: str | None = ast.get_docstring(node)
     return '' if docstring_ is None else docstring_
 
 
@@ -162,7 +164,7 @@ def getNodeName(node: ast.AST) -> str:
     return node.name if 'name' in node.__dict__ else ''
 
 
-def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
+def stringStartsWith(string: str, substrings: tuple[str, ...]) -> bool:
     """Check whether the string starts with any of the substrings"""
     for substring in substrings:
         if string.startswith(substring):
@@ -171,7 +173,7 @@ def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
     return False
 
 
-def stripQuotes(string: Optional[str]) -> Optional[str]:
+def stripQuotes(string: str | None) -> str | None:
     """
     Strip quotes (both double and single quotes) from the given string.
     Also, strip backticks (`) or double backticks (``) from the beginning

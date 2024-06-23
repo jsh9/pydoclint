@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import ast
-from typing import List, Optional, Set
 
 from docstring_parser.common import DocstringAttr, DocstringParam
 
@@ -116,7 +117,7 @@ class Arg:
         )
 
     @classmethod
-    def _str(cls, typeName: Optional[str]) -> str:
+    def _str(cls, typeName: str | None) -> str:
         return '' if typeName is None else typeName
 
     @classmethod
@@ -162,7 +163,7 @@ class ArgList:
     equality, length calculation, etc.
     """
 
-    def __init__(self, infoList: List[Arg]):
+    def __init__(self, infoList: list[Arg]):
         if not all(isinstance(_, Arg) for _ in infoList):
             raise TypeError('All elements of `infoList` must be Arg.')
 
@@ -197,7 +198,7 @@ class ArgList:
         return len(self.infoList)
 
     @classmethod
-    def fromDocstringParam(cls, params: List[DocstringParam]) -> 'ArgList':
+    def fromDocstringParam(cls, params: list[DocstringParam]) -> 'ArgList':
         """Construct an ArgList from a list of DocstringParam objects"""
         infoList = [
             Arg.fromDocstringParam(_)
@@ -209,7 +210,7 @@ class ArgList:
     @classmethod
     def fromDocstringAttr(
             cls,
-            params: List[DocstringAttr],
+            params: list[DocstringAttr],
     ) -> 'ArgList':
         """Construct an ArgList from a list of DocstringAttr objects"""
         infoList = [
@@ -308,13 +309,13 @@ class ArgList:
 
         return verdict  # noqa: R504
 
-    def findArgsWithDifferentTypeHints(self, other: 'ArgList') -> List[Arg]:
+    def findArgsWithDifferentTypeHints(self, other: 'ArgList') -> list[Arg]:
         """Find args with unmatched type hints."""
         if not self.equals(other, checkTypeHint=False, orderMatters=False):
             msg = 'These 2 arg lists do not have the same arg names'
             raise InternalError(msg)
 
-        result: List[Arg] = []
+        result: list[Arg] = []
         for selfArg in self.infoList:
             selfArgTypeHint: str = selfArg.typeHint
             otherArgTypeHint: str = other.lookup[selfArg.name]
@@ -323,7 +324,7 @@ class ArgList:
 
         return result
 
-    def subtract(self, other: 'ArgList', checkTypeHint=True) -> Set[Arg]:
+    def subtract(self, other: 'ArgList', checkTypeHint=True) -> set[Arg]:
         """Find the args that are in this object but not in `other`."""
         if checkTypeHint:
             return set(self.infoList) - set(other.infoList)

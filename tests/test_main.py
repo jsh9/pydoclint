@@ -1,8 +1,10 @@
+from __future__ import annotations
+
 import copy
 import itertools
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -106,7 +108,7 @@ expectedViolations_False = [
     'docstring: [arg3: list, arg4: tuple, arg5: dict].',
 ]
 
-expectedViolationsLookup: Dict[bool, List[str]] = {
+expectedViolationsLookup: dict[bool, list[str]] = {
     True: expectedViolations_True,
     False: expectedViolations_False,
 }
@@ -127,7 +129,7 @@ def testArguments(
         filename: str,
         checkArgOrder: bool,
 ) -> None:
-    expectedViolations: List[str] = expectedViolationsLookup[checkArgOrder]
+    expectedViolations: list[str] = expectedViolationsLookup[checkArgOrder]
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
     if filename == 'function.py':
@@ -161,7 +163,7 @@ def testClassAttributes(
         style=style,
     )
 
-    expectedViolations: Dict[bool, List[str]] = {
+    expectedViolations: dict[bool, list[str]] = {
         True: [
             'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
             'than actual class attributes. ',
@@ -267,7 +269,7 @@ def testReturns(style: str, filename: str) -> None:
         style=style,
     )
 
-    expectedViolations: List[str] = [
+    expectedViolations: list[str] = [
         'DOC201: Method `MyClass.func1_6` does not have a return section in '
         'docstring ',
         'DOC203: Method `MyClass.func1_6` return type(s) in docstring not consistent with '
@@ -356,7 +358,7 @@ def testReturnsPy310plus(style: str, filename: str) -> None:
         style=style,
     )
 
-    expectedViolations: List[str] = [
+    expectedViolations: list[str] = [
         'DOC201: Method `MyClass.func11` does not have a return section in docstring ',
         'DOC203: Method `MyClass.func11` return type(s) in docstring not consistent '
         'with the return annotation. Return annotation has 1 type(s); docstring '
@@ -428,7 +430,7 @@ def testReturns_returningNoReturn(style: str, require: bool) -> None:
     assert list(map(str, violations)) == expectedViolationsCopy
 
 
-def _tweakViolationMsgForFunctions(expectedViolationsCopy: List[str]) -> None:
+def _tweakViolationMsgForFunctions(expectedViolationsCopy: list[str]) -> None:
     for i in range(len(expectedViolationsCopy)):
         expectedViolationsCopy[i] = expectedViolationsCopy[i].replace(
             'Method `MyClass.', 'Function `'
@@ -511,7 +513,7 @@ expected_skipCheckingShortDocstrings_False = [
 def testSkipCheckingShortDocstrings(
         style: str,
         skipCheckingShortDocstrings: bool,
-        expected: List[str],
+        expected: list[str],
 ) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/short_docstrings/cases.py',
@@ -1260,8 +1262,8 @@ def testNonAscii() -> None:
 )
 def testEdgeCases(
         filename: str,
-        options: Dict[str, Any],
-        expectedViolations: List[str],
+        options: dict[str, Any],
+        expectedViolations: list[str],
 ) -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'edge_cases' / filename,

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import types
 from copy import deepcopy
-from typing import Tuple
 
 from pydoclint.utils.internal_error import InternalError
 
@@ -98,7 +99,7 @@ class Violation:
 
         return f'{self.line}: {self.__str__()}'
 
-    def getInfoForFlake8(self) -> Tuple[int, int, str]:
+    def getInfoForFlake8(self) -> tuple[int, int, str]:
         """Get the violation info for flake8"""
         colOffset: int = 0  # we don't need column offset to locate the issue
         msg = f'{self.fullErrorCode} {self.msg}'  # no colon b/c that would cause 'yesqa' issues

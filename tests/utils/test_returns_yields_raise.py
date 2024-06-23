@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import ast
-from typing import Dict, Tuple
 
 import pytest
 
@@ -115,14 +116,14 @@ class HelperVisitor(ast.NodeVisitor):
     """A helper class to check each return statements in nested functions"""
 
     def __init__(self):
-        self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.yieldStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.raiseStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
-        self.generatorAnnotations: Dict[Tuple[int, int, str], bool] = {}
+        self.returnStatements: dict[tuple[int, int, str], bool] = {}
+        self.yieldStatements: dict[tuple[int, int, str], bool] = {}
+        self.raiseStatements: dict[tuple[int, int, str], bool] = {}
+        self.returnAnnotations: dict[tuple[int, int, str], bool] = {}
+        self.generatorAnnotations: dict[tuple[int, int, str], bool] = {}
 
     def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):
-        functionId: Tuple[int, int, str] = getFunctionId(node)
+        functionId: tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = hasReturnStatements(node)
         self.yieldStatements[functionId] = hasYieldStatements(node)
         self.raiseStatements[functionId] = hasRaiseStatements(node)

@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -23,7 +25,7 @@ DATA_DIR = THIS_DIR / 'data'
         (['./a/b/c', './e/f/g', './a/b/e/f/g'], '.'),
     ],
 )
-def testFindCommonParentFolder(paths: List[str], expected: str) -> None:
+def testFindCommonParentFolder(paths: list[str], expected: str) -> None:
     result = findCommonParentFolder(paths, makeAbsolute=False).as_posix()
     assert result == expected
 
@@ -38,6 +40,6 @@ def testFindCommonParentFolder(paths: List[str], expected: str) -> None:
         ),
     ],
 )
-def testParseOneTomlFile(filename: Path, expected: Dict[str, Any]) -> None:
+def testParseOneTomlFile(filename: Path, expected: dict[str, Any]) -> None:
     tomlConfig = parseOneTomlFile(filename)
     assert tomlConfig == expected

@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import ast
-from typing import List
 
 import pytest
 
@@ -66,7 +67,7 @@ expected6 = ['arg1', 'arg2']
         (src6, expected6),
     ],
 )
-def testCollectFuncArgs(src: str, expected: List[str]) -> None:
+def testCollectFuncArgs(src: str, expected: list[str]) -> None:
     tree = ast.parse(src)
     out = collectFuncArgs(tree.body[0])
     assert [_.arg for _ in out] == expected

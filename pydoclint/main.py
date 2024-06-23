@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import ast
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 import click
 
@@ -27,8 +28,8 @@ echoAsError = True
 def validateStyleValue(
         context: click.Context,
         param: click.Parameter,
-        value: Optional[str],
-) -> Optional[str]:
+        value: str | None,
+) -> str | None:
     """Validate the value of the 'style' option"""
     if value not in {'numpy', 'google', 'sphinx'}:
         raise click.BadParameter(
@@ -278,7 +279,7 @@ def main(  # noqa: C901
         quiet: bool,
         exclude: str,
         style: str,
-        paths: Tuple[str, ...],
+        paths: tuple[str, ...],
         type_hints_in_signature: str,
         type_hints_in_docstring: str,
         arg_type_hints_in_signature: bool,
@@ -297,7 +298,7 @@ def main(  # noqa: C901
         generate_baseline: bool,
         baseline: str,
         show_filenames_in_every_violation_message: bool,
-        config: Optional[str],  # don't remove it b/c it's required by `click`
+        config: str | None,  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
     ctx.ensure_object(dict)
@@ -361,7 +362,7 @@ def main(  # noqa: C901
             )
             ctx.exit(1)
 
-    violationsInAllFiles: Dict[str, List[Violation]] = _checkPaths(
+    violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(
         quiet=quiet,
         exclude=exclude,
         style=style,
@@ -479,7 +480,7 @@ def main(  # noqa: C901
 
 
 def _checkPaths(
-        paths: Tuple[str, ...],
+        paths: tuple[str, ...],
         style: str = 'numpy',
         argTypeHintsInSignature: bool = True,
         argTypeHintsInDocstring: bool = True,
@@ -495,8 +496,8 @@ def _checkPaths(
         requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
         exclude: str = '',
-) -> Dict[str, List[Violation]]:
-    filenames: List[Path] = []
+) -> dict[str, list[Violation]]:
+    filenames: list[Path] = []
 
     if not quiet:
         skipMsg = f'Skipping files that match this pattern: {exclude}'
@@ -513,7 +514,7 @@ def _checkPaths(
         elif path.is_dir():
             filenames.extend(sorted(path.rglob('*.py')))
 
-    allViolations: Dict[str, List[Violation]] = {}
+    allViolations: dict[str, list[Violation]] = {}
 
     for filename in filenames:
         if excludePattern.search(filename.as_posix()):
@@ -524,7 +525,7 @@ def _checkPaths(
                 click.style(filename, fg='cyan', bold=True), err=echoAsError
             )
 
-        violationsInThisFile: List[Violation] = _checkFile(
+        violationsInThisFile: list[Violation] = _checkFile(
             filename,
             style=style,
             argTypeHintsInSignature=argTypeHintsInSignature,
@@ -564,7 +565,7 @@ def _checkFile(
         checkClassAttributes: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
-) -> List[Violation]:
+) -> list[Violation]:
     with open(filename, encoding='utf8') as fp:
         src: str = ''.join(fp.readlines())
 
