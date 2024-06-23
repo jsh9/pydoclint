@@ -156,6 +156,17 @@ class Plugin:
                 ' signature do not need to appear in the docstring.'
             ),
         )
+        parser.add_option(
+            '-cca',
+            '--check-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, class attributes (the ones defined right beneath'
+                ' "class MyClass:") are checked against the docstring.'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
@@ -181,6 +192,7 @@ class Plugin:
         cls.check_return_types = options.check_return_types
         cls.check_yield_types = options.check_yield_types
         cls.ignore_underscore_args = options.ignore_underscore_args
+        cls.check_class_attributes = options.check_class_attributes
         cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
@@ -246,6 +258,10 @@ class Plugin:
             '--ignore-underscore-args',
             self.ignore_underscore_args,
         )
+        checkClassAttributes = self._bool(
+            '--check-class-attributes',
+            self.check_class_attributes,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -268,6 +284,7 @@ class Plugin:
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+            checkClassAttributes=checkClassAttributes,
             style=self.style,
         )
         v.visit(self._tree)

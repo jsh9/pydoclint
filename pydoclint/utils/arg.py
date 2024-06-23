@@ -1,7 +1,7 @@
 import ast
 from typing import List, Optional, Set
 
-from docstring_parser.common import DocstringParam
+from docstring_parser.common import DocstringAttr, DocstringParam
 
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.generic import stripQuotes
@@ -73,8 +73,13 @@ class Arg:
 
     @classmethod
     def fromDocstringParam(cls, param: DocstringParam) -> 'Arg':
-        """Construct an Arg object from a GoogleParser Parameter object"""
+        """Construct an Arg object from a DocstringParam object"""
         return Arg(name=param.arg_name, typeHint=cls._str(param.type_name))
+
+    @classmethod
+    def fromDocstringAttr(cls, attr: DocstringAttr) -> 'Arg':
+        """Construct an Arg object from a DocstringAttr object"""
+        return Arg(name=attr.arg_name, typeHint=cls._str(attr.type_name))
 
     @classmethod
     def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
@@ -82,6 +87,33 @@ class Arg:
         anno = astArg.annotation
         typeHint: str = '' if anno is None else unparseAnnotation(anno)
         return Arg(name=astArg.arg, typeHint=typeHint)
+
+    @classmethod
+    def fromAstAssignWithNonTupleTarget(cls, astAssign: ast.Assign) -> 'Arg':
+        """
+        Construct an Arg object from a Python ast.Assign object whose
+        "target" field is an ast.Name rather than an ast.Tuple.
+        """
+        if len(astAssign.targets) != 1:
+            raise InternalError(
+                f'astAssign.targets has length {len(astAssign.targets)}'
+            )
+
+        if not isinstance(astAssign.targets[0], ast.Name):  # not a tuple
+            raise InternalError(
+                f'astAssign.targets[0] is of type {type(astAssign.targets[0])}'
+                ' instead of ast.Name'
+            )
+
+        return Arg(name=astAssign.targets[0].id, typeHint='')
+
+    @classmethod
+    def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
+        """Construct an Arg object from a Python ast.AnnAssign object"""
+        return Arg(
+            name=astAnnAssign.target.id,
+            typeHint=astAnnAssign.annotation.id,
+        )
 
     @classmethod
     def _str(cls, typeName: Optional[str]) -> str:
@@ -172,6 +204,49 @@ class ArgList:
             for _ in params
             if _.args[0] != 'attribute'  # we only need 'param' not 'attribute'
         ]
+        return ArgList(infoList=infoList)
+
+    @classmethod
+    def fromDocstringAttr(
+            cls,
+            params: List[DocstringAttr],
+    ) -> 'ArgList':
+        """Construct an ArgList from a list of DocstringAttr objects"""
+        infoList = [
+            Arg.fromDocstringAttr(_)
+            for _ in params
+            # we only need 'attribute' not 'param':
+            if _.args[0] in {'attribute', 'attr'}
+        ]
+        return ArgList(infoList=infoList)
+
+    @classmethod
+    def fromAstAssignWithTupleTarget(cls, astAssign: ast.Assign) -> 'ArgList':
+        """
+        Construct an ArgList from a Python ast.Assign object whose
+        "target" field is an ast.Tuple rather than an ast.Name.
+        """
+        if len(astAssign.targets) != 1:
+            raise InternalError(
+                f'astAssign.targets has length {len(astAssign.targets)}'
+            )
+
+        if not isinstance(astAssign.targets[0], ast.Tuple):
+            raise InternalError(
+                f'astAssign.targets[0] is of type {type(astAssign.targets[0])}'
+                ' instead of ast.Tuple'
+            )
+
+        infoList = []
+        for i, item in enumerate(astAssign.targets[0].elts):
+            if not isinstance(item, ast.Name):
+                raise InternalError(
+                    f'astAssign.targets[0].elts[{i}] is of type {type(item)}'
+                    ' instead of ast.Name'
+                )
+
+            infoList.append(Arg(name=item.id, typeHint=''))
+
         return ArgList(infoList=infoList)
 
     def contains(self, arg: Arg) -> bool:

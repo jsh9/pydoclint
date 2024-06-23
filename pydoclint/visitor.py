@@ -1,15 +1,15 @@
 import ast
-from typing import List, Optional, Set
+from typing import List, Optional
 
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
-    appendArgsToCheckToV105,
     collectFuncArgs,
     detectMethodType,
-    generateMsgPrefix,
+    generateClassMsgPrefix,
+    generateFuncMsgPrefix,
     getDocstring,
 )
 from pydoclint.utils.internal_error import InternalError
@@ -32,6 +32,9 @@ from pydoclint.utils.special_methods import (
 )
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.visitor_helper import (
+    checkClassAttributesAgainstClassDocstring,
+    checkDocArgsLengthAgainstActualArgs,
+    checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs,
     checkReturnTypesForViolations,
     checkYieldTypesForViolations,
     extractReturnTypeFromGenerator,
@@ -55,6 +58,7 @@ class Visitor(ast.NodeVisitor):
             checkReturnTypes: bool = True,
             checkYieldTypes: bool = True,
             ignoreUnderscoreArgs: bool = True,
+            checkClassAttributes: bool = True,
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
     ) -> None:
@@ -68,6 +72,7 @@ class Visitor(ast.NodeVisitor):
         self.checkReturnTypes: bool = checkReturnTypes
         self.checkYieldTypes: bool = checkYieldTypes
         self.ignoreUnderscoreArgs: bool = ignoreUnderscoreArgs
+        self.checkClassAttributes: bool = checkClassAttributes
         self.requireReturnSectionWhenReturningNothing: bool = (
             requireReturnSectionWhenReturningNothing
         )
@@ -81,6 +86,18 @@ class Visitor(ast.NodeVisitor):
     def visit_ClassDef(self, node: ast.ClassDef):  # noqa: D102
         currentParent = self.parent  # keep aside
         self.parent = node
+
+        if self.checkClassAttributes:
+            checkClassAttributesAgainstClassDocstring(
+                node=node,
+                style=self.style,
+                violations=self.violations,
+                lineNum=node.lineno,
+                msgPrefix=generateClassMsgPrefix(node=node, appendColon=True),
+                shouldCheckArgOrder=self.checkArgOrder,
+                argTypeHintsInSignature=self.argTypeHintsInSignature,
+                argTypeHintsInDocstring=self.argTypeHintsInDocstring,
+            )
 
         self.generic_visit(node)
 
@@ -99,7 +116,7 @@ class Visitor(ast.NodeVisitor):
         self.isAbstractMethod = checkIsAbstractMethod(node)
 
         if isClassConstructor:
-            docstring = self._checkClassConstructorDocstrings(
+            docstring = self._checkClassDocstringAndConstructorDocstrings(
                 node=node,
                 parent_=parent_,
                 initDocstring=docstring,
@@ -191,7 +208,7 @@ class Visitor(ast.NodeVisitor):
     def visit_Raise(self, node: ast.Raise):  # noqa: D102
         self.generic_visit(node)
 
-    def _checkClassConstructorDocstrings(  # noqa: C901
+    def _checkClassDocstringAndConstructorDocstrings(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.ClassDef,
@@ -344,7 +361,7 @@ class Visitor(ast.NodeVisitor):
         astArgList: List[ast.arg] = collectFuncArgs(node)
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)
-        msgPrefix: str = generateMsgPrefix(node, parent_, appendColon=True)
+        msgPrefix: str = generateFuncMsgPrefix(node, parent_, appendColon=True)
 
         if isMethod:
             mType: MethodType = detectMethodType(node)
@@ -379,11 +396,14 @@ class Visitor(ast.NodeVisitor):
             return []
 
         violations: List[Violation] = []
-        if docArgs.length < funcArgs.length:
-            violations.append(v101)
 
-        if docArgs.length > funcArgs.length:
-            violations.append(v102)
+        checkDocArgsLengthAgainstActualArgs(
+            docArgs=docArgs,
+            actualArgs=funcArgs,
+            violations=violations,
+            violationForDocArgsLengthShorter=v101,
+            violationForDocArgsLengthLonger=v102,
+        )
 
         if self.argTypeHintsInSignature and funcArgs.noTypeHints():
             violations.append(v106)
@@ -406,75 +426,19 @@ class Visitor(ast.NodeVisitor):
         if not self.argTypeHintsInDocstring and docArgs.hasTypeHintInAnyArg():
             violations.append(v111)
 
-        if not docArgs.equals(
-            funcArgs,
-            checkTypeHint=True,
-            orderMatters=self.checkArgOrder,
-        ):
-            if docArgs.equals(
-                funcArgs,
-                checkTypeHint=True,
-                orderMatters=False,
-            ):
-                violations.append(v104)
-            elif docArgs.equals(
-                funcArgs,
-                checkTypeHint=False,
-                orderMatters=self.checkArgOrder,
-            ):
-                if (
-                    self.argTypeHintsInSignature
-                    and self.argTypeHintsInDocstring
-                ):
-                    v105_new = appendArgsToCheckToV105(
-                        original_v105=v105,
-                        funcArgs=funcArgs,
-                        docArgs=docArgs,
-                    )
-                    violations.append(v105_new)
-            elif docArgs.equals(
-                funcArgs,
-                checkTypeHint=False,
-                orderMatters=False,
-            ):
-                v105_new = appendArgsToCheckToV105(
-                    original_v105=v105,
-                    funcArgs=funcArgs,
-                    docArgs=docArgs,
-                )
-                violations.append(v104)
-                violations.append(v105_new)
-            else:
-                argsInFuncNotInDoc: Set[Arg] = funcArgs.subtract(
-                    docArgs,
-                    checkTypeHint=False,
-                )
-                argsInDocNotInFunc: Set[Arg] = docArgs.subtract(
-                    funcArgs,
-                    checkTypeHint=False,
-                )
-
-                msgPostfixParts: List[str] = []
-                if argsInFuncNotInDoc:
-                    msgPostfixParts.append(
-                        'Arguments in the function signature but not in the'
-                        f' docstring: {sorted(argsInFuncNotInDoc)}.'
-                    )
-
-                if argsInDocNotInFunc:
-                    msgPostfixParts.append(
-                        'Arguments in the docstring but not in the function'
-                        f' signature: {sorted(argsInDocNotInFunc)}.'
-                    )
-
-                violations.append(
-                    Violation(
-                        code=103,
-                        line=lineNum,
-                        msgPrefix=msgPrefix,
-                        msgPostfix=' '.join(msgPostfixParts),
-                    )
-                )
+        checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
+            docArgs=docArgs,
+            actualArgs=funcArgs,
+            violations=violations,
+            actualArgsAreClassAttributes=False,  # they are function args
+            violationForOrderMismatch=v104,
+            violationForTypeHintMismatch=v105,
+            shouldCheckArgOrder=self.checkArgOrder,
+            argTypeHintsInSignature=self.argTypeHintsInSignature,
+            argTypeHintsInDocstring=self.argTypeHintsInDocstring,
+            lineNum=lineNum,
+            msgPrefix=msgPrefix,
+        )
 
         return violations
 
@@ -486,7 +450,7 @@ class Visitor(ast.NodeVisitor):
     ) -> List[Violation]:
         """Check return statement & return type annotation of this function"""
         lineNum: int = node.lineno
-        msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
+        msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
 
         v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
         v202 = Violation(code=202, line=lineNum, msgPrefix=msgPrefix)
@@ -609,7 +573,7 @@ class Visitor(ast.NodeVisitor):
         violations: List[Violation] = []
 
         lineNum: int = node.lineno
-        msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
+        msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
 
         v402 = Violation(code=402, line=lineNum, msgPrefix=msgPrefix)
         v403 = Violation(code=403, line=lineNum, msgPrefix=msgPrefix)
@@ -711,7 +675,7 @@ class Visitor(ast.NodeVisitor):
         violations: List[Violation] = []
 
         lineNum: int = node.lineno
-        msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
+        msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
 
         v201 = Violation(code=201, line=lineNum, msgPrefix=msgPrefix)
         v203 = Violation(code=203, line=lineNum, msgPrefix=msgPrefix)
@@ -821,7 +785,7 @@ class Visitor(ast.NodeVisitor):
         violations: List[Violation] = []
 
         lineNum: int = node.lineno
-        msgPrefix = generateMsgPrefix(node, parent, appendColon=False)
+        msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
 
         v501 = Violation(code=501, line=lineNum, msgPrefix=msgPrefix)
         v502 = Violation(code=502, line=lineNum, msgPrefix=msgPrefix)

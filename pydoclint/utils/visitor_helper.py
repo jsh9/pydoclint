@@ -1,14 +1,225 @@
 """Helper functions to classes/methods in visitor.py"""
 import ast
 import sys
-from typing import List, Optional
+from typing import List, Optional, Set, Union
 
 from pydoclint.utils.annotation import unparseAnnotation
-from pydoclint.utils.generic import specialEqual, stripQuotes
+from pydoclint.utils.arg import Arg, ArgList
+from pydoclint.utils.doc import Doc
+from pydoclint.utils.generic import (
+    appendArgsToCheckToV105,
+    getDocstring,
+    specialEqual,
+    stripQuotes,
+)
+from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.yield_arg import YieldArg
+
+
+def checkClassAttributesAgainstClassDocstring(
+        *,
+        node: ast.ClassDef,
+        style: str,
+        violations: List[Violation],
+        lineNum: int,
+        msgPrefix: str,
+        shouldCheckArgOrder: bool,
+        argTypeHintsInSignature: bool,
+        argTypeHintsInDocstring: bool,
+) -> None:
+    """Check class attribute list against the attribute list in docstring"""
+    classAttributes = _collectClassAttributes(node)
+
+    if len(classAttributes) == 0:
+        return
+
+    actualArgs: ArgList = _convertClassAttributesIntoArgList(classAttributes)
+
+    classDocstring: str = getDocstring(node)
+    doc: Doc = Doc(docstring=classDocstring, style=style)
+    docArgs: ArgList = doc.attrList
+
+    checkDocArgsLengthAgainstActualArgs(
+        docArgs=docArgs,
+        actualArgs=actualArgs,
+        violations=violations,
+        violationForDocArgsLengthShorter=Violation(
+            code=601, line=lineNum, msgPrefix=msgPrefix
+        ),
+        violationForDocArgsLengthLonger=Violation(
+            code=602, line=lineNum, msgPrefix=msgPrefix
+        ),
+    )
+
+    checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
+        docArgs=docArgs,
+        actualArgs=actualArgs,
+        violations=violations,
+        actualArgsAreClassAttributes=True,
+        violationForOrderMismatch=Violation(
+            code=604, line=lineNum, msgPrefix=msgPrefix
+        ),
+        violationForTypeHintMismatch=Violation(
+            code=605, line=lineNum, msgPrefix=msgPrefix
+        ),
+        shouldCheckArgOrder=shouldCheckArgOrder,
+        argTypeHintsInSignature=argTypeHintsInSignature,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        lineNum=lineNum,
+        msgPrefix=msgPrefix,
+    )
+
+
+def _collectClassAttributes(
+        node: ast.ClassDef,
+) -> List[Union[ast.Assign, ast.AnnAssign]]:
+    if 'body' not in node.__dict__ or len(node.body) == 0:
+        return []
+
+    attributes: List[Union[ast.Assign, ast.AnnAssign]] = []
+    for item in node.body:
+        if isinstance(item, (ast.Assign, ast.AnnAssign)):
+            attributes.append(item)
+
+    return attributes
+
+
+def _convertClassAttributesIntoArgList(
+        classAttributes: List[Union[ast.Assign, ast.AnnAssign]],
+) -> ArgList:
+    atl: List[Arg] = []
+    for attr in classAttributes:
+        if isinstance(attr, ast.AnnAssign):
+            atl.append(Arg.fromAstAnnAssign(attr))
+        elif isinstance(attr, ast.Assign):
+            if isinstance(attr.targets[0], ast.Tuple):
+                atl.extend(ArgList.fromAstAssignWithTupleTarget(attr).infoList)
+            else:
+                atl.append(Arg.fromAstAssignWithNonTupleTarget(attr))
+        else:
+            raise InternalError(
+                f'Unkonwn type of class attribute: {type(attr)}'
+            )
+
+    return ArgList(infoList=atl)
+
+
+def checkDocArgsLengthAgainstActualArgs(
+        *,
+        docArgs: ArgList,
+        actualArgs: ArgList,
+        violations: List[Violation],
+        violationForDocArgsLengthShorter: Violation,  # such as V101, V601
+        violationForDocArgsLengthLonger: Violation,  # such as V102, V602
+) -> None:
+    """Check lengths of doc arg list against actual arg list"""
+    if docArgs.length < actualArgs.length:
+        violations.append(violationForDocArgsLengthShorter)
+
+    if docArgs.length > actualArgs.length:
+        violations.append(violationForDocArgsLengthLonger)
+
+
+def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
+        *,
+        docArgs: ArgList,
+        actualArgs: ArgList,
+        violations: List[Violation],
+        actualArgsAreClassAttributes: bool,
+        violationForOrderMismatch: Violation,  # such as V104, V604
+        violationForTypeHintMismatch: Violation,  # such as V105, V605
+        shouldCheckArgOrder: bool,
+        argTypeHintsInSignature: bool,
+        argTypeHintsInDocstring: bool,
+        lineNum: int,
+        msgPrefix: str,
+) -> None:
+    """
+    Check the arg/attr list in the docstring against the actual arg/attr
+    list (either the function arguments or class attributes).
+    """
+    if not docArgs.equals(
+        actualArgs,
+        checkTypeHint=True,
+        orderMatters=shouldCheckArgOrder,
+    ):
+        if docArgs.equals(
+            actualArgs,
+            checkTypeHint=True,
+            orderMatters=False,
+        ):
+            violations.append(violationForOrderMismatch)
+        elif docArgs.equals(
+            actualArgs,
+            checkTypeHint=False,
+            orderMatters=shouldCheckArgOrder,
+        ):
+            if argTypeHintsInSignature and argTypeHintsInDocstring:
+                v105new = appendArgsToCheckToV105(
+                    original_v105=violationForTypeHintMismatch,
+                    funcArgs=actualArgs,
+                    docArgs=docArgs,
+                )
+                violations.append(v105new)
+        elif docArgs.equals(
+            actualArgs,
+            checkTypeHint=False,
+            orderMatters=False,
+        ):
+            v105new = appendArgsToCheckToV105(
+                original_v105=violationForTypeHintMismatch,
+                funcArgs=actualArgs,
+                docArgs=docArgs,
+            )
+            violations.append(violationForOrderMismatch)
+            violations.append(v105new)
+        else:
+            argsInFuncNotInDoc: Set[Arg] = actualArgs.subtract(
+                docArgs,
+                checkTypeHint=False,
+            )
+            argsInDocNotInFunc: Set[Arg] = docArgs.subtract(
+                actualArgs,
+                checkTypeHint=False,
+            )
+
+            msgPostfixParts: List[str] = []
+
+            string0 = (
+                'Attributes in the class definition but not in the'
+                if actualArgsAreClassAttributes
+                else 'Arguments in the function signature but not in the'
+            )
+
+            if argsInFuncNotInDoc:
+                msgPostfixParts.append(
+                    string0 + f' docstring: {sorted(argsInFuncNotInDoc)}.'
+                )
+
+            string1 = (
+                ' actual class attributes:'
+                if actualArgsAreClassAttributes
+                else ' function signature:'
+            )
+
+            if argsInDocNotInFunc:
+                msgPostfixParts.append(
+                    'Arguments in the docstring but not in the'
+                    + string1
+                    + f' {sorted(argsInDocNotInFunc)}.'
+                )
+
+            violations.append(
+                Violation(
+                    code=603 if actualArgsAreClassAttributes else 103,
+                    line=lineNum,
+                    msgPrefix=msgPrefix,
+                    msgPostfix=' '.join(msgPostfixParts),
+                )
+            )
 
 
 def checkReturnTypesForViolations(

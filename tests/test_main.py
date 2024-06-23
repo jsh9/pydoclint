@@ -143,6 +143,114 @@ def testArguments(
 
 
 @pytest.mark.parametrize(
+    'style, checkClassAttr',
+    list(
+        itertools.product(
+            ['google', 'numpy', 'sphinx'],
+            [True, False],
+        ),
+    ),
+)
+def testClassAttributes(
+        style: str,
+        checkClassAttr: bool,
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/class_attributes/cases.py',
+        checkClassAttributes=checkClassAttr,
+        style=style,
+    )
+
+    expectedViolations: Dict[bool, List[str]] = {
+        True: [
+            'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
+            'than actual class attributes. ',
+            'DOC603: Class `MyClass1`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: [hello: int, '
+            'index: int, world: dict]. Arguments in the docstring but not in the actual '
+            'class attributes: [indices: int].',
+            'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
+            'these args do not match: arg1',
+            'DOC105: Method `MyClass1.do_something`: Argument names match, but type hints '
+            'in these args do not match: arg2',
+            'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
+            'than actual class attributes. ',
+            'DOC603: Class `MyClass2`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: [hello: int, '
+            'index: int, world: dict]. Arguments in the docstring but not in the actual '
+            'class attributes: [arg1: float, indices: int].',
+            'DOC105: Method `MyClass2.do_something`: Argument names match, but type hints '
+            'in these args do not match: arg2',
+            'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
+            'than actual class attributes. ',
+            'DOC603: Class `MyClass3`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: [hello: int, '
+            'index: int, name: str, world: dict].',
+            'DOC102: Method `MyClass3.__init__`: Docstring contains more arguments than '
+            'in function signature. ',
+            'DOC103: Method `MyClass3.__init__`: Docstring arguments are different from '
+            'function arguments. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Arguments in the docstring but not in the function signature: [indices: int, '
+            'name: str].',
+            'DOC105: Method `MyClass3.do_something`: Argument names match, but type hints '
+            'in these args do not match: arg2',
+        ],
+        False: [
+            'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
+            'these args do not match: arg1',
+            'DOC105: Method `MyClass1.do_something`: Argument names match, but type hints '
+            'in these args do not match: arg2',
+            'DOC105: Method `MyClass2.do_something`: Argument names match, but type hints '
+            'in these args do not match: arg2',
+            'DOC102: Method `MyClass3.__init__`: Docstring contains more arguments than '
+            'in function signature. ',
+            'DOC103: Method `MyClass3.__init__`: Docstring arguments are different from '
+            'function arguments. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Arguments in the docstring but not in the function signature: [indices: int, '
+            'name: str].',
+            'DOC105: Method `MyClass3.do_something`: Argument names match, but type hints '
+            'in these args do not match: arg2',
+        ],
+    }
+
+    assert list(map(str, violations)) == expectedViolations[checkClassAttr]
+
+
+@pytest.mark.parametrize(
+    'style',
+    ['google', 'numpy', 'sphinx'],
+)
+def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/class_attributes/init_docstring.py',
+        checkClassAttributes=True,
+        allowInitDocstring=True,
+        style=style,
+    )
+    expectedViolations = [
+        'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
+        'than actual class attributes. ',
+        'DOC603: Class `MyClass1`: Class docstring attributes are different from '
+        'actual class attributes. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Attributes in the class definition but not in the docstring: [hello: int, '
+        'index: int, world: dict]. Arguments in the docstring but not in the actual '
+        'class attributes: [indices: int].',
+        'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
+        'these args do not match: arg1',
+    ]
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize(
     'style, filename',
     list(
         itertools.product(
@@ -912,6 +1020,7 @@ def testNoReturnSectionInPropertyMethod(style: str) -> None:
         filename=DATA_DIR / 'common/property_method.py',
         style=style,
         skipCheckingShortDocstrings=False,
+        checkClassAttributes=False,
     )
     assert len(violations) == 0
 

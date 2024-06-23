@@ -196,6 +196,17 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-cca',
+    '--check-class-attributes',
+    type=bool,
+    show_default=True,
+    default=True,
+    help=(
+        'If True, class attributes (the ones defined right beneath'
+        ' "class MyClass:") are checked against the docstring.'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -279,6 +290,7 @@ def main(  # noqa: C901
         check_return_types: bool,
         check_yield_types: bool,
         ignore_underscore_args: bool,
+        check_class_attributes: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
@@ -363,6 +375,7 @@ def main(  # noqa: C901
         checkReturnTypes=check_return_types,
         checkYieldTypes=check_yield_types,
         ignoreUnderscoreArgs=ignore_underscore_args,
+        checkClassAttributes=check_class_attributes,
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
         ),
@@ -477,6 +490,7 @@ def _checkPaths(
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
         ignoreUnderscoreArgs: bool = True,
+        checkClassAttributes: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
@@ -522,6 +536,7 @@ def _checkPaths(
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+            checkClassAttributes=checkClassAttributes,
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
@@ -546,6 +561,7 @@ def _checkFile(
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
         ignoreUnderscoreArgs: bool = True,
+        checkClassAttributes: bool = True,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> List[Violation]:
@@ -564,6 +580,7 @@ def _checkFile(
         checkReturnTypes=checkReturnTypes,
         checkYieldTypes=checkYieldTypes,
         ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+        checkClassAttributes=checkClassAttributes,
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing
         ),
