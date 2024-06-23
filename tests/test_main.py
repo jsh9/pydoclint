@@ -225,6 +225,32 @@ def testClassAttributes(
 
 
 @pytest.mark.parametrize(
+    'style',
+    ['google', 'numpy', 'sphinx'],
+)
+def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/class_attributes/init_docstring.py',
+        checkClassAttributes=True,
+        allowInitDocstring=True,
+        style=style,
+    )
+    expectedViolations = [
+        'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
+        'than actual class attributes. ',
+        'DOC603: Class `MyClass1`: Class docstring attributes are different from '
+        'actual class attributes. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Attributes in the class definition but not in the docstring: [hello: int, '
+        'index: int, world: dict]. Arguments in the docstring but not in the actual '
+        'class attributes: [indices: int].',
+        'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
+        'these args do not match: arg1',
+    ]
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize(
     'style, filename',
     list(
         itertools.product(
