@@ -4,8 +4,8 @@
 
 - Fixed
   - Fixed a bug in unparsing annotations when checking class attributes
-  - Fixed a bug in checking class attributes where there are no attributes
-    in class def or in docstring
+  - Fixed a bug in checking class attributes where there are no attributes in
+    class def or in docstring
 
 ## [0.5.0] - 2024-06-22
 
