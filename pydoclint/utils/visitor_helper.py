@@ -30,6 +30,7 @@ def checkClassAttributesAgainstClassDocstring(
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
 ) -> None:
+    """Check class attribute list against the attribute list in docstring"""
     classAttributes = _collectClassAttributes(node)
 
     if len(classAttributes) == 0:
@@ -114,6 +115,7 @@ def checkDocArgsLengthAgainstActualArgs(
         violationForDocArgsLengthShorter: Violation,  # such as V101, V601
         violationForDocArgsLengthLonger: Violation,  # such as V102, V602
 ) -> None:
+    """Check lengths of doc arg list against actual arg list"""
     if docArgs.length < actualArgs.length:
         violations.append(violationForDocArgsLengthShorter)
 

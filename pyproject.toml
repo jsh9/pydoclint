@@ -11,3 +11,4 @@ extend-exclude = 'tests/data'
 style = 'numpy'
 exclude = '\.git|.?venv|\.tox|tests/data|unparser\.py'
 require-return-section-when-returning-nothing = true
+check-class-attributes = false

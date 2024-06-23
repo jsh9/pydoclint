@@ -90,6 +90,10 @@ class Arg:
 
     @classmethod
     def fromAstAssignWithNonTupleTarget(cls, astAssign: ast.Assign) -> 'Arg':
+        """
+        Construct an Arg object from a Python ast.Assign object whose
+        "target" field is an ast.Name rather than an ast.Tuple.
+        """
         if len(astAssign.targets) != 1:
             raise InternalError(
                 f'astAssign.targets has length {len(astAssign.targets)}'
@@ -105,6 +109,7 @@ class Arg:
 
     @classmethod
     def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
+        """Construct an Arg object from a Python ast.AnnAssign object"""
         return Arg(
             name=astAnnAssign.target.id,
             typeHint=astAnnAssign.annotation.id,
@@ -217,6 +222,10 @@ class ArgList:
 
     @classmethod
     def fromAstAssignWithTupleTarget(cls, astAssign: ast.Assign) -> 'ArgList':
+        """
+        Construct an ArgList from a Python ast.Assign object whose
+        "target" field is an ast.Tuple rather than an ast.Name.
+        """
         if len(astAssign.targets) != 1:
             raise InternalError(
                 f'astAssign.targets has length {len(astAssign.targets)}'
