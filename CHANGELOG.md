@@ -1,5 +1,10 @@
 # Change Log
 
+## [unpublished]
+
+- Fixed
+  - Fixed a bug in unparsing annotations when checking class attributes
+
 ## [0.5.0] - 2024-06-22
 
 - Added
