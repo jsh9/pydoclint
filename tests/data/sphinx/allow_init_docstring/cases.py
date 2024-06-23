@@ -95,7 +95,7 @@ class E:
     A class that does something
 
     :attr attr1:
-    :attr attr1: Arg 2
+    :attr attr2: Arg 2
     """
 
     def __init__(self, arg1: int, arg2: float) -> None:
