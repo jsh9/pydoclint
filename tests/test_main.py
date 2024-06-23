@@ -169,8 +169,8 @@ def testClassAttributes(
             'actual class attributes. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
             'Attributes in the class definition but not in the docstring: [hello: int, '
-            'index: int, world: dict]. Arguments in the docstring but not in the actual '
-            'class attributes: [indices: int].',
+            'index: pd.DataFrame, world: dict]. Arguments in the docstring but not in the '
+            'actual class attributes: [indices: pd.DataFrame].',
             'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
             'these args do not match: arg1',
             'DOC105: Method `MyClass1.do_something`: Argument names match, but type hints '

@@ -3,15 +3,15 @@ class MyClass1:
     A class that holds some things.
 
     :attr name: The name
-    :type name: str
+    :type name: str | bool | None
     :attr indices: The indices
-    :type indices: int
+    :type indices: pd.DataFrame
     :param arg1: The information
     :type arg1: float
     """
 
-    name: str
-    index: int
+    name: str | bool | None
+    index: pd.DataFrame
 
     hello: int = 1
     world: dict

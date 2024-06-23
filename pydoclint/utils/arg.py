@@ -112,7 +112,7 @@ class Arg:
         """Construct an Arg object from a Python ast.AnnAssign object"""
         return Arg(
             name=astAnnAssign.target.id,
-            typeHint=astAnnAssign.annotation.id,
+            typeHint=unparseAnnotation(astAnnAssign.annotation),
         )
 
     @classmethod

@@ -4,9 +4,9 @@ class MyClass1:
 
     Attributes
     ----------
-    name : str
+    name : str | bool | None
         The name
-    indices : int
+    indices : pd.DataFrame
         The indices
 
     Parameters
@@ -15,8 +15,8 @@ class MyClass1:
         The information
     """
 
-    name: str
-    index: int
+    name: str | bool | None
+    index: pd.DataFrame
 
     hello: int = 1
     world: dict
