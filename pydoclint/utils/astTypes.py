@@ -6,9 +6,11 @@ from typing import Union
 
 if sys.version_info < (3, 10):
     # This is because using `|` with `from __future__ import annotations`
-    # works in type annotations in Python 3.8 and 3.9, but not 
+    # works in type annotations in Python 3.8 and 3.9, but not
     FuncOrAsyncFuncDef = Union[ast.AsyncFunctionDef, ast.FunctionDef]
-    ClassOrFunctionDef = Union[ast.ClassDef, ast.AsyncFunctionDef, ast.FunctionDef]
+    ClassOrFunctionDef = Union[
+        ast.ClassDef, ast.AsyncFunctionDef, ast.FunctionDef
+    ]
     AnnotationType = Union[
         ast.Name,
         ast.Subscript,
