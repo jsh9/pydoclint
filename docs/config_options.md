@@ -22,10 +22,11 @@ page:
 - [9. `--require-return-section-when-returning-nothing` (shortform: `-rrs`, default: `False`)](#9---require-return-section-when-returning-nothing-shortform--rrs-default-false)
 - [10. `--check-return-types` (shortform: `-crt`, default: `True`)](#10---check-return-types-shortform--crt-default-true)
 - [11. `--check-yield-types` (shortform: `-cyt`, default: `True`)](#11---check-yield-types-shortform--cyt-default-true)
-- [12. `--baseline`](#12---baseline)
-- [13. `--generate-baseline` (default: `False`)](#13---generate-baseline-default-false)
-- [14. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#14---show-filenames-in-every-violation-message-shortform--sfn-default-false)
-- [15. `--config` (default: `pyproject.toml`)](#15---config-default-pyprojecttoml)
+- [12. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#12---check-class-attributes-shortform--cca-default-true)
+- [13. `--baseline`](#13---baseline)
+- [14. `--generate-baseline` (default: `False`)](#14---generate-baseline-default-false)
+- [15. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#15---show-filenames-in-every-violation-message-shortform--sfn-default-false)
+- [16. `--config` (default: `pyproject.toml`)](#16---config-default-pyprojecttoml)
 
 <!--TOC-->
 
@@ -165,7 +166,16 @@ annotation in the function signature are consistent
 If True, check that the type(s) in the docstring "yields" section and the
 return annotation in the function signature are consistent.
 
-## 12. `--baseline`
+## 12. `--check-class-attributes` (shortform: `-cca`, default: `True`)
+
+If True, check the class attributes (defined under the class definition)
+against the "Attributes" section of the class's docstring.
+
+Please read
+[this page](https://jsh9.github.io/pydoclint/checking_class_attributes.html)
+for more instructions.
+
+## 13. `--baseline`
 
 Baseline allows you to remember the current project state and then show only
 new violations, ignoring old ones. This can be very useful when you'd like to
@@ -185,12 +195,12 @@ project. If `--generate-baseline` is not passed (default value is `False`),
 _pydoclint_ will read your baseline file, and ignore all violations specified
 in that file.
 
-## 13. `--generate-baseline` (default: `False`)
+## 14. `--generate-baseline` (default: `False`)
 
 Required to use with `--baseline` option. If `True`, generate the baseline file
 that contains all current violations.
 
-## 14. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
+## 15. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
 
 If False, in the terminal the violation messages are grouped by file names:
 
@@ -224,7 +234,7 @@ This can be convenient if you would like to click on each violation message and
 go to the corresponding line in your IDE. (Note: not all terminal app offers
 this functionality.)
 
-## 15. `--config` (default: `pyproject.toml`)
+## 16. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this
