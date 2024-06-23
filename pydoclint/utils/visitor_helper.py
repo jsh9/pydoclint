@@ -35,7 +35,19 @@ def checkClassAttributesAgainstClassDocstring(
     actualArgs: ArgList = _convertClassAttributesIntoArgList(classAttributes)
 
     classDocstring: str = getDocstring(node)
-    doc: Doc = Doc(docstring=classDocstring, style=style)
+    try:
+        doc: Doc = Doc(docstring=classDocstring, style=style)
+    except Exception as excp:
+        doc = Doc(docstring='', style=style)
+        violations.append(
+            Violation(
+                code=1,
+                line=node.lineno,
+                msgPrefix=f'Class `{node.name}`:',
+                msgPostfix=str(excp).replace('\n', ' '),
+            )
+        )
+
     docArgs: ArgList = doc.attrList
 
     checkDocArgsLengthAgainstActualArgs(

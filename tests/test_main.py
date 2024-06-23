@@ -597,6 +597,13 @@ def testAllowInitDocstring(style: str) -> None:
         'there are no "yield" statements, or the return annotation is not a '
         'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
         'return annotation.) ',
+        'DOC602: Class `E`: Class docstring contains more class attributes than in '
+        'actual class attributes. ',
+        'DOC603: Class `E`: Class docstring attributes are different from actual '
+        'class attributes. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Arguments in the docstring but not in the actual class attributes: [attr1: , '
+        'attr2: ].',
     ]
     assert list(map(str, violations)) == expected
 
@@ -871,8 +878,10 @@ def testParsingErrors_google() -> None:
         style='google',
     )
     expected = [
+        'DOC001: Class `A`: Potential formatting errors in docstring. Error message: '
+        "Expected a colon in 'arg1'.",
         'DOC001: Function/method `__init__`: Potential formatting errors in '
-        "docstring. Error message: Expected a colon in 'arg1'."
+        "docstring. Error message: Expected a colon in 'arg1'.",
     ]
     assert list(map(str, violations)) == expected
 
