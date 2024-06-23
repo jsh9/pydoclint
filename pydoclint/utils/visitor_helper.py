@@ -89,9 +89,9 @@ def _collectClassAttributes(
 
 
 def _convertClassAttributesIntoArgList(
-        classAttributes: List[Union[ast.Assign, ast.AnnAssign]],
+        classAttributes: list[ast.Assign | ast.AnnAssign],
 ) -> ArgList:
-    atl: List[Arg] = []
+    atl: list[Arg] = []
     for attr in classAttributes:
         if isinstance(attr, ast.AnnAssign):
             atl.append(Arg.fromAstAnnAssign(attr))

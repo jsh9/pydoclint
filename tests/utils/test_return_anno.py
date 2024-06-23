@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 
 from pydoclint.utils.return_anno import ReturnAnnotation

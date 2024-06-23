@@ -120,7 +120,7 @@ def foo(
     assert result == expected
 
 
-def _getArgTypeHints(node: ast.FunctionDef) -> Dict[str, str]:
+def _getArgTypeHints(node: ast.FunctionDef) -> dict[str, str]:
     hints = {}
     for arg_ in node.args.args:
         hints[arg_.arg] = unparseAnnotation(arg_.annotation)
