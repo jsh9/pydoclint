@@ -1,5 +1,23 @@
 # Change Log
 
+## [0.5.0] - 2024-06-22
+
+- Added
+
+  - Added checks for class attributes
+    - This functionality checks class attributes against the "Attributes"
+      section of the docstring
+    - There is a new config option, `--check-class-attributes` (or `-cca`),
+      which defaults to `True`. Therefore, this breaks backward compatibility.
+    - To maintain backward compatibility, set `--check-class-attributes` to
+      `False`
+    - Options like `--check-arg-order`, `--arg-type-hints-in-signature`,
+      and `--arg-type-hints-in-docstring` are still effective in checking
+      class attributes
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.4.2...0.5.0
+
 ## [0.4.2] - 2024-05-29
 
 - Changed
