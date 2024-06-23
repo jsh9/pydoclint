@@ -18,6 +18,12 @@ from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.yield_arg import YieldArg
 
+SPHINX_MSG_POSTFIX: str = (
+    ' (Since you are using the Sphinx docstring style, please also'
+    ' read https://jsh9.github.io/pydoclint/checking_class_attributes.html#notes-for-sphinx-style'
+    ' for more instructions.)'
+)
+
 
 def checkClassAttributesAgainstClassDocstring(
         *,
@@ -42,23 +48,40 @@ def checkClassAttributesAgainstClassDocstring(
         violations.append(
             Violation(
                 code=1,
-                line=node.lineno,
+                line=lineNum,
                 msgPrefix=f'Class `{node.name}`:',
                 msgPostfix=str(excp).replace('\n', ' '),
             )
         )
 
-    docArgs: ArgList = doc.attrList
+    if style == 'sphinx':
+        # Even though we can use custom field name (:attr) for Sphinx docs
+        # (see the official doc:
+        # https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#field-lists),
+        # when rendering the docs as HTML, Sphinx does not recognize ":attr".
+        # Therefore, we have to use the arg list instead of the attr list.
+        docArgs: ArgList = doc.argList
+
+        msgPostfix = SPHINX_MSG_POSTFIX
+    else:
+        docArgs: ArgList = doc.attrList
+        msgPostfix = ''
 
     checkDocArgsLengthAgainstActualArgs(
         docArgs=docArgs,
         actualArgs=actualArgs,
         violations=violations,
         violationForDocArgsLengthShorter=Violation(
-            code=601, line=lineNum, msgPrefix=msgPrefix
+            code=601,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=msgPostfix,
         ),
         violationForDocArgsLengthLonger=Violation(
-            code=602, line=lineNum, msgPrefix=msgPrefix
+            code=602,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=msgPostfix,
         ),
     )
 
@@ -68,16 +91,23 @@ def checkClassAttributesAgainstClassDocstring(
         violations=violations,
         actualArgsAreClassAttributes=True,
         violationForOrderMismatch=Violation(
-            code=604, line=lineNum, msgPrefix=msgPrefix
+            code=604,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=msgPostfix,
         ),
         violationForTypeHintMismatch=Violation(
-            code=605, line=lineNum, msgPrefix=msgPrefix
+            code=605,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=msgPostfix,
         ),
         shouldCheckArgOrder=shouldCheckArgOrder,
         argTypeHintsInSignature=argTypeHintsInSignature,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         lineNum=lineNum,
         msgPrefix=msgPrefix,
+        style=style,
     )
 
 
@@ -144,6 +174,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
         argTypeHintsInDocstring: bool,
         lineNum: int,
         msgPrefix: str,
+        style: str,
 ) -> None:
     """
     Check the arg/attr list in the docstring against the actual arg/attr
@@ -220,12 +251,16 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
                     + f' {sorted(argsInDocNotInFunc)}.'
                 )
 
+            msgPostfixTemp: str = ' '.join(msgPostfixParts)
+            if style == 'sphinx' and actualArgsAreClassAttributes:
+                msgPostfixTemp += SPHINX_MSG_POSTFIX
+
             violations.append(
                 Violation(
                     code=603 if actualArgsAreClassAttributes else 103,
                     line=lineNum,
                     msgPrefix=msgPrefix,
-                    msgPostfix=' '.join(msgPostfixParts),
+                    msgPostfix=msgPostfixTemp,
                 )
             )
 

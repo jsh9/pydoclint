@@ -296,13 +296,16 @@ class Visitor(ast.NodeVisitor):
             )
 
         if classDoc.argList.nonEmpty:
-            self.violations.append(
-                Violation(
-                    code=304,
-                    line=classLineNum,
-                    msgPrefix=f'Class `{className}`:',
+            if self.style in {'google', 'numpy'} or (
+                self.style == 'sphinx' and not self.checkClassAttributes
+            ):
+                self.violations.append(
+                    Violation(
+                        code=304,
+                        line=classLineNum,
+                        msgPrefix=f'Class `{className}`:',
+                    )
                 )
-            )
 
         if classDoc.hasYieldsSection:
             self.violations.append(
@@ -438,6 +441,7 @@ class Visitor(ast.NodeVisitor):
             argTypeHintsInDocstring=self.argTypeHintsInDocstring,
             lineNum=lineNum,
             msgPrefix=msgPrefix,
+            style=self.style,
         )
 
         return violations

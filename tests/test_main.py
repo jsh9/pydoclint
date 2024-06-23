@@ -146,12 +146,12 @@ def testArguments(
     'style, checkClassAttr',
     list(
         itertools.product(
-            ['google', 'numpy', 'sphinx'],
+            ['google', 'numpy'],
             [True, False],
         ),
     ),
 )
-def testClassAttributes(
+def testClassAttributesGoogleAndNumpy(
         style: str,
         checkClassAttr: bool,
 ) -> None:
@@ -239,9 +239,9 @@ def testClassAttributes(
 
 @pytest.mark.parametrize(
     'style',
-    ['google', 'numpy', 'sphinx'],
+    ['google', 'numpy'],
 )
-def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
+def testClassAttributesWithSeparatedDocstringsGoogleNumpy(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/class_attributes/init_docstring.py',
         checkClassAttributes=True,
@@ -259,6 +259,64 @@ def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
         'class attributes: [indices: int].',
         'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
         'these args do not match: arg1',
+    ]
+    assert list(map(str, violations)) == expectedViolations
+
+
+def testClassAttributeCheckingForSphinxStyle() -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'sphinx/class_attributes/cases.py',
+        checkClassAttributes=True,
+        allowInitDocstring=True,
+        style='sphinx',
+    )
+    expectedViolations = [
+        'DOC605: Class `MyClass1`: Attribute names match, but type hints in these '
+        'attributes do not match:  (Since you are using the Sphinx docstring style, '
+        'please also read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html#notes-for-sphinx-style '
+        'for more instructions.)attr2',
+        'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
+        'these args do not match: arg1',
+        'DOC602: Class `MyClass2`: Class docstring contains more class attributes '
+        'than in actual class attributes.  (Since you are using the Sphinx docstring '
+        'style, please also read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html#notes-for-sphinx-style '
+        'for more instructions.)',
+        'DOC603: Class `MyClass2`: Class docstring attributes are different from '
+        'actual class attributes. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Arguments in the docstring but not in the actual class attributes: [arg1: '
+        'dict]. (Since you are using the Sphinx docstring style, please also read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html#notes-for-sphinx-style '
+        'for more instructions.)',
+        'DOC102: Method `MyClass2.__init__`: Docstring contains more arguments than '
+        'in function signature. ',
+        'DOC103: Method `MyClass2.__init__`: Docstring arguments are different from '
+        'function arguments. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Arguments in the docstring but not in the function signature: [attr1: int, '
+        'attr2: bool].',
+        'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
+        'than actual class attributes.  (Since you are using the Sphinx docstring '
+        'style, please also read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html#notes-for-sphinx-style '
+        'for more instructions.)',
+        'DOC603: Class `MyClass3`: Class docstring attributes are different from '
+        'actual class attributes. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Attributes in the class definition but not in the docstring: [attr1: int, '
+        'attr2: str]. (Since you are using the Sphinx docstring style, please also '
+        'read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html#notes-for-sphinx-style '
+        'for more instructions.)',
+        'DOC102: Method `MyClass3.__init__`: Docstring contains more arguments than '
+        'in function signature. ',
+        'DOC103: Method `MyClass3.__init__`: Docstring arguments are different from '
+        'function arguments. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Arguments in the docstring but not in the function signature: [attr1: int, '
+        'attr2: bool].',
     ]
     assert list(map(str, violations)) == expectedViolations
 
@@ -543,6 +601,7 @@ def testInit(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/init/init.py',
         style=style,
+        checkClassAttributes=False,
     )
     expected = [
         'DOC301: Class `A`: __init__() should not have a docstring; please combine it '
@@ -573,7 +632,9 @@ def testAllowInitDocstring(style: str) -> None:
         filename=DATA_DIR / f'{style}/allow_init_docstring/cases.py',
         style=style,
         allowInitDocstring=True,
+        checkClassAttributes=False,
     )
+
     expected = [
         'DOC304: Class `A`: Class docstring has an argument/parameter section; please '
         'put it in the __init__() docstring ',
@@ -597,13 +658,6 @@ def testAllowInitDocstring(style: str) -> None:
         'there are no "yield" statements, or the return annotation is not a '
         'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
         'return annotation.) ',
-        'DOC602: Class `E`: Class docstring contains more class attributes than in '
-        'actual class attributes. ',
-        'DOC603: Class `E`: Class docstring attributes are different from actual '
-        'class attributes. (Or could be other formatting issues: '
-        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-        'Arguments in the docstring but not in the actual class attributes: [attr1: , '
-        'attr2: ].',
     ]
     assert list(map(str, violations)) == expected
 
