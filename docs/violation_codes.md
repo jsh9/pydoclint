@@ -11,6 +11,7 @@
 - [3. `DOC3xx`: Violations about class docstring and class constructor](#3-doc3xx-violations-about-class-docstring-and-class-constructor)
 - [4. `DOC4xx`: Violations about "yield" statements](#4-doc4xx-violations-about-yield-statements)
 - [5. `DOC5xx`: Violations about "raise" statements](#5-doc5xx-violations-about-raise-statements)
+- [6. `DOC6xx`: Violations about class attributes](#6-doc6xx-violations-about-class-attributes)
 
 <!--TOC-->
 
@@ -86,3 +87,16 @@ have a return section.
 | -------- | --------------------------------------------------------------------------------------------------------- |
 | `DOC501` | Function/method has "raise" statements, but the docstring does not have a "Raises" section                |
 | `DOC502` | Function/method has a "Raises" section in the docstring, but there are not "raise" statements in the body |
+
+## 6. `DOC6xx`: Violations about class attributes
+
+| Code     | Explanation                                                                       |
+| -------- | --------------------------------------------------------------------------------- |
+| `DOC601` | Class docstring contains fewer class attributes than actual class attributes.     |
+| `DOC602` | Class docstring contains more class attributes than in actual class attributes.   |
+| `DOC603` | Class docstring attributes are different from actual class attributes.            |
+| `DOC604` | Attributes are the same in docstring and class def, but are in a different order. |
+| `DOC605` | Attribute names match, but type hints in these attributes do not match            |
+
+More about checking class attributes:
+https://jsh9.github.io/pydoclint/checking_class_attributes.html
