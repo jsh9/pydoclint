@@ -12,7 +12,7 @@ class MyPet:
 
 Oftentimes we'd like to also document them in docstrings and have _pydoclint_
 check them. It is controlled by the `--check-class-attributes` option (see
-https://jsh9.github.io/pydoclint/config_options.html)
+<https://jsh9.github.io/pydoclint/config_options.html>)
 
 However, none of the mainstream docstring styles (Google, numpy, or Sphinx)
 offers explicit guidelines on documenting class attributes. Therefore,
