@@ -164,34 +164,46 @@ def testClassAttributes(
     expectedViolations: Dict[bool, List[str]] = {
         True: [
             'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
-            'than actual class attributes. ',
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC603: Class `MyClass1`: Class docstring attributes are different from '
             'actual class attributes. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
             'Attributes in the class definition but not in the docstring: [hello: int, '
             'index: pd.DataFrame, world: dict]. Arguments in the docstring but not in the '
-            'actual class attributes: [indices: pd.DataFrame].',
+            'actual class attributes: [indices: pd.DataFrame]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
             'these args do not match: arg1',
             'DOC105: Method `MyClass1.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
             'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
-            'than actual class attributes. ',
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC603: Class `MyClass2`: Class docstring attributes are different from '
             'actual class attributes. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
             'Attributes in the class definition but not in the docstring: [hello: int, '
             'index: int, world: dict]. Arguments in the docstring but not in the actual '
-            'class attributes: [arg1: float, indices: int].',
+            'class attributes: [arg1: float, indices: int]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC105: Method `MyClass2.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
             'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
-            'than actual class attributes. ',
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC603: Class `MyClass3`: Class docstring attributes are different from '
             'actual class attributes. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
             'Attributes in the class definition but not in the docstring: [hello: int, '
-            'index: int, name: str, world: dict].',
+            'index: int, name: str, world: dict]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC102: Method `MyClass3.__init__`: Docstring contains more arguments than '
             'in function signature. ',
             'DOC103: Method `MyClass3.__init__`: Docstring arguments are different from '
@@ -202,18 +214,26 @@ def testClassAttributes(
             'DOC105: Method `MyClass3.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
             'DOC602: Class `MyClass4`: Class docstring contains more class attributes '
-            'than in actual class attributes. ',
+            'than in actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC603: Class `MyClass4`: Class docstring attributes are different from '
             'actual class attributes. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
             'Arguments in the docstring but not in the actual class attributes: [name: '
-            'str].',
+            'str]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC601: Class `MyClass5`: Class docstring contains fewer class attributes '
-            'than actual class attributes. ',
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
             'DOC603: Class `MyClass5`: Class docstring attributes are different from '
             'actual class attributes. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-            'Attributes in the class definition but not in the docstring: [morning: str].',
+            'Attributes in the class definition but not in the docstring: [morning: str]. '
+            '(Please read https://jsh9.github.io/pydoclint/checking_class_attributes.html '
+            'on how to correctly document class attributes.)',
         ],
         False: [
             'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
@@ -250,13 +270,17 @@ def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
     )
     expectedViolations = [
         'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
-        'than actual class attributes. ',
+        'than actual class attributes.  (Please read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+        'correctly document class attributes.)',
         'DOC603: Class `MyClass1`: Class docstring attributes are different from '
         'actual class attributes. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
         'Attributes in the class definition but not in the docstring: [hello: int, '
         'index: int, world: dict]. Arguments in the docstring but not in the actual '
-        'class attributes: [indices: int].',
+        'class attributes: [indices: int]. (Please read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+        'correctly document class attributes.)',
         'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
         'these args do not match: arg1',
     ]
@@ -598,12 +622,16 @@ def testAllowInitDocstring(style: str) -> None:
         'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
         'return annotation.) ',
         'DOC602: Class `E`: Class docstring contains more class attributes than in '
-        'actual class attributes. ',
+        'actual class attributes.  (Please read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+        'correctly document class attributes.)',
         'DOC603: Class `E`: Class docstring attributes are different from actual '
         'class attributes. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
         'Arguments in the docstring but not in the actual class attributes: [attr1: , '
-        'attr2: ].',
+        'attr2: ]. (Please read '
+        'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+        'correctly document class attributes.)',
     ]
     assert list(map(str, violations)) == expected
 

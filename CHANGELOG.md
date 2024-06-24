@@ -1,11 +1,15 @@
 # Change Log
 
-## [unpublished]
+## [0.5.1] - 2024-06-24
 
 - Fixed
+
   - Fixed a bug in unparsing annotations when checking class attributes
   - Fixed a bug in checking class attributes where there are no attributes in
     class def or in docstring
+
+- Changed
+  - Used a dedicated "attribute" section for Sphinx-style docstrings
 
 ## [0.5.0] - 2024-06-22
 

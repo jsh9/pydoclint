@@ -2,11 +2,15 @@ class MyClass1:
     """
     A class that holds some things.
 
+    .. attribute :: name
+        :type: str
 
-    :attr name: The name
-    :type name: str
-    :attr indices: The indices
-    :type indices: int
+        The name
+
+    .. attribute :: indices
+        :type: int
+
+        The indices
     """
 
     name: str

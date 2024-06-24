@@ -2,10 +2,16 @@ class MyClass1:
     """
     A class that holds some things.
 
-    :attr name: The name
-    :type name: str | bool | None
-    :attr indices: The indices
-    :type indices: pd.DataFrame
+    .. attribute :: name
+        :type: str | bool | None
+
+        The name
+
+    .. attribute :: indices
+        :type: pd.DataFrame
+
+        The indices
+
     :param arg1: The information
     :type arg1: float
     """
@@ -38,12 +44,20 @@ class MyClass2:
     In this class, the class attributes and the instance attribute (self.arg1)
     are mixed together as attributes.
 
-    :attr name: The name
-    :type name: str
-    :attr indices: The indices
-    :type indices: int
-    :attr arg1: The information
-    :type arg1: float
+    .. attribute :: name
+        :type: str | bool | None
+
+        The name
+
+    .. attribute :: indices
+        :type: int
+
+        The indices
+
+    .. attribute :: arg1
+        :type: float
+
+        The information
     """
 
     name: str
@@ -107,8 +121,10 @@ class MyClass4:
     """
     This is a class
 
-    :attr name: My name
-    :type name: str
+    .. attribute :: name
+        :type: str
+
+        My name
     """
 
     def __int__(self):
