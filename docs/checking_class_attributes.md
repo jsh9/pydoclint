@@ -10,11 +10,22 @@ class MyPet:
     is_very_cute_or_not: bool = True
 ```
 
-And we'd like to also document them in docstrings. However, none of the
-mainstream docstring styles (Google, numpy, or Sphinx) offers explicit
-guidelines on documenting class attributes. Therefore, in _pydoclint_, we
-designed a new (but not totally surprising) docstring section: "attributes"
-under which we can document the class attributes.
+Oftentimes we'd like to also document them in docstrings and have _pydoclint_
+check them. It is controlled by the `--check-class-attributes` option (see
+https://jsh9.github.io/pydoclint/config_options.html)
+
+However, none of the mainstream docstring styles (Google, numpy, or Sphinx)
+offers explicit guidelines on documenting class attributes. Therefore,
+_pydoclint_ adopts the following stance (i.e., how to write docstrings that
+pass _pydoclint_'s check)
+
+- Document the class attributes under the "Attribute" section, and document the
+  input arguments to `__init__()` under the "Parameters" (or "Args") section
+- Separate the "Attribute" and "Parameters" sections in your docstring
+- You can use a single docstring (under the class name) or two docstrings (one
+  under the class name and the other under `__init__()`)
+  - If you use two docstrings, please keep the "Attributes" section in the
+    docstring under the class name
 
 Here are some examples showing how to document class attributes in different
 styles:
