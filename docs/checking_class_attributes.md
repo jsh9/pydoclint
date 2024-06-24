@@ -16,7 +16,10 @@ guidelines on documenting class attributes. Therefore, in _pydoclint_, we
 designed a new (but not totally surprising) docstring section: "attributes"
 under which we can document the class attributes.
 
-Here is an example that demonstrates the expected style:
+Here are some examples showing how to document class attributes in different
+styles:
+
+## 1. Numpy style
 
 ```python
 class MyPet:
@@ -92,14 +95,69 @@ class MyPet:
         self.airtag_id = airtag_id
 ```
 
-#### Special note for Sphinx style docstrings
-
-If you use the Sphinx style, you can annotate class attributes like this:
+## 2. Google style
 
 ```python
-:attr my_attr: My attribute
-:type my_attr: float
+class MyPet:
+    """
+    A class to hold information of my pet.
+
+    Attributes:
+        name (str): Name of my pet
+        age_in_months (int): Age of my pet (unit: months)
+        weight_in_kg (float): Weight of my pet (unit: kg)
+        is_very_cute_or_not (bool): Is my pet very cute?  Or just cute?
+
+    Args:
+        airtag_id (int): The ID of the AirTag that I put on my pet
+    """
+    name: str
+    age_in_months: int
+    weight_in_kg: float
+    is_very_cute_or_not: bool = True
+
+    def __init__(self, airtag_id: int) -> None:
+        self.airtag_id = airtag_id
 ```
 
-However, there is no guarantee that this `:attr` tag is recognized by current
-doc rendering programs.
+You can also use two separate docstrings (one for the class and one for
+`__init__()`, similar to the Numpy style.)
+
+## 3. Sphinx style
+
+```python
+class MyPet:
+    """
+    A class to hold information of my pet.
+
+    .. attribute :: name
+        :type: str
+
+        Name of my pet
+
+    .. attribute :: age_in_months
+        :type: int
+
+        Age of my pet (unit: months)
+
+    .. attribute :: weight_in_keg
+        :type: float
+
+        Weight of my pet (unit: kg)
+
+    .. attribute :: is_very_cute_or_not
+        :type: bool
+
+        Is my pet very cute?  Or just cute?
+
+    :param airtag_id: The ID of the AirTag that I put on my pet
+    :type airtag_id: int
+    """
+    name: str
+    age_in_months: int
+    weight_in_kg: float
+    is_very_cute_or_not: bool = True
+
+    def __init__(self, airtag_id: int) -> None:
+        self.airtag_id = airtag_id
+```

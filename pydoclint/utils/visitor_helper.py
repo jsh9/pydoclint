@@ -18,6 +18,12 @@ from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.yield_arg import YieldArg
 
+SPHINX_MSG_POSTFIX: str = (
+    ' (Please read'
+    ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+    ' on how to correctly document class attributes.)'
+)
+
 
 def checkClassAttributesAgainstClassDocstring(
         *,
@@ -42,7 +48,7 @@ def checkClassAttributesAgainstClassDocstring(
         violations.append(
             Violation(
                 code=1,
-                line=node.lineno,
+                line=lineNum,
                 msgPrefix=f'Class `{node.name}`:',
                 msgPostfix=str(excp).replace('\n', ' '),
             )
@@ -55,10 +61,16 @@ def checkClassAttributesAgainstClassDocstring(
         actualArgs=actualArgs,
         violations=violations,
         violationForDocArgsLengthShorter=Violation(
-            code=601, line=lineNum, msgPrefix=msgPrefix
+            code=601,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=SPHINX_MSG_POSTFIX,
         ),
         violationForDocArgsLengthLonger=Violation(
-            code=602, line=lineNum, msgPrefix=msgPrefix
+            code=602,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=SPHINX_MSG_POSTFIX,
         ),
     )
 
@@ -68,10 +80,16 @@ def checkClassAttributesAgainstClassDocstring(
         violations=violations,
         actualArgsAreClassAttributes=True,
         violationForOrderMismatch=Violation(
-            code=604, line=lineNum, msgPrefix=msgPrefix
+            code=604,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=SPHINX_MSG_POSTFIX,
         ),
         violationForTypeHintMismatch=Violation(
-            code=605, line=lineNum, msgPrefix=msgPrefix
+            code=605,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=SPHINX_MSG_POSTFIX,
         ),
         shouldCheckArgOrder=shouldCheckArgOrder,
         argTypeHintsInSignature=argTypeHintsInSignature,
@@ -220,12 +238,17 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
                     + f' {sorted(argsInDocNotInFunc)}.'
                 )
 
+            msgPostfixTemp: str = ' '.join(msgPostfixParts)
+
+            if actualArgsAreClassAttributes:
+                msgPostfixTemp += SPHINX_MSG_POSTFIX
+
             violations.append(
                 Violation(
                     code=603 if actualArgsAreClassAttributes else 103,
                     line=lineNum,
                     msgPrefix=msgPrefix,
-                    msgPostfix=' '.join(msgPostfixParts),
+                    msgPostfix=msgPostfixTemp,
                 )
             )
 
