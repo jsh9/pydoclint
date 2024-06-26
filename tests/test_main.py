@@ -191,6 +191,15 @@ def testClassAttributes(
             'class attributes: [arg1: float, indices: int]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
+            'DOC101: Method `MyClass2.__init__`: Docstring contains fewer arguments than '
+            'in function signature. ',
+            'DOC109: Method `MyClass2.__init__`: The option '
+            '`--arg-type-hints-in-docstring` is `True` but there are no type hints in the '
+            'docstring arg list ',
+            'DOC103: Method `MyClass2.__init__`: Docstring arguments are different from '
+            'function arguments. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Arguments in the function signature but not in the docstring: [arg1: int].',
             'DOC105: Method `MyClass2.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
             'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
@@ -224,22 +233,21 @@ def testClassAttributes(
             'str]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
-            'DOC601: Class `MyClass5`: Class docstring contains fewer class attributes '
-            'than actual class attributes.  (Please read '
-            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-            'correctly document class attributes.)',
-            'DOC603: Class `MyClass5`: Class docstring attributes are different from '
-            'actual class attributes. (Or could be other formatting issues: '
-            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-            'Attributes in the class definition but not in the docstring: [morning: str]. '
-            '(Please read https://jsh9.github.io/pydoclint/checking_class_attributes.html '
-            'on how to correctly document class attributes.)',
         ],
         False: [
             'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
             'these args do not match: arg1',
             'DOC105: Method `MyClass1.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
+            'DOC101: Method `MyClass2.__init__`: Docstring contains fewer arguments than '
+            'in function signature. ',
+            'DOC109: Method `MyClass2.__init__`: The option '
+            '`--arg-type-hints-in-docstring` is `True` but there are no type hints in the '
+            'docstring arg list ',
+            'DOC103: Method `MyClass2.__init__`: Docstring arguments are different from '
+            'function arguments. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Arguments in the function signature but not in the docstring: [arg1: int].',
             'DOC105: Method `MyClass2.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
             'DOC102: Method `MyClass3.__init__`: Docstring contains more arguments than '

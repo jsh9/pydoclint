@@ -48,6 +48,7 @@ class Doc:
                     bool(self.parsed.short_description)
                     or bool(self.parsed.long_description)
                 )
+                and len(self.parsed.attrs) == 0
                 and len(self.parsed.params) == 0
                 and len(self.parsed.raises) == 0
                 and self.parsed.returns is None

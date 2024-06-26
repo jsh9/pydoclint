@@ -4,6 +4,11 @@
 
 - Changed
   - Pinned to a higher version (0.0.9) of docstring_parser_fork
+  - Relaxed class attribute checking logic
+    - When a class has no docstring, no DOC6xx violations will be reported
+    - When a class has a short docstring (and
+      `--skip-checking-short-docstrings`) is set to `True`, no DOC6xx
+      violations will be reported
 
 ## [0.5.1] - 2024-06-24
 
@@ -14,7 +19,11 @@
     class def or in docstring
 
 - Changed
+
   - Used a dedicated "attribute" section for Sphinx-style docstrings
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.0...0.5.1
 
 ## [0.5.0] - 2024-06-22
 

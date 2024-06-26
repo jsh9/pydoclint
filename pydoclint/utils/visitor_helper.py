@@ -35,12 +35,22 @@ def checkClassAttributesAgainstClassDocstring(
         shouldCheckArgOrder: bool,
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
+        skipCheckingShortDocstrings: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
     classAttributes = _collectClassAttributes(node)
     actualArgs: ArgList = _convertClassAttributesIntoArgList(classAttributes)
 
     classDocstring: str = getDocstring(node)
+
+    if classDocstring == '':
+        # We don't check classes without any docstrings.
+        # We defer to
+        # flake8-docstrings (https://github.com/PyCQA/flake8-docstrings)
+        # or pydocstyle (https://www.pydocstyle.org/en/stable/)
+        # to determine whether a class needs a docstring.
+        return
+
     try:
         doc: Doc = Doc(docstring=classDocstring, style=style)
     except Exception as excp:
@@ -53,6 +63,9 @@ def checkClassAttributesAgainstClassDocstring(
                 msgPostfix=str(excp).replace('\n', ' '),
             )
         )
+
+    if skipCheckingShortDocstrings and doc.isShortDocstring:
+        return
 
     docArgs: ArgList = doc.attrList
 

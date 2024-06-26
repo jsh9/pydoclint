@@ -116,8 +116,18 @@ class MyClass4:
 
 @dataclass
 class MyClass5:
-    """
-    This is a class
-    """
+    """This is a dataclass"""
 
     morning: str
+
+
+class MyClass6:
+    hello: int = 2  # should produce no violations because there's no docstring
+    world: str = 'world'
+
+
+class MyClass7:
+    """This is a short docstring so there shouldn't be any violations"""
+
+    hello: int = 2
+    world: str = 'world'
