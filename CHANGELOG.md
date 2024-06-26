@@ -1,5 +1,10 @@
 # Change Log
 
+## [unpublished]
+
+- Changed
+  - Pinned to a higher version (0.0.9) of docstring_parser_fork
+
 ## [0.5.1] - 2024-06-24
 
 - Fixed

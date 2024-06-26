@@ -1,3 +1,4 @@
+import pprint
 from typing import Any, List
 
 from docstring_parser.common import (
@@ -32,6 +33,9 @@ class Doc:
             self.parsed = parseSphinx(docstring)
         else:
             self._raiseException()
+
+    def __repr__(self) -> str:
+        return pprint.pformat(self.__dict__, indent=2)
 
     @property
     def isShortDocstring(self) -> bool:
