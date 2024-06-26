@@ -181,6 +181,9 @@ class ArgList:
 
         return self.infoList == other.infoList
 
+    def __len__(self) -> int:
+        return len(self.infoList)
+
     @property
     def isEmpty(self) -> bool:
         """Whether the arg list is empty"""
