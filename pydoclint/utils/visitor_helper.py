@@ -64,7 +64,7 @@ def checkClassAttributesAgainstClassDocstring(
             )
         )
 
-    if doc.isShortDocstring and skipCheckingShortDocstrings:
+    if skipCheckingShortDocstrings and doc.isShortDocstring:
         return
 
     docArgs: ArgList = doc.attrList
