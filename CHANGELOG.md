@@ -19,7 +19,11 @@
     class def or in docstring
 
 - Changed
+
   - Used a dedicated "attribute" section for Sphinx-style docstrings
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.0...0.5.1
 
 ## [0.5.0] - 2024-06-22
 
