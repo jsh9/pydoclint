@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.5.3] - 2024-06-26
+
+- Changed
+
+  - Added DOC604 & 605 test cases
+  - Improved DOC605 error message
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.2...0.5.3
+
 ## [0.5.2] - 2024-06-26
 
 - Changed

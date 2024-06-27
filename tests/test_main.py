@@ -18,41 +18,41 @@ def pythonVersionBelow310():
 
 expectedViolations_True = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC106: Method `MyClass.func1_6`: The option `--arg-type-hints-in-signature` is `True` '
-    'but there are no argument type hints in the signature ',
+    'but there are no argument type hints in the signature',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the docstring but not in the '
     'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in '
     'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the docstring but not in the '
     'function signature: [arg3: Optional[Union[float, int, str]]].',
     'DOC104: Method `MyClass.func4`: Arguments are the same in the docstring and '
-    'the function signature, but are in a different order. ',
+    'the function signature, but are in a different order.',
     'DOC105: Method `MyClass.func5`: Argument names match, but type hints in these args '
     'do not match: arg1, arg2',
     'DOC104: Method `MyClass.func6`: Arguments are the same in the docstring and '
-    'the function signature, but are in a different order. ',
+    'the function signature, but are in a different order.',
     'DOC105: Method `MyClass.func6`: Argument names match, but type hints in these args '
     'do not match: arg1, arg2',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
@@ -61,27 +61,27 @@ expectedViolations_True = [
 
 expectedViolations_False = [
     'DOC101: Method `MyClass.func1_3`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Method `MyClass.func1_3`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in '
     'the docstring: [arg1: str, arg2: list[int]].',
     'DOC102: Method `MyClass.func1_6`: Docstring contains more arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC106: Method `MyClass.func1_6`: The option `--arg-type-hints-in-signature` is `True` '
-    'but there are no argument type hints in the signature ',
+    'but there are no argument type hints in the signature',
     'DOC103: Method `MyClass.func1_6`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the docstring but not in the '
     'function signature: [arg1: int].',
     'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in '
     'the docstring: [arg2: float | int | None].',
     'DOC102: Method `MyClass.func3`: Docstring contains more arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Method `MyClass.func3`: Docstring arguments are different from '
     'function arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the docstring but not in the '
@@ -91,7 +91,7 @@ expectedViolations_False = [
     'DOC105: Method `MyClass.func6`: Argument names match, but type hints in '
     'these args do not match: arg1, arg2',
     'DOC101: Function `func72`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC103: Function `func72`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
@@ -184,7 +184,7 @@ def testClassAttributes(
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
             'DOC101: Method `MyClass2.__init__`: Docstring contains fewer arguments than '
-            'in function signature. ',
+            'in function signature.',
             'DOC103: Method `MyClass2.__init__`: Docstring arguments are different from '
             'function arguments. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
@@ -203,7 +203,7 @@ def testClassAttributes(
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
             'DOC102: Method `MyClass3.__init__`: Docstring contains more arguments than '
-            'in function signature. ',
+            'in function signature.',
             'DOC103: Method `MyClass3.__init__`: Docstring arguments are different from '
             'function arguments. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
@@ -222,6 +222,14 @@ def testClassAttributes(
             'str]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
+            'DOC605: Class `MyClass8`: Attribute names match, but type hints in these '
+            'attributes do not match: arg2  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC604: Class `MyClass9`: Attributes are the same in docstring and class '
+            'def, but are in a different order.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
         ],
         False: [
             'DOC105: Method `MyClass1.__init__`: Argument names match, but type hints in '
@@ -229,7 +237,7 @@ def testClassAttributes(
             'DOC105: Method `MyClass1.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
             'DOC101: Method `MyClass2.__init__`: Docstring contains fewer arguments than '
-            'in function signature. ',
+            'in function signature.',
             'DOC103: Method `MyClass2.__init__`: Docstring arguments are different from '
             'function arguments. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
@@ -237,7 +245,7 @@ def testClassAttributes(
             'DOC105: Method `MyClass2.do_something`: Argument names match, but type hints '
             'in these args do not match: arg2',
             'DOC102: Method `MyClass3.__init__`: Docstring contains more arguments than '
-            'in function signature. ',
+            'in function signature.',
             'DOC103: Method `MyClass3.__init__`: Docstring arguments are different from '
             'function arguments. (Or could be other formatting issues: '
             'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
@@ -300,12 +308,12 @@ def testReturns(style: str, filename: str) -> None:
 
     expectedViolations: List[str] = [
         'DOC201: Method `MyClass.func1_6` does not have a return section in '
-        'docstring ',
+        'docstring',
         'DOC203: Method `MyClass.func1_6` return type(s) in docstring not consistent with '
         'the return annotation. Return annotation has 1 type(s); docstring '
         'return section has 0 type(s).',
         'DOC101: Method `MyClass.func2`: Docstring contains fewer arguments than in '
-        'function signature. ',
+        'function signature.',
         'DOC103: Method `MyClass.func2`: Docstring arguments are different from '
         'function arguments. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in '
@@ -318,7 +326,7 @@ def testReturns(style: str, filename: str) -> None:
         "return annotation. Return annotation types: ['int']; docstring return "
         "section types: ['float']",
         'DOC202: Method `MyClass.func6` has a return section in docstring, but there '
-        'are no return statements or annotations ',
+        'are no return statements or annotations',
         'DOC203: Method `MyClass.func6` return type(s) in docstring not consistent with the '
         'return annotation. Return annotation has 0 type(s); docstring return section '
         'has 1 type(s).',
@@ -346,11 +354,11 @@ def testReturns(style: str, filename: str) -> None:
 
     expectedViolations.extend([
         'DOC202: Method `MyClass.func101` has a return section in docstring, but '
-        'there are no return statements or annotations ',
+        'there are no return statements or annotations',
         'DOC203: Method `MyClass.func101` return type(s) in docstring not consistent '
         'with the return annotation. Return annotation has 0 type(s); docstring '
         'return section has 1 type(s).',
-        'DOC201: Function `inner101` does not have a return section in docstring ',
+        'DOC201: Function `inner101` does not have a return section in docstring',
         'DOC203: Function `inner101` return type(s) in docstring not consistent with '
         'the return annotation. Return annotation has 1 type(s); docstring return '
         'section has 0 type(s).',
@@ -388,7 +396,7 @@ def testReturnsPy310plus(style: str, filename: str) -> None:
     )
 
     expectedViolations: List[str] = [
-        'DOC201: Method `MyClass.func11` does not have a return section in docstring ',
+        'DOC201: Method `MyClass.func11` does not have a return section in docstring',
         'DOC203: Method `MyClass.func11` return type(s) in docstring not consistent '
         'with the return annotation. Return annotation has 1 type(s); docstring '
         'return section has 0 type(s).',
@@ -419,7 +427,7 @@ def testReturns_returningNone(style: str, require: bool) -> None:
     )
     expectedViolationsCopy = (
         [
-            'DOC201: Function `func` does not have a return section in docstring ',
+            'DOC201: Function `func` does not have a return section in docstring',
             'DOC203: Function `func` return type(s) in docstring not consistent with the '
             'return annotation. Return annotation has 1 type(s); docstring return section '
             'has 0 type(s).',
@@ -448,7 +456,7 @@ def testReturns_returningNoReturn(style: str, require: bool) -> None:
     )
     expectedViolationsCopy = (
         [
-            'DOC201: Function `func` does not have a return section in docstring ',
+            'DOC201: Function `func` does not have a return section in docstring',
             'DOC203: Function `func` return type(s) in docstring not consistent with the '
             'return annotation. Return annotation has 1 type(s); docstring return section '
             'has 0 type(s).',
@@ -468,11 +476,11 @@ def _tweakViolationMsgForFunctions(expectedViolationsCopy: List[str]) -> None:
 
 expected_skipCheckingShortDocstrings_True = [
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC106: Function `func3`: The option `--arg-type-hints-in-signature` is `True` '
-    'but there are no argument type hints in the signature ',
+    'but there are no argument type hints in the signature',
     'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is `True` '
-    'but not all args in the signature have type hints ',
+    'but not all args in the signature have type hints',
     'DOC103: Function `func3`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
@@ -482,39 +490,39 @@ expected_skipCheckingShortDocstrings_True = [
 
 expected_skipCheckingShortDocstrings_False = [
     'DOC101: Function `func1`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC106: Function `func1`: The option `--arg-type-hints-in-signature` is `True` '
-    'but there are no argument type hints in the signature ',
+    'but there are no argument type hints in the signature',
     'DOC107: Function `func1`: The option `--arg-type-hints-in-signature` is `True` '
-    'but not all args in the signature have type hints ',
+    'but not all args in the signature have type hints',
     'DOC103: Function `func1`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the '
     'function signature but not in the docstring: [arg1: , arg2: , arg3: ].',
-    'DOC201: Function `func1` does not have a return section in docstring ',
+    'DOC201: Function `func1` does not have a return section in docstring',
     'DOC203: Function `func1` return type(s) in docstring not consistent with the '
     'return annotation. Return annotation has 1 type(s); docstring return section '
     'has 0 type(s).',
     'DOC101: Function `func2`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC106: Function `func2`: The option `--arg-type-hints-in-signature` is `True` '
-    'but there are no argument type hints in the signature ',
+    'but there are no argument type hints in the signature',
     'DOC107: Function `func2`: The option `--arg-type-hints-in-signature` is `True` '
-    'but not all args in the signature have type hints ',
+    'but not all args in the signature have type hints',
     'DOC103: Function `func2`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the '
     'function signature but not in the docstring: [arg1: , arg2: , arg3: ].',
-    'DOC201: Function `func2` does not have a return section in docstring ',
+    'DOC201: Function `func2` does not have a return section in docstring',
     'DOC203: Function `func2` return type(s) in docstring not consistent with the '
     'return annotation. Return annotation has 1 type(s); docstring return section '
     'has 0 type(s).',
     'DOC101: Function `func3`: Docstring contains fewer arguments than in '
-    'function signature. ',
+    'function signature.',
     'DOC106: Function `func3`: The option `--arg-type-hints-in-signature` is `True` '
-    'but there are no argument type hints in the signature ',
+    'but there are no argument type hints in the signature',
     'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is `True` '
-    'but not all args in the signature have type hints ',
+    'but not all args in the signature have type hints',
     'DOC103: Function `func3`: Docstring arguments are different from function '
     'arguments. (Or could be other formatting issues: '
     'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the '
@@ -560,20 +568,20 @@ def testInit(style: str) -> None:
     )
     expected = [
         'DOC301: Class `A`: __init__() should not have a docstring; please combine it '
-        'with the docstring of the class ',
+        'with the docstring of the class',
         'DOC302: Class `B`: The class docstring does not need a "Returns" section, '
-        'because __init__() cannot return anything ',
+        'because __init__() cannot return anything',
         'DOC105: Method `C.__init__`: Argument names match, but type hints in these '
         'args do not match: arg2',
         'DOC302: Class `C`: The class docstring does not need a "Returns" section, '
-        'because __init__() cannot return anything ',
+        'because __init__() cannot return anything',
         'DOC103: Method `D.__init__`: Docstring arguments are different from function '
         'arguments. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
         'docstring: [arg1: int, arg2: float]. Arguments in the docstring but not in '
         'the function signature: [var1: list, var2: dict].',
         'DOC302: Class `D`: The class docstring does not need a "Returns" section, '
-        'because __init__() cannot return anything ',
+        'because __init__() cannot return anything',
     ]
     assert list(map(str, violations)) == expected
 
@@ -590,27 +598,27 @@ def testAllowInitDocstring(style: str) -> None:
     )
     expected = [
         'DOC304: Class `A`: Class docstring has an argument/parameter section; please '
-        'put it in the __init__() docstring ',
+        'put it in the __init__() docstring',
         'DOC302: Class `B`: The class docstring does not need a "Returns" section, '
-        'because __init__() cannot return anything ',
+        'because __init__() cannot return anything',
         'DOC303: Class `B`: The __init__() docstring does not need a "Returns" '
-        'section, because it cannot return anything ',
+        'section, because it cannot return anything',
         'DOC304: Class `B`: Class docstring has an argument/parameter section; please '
-        'put it in the __init__() docstring ',
+        'put it in the __init__() docstring',
         'DOC302: Class `B`: The class docstring does not need a "Returns" section, '
-        'because __init__() cannot return anything ',
+        'because __init__() cannot return anything',
         'DOC305: Class `C`: Class docstring has a "Raises" section; please put it in '
-        'the __init__() docstring ',
+        'the __init__() docstring',
         'DOC306: Class `D`: The class docstring does not need a "Yields" section, '
-        'because __init__() cannot yield anything ',
+        'because __init__() cannot yield anything',
         'DOC307: Class `D`: The __init__() docstring does not need a "Yields" '
-        'section, because __init__() cannot yield anything ',
+        'section, because __init__() cannot yield anything',
         'DOC306: Class `D`: The class docstring does not need a "Yields" section, '
-        'because __init__() cannot yield anything ',
+        'because __init__() cannot yield anything',
         'DOC403: Method `D.__init__` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
         'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
-        'return annotation.) ',
+        'return annotation.)',
         'DOC602: Class `E`: Class docstring contains more class attributes than in '
         'actual class attributes.  (Please read '
         'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -635,74 +643,74 @@ def testYields(style: str) -> None:
     )
     expected = [
         'DOC402: Method `A.method1` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method1` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
         'DOC402: Method `A.method2` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method2` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
         'DOC403: Method `A.method3` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
         'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
-        'return annotation.) ',
+        'return annotation.)',
         'DOC402: Method `A.method6` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method6` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
         'DOC402: Method `A.method8a` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method8a` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
         'DOC402: Method `A.method8b` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method8b` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
         'DOC402: Method `A.method8c` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method8c` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
         'DOC402: Method `A.method8d` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method8d` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
-        'DOC201: Method `A.zipLists2` does not have a return section in docstring ',
+        'DOC201: Method `A.zipLists2` does not have a return section in docstring',
         'DOC403: Method `A.zipLists2` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
         'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
-        'return annotation.) ',
+        'return annotation.)',
         'DOC404: Function `inner9a` yield type(s) in docstring not consistent with '
         'the return annotation. The yield type (the 0th arg in '
         'Generator[...]/Iterator[...]): str; docstring "yields" section types: '
         'Iterable[str]',
         'DOC402: Function `inner9b` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Function `inner9b` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
-        'DOC201: Method `A.method9c` does not have a return section in docstring ',
+        'DOC201: Method `A.method9c` does not have a return section in docstring',
         'DOC403: Method `A.method9c` has a "Yields" section in the docstring, but '
         'there are no "yield" statements, or the return annotation is not a '
         'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
-        'return annotation.) ',
+        'return annotation.)',
         'DOC404: Function `inner9c` yield type(s) in docstring not consistent with '
         'the return annotation. The yield type (the 0th arg in '
         'Generator[...]/Iterator[...]): str; docstring "yields" section types: '
         'Iterable[str]',
         'DOC402: Method `A.method9d` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Method `A.method9d` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
         'DOC402: Function `inner9d` has "yield" statements, but the docstring does '
-        'not have a "Yields" section ',
+        'not have a "Yields" section',
         'DOC404: Function `inner9d` yield type(s) in docstring not consistent with '
         'the return annotation. Return annotation exists, but docstring "yields" '
         'section does not exist or has 0 type(s).',
@@ -726,7 +734,7 @@ def testYieldsPy310plus(style: str) -> None:
     )
     expected = [
         'DOC402: Method `A.func10` has "yield" statements, but the docstring does not '
-        'have a "Yields" section ',
+        'have a "Yields" section',
         'DOC404: Method `A.func10` yield type(s) in docstring not consistent with the '
         'return annotation. Return annotation exists, but docstring "yields" section '
         'does not exist or has 0 type(s).',
@@ -750,7 +758,7 @@ def testReturnAndYield(style: str) -> None:
         'use Generator[YieldType, SendType, ReturnType] as the return type '
         'annotation, and put your yield type in YieldType and return type in '
         'ReturnType. More details in '
-        'https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ',
+        'https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html',
         'DOC203: Function `func3` return type(s) in docstring not consistent with the '
         "return annotation. Return annotation types: ['float']; docstring return "
         "section types: ['str']",
@@ -768,7 +776,7 @@ def testReturnAndYield(style: str) -> None:
         'use Generator[YieldType, SendType, ReturnType] as the return type '
         'annotation, and put your yield type in YieldType and return type in '
         'ReturnType. More details in '
-        'https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html ',
+        'https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html',
         'DOC404: Function `func5` yield type(s) in docstring not consistent with the '
         'return annotation. The yield type (the 0th arg in '
         'Generator[...]/Iterator[...]): Iterator; docstring "yields" section types: '
@@ -795,15 +803,15 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
     )
     expected0 = [
         'DOC501: Method `B.func1` has "raise" statements, but the docstring does not '
-        'have a "Raises" section ',
+        'have a "Raises" section',
         'DOC502: Method `B.func5` has a "Raises" section in the docstring, but there '
-        'are not "raise" statements in the body ',
+        'are not "raise" statements in the body',
         'DOC502: Method `B.func7` has a "Raises" section in the docstring, but there '
-        'are not "raise" statements in the body ',
+        'are not "raise" statements in the body',
         'DOC502: Method `B.func9a` has a "Raises" section in the docstring, but there '
-        'are not "raise" statements in the body ',
+        'are not "raise" statements in the body',
         'DOC501: Function `inner9a` has "raise" statements, but the docstring does '
-        'not have a "Raises" section ',
+        'not have a "Raises" section',
     ]
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
@@ -832,7 +840,7 @@ def testRaisesPy310plus(style: str, skipRaisesCheck: bool) -> None:
     )
     expected0 = [
         'DOC501: Method `B.func10` has "raise" statements, but the docstring does not '
-        'have a "Raises" section ',
+        'have a "Raises" section',
     ]
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
@@ -847,27 +855,27 @@ def testStarsInArgumentList(style: str) -> None:
     )
     expected = [
         'DOC110: Function `func2`: The option `--arg-type-hints-in-docstring` is `True` '
-        'but not all args in the docstring arg list have type hints ',
+        'but not all args in the docstring arg list have type hints',
         'DOC103: Function `func2`: Docstring arguments are different from function '
         'arguments. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
         'docstring: [**kwargs: ]. Arguments in the docstring but not in the function '
         'signature: [kwargs: ].',
         'DOC110: Function `func4`: The option `--arg-type-hints-in-docstring` is `True` '
-        'but not all args in the docstring arg list have type hints ',
+        'but not all args in the docstring arg list have type hints',
         'DOC103: Function `func4`: Docstring arguments are different from function '
         'arguments. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
         'docstring: [*args: ]. Arguments in the docstring but not in the function '
         'signature: [args: ].',
         'DOC101: Function `func6`: Docstring contains fewer arguments than in '
-        'function signature. ',
+        'function signature.',
         'DOC103: Function `func6`: Docstring arguments are different from function '
         'arguments. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). Arguments in the function signature but not in the '
         'docstring: [**kwargs: , *args: ].',
         'DOC101: Function `func7`: Docstring contains fewer arguments than in '
-        'function signature. ',
+        'function signature.',
         'DOC103: Function `func7`: Docstring arguments are different from function '
         'arguments. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
@@ -943,22 +951,22 @@ def testNoReturnSection(
     )
     expected_lookup = {
         True: [
-            'DOC201: Function `func1` does not have a return section in docstring ',
-            'DOC201: Function `func2` does not have a return section in docstring ',
-            'DOC201: Function `func3` does not have a return section in docstring ',
-            'DOC201: Function `func4` does not have a return section in docstring ',
-            'DOC201: Function `func5` does not have a return section in docstring ',
-            'DOC201: Function `func7` does not have a return section in docstring ',
-            'DOC201: Function `func8` does not have a return section in docstring ',
-            'DOC201: Function `func9` does not have a return section in docstring ',
-            'DOC201: Function `func10` does not have a return section in docstring ',
+            'DOC201: Function `func1` does not have a return section in docstring',
+            'DOC201: Function `func2` does not have a return section in docstring',
+            'DOC201: Function `func3` does not have a return section in docstring',
+            'DOC201: Function `func4` does not have a return section in docstring',
+            'DOC201: Function `func5` does not have a return section in docstring',
+            'DOC201: Function `func7` does not have a return section in docstring',
+            'DOC201: Function `func8` does not have a return section in docstring',
+            'DOC201: Function `func9` does not have a return section in docstring',
+            'DOC201: Function `func10` does not have a return section in docstring',
         ],
         False: [
-            'DOC201: Function `func2` does not have a return section in docstring ',
-            'DOC201: Function `func3` does not have a return section in docstring ',
-            'DOC201: Function `func4` does not have a return section in docstring ',
-            'DOC201: Function `func5` does not have a return section in docstring ',
-            'DOC201: Function `func10` does not have a return section in docstring ',
+            'DOC201: Function `func2` does not have a return section in docstring',
+            'DOC201: Function `func3` does not have a return section in docstring',
+            'DOC201: Function `func4` does not have a return section in docstring',
+            'DOC201: Function `func5` does not have a return section in docstring',
+            'DOC201: Function `func10` does not have a return section in docstring',
         ],
     }
     assert list(map(str, violations)) == expected_lookup[rrs]
@@ -980,24 +988,24 @@ def testNoYieldSection(style: str, rys: bool) -> None:
     expected_lookup = {
         True: [
             'DOC402: Function `func1` has "yield" statements, but the docstring does not '
-            'have a "Yields" section ',
+            'have a "Yields" section',
             'DOC404: Function `func1` yield type(s) in docstring not consistent with the '
             'return annotation. Return annotation exists, but docstring "yields" section '
             'does not exist or has 0 type(s).',
             'DOC402: Function `func2` has "yield" statements, but the docstring does not '
-            'have a "Yields" section ',
+            'have a "Yields" section',
             'DOC404: Function `func2` yield type(s) in docstring not consistent with the '
             'return annotation. Return annotation exists, but docstring "yields" section '
             'does not exist or has 0 type(s).',
             'DOC402: Function `func3` has "yield" statements, but the docstring does not '
-            'have a "Yields" section ',
+            'have a "Yields" section',
             'DOC404: Function `func3` yield type(s) in docstring not consistent with the '
             'return annotation. Return annotation exists, but docstring "yields" section '
             'does not exist or has 0 type(s).',
         ],
         False: [
             'DOC402: Function `func3` has "yield" statements, but the docstring does not '
-            'have a "Yields" section ',
+            'have a "Yields" section',
             'DOC404: Function `func3` yield type(s) in docstring not consistent with the '
             'return annotation. Return annotation exists, but docstring "yields" section '
             'does not exist or has 0 type(s).',
@@ -1036,9 +1044,9 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     if checkReturnTypes:
         expected = [
             'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
-            'return section in docstring ',
+            'return section in docstring',
             'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
-            'section in docstring ',
+            'section in docstring',
             'DOC203: Method `AbstractClass.third_abstract_method` return type(s) in '
             'docstring not consistent with the return annotation. Return annotation has 1 '
             'type(s); docstring return section has 0 type(s).',
@@ -1046,9 +1054,9 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     else:
         expected = [
             'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
-            'return section in docstring ',
+            'return section in docstring',
             'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
-            'section in docstring ',
+            'section in docstring',
         ]
 
     assert list(map(str, violations)) == expected
@@ -1088,107 +1096,107 @@ def testTypeHintChecking(
     expected_lookup = {
         (False, False): [
             'DOC108: Method `MyClass.func2`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC111: Method `MyClass.func3`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC108: Method `MyClass.func4`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC111: Method `MyClass.func4`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC108: Method `MyClass.func5`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC111: Method `MyClass.func5`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC108: Method `MyClass.func6`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC111: Method `MyClass.func6`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC108: Method `MyClass.func7`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC111: Method `MyClass.func7`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
         ],
         (False, True): [
             'DOC106: Method `MyClass.func1`: The option `--arg-type-hints-in-signature` is '
-            '`True` but there are no argument type hints in the signature ',
+            '`True` but there are no argument type hints in the signature',
             'DOC107: Method `MyClass.func1`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC106: Method `MyClass.func3`: The option `--arg-type-hints-in-signature` is '
-            '`True` but there are no argument type hints in the signature ',
+            '`True` but there are no argument type hints in the signature',
             'DOC107: Method `MyClass.func3`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC111: Method `MyClass.func3`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC111: Method `MyClass.func4`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC107: Method `MyClass.func5`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC111: Method `MyClass.func5`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC111: Method `MyClass.func6`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
             'DOC107: Method `MyClass.func7`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC111: Method `MyClass.func7`: The option `--arg-type-hints-in-docstring` is '
-            '`False` but there are type hints in the docstring arg list ',
+            '`False` but there are type hints in the docstring arg list',
         ],
         (True, False): [
             'DOC109: Method `MyClass.func1`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but there are no type hints in the docstring arg list ',
+            '`True` but there are no type hints in the docstring arg list',
             'DOC110: Method `MyClass.func1`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
             'DOC108: Method `MyClass.func2`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC109: Method `MyClass.func2`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but there are no type hints in the docstring arg list ',
+            '`True` but there are no type hints in the docstring arg list',
             'DOC110: Method `MyClass.func2`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
             'DOC108: Method `MyClass.func4`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC108: Method `MyClass.func5`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC110: Method `MyClass.func5`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
             'DOC108: Method `MyClass.func6`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC108: Method `MyClass.func7`: The option `--arg-type-hints-in-signature` is '
-            '`False` but there are argument type hints in the signature ',
+            '`False` but there are argument type hints in the signature',
             'DOC110: Method `MyClass.func7`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
         ],
         (True, True): [
             'DOC106: Method `MyClass.func1`: The option `--arg-type-hints-in-signature` is '
-            '`True` but there are no argument type hints in the signature ',
+            '`True` but there are no argument type hints in the signature',
             'DOC107: Method `MyClass.func1`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC109: Method `MyClass.func1`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but there are no type hints in the docstring arg list ',
+            '`True` but there are no type hints in the docstring arg list',
             'DOC110: Method `MyClass.func1`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
             'DOC109: Method `MyClass.func2`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but there are no type hints in the docstring arg list ',
+            '`True` but there are no type hints in the docstring arg list',
             'DOC110: Method `MyClass.func2`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
             'DOC105: Method `MyClass.func2`: Argument names match, but type hints in '
             'these args do not match: arg1, arg2',
             'DOC106: Method `MyClass.func3`: The option `--arg-type-hints-in-signature` is '
-            '`True` but there are no argument type hints in the signature ',
+            '`True` but there are no argument type hints in the signature',
             'DOC107: Method `MyClass.func3`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC105: Method `MyClass.func3`: Argument names match, but type hints in '
             'these args do not match: arg1, arg2',
             'DOC107: Method `MyClass.func5`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC110: Method `MyClass.func5`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
             'DOC105: Method `MyClass.func5`: Argument names match, but type hints in '
             'these args do not match: arg1, arg2',
             'DOC105: Method `MyClass.func6`: Argument names match, but type hints in '
             'these args do not match: arg1',
             'DOC107: Method `MyClass.func7`: The option `--arg-type-hints-in-signature` is '
-            '`True` but not all args in the signature have type hints ',
+            '`True` but not all args in the signature have type hints',
             'DOC110: Method `MyClass.func7`: The option `--arg-type-hints-in-docstring` is '
-            '`True` but not all args in the docstring arg list have type hints ',
+            '`True` but not all args in the docstring arg list have type hints',
         ],
     }
 
@@ -1218,21 +1226,21 @@ def testNonAscii() -> None:
             {'style': 'numpy'},
             [
                 'DOC106: Function `func1`: The option `--arg-type-hints-in-signature` is '
-                '`True` but there are no argument type hints in the signature ',
+                '`True` but there are no argument type hints in the signature',
                 'DOC107: Function `func1`: The option `--arg-type-hints-in-signature` is '
-                '`True` but not all args in the signature have type hints ',
+                '`True` but not all args in the signature have type hints',
                 'DOC105: Function `func1`: Argument names match, but type hints in these args '
                 'do not match: a',
                 'DOC106: Function `func2`: The option `--arg-type-hints-in-signature` is '
-                '`True` but there are no argument type hints in the signature ',
+                '`True` but there are no argument type hints in the signature',
                 'DOC107: Function `func2`: The option `--arg-type-hints-in-signature` is '
-                '`True` but not all args in the signature have type hints ',
+                '`True` but not all args in the signature have type hints',
                 'DOC105: Function `func2`: Argument names match, but type hints in these args '
                 'do not match: a',
                 'DOC106: Function `func3`: The option `--arg-type-hints-in-signature` is '
-                '`True` but there are no argument type hints in the signature ',
+                '`True` but there are no argument type hints in the signature',
                 'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is '
-                '`True` but not all args in the signature have type hints ',
+                '`True` but not all args in the signature have type hints',
                 'DOC105: Function `func3`: Argument names match, but type hints in these args '
                 'do not match: a',
             ],
@@ -1257,7 +1265,7 @@ def testNonAscii() -> None:
             {'style': 'numpy', 'argTypeHintsInDocstring': False},
             [
                 'DOC101: Function `f`: Docstring contains fewer arguments than in function '
-                'signature. ',
+                'signature.',
                 'DOC103: Function `f`: Docstring arguments are different from function '
                 'arguments. (Or could be other formatting issues: '
                 'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
@@ -1272,7 +1280,7 @@ def testNonAscii() -> None:
             {'style': 'google'},
             [
                 'DOC101: Function `foo`: Docstring contains fewer arguments than in function '
-                'signature. ',
+                'signature.',
                 'DOC103: Function `foo`: Docstring arguments are different from function '
                 'arguments. (Or could be other formatting issues: '
                 'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
@@ -1289,7 +1297,7 @@ def testNonAscii() -> None:
                 'DOC403: Function `f1` has a "Yields" section in the docstring, but there are '
                 'no "yield" statements, or the return annotation is not a '
                 'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
-                'return annotation.) ',
+                'return annotation.)',
                 'DOC404: Function `f1` yield type(s) in docstring not consistent with the '
                 'return annotation. Return annotation does not exist or is not '
                 'Generator[...]/Iterator[...]/Iterable[...], but docstring "yields" section '

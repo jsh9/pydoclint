@@ -148,3 +148,47 @@ class MyClass7:
 
     hello: int = 2
     world: str = 'world'
+
+
+class MyClass8:
+    """
+    My class 8.
+
+    .. attribute :: arg1
+        :type: str
+
+        Arg 1
+
+    .. attribute :: arg2
+        :type: int
+
+        Arg 2
+    """
+
+    arg1: str
+    arg2: bool
+
+
+class MyClass9:
+    """
+    My class 9.
+
+    .. attribute :: arg1
+        :type: str
+
+        Arg 1
+
+    .. attribute :: arg2
+        :type: bool
+
+        Arg 2
+
+    .. attribute :: arg3
+        :type: int
+
+        Arg 3
+    """
+
+    arg1: str
+    arg3: int
+    arg2: bool
