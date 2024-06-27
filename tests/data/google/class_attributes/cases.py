@@ -131,3 +131,31 @@ class MyClass7:
 
     hello: int = 2
     world: str = 'world'
+
+
+class MyClass8:
+    """
+    My class 8.
+
+    Attributes:
+        arg1 (str): Arg 1
+        arg2 (int): Arg 2
+    """
+
+    arg1: str
+    arg2: bool
+
+
+class MyClass9:
+    """
+    My class 9.
+
+    Attributes:
+        arg1 (str): Arg 1
+        arg2 (bool): Arg 2
+        arg3 (int): Arg 3
+    """
+
+    arg1: str
+    arg3: int
+    arg2: bool

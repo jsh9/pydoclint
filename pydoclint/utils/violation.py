@@ -79,7 +79,16 @@ class Violation:
 
         self.line = line
         self.code = code
-        self.msg = msgPrefix + ' ' + VIOLATION_CODES[code] + ' ' + msgPostfix
+        self.violationMsg = VIOLATION_CODES[code]
+        self.msgPrefix = msgPrefix
+        self.msgPostfix = msgPostfix
+        self.msg = ''.join([
+            msgPrefix,
+            ' ',
+            self.violationMsg,
+            ' ',
+            msgPostfix,
+        ]).strip()
 
     @property
     def fullErrorCode(self) -> str:
@@ -107,5 +116,13 @@ class Violation:
     def appendMoreMsg(self, moreMsg: str) -> 'Violation':
         """Append more error message, and return a new Violation object"""
         new = deepcopy(self)
-        new.msg += moreMsg
+        new.msg = ''.join([
+            new.msgPrefix,
+            ' ',
+            new.violationMsg,
+            ' ',
+            moreMsg,
+            ' ',
+            new.msgPostfix,
+        ]).strip()  # noqa: PAR104
         return new
