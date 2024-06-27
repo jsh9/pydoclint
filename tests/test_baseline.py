@@ -55,8 +55,6 @@ def bad_docstring_func(arg1: str, arg2: list[int]) -> bool:
 
 expectedNewViolations = [
     'DOC101: Function `bad_docstring_func`: Docstring contains fewer arguments than in function signature. ',
-    'DOC109: Function `bad_docstring_func`: The option `--arg-type-hints-in-docstring` is `True` '
-    'but there are no type hints in the docstring arg list ',
     'DOC103: Function `bad_docstring_func`: Docstring arguments are different from function arguments. '
     '(Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
     'Arguments in the function signature but not in the docstring: [arg1: str, arg2: list[int]].',
