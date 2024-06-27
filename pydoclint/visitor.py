@@ -97,6 +97,7 @@ class Visitor(ast.NodeVisitor):
                 shouldCheckArgOrder=self.checkArgOrder,
                 argTypeHintsInSignature=self.argTypeHintsInSignature,
                 argTypeHintsInDocstring=self.argTypeHintsInDocstring,
+                skipCheckingShortDocstrings=self.skipCheckingShortDocstrings,
             )
 
         self.generic_visit(node)
