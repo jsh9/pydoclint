@@ -124,5 +124,5 @@ class Violation:
             moreMsg,
             ' ',
             new.msgPostfix,
-        ]).strip()
+        ]).strip()  # noqa: PAR104
         return new
