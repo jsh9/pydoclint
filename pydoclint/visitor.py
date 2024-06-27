@@ -418,7 +418,14 @@ class Visitor(ast.NodeVisitor):
         if not self.argTypeHintsInSignature and funcArgs.hasTypeHintInAnyArg():
             violations.append(v108)
 
-        if self.argTypeHintsInDocstring and docArgs.noTypeHints():
+        if self.argTypeHintsInDocstring and (
+            # A non-empty arg list is the pre-requisite for reporting DOC109.
+            # Otherwise, the error message of DOC109 would not make sense.
+            # ("The option `--arg-type-hints-in-docstring` is `True` but
+            # there are no type hints in the docstring arg list")
+            len(docArgs) > 0
+            and docArgs.noTypeHints()
+        ):
             violations.append(v109)
 
         if self.argTypeHintsInDocstring and not docArgs.hasTypeHintInAllArgs():
