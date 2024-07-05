@@ -1350,9 +1350,6 @@ def testPlayground() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
         style='google',
-        argTypeHintsInDocstring=False,
-        checkReturnTypes=False,
-        checkYieldTypes=False,
     )
     expected = []
     assert list(map(str, violations)) == expected
