@@ -59,6 +59,7 @@ class Visitor(ast.NodeVisitor):
             checkYieldTypes: bool = True,
             ignoreUnderscoreArgs: bool = True,
             checkClassAttributes: bool = True,
+            shouldDocumentPrivateClassAttributes: bool = False,
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
     ) -> None:
@@ -73,6 +74,9 @@ class Visitor(ast.NodeVisitor):
         self.checkYieldTypes: bool = checkYieldTypes
         self.ignoreUnderscoreArgs: bool = ignoreUnderscoreArgs
         self.checkClassAttributes: bool = checkClassAttributes
+        self.shouldDocumentPrivateClassAttributes: bool = (
+            shouldDocumentPrivateClassAttributes
+        )
         self.requireReturnSectionWhenReturningNothing: bool = (
             requireReturnSectionWhenReturningNothing
         )
@@ -98,6 +102,9 @@ class Visitor(ast.NodeVisitor):
                 argTypeHintsInSignature=self.argTypeHintsInSignature,
                 argTypeHintsInDocstring=self.argTypeHintsInDocstring,
                 skipCheckingShortDocstrings=self.skipCheckingShortDocstrings,
+                shouldDocumentPrivateClassAttributes=(
+                    self.shouldDocumentPrivateClassAttributes
+                ),
             )
 
         self.generic_visit(node)

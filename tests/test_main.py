@@ -1304,6 +1304,28 @@ def testNonAscii() -> None:
                 'has 1 type(s).',
             ],
         ),
+        (
+            '11_private_class_attr/google.py',
+            {'style': 'google', 'shouldDocumentPrivateClassAttributes': False},
+            [],
+        ),
+        (
+            '11_private_class_attr/google.py',
+            {'style': 'google', 'shouldDocumentPrivateClassAttributes': True},
+            [
+                'DOC601: Class `MyClass`: Class docstring contains fewer class attributes '
+                'than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `MyClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [_hidden_attr: '
+                'bool]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+            ],
+        ),
     ],
 )
 def testEdgeCases(

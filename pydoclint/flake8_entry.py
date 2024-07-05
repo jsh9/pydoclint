@@ -167,6 +167,18 @@ class Plugin:
                 ' "class MyClass:") are checked against the docstring.'
             ),
         )
+        parser.add_option(
+            '-sdpca',
+            '--should-document-private-class-attributes',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, private class attributes (the ones starting with _)'
+                ' should be documented in the docstring. If False, private'
+                ' class attributes should not appear in the docstring.'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
@@ -193,6 +205,9 @@ class Plugin:
         cls.check_yield_types = options.check_yield_types
         cls.ignore_underscore_args = options.ignore_underscore_args
         cls.check_class_attributes = options.check_class_attributes
+        cls.should_document_private_class_attributes = (
+            options.should_document_private_class_attributes
+        )
         cls.style = options.style
 
     def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
@@ -262,6 +277,10 @@ class Plugin:
             '--check-class-attributes',
             self.check_class_attributes,
         )
+        shouldDocumentPrivateClassAttributes = self._bool(
+            '--should-document-private-class-attributes',
+            self.should_document_private_class_attributes,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -285,6 +304,9 @@ class Plugin:
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreArgs=ignoreUnderscoreArgs,
             checkClassAttributes=checkClassAttributes,
+            shouldDocumentPrivateClassAttributes=(
+                shouldDocumentPrivateClassAttributes
+            ),
             style=self.style,
         )
         v.visit(self._tree)

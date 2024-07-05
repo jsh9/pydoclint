@@ -1,5 +1,11 @@
 # Change Log
 
+## [unpublished] - 2024-07-04
+
+- Added
+  - An option `--should-document-private-class-attributes` (if False, private
+    class attributes should not appear in the docstring)
+
 ## [0.5.3] - 2024-06-26
 
 - Changed
