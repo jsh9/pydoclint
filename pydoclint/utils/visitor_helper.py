@@ -36,9 +36,15 @@ def checkClassAttributesAgainstClassDocstring(
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
         skipCheckingShortDocstrings: bool,
+        shouldDocumentPrivateClassAttributes: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
-    classAttributes = _collectClassAttributes(node)
+    classAttributes = _collectClassAttributes(
+        node=node,
+        shouldDocumentPrivateClassAttributes=(
+            shouldDocumentPrivateClassAttributes
+        ),
+    )
     actualArgs: ArgList = _convertClassAttributesIntoArgList(classAttributes)
 
     classDocstring: str = getDocstring(node)
@@ -113,7 +119,9 @@ def checkClassAttributesAgainstClassDocstring(
 
 
 def _collectClassAttributes(
+        *,
         node: ast.ClassDef,
+        shouldDocumentPrivateClassAttributes: bool,
 ) -> List[Union[ast.Assign, ast.AnnAssign]]:
     if 'body' not in node.__dict__ or len(node.body) == 0:
         return []
@@ -121,9 +129,24 @@ def _collectClassAttributes(
     attributes: List[Union[ast.Assign, ast.AnnAssign]] = []
     for item in node.body:
         if isinstance(item, (ast.Assign, ast.AnnAssign)):
-            attributes.append(item)
+            classAttrName: str = _getClassAttrName(item)
+            if shouldDocumentPrivateClassAttributes:
+                attributes.append(item)
+            else:
+                if not classAttrName.startswith('_'):
+                    attributes.append(item)
 
     return attributes
+
+
+def _getClassAttrName(attrItem: Union[ast.Assign, ast.AnnAssign]) -> str:
+    if isinstance(attrItem, ast.Assign):
+        return attrItem.targets[0].id
+
+    if isinstance(attrItem, ast.AnnAssign):
+        return attrItem.target.id
+
+    raise InternalError(f'Unrecognized attrItem type: {type(attrItem)}')
 
 
 def _convertClassAttributesIntoArgList(

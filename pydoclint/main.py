@@ -207,6 +207,18 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-sdpca',
+    '--should-document-private-class-attributes',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, private class attributes (the ones starting with _)'
+        ' should be documented in the docstring. If False, private'
+        ' class attributes should not appear in the docstring.'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -291,6 +303,7 @@ def main(  # noqa: C901
         check_yield_types: bool,
         ignore_underscore_args: bool,
         check_class_attributes: bool,
+        should_document_private_class_attributes: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
@@ -376,6 +389,9 @@ def main(  # noqa: C901
         checkYieldTypes=check_yield_types,
         ignoreUnderscoreArgs=ignore_underscore_args,
         checkClassAttributes=check_class_attributes,
+        shouldDocumentPrivateClassAttributes=(
+            should_document_private_class_attributes
+        ),
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
         ),
@@ -491,6 +507,7 @@ def _checkPaths(
         checkYieldTypes: bool = True,
         ignoreUnderscoreArgs: bool = True,
         checkClassAttributes: bool = True,
+        shouldDocumentPrivateClassAttributes: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
@@ -537,6 +554,9 @@ def _checkPaths(
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreArgs=ignoreUnderscoreArgs,
             checkClassAttributes=checkClassAttributes,
+            shouldDocumentPrivateClassAttributes=(
+                shouldDocumentPrivateClassAttributes
+            ),
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
@@ -562,6 +582,7 @@ def _checkFile(
         checkYieldTypes: bool = True,
         ignoreUnderscoreArgs: bool = True,
         checkClassAttributes: bool = True,
+        shouldDocumentPrivateClassAttributes: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> List[Violation]:
@@ -581,6 +602,9 @@ def _checkFile(
         checkYieldTypes=checkYieldTypes,
         ignoreUnderscoreArgs=ignoreUnderscoreArgs,
         checkClassAttributes=checkClassAttributes,
+        shouldDocumentPrivateClassAttributes=(
+            shouldDocumentPrivateClassAttributes
+        ),
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing
         ),
