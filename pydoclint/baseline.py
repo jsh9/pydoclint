@@ -5,6 +5,7 @@ from typing import Dict, List, Set, Tuple
 from pydoclint.utils.violation import Violation
 
 SEPARATOR = '--------------------\n'
+LEN_INDENT = 4
 
 
 def generateBaseline(
@@ -16,7 +17,8 @@ def generateBaseline(
             if violations:
                 baseline.write(f'{file}\n')
                 for violation in violations:
-                    baseline.write(f'\t{str(violation).strip()}\n')
+                    indent = " " * LEN_INDENT
+                    baseline.write(f'{indent}{str(violation).strip()}\n')
 
                 baseline.write(f'{SEPARATOR}')
 
