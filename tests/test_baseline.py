@@ -7,7 +7,6 @@ from pydoclint.baseline import (
     generateBaseline,
     parseBaseline,
     removeBaselineViolations,
-    INDENT
 )
 from pydoclint.main import _checkPaths
 from tests.test_main import DATA_DIR, pythonVersionBelow310
