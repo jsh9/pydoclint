@@ -120,7 +120,7 @@ def testBaselineRegenerationNeeded(baselineFile, tmpFile: Path):
 
 
 def test_baseline_indent(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    """Confirm round trip equality a space or tab indent in the baseline file.
+    """Confirm round trip equality with a space or tab indent in the baseline file.
 
     Args:
         tmp_path: Temporary path.
