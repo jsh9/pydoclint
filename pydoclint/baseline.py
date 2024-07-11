@@ -6,6 +6,7 @@ from pydoclint.utils.violation import Violation
 
 SEPARATOR = '--------------------\n'
 LEN_INDENT = 4
+INDENT = ' ' * LEN_INDENT
 
 
 def generateBaseline(
@@ -17,8 +18,7 @@ def generateBaseline(
             if violations:
                 baseline.write(f'{file}\n')
                 for violation in violations:
-                    indent = " " * LEN_INDENT
-                    baseline.write(f'{indent}{str(violation).strip()}\n')
+                    baseline.write(f'{INDENT}{str(violation).strip()}\n')
 
                 baseline.write(f'{SEPARATOR}')
 
