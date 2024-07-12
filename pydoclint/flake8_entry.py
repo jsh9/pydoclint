@@ -179,6 +179,21 @@ class Plugin:
                 ' class attributes should not appear in the docstring.'
             ),
         )
+        parser.add_option(
+            '-tpmaca',
+            '--treat-property-methods-as-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, treat @property methods as class properties. This means'
+                ' that they need to be documented in the "Attributes" section of'
+                ' the class docstring, and there cannot be any docstring under'
+                ' the @property methods. This option is only effective when'
+                ' --check-class-attributes is True. We recommend setting both'
+                ' this option and --check-class-attributes to True.'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options):  # noqa: D102
@@ -207,6 +222,9 @@ class Plugin:
         cls.check_class_attributes = options.check_class_attributes
         cls.should_document_private_class_attributes = (
             options.should_document_private_class_attributes
+        )
+        cls.treat_property_methods_as_class_attributes = (
+            options.treat_property_methods_as_class_attributes
         )
         cls.style = options.style
 
@@ -281,6 +299,10 @@ class Plugin:
             '--should-document-private-class-attributes',
             self.should_document_private_class_attributes,
         )
+        treatPropertyMethodsAsClassAttributes = self._bool(
+            '--treat-property-methods-as-class-attributes',
+            self.treat_property_methods_as_class_attributes,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -306,6 +328,9 @@ class Plugin:
             checkClassAttributes=checkClassAttributes,
             shouldDocumentPrivateClassAttributes=(
                 shouldDocumentPrivateClassAttributes
+            ),
+            treatPropertyMethodsAsClassAttributes=(
+                treatPropertyMethodsAsClassAttributes
             ),
             style=self.style,
         )
