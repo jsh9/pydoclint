@@ -26,6 +26,12 @@ SPHINX_MSG_POSTFIX: str = (
     ' on how to correctly document class attributes.)'
 )
 
+if sys.version_info <= (3, 9):
+    # Temporary treatment until we can fully deprecate Python 3.9
+    FuncOrAsyncFuncDef_ = (ast.AsyncFunctionDef, ast.FunctionDef)
+else:
+    FuncOrAsyncFuncDef_ = FuncOrAsyncFuncDef
+
 
 def checkClassAttributesAgainstClassDocstring(
         *,
@@ -145,7 +151,7 @@ def _collectClassAttributes(
                 if not classAttrName.startswith('_'):
                     attributes.append(item)
 
-        if isinstance(item, FuncOrAsyncFuncDef) and checkIsPropertyMethod(
+        if isinstance(item, FuncOrAsyncFuncDef_) and checkIsPropertyMethod(
             item
         ):
             attributes.append(item)
@@ -177,7 +183,7 @@ def _convertClassAttributesIntoArgList(
                 atl.extend(ArgList.fromAstAssignWithTupleTarget(attr).infoList)
             else:
                 atl.append(Arg.fromAstAssignWithNonTupleTarget(attr))
-        elif isinstance(attr, FuncOrAsyncFuncDef):
+        elif isinstance(attr, FuncOrAsyncFuncDef_):
             if treatPropertyMethodsAsClassAttrs:
                 atl.append(
                     Arg(
