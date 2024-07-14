@@ -5,6 +5,7 @@ from typing import List, Optional, Set, Union
 
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.arg import Arg, ArgList
+from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
     appendArgsToCheckToV105,
@@ -15,6 +16,7 @@ from pydoclint.utils.generic import (
 from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
+from pydoclint.utils.special_methods import checkIsPropertyMethod
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.yield_arg import YieldArg
 
@@ -37,6 +39,7 @@ def checkClassAttributesAgainstClassDocstring(
         argTypeHintsInDocstring: bool,
         skipCheckingShortDocstrings: bool,
         shouldDocumentPrivateClassAttributes: bool,
+        treatPropertyMethodsAsClassAttributes: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
     classAttributes = _collectClassAttributes(
@@ -45,7 +48,10 @@ def checkClassAttributesAgainstClassDocstring(
             shouldDocumentPrivateClassAttributes
         ),
     )
-    actualArgs: ArgList = _convertClassAttributesIntoArgList(classAttributes)
+    actualArgs: ArgList = _convertClassAttributesIntoArgList(
+        classAttrs=classAttributes,
+        treatPropertyMethodsAsClassAttrs=treatPropertyMethodsAsClassAttributes,
+    )
 
     classDocstring: str = getDocstring(node)
 
@@ -122,12 +128,15 @@ def _collectClassAttributes(
         *,
         node: ast.ClassDef,
         shouldDocumentPrivateClassAttributes: bool,
-) -> List[Union[ast.Assign, ast.AnnAssign]]:
+) -> List[Union[ast.Assign, ast.AnnAssign, FuncOrAsyncFuncDef]]:
     if 'body' not in node.__dict__ or len(node.body) == 0:
         return []
 
     attributes: List[Union[ast.Assign, ast.AnnAssign]] = []
     for item in node.body:
+        # Notes:
+        #   - ast.Assign are something like "attr1 = 1.5"
+        #   - ast.AnnAssign are something like "attr2: float = 1.5"
         if isinstance(item, (ast.Assign, ast.AnnAssign)):
             classAttrName: str = _getClassAttrName(item)
             if shouldDocumentPrivateClassAttributes:
@@ -135,6 +144,11 @@ def _collectClassAttributes(
             else:
                 if not classAttrName.startswith('_'):
                     attributes.append(item)
+
+        if isinstance(
+            item, (ast.AsyncFunctionDef, ast.FunctionDef)
+        ) and checkIsPropertyMethod(item):
+            attributes.append(item)
 
     return attributes
 
@@ -150,10 +164,12 @@ def _getClassAttrName(attrItem: Union[ast.Assign, ast.AnnAssign]) -> str:
 
 
 def _convertClassAttributesIntoArgList(
-        classAttributes: List[Union[ast.Assign, ast.AnnAssign]],
+        *,
+        classAttrs: List[Union[ast.Assign, ast.AnnAssign, FuncOrAsyncFuncDef]],
+        treatPropertyMethodsAsClassAttrs: bool,
 ) -> ArgList:
     atl: List[Arg] = []
-    for attr in classAttributes:
+    for attr in classAttrs:
         if isinstance(attr, ast.AnnAssign):
             atl.append(Arg.fromAstAnnAssign(attr))
         elif isinstance(attr, ast.Assign):
@@ -161,9 +177,17 @@ def _convertClassAttributesIntoArgList(
                 atl.extend(ArgList.fromAstAssignWithTupleTarget(attr).infoList)
             else:
                 atl.append(Arg.fromAstAssignWithNonTupleTarget(attr))
+        elif isinstance(attr, (ast.AsyncFunctionDef, ast.FunctionDef)):
+            if treatPropertyMethodsAsClassAttrs:
+                atl.append(
+                    Arg(
+                        name=attr.name,
+                        typeHint=unparseAnnotation(attr.returns),
+                    )
+                )
         else:
             raise InternalError(
-                f'Unkonwn type of class attribute: {type(attr)}'
+                f'Unknown type of class attribute: {type(attr)}'
             )
 
     return ArgList(infoList=atl)

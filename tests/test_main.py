@@ -1326,6 +1326,45 @@ def testNonAscii() -> None:
                 'correctly document class attributes.)',
             ],
         ),
+        (
+            '12_property_methods_as_class_attr/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'treatPropertyMethodsAsClassAttributes': True,
+            },
+            [],
+        ),
+        (
+            '12_property_methods_as_class_attr/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'treatPropertyMethodsAsClassAttributes': True,
+            },
+            [],
+        ),
+        (
+            '12_property_methods_as_class_attr/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'treatPropertyMethodsAsClassAttributes': False,
+            },
+            [
+                'DOC602: Class `House`: Class docstring contains more class attributes than '
+                'in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `House`: Class docstring attributes are different from actual '
+                'class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: [price: '
+                'float]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+            ],
+        ),
     ],
 )
 def testEdgeCases(
