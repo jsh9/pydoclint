@@ -1,10 +1,13 @@
 # Change Log
 
-## [unpublished] - 2024-07-04
+## [0.5.4] - 2024-07-14
 
 - Added
   - An option `--should-document-private-class-attributes` (if False, private
     class attributes should not appear in the docstring)
+  - An option `--treat-property-methods-as-class-attributes` (if True,
+    `@property` methods are treated like class attributes and need to be
+    documented in the class docstring)
 
 ## [0.5.3] - 2024-06-26
 
