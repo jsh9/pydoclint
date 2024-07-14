@@ -25,10 +25,12 @@ page:
 - [12. `--check-yield-types` (shortform: `-cyt`, default: `True`)](#12---check-yield-types-shortform--cyt-default-true)
 - [13. `--ignore-underscore-args` (shortform: `-iua`, default: `True`)](#13---ignore-underscore-args-shortform--iua-default-true)
 - [14. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#14---check-class-attributes-shortform--cca-default-true)
-- [15. `--baseline`](#15---baseline)
-- [16. `--generate-baseline` (default: `False`)](#16---generate-baseline-default-false)
-- [17. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#17---show-filenames-in-every-violation-message-shortform--sfn-default-false)
-- [18. `--config` (default: `pyproject.toml`)](#18---config-default-pyprojecttoml)
+- [15. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)](#15---should-document-private-class-attributes-shortform--sdpca-default-false)
+- [16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `True`)](#16---treat-property-methods-as-class-attributes-shortform--tpmaca-default-true)
+- [17. `--baseline`](#17---baseline)
+- [18. `--generate-baseline` (default: `False`)](#18---generate-baseline-default-false)
+- [19. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#19---show-filenames-in-every-violation-message-shortform--sfn-default-false)
+- [20. `--config` (default: `pyproject.toml`)](#20---config-default-pyprojecttoml)
 
 <!--TOC-->
 
@@ -187,7 +189,20 @@ Please read
 [this page](https://jsh9.github.io/pydoclint/checking_class_attributes.html)
 for more instructions.
 
-## 15. `--baseline`
+## 15. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)
+
+If True, private class attributes (those that start with leading `_`) should be
+documented. If False, they should not be documented.
+
+## 16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `True`)
+
+If True, treat `@property` methods as class properties. This means that they
+need to be documented in the "Attributes" section of the class docstring, and
+there cannot be any docstring under the @property methods. This option is only
+effective when --check-class-attributes is True. We recommend setting both this
+option and --check-class-attributes to True.
+
+## 17. `--baseline`
 
 Baseline allows you to remember the current project state and then show only
 new violations, ignoring old ones. This can be very useful when you'd like to
@@ -207,12 +222,12 @@ project. If `--generate-baseline` is not passed (default value is `False`),
 _pydoclint_ will read your baseline file, and ignore all violations specified
 in that file.
 
-## 16. `--generate-baseline` (default: `False`)
+## 18. `--generate-baseline` (default: `False`)
 
 Required to use with `--baseline` option. If `True`, generate the baseline file
 that contains all current violations.
 
-## 17. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
+## 19. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
 
 If False, in the terminal the violation messages are grouped by file names:
 
@@ -246,7 +261,7 @@ This can be convenient if you would like to click on each violation message and
 go to the corresponding line in your IDE. (Note: not all terminal app offers
 this functionality.)
 
-## 18. `--config` (default: `pyproject.toml`)
+## 20. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this
