@@ -4,6 +4,7 @@ class House:
 
     Attributes:
         price (float): House price
+        _privateProperty (str): A private property
 
     Args:
         price_0 (float): House price
@@ -27,3 +28,7 @@ class House:
     @price.deleter
     def price(self):
         del self._price
+
+    @property
+    def _privateProperty(self) -> str:
+        return 'secret'

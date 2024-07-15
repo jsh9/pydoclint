@@ -1,11 +1,10 @@
 """Helper functions to classes/methods in visitor.py"""
 import ast
 import sys
-from typing import List, Optional, Set, Union
+from typing import List, Optional, Set
 
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.arg import Arg, ArgList
-from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
     appendArgsToCheckToV105,
@@ -42,14 +41,12 @@ def checkClassAttributesAgainstClassDocstring(
         treatPropertyMethodsAsClassAttributes: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
-    classAttributes = _collectClassAttributes(
+
+    actualArgs: ArgList = extractClassAttributesFromNode(
         node=node,
         shouldDocumentPrivateClassAttributes=(
             shouldDocumentPrivateClassAttributes
         ),
-    )
-    actualArgs: ArgList = _convertClassAttributesIntoArgList(
-        classAttrs=classAttributes,
         treatPropertyMethodsAsClassAttrs=treatPropertyMethodsAsClassAttributes,
     )
 
@@ -124,71 +121,57 @@ def checkClassAttributesAgainstClassDocstring(
     )
 
 
-def _collectClassAttributes(
+def extractClassAttributesFromNode(
         *,
         node: ast.ClassDef,
         shouldDocumentPrivateClassAttributes: bool,
-) -> List[Union[ast.Assign, ast.AnnAssign, FuncOrAsyncFuncDef]]:
-    if 'body' not in node.__dict__ or len(node.body) == 0:
-        return []
-
-    attributes: List[Union[ast.Assign, ast.AnnAssign]] = []
-    for item in node.body:
-        # Notes:
-        #   - ast.Assign are something like "attr1 = 1.5"
-        #   - ast.AnnAssign are something like "attr2: float = 1.5"
-        if isinstance(item, (ast.Assign, ast.AnnAssign)):
-            classAttrName: str = _getClassAttrName(item)
-            if shouldDocumentPrivateClassAttributes:
-                attributes.append(item)
-            else:
-                if not classAttrName.startswith('_'):
-                    attributes.append(item)
-
-        if isinstance(
-            item, (ast.AsyncFunctionDef, ast.FunctionDef)
-        ) and checkIsPropertyMethod(item):
-            attributes.append(item)
-
-    return attributes
-
-
-def _getClassAttrName(attrItem: Union[ast.Assign, ast.AnnAssign]) -> str:
-    if isinstance(attrItem, ast.Assign):
-        return attrItem.targets[0].id
-
-    if isinstance(attrItem, ast.AnnAssign):
-        return attrItem.target.id
-
-    raise InternalError(f'Unrecognized attrItem type: {type(attrItem)}')
-
-
-def _convertClassAttributesIntoArgList(
-        *,
-        classAttrs: List[Union[ast.Assign, ast.AnnAssign, FuncOrAsyncFuncDef]],
         treatPropertyMethodsAsClassAttrs: bool,
 ) -> ArgList:
+    """
+    Extract class attributes from an AST node.
+
+    Parameters
+    ----------
+    node : ast.ClassDef
+        The class definition
+    shouldDocumentPrivateClassAttributes : bool
+        Whether we should document private class attributes.  If ``True``,
+        private class attributes will be included in the return value.
+    treatPropertyMethodsAsClassAttrs : bool
+        Whether we'd like to treat property methods as class attributes.
+        If ``True``, property methods will be included in the return value.
+
+    Returns
+    -------
+    ArgList
+        The argument list
+    """
+    if 'body' not in node.__dict__ or len(node.body) == 0:
+        return ArgList([])
+
     atl: List[Arg] = []
-    for attr in classAttrs:
-        if isinstance(attr, ast.AnnAssign):
-            atl.append(Arg.fromAstAnnAssign(attr))
-        elif isinstance(attr, ast.Assign):
-            if isinstance(attr.targets[0], ast.Tuple):
-                atl.extend(ArgList.fromAstAssignWithTupleTarget(attr).infoList)
-            else:
-                atl.append(Arg.fromAstAssignWithNonTupleTarget(attr))
-        elif isinstance(attr, (ast.AsyncFunctionDef, ast.FunctionDef)):
-            if treatPropertyMethodsAsClassAttrs:
+    for itm in node.body:
+        if isinstance(itm, ast.AnnAssign):  # with type hints ("a: int = 1")
+            atl.append(Arg.fromAstAnnAssign(itm))
+        elif isinstance(itm, ast.Assign):  # no type hints
+            if not isinstance(itm.targets, list) or len(itm.targets) == 0:
+                raise InternalError(
+                    '`item.targets` needs to be a list of length > 0.'
+                    f' Instead, it is {itm.targets}'
+                )
+
+            atl.extend(ArgList.fromAstAssign(itm).infoList)
+        elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):
+            if treatPropertyMethodsAsClassAttrs and checkIsPropertyMethod(itm):
                 atl.append(
                     Arg(
-                        name=attr.name,
-                        typeHint=unparseAnnotation(attr.returns),
+                        name=itm.name,
+                        typeHint=unparseAnnotation(itm.returns),
                     )
                 )
-        else:
-            raise InternalError(
-                f'Unknown type of class attribute: {type(attr)}'
-            )
+
+    if not shouldDocumentPrivateClassAttributes:
+        atl = [_ for _ in atl if not _.name.startswith('_')]
 
     return ArgList(infoList=atl)
 
