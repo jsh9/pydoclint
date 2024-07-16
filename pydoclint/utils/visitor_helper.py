@@ -41,7 +41,6 @@ def checkClassAttributesAgainstClassDocstring(
         treatPropertyMethodsAsClassAttributes: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
-
     actualArgs: ArgList = extractClassAttributesFromNode(
         node=node,
         shouldDocumentPrivateClassAttributes=(

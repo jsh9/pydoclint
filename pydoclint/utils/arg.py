@@ -206,6 +206,7 @@ class ArgList:
 
     @classmethod
     def fromAstAssign(cls, astAssign: ast.Assign) -> 'ArgList':
+        """Construct an ArgList from variable declaration/assignment"""
         infoList: List[Arg] = []
         for i, target in enumerate(astAssign.targets):
             if isinstance(target, ast.Tuple):  # such as `a, b = c, d = 1, 2`
