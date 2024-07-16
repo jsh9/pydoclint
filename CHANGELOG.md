@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.5.5] - 2024-07-15
+
+- Fixed
+
+  - Fixed a bug where `a = b = c = 1` style cannot be properly parsed
+    (https://github.com/jsh9/pydoclint/issues/151)
+
+- Changed
+  - Changed the default of `--treat-property-methods-as-class-attributes` to
+    `False` to restore backward compatibility
+
 ## [0.5.4] - 2024-07-14
 
 - Added

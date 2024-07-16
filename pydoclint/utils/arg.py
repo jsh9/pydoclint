@@ -89,25 +89,6 @@ class Arg:
         return Arg(name=astArg.arg, typeHint=typeHint)
 
     @classmethod
-    def fromAstAssignWithNonTupleTarget(cls, astAssign: ast.Assign) -> 'Arg':
-        """
-        Construct an Arg object from a Python ast.Assign object whose
-        "target" field is an ast.Name rather than an ast.Tuple.
-        """
-        if len(astAssign.targets) != 1:
-            raise InternalError(
-                f'astAssign.targets has length {len(astAssign.targets)}'
-            )
-
-        if not isinstance(astAssign.targets[0], ast.Name):  # not a tuple
-            raise InternalError(
-                f'astAssign.targets[0] is of type {type(astAssign.targets[0])}'
-                ' instead of ast.Name'
-            )
-
-        return Arg(name=astAssign.targets[0].id, typeHint='')
-
-    @classmethod
     def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
         """Construct an Arg object from a Python ast.AnnAssign object"""
         return Arg(
@@ -224,31 +205,25 @@ class ArgList:
         return ArgList(infoList=infoList)
 
     @classmethod
-    def fromAstAssignWithTupleTarget(cls, astAssign: ast.Assign) -> 'ArgList':
-        """
-        Construct an ArgList from a Python ast.Assign object whose
-        "target" field is an ast.Tuple rather than an ast.Name.
-        """
-        if len(astAssign.targets) != 1:
-            raise InternalError(
-                f'astAssign.targets has length {len(astAssign.targets)}'
-            )
+    def fromAstAssign(cls, astAssign: ast.Assign) -> 'ArgList':
+        """Construct an ArgList from variable declaration/assignment"""
+        infoList: List[Arg] = []
+        for i, target in enumerate(astAssign.targets):
+            if isinstance(target, ast.Tuple):  # such as `a, b = c, d = 1, 2`
+                for j, item in enumerate(target.elts):
+                    if not isinstance(item, ast.Name):
+                        raise InternalError(
+                            f'astAssign.targets[{i}].elts[{j}] is of'
+                            f' type {type(item)} instead of ast.Name'
+                        )
 
-        if not isinstance(astAssign.targets[0], ast.Tuple):
-            raise InternalError(
-                f'astAssign.targets[0] is of type {type(astAssign.targets[0])}'
-                ' instead of ast.Tuple'
-            )
-
-        infoList = []
-        for i, item in enumerate(astAssign.targets[0].elts):
-            if not isinstance(item, ast.Name):
+                    infoList.append(Arg(name=item.id, typeHint=''))
+            elif isinstance(target, ast.Name):  # such as `a = 1` or `a = b = 2`
+                infoList.append(Arg(name=target.id, typeHint=''))
+            else:
                 raise InternalError(
-                    f'astAssign.targets[0].elts[{i}] is of type {type(item)}'
-                    ' instead of ast.Name'
+                    f'astAssign.targets[{i}] is of type {type(target)}'
                 )
-
-            infoList.append(Arg(name=item.id, typeHint=''))
 
         return ArgList(infoList=infoList)
 
