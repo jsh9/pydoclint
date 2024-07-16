@@ -183,7 +183,7 @@ class Plugin:
             '-tpmaca',
             '--treat-property-methods-as-class-attributes',
             action='store',
-            default='True',
+            default='False',
             parse_from_config=True,
             help=(
                 'If True, treat @property methods as class properties. This means'

@@ -26,7 +26,7 @@ page:
 - [13. `--ignore-underscore-args` (shortform: `-iua`, default: `True`)](#13---ignore-underscore-args-shortform--iua-default-true)
 - [14. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#14---check-class-attributes-shortform--cca-default-true)
 - [15. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)](#15---should-document-private-class-attributes-shortform--sdpca-default-false)
-- [16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `True`)](#16---treat-property-methods-as-class-attributes-shortform--tpmaca-default-true)
+- [16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#16---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
 - [17. `--baseline`](#17---baseline)
 - [18. `--generate-baseline` (default: `False`)](#18---generate-baseline-default-false)
 - [19. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#19---show-filenames-in-every-violation-message-shortform--sfn-default-false)
@@ -194,13 +194,12 @@ for more instructions.
 If True, private class attributes (those that start with leading `_`) should be
 documented. If False, they should not be documented.
 
-## 16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `True`)
+## 16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)
 
 If True, treat `@property` methods as class properties. This means that they
 need to be documented in the "Attributes" section of the class docstring, and
 there cannot be any docstring under the @property methods. This option is only
-effective when --check-class-attributes is True. We recommend setting both this
-option and --check-class-attributes to True.
+effective when --check-class-attributes is True.
 
 ## 17. `--baseline`
 

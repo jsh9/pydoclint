@@ -223,7 +223,7 @@ def validateStyleValue(
     '--treat-property-methods-as-class-attributes',
     type=bool,
     show_default=True,
-    default=True,
+    default=False,
     help=(
         'If True, treat @property methods as class properties. This means'
         ' that they need to be documented in the "Attributes" section of'
@@ -527,7 +527,7 @@ def _checkPaths(
         ignoreUnderscoreArgs: bool = True,
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
-        treatPropertyMethodsAsClassAttributes: bool = True,
+        treatPropertyMethodsAsClassAttributes: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
@@ -606,7 +606,7 @@ def _checkFile(
         ignoreUnderscoreArgs: bool = True,
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
-        treatPropertyMethodsAsClassAttributes: bool = True,
+        treatPropertyMethodsAsClassAttributes: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> List[Violation]:
