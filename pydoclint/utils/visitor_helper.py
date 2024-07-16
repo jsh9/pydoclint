@@ -145,6 +145,11 @@ def extractClassAttributesFromNode(
     -------
     ArgList
         The argument list
+
+    Raises
+    ------
+    InternalError
+        When the length of item.targets is 0
     """
     if 'body' not in node.__dict__ or len(node.body) == 0:
         return ArgList([])
