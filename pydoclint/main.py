@@ -610,6 +610,9 @@ def _checkFile(
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> List[Violation]:
+    if not filename.is_file():  # sometimes folder names can end with `.py`
+        return []
+
     with open(filename, encoding='utf8') as fp:
         src: str = ''.join(fp.readlines())
 

@@ -1410,6 +1410,11 @@ def testNonAscii() -> None:
             },
             [],
         ),
+        (
+            '14_folders_ending_in_py',
+            {},
+            [],
+        ),
     ],
 )
 def testEdgeCases(
