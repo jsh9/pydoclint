@@ -1,4 +1,0 @@
-The folder is intentionally left empty except this txt file.
-
-The purpose of this folder is to ensure that pydoclint does not treat folders ending
-in `.py` as actual Python files.

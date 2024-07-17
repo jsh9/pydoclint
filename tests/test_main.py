@@ -1411,9 +1411,19 @@ def testNonAscii() -> None:
             [],
         ),
         (
-            '14_folders_ending_in_py',
+            '14_folders_ending_in_py.py',  # This is actually a folder
             {},
-            [],
+            [],  # Here we ensure that pydoclint doesn't treat this as a file
+        ),
+        (
+            # Here we ensure that Python files under such folders (whose
+            # names end in `.py`) can still get recognized and checked.
+            '14_folders_ending_in_py.py/google.py',
+            {'style': 'google'},
+            [
+                'DOC105: Function `function1`: Argument names match, but type hints in these '
+                'args do not match: arg1'
+            ],
         ),
     ],
 )
