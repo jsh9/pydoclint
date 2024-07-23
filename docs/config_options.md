@@ -67,8 +67,9 @@ _pydoclint_ within _flake8_, you can use _flake8_'s
 
 ## 3. `--style`
 
-Which style of docstring is your code base using. Right now there are two
-available choices: `numpy` and `google`. The default value is `numpy`.
+Which style of docstring is your code base using. Right now there are three
+available choices: `numpy`, `google`, and `sphinx`. The default value is
+`numpy`.
 
 ```
 pydoclint --style=google <FILE_OR_FOLDER>
