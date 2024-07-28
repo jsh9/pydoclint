@@ -609,6 +609,9 @@ def testAllowInitDocstring(style: str) -> None:
         'because __init__() cannot return anything',
         'DOC305: Class `C`: Class docstring has a "Raises" section; please put it in '
         'the __init__() docstring',
+        'DOC503: Method `C.__init__` exceptions in "raises" section do not match '
+        "those in body. Raises values in the docstring: ['TypeError']. Raised "
+        "exceptions in the body: ['ValueError'].",
         'DOC306: Class `D`: The class docstring does not need a "Yields" section, '
         'because __init__() cannot yield anything',
         'DOC307: Class `D`: The __init__() docstring does not need a "Yields" '
@@ -804,6 +807,12 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
     expected0 = [
         'DOC501: Method `B.func1` has "raise" statements, but the docstring does not '
         'have a "Raises" section',
+        'DOC503: Method `B.func1` exceptions in "raises" section do not match those '
+        'in body. Raises values in the docstring: []. Raised exceptions in '
+        "the body: ['ValueError'].",
+        'DOC503: Method `B.func4` exceptions in "raises" section do not match those '
+        "in body. Raises values in the docstring: ['CurtomError']. Raised exceptions in "
+        "the body: ['CustomError'].",
         'DOC502: Method `B.func5` has a "Raises" section in the docstring, but there '
         'are not "raise" statements in the body',
         'DOC502: Method `B.func7` has a "Raises" section in the docstring, but there '
@@ -812,6 +821,15 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'are not "raise" statements in the body',
         'DOC501: Function `inner9a` has "raise" statements, but the docstring does '
         'not have a "Raises" section',
+        'DOC503: Function `inner9a` exceptions in "raises" section do not match those '
+        'in body. Raises values in the docstring: []. Raised exceptions in '
+        "the body: ['FileNotFoundError'].",
+        'DOC503: Method `B.func11` exceptions in "raises" section do not match those '
+        "in body. Raises values in the docstring: ['TypeError']. Raised exceptions in "
+        "the body: ['TypeError', 'ValueError'].",
+        'DOC503: Method `B.func13` exceptions in "raises" section do not match those '
+        "in body. Raises values in the docstring: ['ValueError', 'ValueError']. "
+        "Raised exceptions in the body: ['ValueError'].",
     ]
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
@@ -841,6 +859,9 @@ def testRaisesPy310plus(style: str, skipRaisesCheck: bool) -> None:
     expected0 = [
         'DOC501: Method `B.func10` has "raise" statements, but the docstring does not '
         'have a "Raises" section',
+        'DOC503: Method `B.func10` exceptions in "raises" section do not match those '
+        'in body. Raises values in the docstring: []. Raised exceptions in '
+        "the body: ['ValueError'].",
     ]
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0

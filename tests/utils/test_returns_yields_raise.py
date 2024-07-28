@@ -1,11 +1,12 @@
 import ast
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import pytest
 
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
+    getRaisedExceptions,
     hasGeneratorAsReturnAnnotation,
     hasRaiseStatements,
     hasReturnAnnotation,
@@ -118,6 +119,7 @@ class HelperVisitor(ast.NodeVisitor):
         self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
         self.yieldStatements: Dict[Tuple[int, int, str], bool] = {}
         self.raiseStatements: Dict[Tuple[int, int, str], bool] = {}
+        self.raisedExceptions: Dict[Tuple[int, int, str], List[str]] = {}
         self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
         self.generatorAnnotations: Dict[Tuple[int, int, str], bool] = {}
 
@@ -126,6 +128,7 @@ class HelperVisitor(ast.NodeVisitor):
         self.returnStatements[functionId] = hasReturnStatements(node)
         self.yieldStatements[functionId] = hasYieldStatements(node)
         self.raiseStatements[functionId] = hasRaiseStatements(node)
+        self.raisedExceptions[functionId] = getRaisedExceptions(node)
         self.returnAnnotations[functionId] = hasReturnAnnotation(node)
         self.generatorAnnotations[functionId] = hasGeneratorAsReturnAnnotation(
             node,
@@ -328,6 +331,20 @@ def func6(arg1):
         raise TypeError
 
     return arg1 + 2
+
+def func7(arg0):
+    if True:
+        raise TypeError
+
+    try:
+        "foo"[-10]
+    except IndexError as e:
+        raise
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        raise RuntimeError("a different error")
 """
 
 
@@ -345,6 +362,27 @@ def testHasRaiseStatements() -> None:
         (20, 0, 'func5'): False,
         (26, 0, 'func6'): True,
         (21, 4, 'func5_child1'): True,
+        (32, 0, 'func7'): True,
+    }
+
+    assert result == expected
+
+
+def testWhichRaiseStatements() -> None:
+    tree = ast.parse(srcRaises)
+    visitor = HelperVisitor()
+    visitor.visit(tree)
+    result = visitor.raisedExceptions
+
+    expected = {
+        (2, 0, 'func1'): ['ValueError'],
+        (7, 0, 'func2'): ['Exception'],
+        (10, 0, 'func3'): ['TypeError'],
+        (17, 0, 'func4'): ['CustomError'],
+        (20, 0, 'func5'): [],
+        (26, 0, 'func6'): ['TypeError'],
+        (21, 4, 'func5_child1'): ['ValueError'],
+        (32, 0, 'func7'): ['IndexError', 'RuntimeError', 'TypeError'],
     }
 
     assert result == expected

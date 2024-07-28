@@ -1,5 +1,5 @@
 import ast
-from typing import Callable, Dict, Tuple, Type
+from typing import Callable, Dict, Generator, List, Tuple, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
@@ -91,6 +91,47 @@ def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
         return isinstance(node_, ast.Raise)
 
     return _hasExpectedStatements(node, isThisNodeARaiseStmt)
+
+
+def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> List[str]:
+    """Get the raised exceptions in a function node as a sorted list"""
+    return sorted(set(_getRaisedExceptions(node)))
+
+
+def _getRaisedExceptions(
+        node: FuncOrAsyncFuncDef,
+) -> Generator[str, None, None]:
+    """Yield the raised exceptions in a function node"""
+    childLineNum: int = -999
+
+    # key: child lineno, value: (parent lineno, is parent a function?)
+    familyTree: Dict[int, Tuple[int, bool]] = {}
+
+    for child, parent in walk.walk(node):
+        childLineNum = _updateFamilyTree(child, parent, familyTree)
+
+        if (
+            isinstance(child, ast.Raise)
+            and isinstance(
+                parent,
+                (ast.AsyncFunctionDef, ast.FunctionDef, BlockType),
+            )
+            and _confirmThisStmtIsNotWithinNestedFunc(
+                foundStatementTemp=True,
+                familyTree=familyTree,
+                lineNumOfStatement=childLineNum,
+                lineNumOfThisNode=node.lineno,
+            )
+        ):
+            for subnode, _ in walk.walk(child):
+                if isinstance(subnode, ast.Name):
+                    yield subnode.id
+                    break
+            else:
+                # if "raise" statement was alone, generally parent is ast.ExceptHandler.
+                for subnode, _ in walk.walk(parent):
+                    if isinstance(subnode, ast.Name):
+                        yield subnode.id
 
 
 def _hasExpectedStatements(
