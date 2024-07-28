@@ -345,6 +345,43 @@ def func7(arg0):
         1 / 0
     except ZeroDivisionError:
         raise RuntimeError("a different error")
+
+    try:
+        pass
+    except OSError as e:
+        if e.args[0] == 2 and e.filename:
+            fp = None
+        else:
+            raise
+
+def func8(d):
+    try:
+        d[0][0]
+    except (KeyError, TypeError):
+        raise
+    finally:
+        pass
+
+def func9(d):
+    try:
+        d[0]
+    except IndexError:
+        try:
+            d[0][0]
+        except KeyError:
+            raise AssertionError() from e
+        except Exception:
+            pass
+        if True:
+            raise
+
+def func10():
+    # no variable resolution is done. this function looks like it throws "GError".
+    GError = ZeroDivisionError
+    try:
+        1 / 0
+    except GError:
+        raise
 """
 
 
@@ -363,6 +400,9 @@ def testHasRaiseStatements() -> None:
         (26, 0, 'func6'): True,
         (21, 4, 'func5_child1'): True,
         (32, 0, 'func7'): True,
+        (54, 0, 'func8'): True,
+        (62, 0, 'func9'): True,
+        (75, 0, 'func10'): True,
     }
 
     assert result == expected
@@ -382,7 +422,15 @@ def testWhichRaiseStatements() -> None:
         (20, 0, 'func5'): [],
         (26, 0, 'func6'): ['TypeError'],
         (21, 4, 'func5_child1'): ['ValueError'],
-        (32, 0, 'func7'): ['IndexError', 'RuntimeError', 'TypeError'],
+        (32, 0, 'func7'): [
+            'IndexError',
+            'OSError',
+            'RuntimeError',
+            'TypeError',
+        ],
+        (54, 0, 'func8'): ['KeyError', 'TypeError'],
+        (62, 0, 'func9'): ['AssertionError', 'IndexError'],
+        (75, 0, 'func10'): ['GError'],
     }
 
     assert result == expected

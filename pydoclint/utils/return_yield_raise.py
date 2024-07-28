@@ -1,5 +1,5 @@
 import ast
-from typing import Callable, Dict, Generator, List, Tuple, Type
+from typing import Callable, Dict, Generator, List, Optional, Tuple, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
@@ -107,8 +107,14 @@ def _getRaisedExceptions(
     # key: child lineno, value: (parent lineno, is parent a function?)
     familyTree: Dict[int, Tuple[int, bool]] = {}
 
-    for child, parent in walk.walk(node):
+    currentParentExceptHandler: Optional[ast.ExceptHandler] = None
+
+    # depth-first guarantees the last-seen exception handler is a parent of child.
+    for child, parent in walk.walk_dfs(node):
         childLineNum = _updateFamilyTree(child, parent, familyTree)
+
+        if isinstance(parent, ast.ExceptHandler):
+            currentParentExceptHandler = parent
 
         if (
             isinstance(child, ast.Raise)
@@ -123,15 +129,28 @@ def _getRaisedExceptions(
                 lineNumOfThisNode=node.lineno,
             )
         ):
-            for subnode, _ in walk.walk(child):
+            for subnode, _ in walk.walk_dfs(child):
                 if isinstance(subnode, ast.Name):
                     yield subnode.id
                     break
             else:
-                # if "raise" statement was alone, generally parent is ast.ExceptHandler.
-                for subnode, _ in walk.walk(parent):
-                    if isinstance(subnode, ast.Name):
-                        yield subnode.id
+                # if "raise" statement was alone, it must be inside an "except"
+                if currentParentExceptHandler:
+                    yield from _extractExceptionsFromExcept(
+                        currentParentExceptHandler,
+                    )
+
+
+def _extractExceptionsFromExcept(
+        node: ast.ExceptHandler,
+) -> Generator[str, None, None]:
+    if isinstance(node.type, ast.Name):
+        yield node.type.id
+
+    if isinstance(node.type, ast.Tuple):
+        for child, _ in walk.walk(node.type):
+            if isinstance(child, ast.Name):
+                yield child.id
 
 
 def _hasExpectedStatements(
