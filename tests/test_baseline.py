@@ -131,6 +131,10 @@ def test_baseline_indent(
         Temporary path.
     monkeypatch : pytest.MonkeyPatch
         Pytest monkeypatch fixture
+
+    Returns
+    -------
+    None
     """
 
     code_file = tmp_path / 'code.py'
