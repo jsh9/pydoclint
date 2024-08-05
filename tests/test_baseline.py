@@ -118,7 +118,7 @@ def testBaselineRegenerationNeeded(baselineFile, tmpFile: Path):
     assert clearedViolations == {}
 
 
-def test_baseline_indent(
+def testBaselineIndent(
         tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
@@ -137,24 +137,24 @@ def test_baseline_indent(
     None
     """
 
-    code_file = tmp_path / 'code.py'
-    baseline_spaces = tmp_path / 'baseline_spaces.txt'
-    baseline_tabs = tmp_path / 'baseline_tabs.txt'
+    codeFile = tmp_path / 'code.py'
+    baselineSpaces = tmp_path / 'baseline_spaces.txt'
+    baselineTabs = tmp_path / 'baseline_tabs.txt'
 
-    code_file.write_text(badDocstringFunction)
-    violations = _checkPaths((str(code_file),), exclude=EXCLUDE_PATTERN)
+    codeFile.write_text(badDocstringFunction)
+    violations = _checkPaths((str(codeFile),), exclude=EXCLUDE_PATTERN)
 
-    generateBaseline(violations, baseline_spaces)
+    generateBaseline(violations, baselineSpaces)
 
     monkeypatch.setattr('pydoclint.baseline.INDENT', '\t')
-    generateBaseline(violations, baseline_tabs)
+    generateBaseline(violations, baselineTabs)
 
-    assert baseline_spaces.read_text().splitlines()[1].startswith('    ')
-    assert baseline_tabs.read_text().splitlines()[1].startswith('\t')
+    assert baselineSpaces.read_text().splitlines()[1].startswith('    ')
+    assert baselineTabs.read_text().splitlines()[1].startswith('\t')
 
-    key = code_file.as_posix()
-    space_parsed = sorted(parseBaseline(baseline_spaces)[key])
-    tab_parsed = sorted(parseBaseline(baseline_tabs)[key])
-    violations_str = sorted(str(v) for v in violations[key])
+    key = codeFile.as_posix()
+    spaceParsed = sorted(parseBaseline(baselineSpaces)[key])
+    tabParsed = sorted(parseBaseline(baselineTabs)[key])
+    violationsStr = sorted(str(v) for v in violations[key])
 
-    assert space_parsed == tab_parsed == violations_str
+    assert spaceParsed == tabParsed == violationsStr
