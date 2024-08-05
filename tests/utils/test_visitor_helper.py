@@ -1,6 +1,10 @@
+import ast
+
 import pytest
 
+from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.visitor_helper import (
+    extractClassAttributesFromNode,
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
 )
@@ -121,4 +125,163 @@ def testExtractReturnTypeFromGenerator(
         expected: str,
 ) -> None:
     extracted = extractReturnTypeFromGenerator(returnAnnoText)
+    assert extracted == expected
+
+
+@pytest.mark.parametrize(
+    'docPriv, treatProp, expected',
+    [
+        (
+            True,
+            True,
+            ArgList([
+                Arg(name='a1', typeHint=''),
+                Arg(name='attr1', typeHint='int'),
+                Arg(name='attr2', typeHint='float'),
+                Arg(name='attr3', typeHint=''),
+                Arg(name='attr4', typeHint=''),
+                Arg(name='attr5', typeHint=''),
+                Arg(name='attr6', typeHint=''),
+                Arg(name='attr7', typeHint=''),
+                Arg(name='attr8', typeHint=''),
+                Arg(name='attr9', typeHint=''),
+                Arg(name='attr10', typeHint=''),
+                Arg(name='attr11', typeHint=''),
+                Arg(name='attr12', typeHint='bool'),
+                Arg(name='a13', typeHint=''),
+                Arg(name='a14', typeHint=''),
+                Arg(name='a15', typeHint=''),
+                Arg(name='a16', typeHint=''),
+                Arg(name='a17', typeHint=''),
+                Arg(name='a18', typeHint=''),
+                Arg(name='a19', typeHint=''),
+                Arg(name='a20', typeHint=''),
+                Arg(name='a21', typeHint=''),
+                Arg(name='_privAttr1', typeHint='int'),
+                Arg(name='prop1', typeHint='float | str | dict | None'),
+                Arg(name='_privProp', typeHint='str'),
+            ]),
+        ),
+        (
+            False,
+            False,
+            ArgList([
+                Arg(name='a1', typeHint=''),
+                Arg(name='attr1', typeHint='int'),
+                Arg(name='attr2', typeHint='float'),
+                Arg(name='attr3', typeHint=''),
+                Arg(name='attr4', typeHint=''),
+                Arg(name='attr5', typeHint=''),
+                Arg(name='attr6', typeHint=''),
+                Arg(name='attr7', typeHint=''),
+                Arg(name='attr8', typeHint=''),
+                Arg(name='attr9', typeHint=''),
+                Arg(name='attr10', typeHint=''),
+                Arg(name='attr11', typeHint=''),
+                Arg(name='attr12', typeHint='bool'),
+                Arg(name='a13', typeHint=''),
+                Arg(name='a14', typeHint=''),
+                Arg(name='a15', typeHint=''),
+                Arg(name='a16', typeHint=''),
+                Arg(name='a17', typeHint=''),
+                Arg(name='a18', typeHint=''),
+                Arg(name='a19', typeHint=''),
+                Arg(name='a20', typeHint=''),
+                Arg(name='a21', typeHint=''),
+            ]),
+        ),
+        (
+            True,
+            False,
+            ArgList([
+                Arg(name='a1', typeHint=''),
+                Arg(name='attr1', typeHint='int'),
+                Arg(name='attr2', typeHint='float'),
+                Arg(name='attr3', typeHint=''),
+                Arg(name='attr4', typeHint=''),
+                Arg(name='attr5', typeHint=''),
+                Arg(name='attr6', typeHint=''),
+                Arg(name='attr7', typeHint=''),
+                Arg(name='attr8', typeHint=''),
+                Arg(name='attr9', typeHint=''),
+                Arg(name='attr10', typeHint=''),
+                Arg(name='attr11', typeHint=''),
+                Arg(name='attr12', typeHint='bool'),
+                Arg(name='a13', typeHint=''),
+                Arg(name='a14', typeHint=''),
+                Arg(name='a15', typeHint=''),
+                Arg(name='a16', typeHint=''),
+                Arg(name='a17', typeHint=''),
+                Arg(name='a18', typeHint=''),
+                Arg(name='a19', typeHint=''),
+                Arg(name='a20', typeHint=''),
+                Arg(name='a21', typeHint=''),
+                Arg(name='_privAttr1', typeHint='int'),
+            ]),
+        ),
+        (
+            False,
+            True,
+            ArgList([
+                Arg(name='a1', typeHint=''),
+                Arg(name='attr1', typeHint='int'),
+                Arg(name='attr2', typeHint='float'),
+                Arg(name='attr3', typeHint=''),
+                Arg(name='attr4', typeHint=''),
+                Arg(name='attr5', typeHint=''),
+                Arg(name='attr6', typeHint=''),
+                Arg(name='attr7', typeHint=''),
+                Arg(name='attr8', typeHint=''),
+                Arg(name='attr9', typeHint=''),
+                Arg(name='attr10', typeHint=''),
+                Arg(name='attr11', typeHint=''),
+                Arg(name='attr12', typeHint='bool'),
+                Arg(name='a13', typeHint=''),
+                Arg(name='a14', typeHint=''),
+                Arg(name='a15', typeHint=''),
+                Arg(name='a16', typeHint=''),
+                Arg(name='a17', typeHint=''),
+                Arg(name='a18', typeHint=''),
+                Arg(name='a19', typeHint=''),
+                Arg(name='a20', typeHint=''),
+                Arg(name='a21', typeHint=''),
+                Arg(name='prop1', typeHint='float | str | dict | None'),
+            ]),
+        ),
+    ],
+)
+def testExtractClassAttributesFromNode(
+        docPriv: bool,
+        treatProp: bool,
+        expected: ArgList,
+) -> None:
+    code: str = """
+class MyClass:
+    a1 = 1
+    attr1: int = 1
+    attr2: float = 1.0
+    attr3, attr4, attr5 = 1, 2, 3
+    attr6 = attr7 = attr8 = attr9 = attr10 = -1
+    attr11 = attr1 == 2
+    attr12: bool = attr1 == 2
+    a13, a14, a15 = a16, a17, a18 = a19, a20, a21 = (1, 2), 3, 4
+    _privAttr1: int = 12345
+
+    @property
+    def prop1(self) -> float | str | dict | None:
+        return 2.2
+
+    @property
+    def _privProp(self) -> str:
+        return 'secret'
+
+    def nonProperty(self) -> int:
+        return 1
+"""
+    parsed = ast.parse(code)
+    extracted: ArgList = extractClassAttributesFromNode(
+        node=parsed.body[0],
+        shouldDocumentPrivateClassAttributes=docPriv,
+        treatPropertyMethodsAsClassAttrs=treatProp,
+    )
     assert extracted == expected

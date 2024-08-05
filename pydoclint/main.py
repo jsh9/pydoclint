@@ -219,6 +219,21 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-tpmaca',
+    '--treat-property-methods-as-class-attributes',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, treat @property methods as class properties. This means'
+        ' that they need to be documented in the "Attributes" section of'
+        ' the class docstring, and there cannot be any docstring under'
+        ' the @property methods. This option is only effective when'
+        ' --check-class-attributes is True. We recommend setting both'
+        ' this option and --check-class-attributes to True.'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -304,6 +319,7 @@ def main(  # noqa: C901
         ignore_underscore_args: bool,
         check_class_attributes: bool,
         should_document_private_class_attributes: bool,
+        treat_property_methods_as_class_attributes: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
@@ -391,6 +407,9 @@ def main(  # noqa: C901
         checkClassAttributes=check_class_attributes,
         shouldDocumentPrivateClassAttributes=(
             should_document_private_class_attributes
+        ),
+        treatPropertyMethodsAsClassAttributes=(
+            treat_property_methods_as_class_attributes
         ),
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
@@ -508,6 +527,7 @@ def _checkPaths(
         ignoreUnderscoreArgs: bool = True,
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
+        treatPropertyMethodsAsClassAttributes: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
@@ -557,6 +577,9 @@ def _checkPaths(
             shouldDocumentPrivateClassAttributes=(
                 shouldDocumentPrivateClassAttributes
             ),
+            treatPropertyMethodsAsClassAttributes=(
+                treatPropertyMethodsAsClassAttributes
+            ),
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
@@ -583,9 +606,13 @@ def _checkFile(
         ignoreUnderscoreArgs: bool = True,
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
+        treatPropertyMethodsAsClassAttributes: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> List[Violation]:
+    if not filename.is_file():  # sometimes folder names can end with `.py`
+        return []
+
     with open(filename, encoding='utf8') as fp:
         src: str = ''.join(fp.readlines())
 
@@ -604,6 +631,9 @@ def _checkFile(
         checkClassAttributes=checkClassAttributes,
         shouldDocumentPrivateClassAttributes=(
             shouldDocumentPrivateClassAttributes
+        ),
+        treatPropertyMethodsAsClassAttributes=(
+            treatPropertyMethodsAsClassAttributes
         ),
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing

@@ -1326,6 +1326,105 @@ def testNonAscii() -> None:
                 'correctly document class attributes.)',
             ],
         ),
+        (
+            '12_property_methods_as_class_attr/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'treatPropertyMethodsAsClassAttributes': True,
+                'shouldDocumentPrivateClassAttributes': True,
+            },
+            [],
+        ),
+        (
+            '12_property_methods_as_class_attr/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'treatPropertyMethodsAsClassAttributes': True,
+                'shouldDocumentPrivateClassAttributes': False,
+            },
+            [
+                'DOC602: Class `House`: Class docstring contains more class attributes than '
+                'in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `House`: Class docstring attributes are different from actual '
+                'class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: '
+                '[_privateProperty: str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+            ],
+        ),
+        (
+            '12_property_methods_as_class_attr/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'treatPropertyMethodsAsClassAttributes': False,
+                'shouldDocumentPrivateClassAttributes': True,
+            },
+            [
+                'DOC602: Class `House`: Class docstring contains more class attributes than '
+                'in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `House`: Class docstring attributes are different from actual '
+                'class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: '
+                '[_privateProperty: str, price: float]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+            ],
+        ),
+        (
+            '12_property_methods_as_class_attr/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'treatPropertyMethodsAsClassAttributes': False,
+                'shouldDocumentPrivateClassAttributes': False,
+            },
+            [
+                'DOC602: Class `House`: Class docstring contains more class attributes than '
+                'in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `House`: Class docstring attributes are different from actual '
+                'class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: '
+                '[_privateProperty: str, price: float]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+            ],
+        ),
+        (
+            '13_class_attr_assignments/google.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+            },
+            [],
+        ),
+        (
+            '14_folders_ending_in_py.py',  # This is actually a folder
+            {},
+            [],  # Here we ensure that pydoclint doesn't treat this as a file
+        ),
+        (
+            # Here we ensure that Python files under such folders (whose
+            # names end in `.py`) can still get recognized and checked.
+            '14_folders_ending_in_py.py/google.py',
+            {'style': 'google'},
+            [
+                'DOC105: Function `function1`: Argument names match, but type hints in these '
+                'args do not match: arg1'
+            ],
+        ),
     ],
 )
 def testEdgeCases(
@@ -1350,6 +1449,7 @@ def testPlayground() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
         style='google',
+        skipCheckingRaises=True,
     )
     expected = []
     assert list(map(str, violations)) == expected

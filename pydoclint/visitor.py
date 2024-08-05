@@ -60,6 +60,7 @@ class Visitor(ast.NodeVisitor):
             ignoreUnderscoreArgs: bool = True,
             checkClassAttributes: bool = True,
             shouldDocumentPrivateClassAttributes: bool = False,
+            treatPropertyMethodsAsClassAttributes: bool = True,
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
     ) -> None:
@@ -76,6 +77,9 @@ class Visitor(ast.NodeVisitor):
         self.checkClassAttributes: bool = checkClassAttributes
         self.shouldDocumentPrivateClassAttributes: bool = (
             shouldDocumentPrivateClassAttributes
+        )
+        self.treatPropertyMethodsAsClassAttributes: bool = (
+            treatPropertyMethodsAsClassAttributes
         )
         self.requireReturnSectionWhenReturningNothing: bool = (
             requireReturnSectionWhenReturningNothing
@@ -104,6 +108,9 @@ class Visitor(ast.NodeVisitor):
                 skipCheckingShortDocstrings=self.skipCheckingShortDocstrings,
                 shouldDocumentPrivateClassAttributes=(
                     self.shouldDocumentPrivateClassAttributes
+                ),
+                treatPropertyMethodsAsClassAttributes=(
+                    self.treatPropertyMethodsAsClassAttributes
                 ),
             )
 

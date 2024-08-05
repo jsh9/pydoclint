@@ -1,10 +1,42 @@
 # Change Log
 
-## [unpublished] - 2024-07-04
+## [0.5.6] - 2024-07-17
+
+- Fixed
+
+  - Fixed a bug where _pydoclint_ treats folders whose names end with `.py` as
+    files
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.5...0.5.6
+
+## [0.5.5] - 2024-07-15
+
+- Fixed
+
+  - Fixed a bug where `a = b = c = 1` style cannot be properly parsed
+    (https://github.com/jsh9/pydoclint/issues/151)
+
+- Changed
+
+  - Changed the default of `--treat-property-methods-as-class-attributes` to
+    `False` to restore backward compatibility
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.4...0.5.5
+
+## [0.5.4] - 2024-07-14
 
 - Added
+
   - An option `--should-document-private-class-attributes` (if False, private
     class attributes should not appear in the docstring)
+  - An option `--treat-property-methods-as-class-attributes` (if True,
+    `@property` methods are treated like class attributes and need to be
+    documented in the class docstring)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.3...0.5.4
 
 ## [0.5.3] - 2024-06-26
 
