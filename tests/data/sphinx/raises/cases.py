@@ -121,3 +121,35 @@ class B:
                 raise
 
         print(arg0)
+
+    def func11(self, arg0) -> None:
+        """
+        This docstring doesn't specify all the raised exceptions.
+
+        :param arg0: Arg 0
+        :raises TypeError: if arg0 is zero.
+        """
+        if arg0 == 0:
+            raise TypeError
+        raise ValueError
+
+    def func12(self, arg0) -> None:
+        """
+        There should not be any violations in this method.
+
+        :param arg0: Arg 0
+        :raises TypeError: if arg0 is zero.
+        :raises ValueError: otherwise.
+        """
+        if arg0 == 0:
+            raise TypeError
+        raise ValueError
+
+    def func13(self) -> None:
+        """
+        Should raise an error due to duplicated raises.
+
+        :raises ValueError: all the time.
+        :raises ValueError: typo!
+        """
+        raise ValueError
