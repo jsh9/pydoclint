@@ -1,5 +1,10 @@
 # Change Log
 
+## [unpublished] - 2024-08-05
+
+- Changed
+  - Switched from tab to 4 spaces in baseline
+
 ## [0.5.6] - 2024-07-17
 
 - Fixed
