@@ -1,6 +1,11 @@
 # Change Log
 
-## [unpublished] - 2024-08-05
+## [0.5.7] - 2024-09-02
+
+- Added
+
+  - A new violation code, `DOC503`, which checks that exceptions in the
+    function body match those in the "Raises" section of the docstring
 
 - Changed
   - Switched from tab to 4 spaces in baseline
