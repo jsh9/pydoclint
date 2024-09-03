@@ -33,9 +33,9 @@ def walk(node):
 
 
 def walk_dfs(node):
-    """Depth-first traversal of AST. Modified from walk.walk, above."""
+    """Depth-first traversal of AST. Modified from `walk()` in this file"""
     for child, parent in iter_child_nodes(node):
-        yield (child, parent)
+        yield child, parent
         yield from walk_dfs(child)
 
 

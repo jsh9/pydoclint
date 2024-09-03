@@ -376,7 +376,7 @@ def func9(d):
             raise
 
 def func10():
-    # no variable resolution is done. this function looks like it throws "GError".
+    # no variable resolution is done. this function looks like it throws GError.
     GError = ZeroDivisionError
     try:
         1 / 0

@@ -109,7 +109,8 @@ def _getRaisedExceptions(
 
     currentParentExceptHandler: Optional[ast.ExceptHandler] = None
 
-    # depth-first guarantees the last-seen exception handler is a parent of child.
+    # Depth-first guarantees the last-seen exception handler
+    # is a parent of child.
     for child, parent in walk.walk_dfs(node):
         childLineNum = _updateFamilyTree(child, parent, familyTree)
 

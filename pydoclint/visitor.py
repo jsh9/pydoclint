@@ -33,6 +33,7 @@ from pydoclint.utils.special_methods import (
 )
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.visitor_helper import (
+    addMismatchedRaisesExceptionViolation,
     checkClassAttributesAgainstClassDocstring,
     checkDocArgsLengthAgainstActualArgs,
     checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs,
@@ -40,7 +41,6 @@ from pydoclint.utils.visitor_helper import (
     checkYieldTypesForViolations,
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
-    messageForMismatchedRaisedExceptions,
 )
 from pydoclint.utils.yield_arg import YieldArg
 
@@ -813,7 +813,7 @@ class Visitor(ast.NodeVisitor):
 
         v501 = Violation(code=501, line=lineNum, msgPrefix=msgPrefix)
         v502 = Violation(code=502, line=lineNum, msgPrefix=msgPrefix)
-        v503 = Violation(code=502, line=lineNum, msgPrefix=msgPrefix)
+        v503 = Violation(code=503, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasRaisesSection: bool = doc.hasRaisesSection
         hasRaiseStmt: bool = hasRaiseStatements(node)
@@ -832,7 +832,6 @@ class Visitor(ast.NodeVisitor):
             for raises in doc.parsed.raises:
                 if raises.type_name:
                     docRaises.append(raises.type_name)
-
                 elif doc.style == 'sphinx' and raises.description:
                     # :raises: Exception: -> 'Exception'
                     splitDesc = raises.description.split(':')
@@ -844,7 +843,7 @@ class Visitor(ast.NodeVisitor):
             actualRaises = getRaisedExceptions(node)
 
             if docRaises != actualRaises:
-                messageForMismatchedRaisedExceptions(
+                addMismatchedRaisesExceptionViolation(
                     docRaises=docRaises,
                     actualRaises=actualRaises,
                     violations=violations,
