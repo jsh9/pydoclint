@@ -382,6 +382,40 @@ def func10():
         1 / 0
     except GError:
         raise
+
+def func11(a):
+    # Duplicated exceptions will only be reported once
+    if a < 1:
+        raise ValueError
+
+    if a < 2:
+        raise ValueError
+
+    if a < 3:
+        raise ValueError
+
+    if a < 4:
+        raise ValueError
+
+    if a < 5:
+        raise ValueError
+
+def func12(a):
+    # Exceptions will be reported in alphabetical order, regardless of
+    # the order they are raised within the function body
+
+    Error1 = RuntimeError
+    Error2 = ValueError
+    Error3 = TypeError
+
+    if a < 1:
+        raise Error2
+
+    if a < 2:
+        raise Error1
+
+    if a < 3:
+        raise Error3
 """
 
 
@@ -403,6 +437,8 @@ def testHasRaiseStatements() -> None:
         (54, 0, 'func8'): True,
         (62, 0, 'func9'): True,
         (75, 0, 'func10'): True,
+        (83, 0, 'func11'): True,
+        (100, 0, 'func12'): True,
     }
 
     assert result == expected
@@ -431,6 +467,8 @@ def testWhichRaiseStatements() -> None:
         (54, 0, 'func8'): ['KeyError', 'TypeError'],
         (62, 0, 'func9'): ['AssertionError', 'IndexError'],
         (75, 0, 'func10'): ['GError'],
+        (83, 0, 'func11'): ['ValueError'],
+        (100, 0, 'func12'): ['Error1', 'Error2', 'Error3'],
     }
 
     assert result == expected
