@@ -116,3 +116,45 @@ def testBaselineRegenerationNeeded(baselineFile, tmpFile: Path):
 
     assert baselineRegenerationNeeded is True
     assert clearedViolations == {}
+
+
+def testBaselineIndent(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    Confirm round trip equality with a space or tab indent in the
+    baseline file.
+
+    Parameters
+    ----------
+    tmp_path : Path
+        Temporary path.
+    monkeypatch : pytest.MonkeyPatch
+        Pytest monkeypatch fixture
+
+    Returns
+    -------
+    None
+    """
+
+    codeFile = tmp_path / 'code.py'
+    baselineSpaces = tmp_path / 'baseline_spaces.txt'
+    baselineTabs = tmp_path / 'baseline_tabs.txt'
+
+    codeFile.write_text(badDocstringFunction)
+    violations = _checkPaths((str(codeFile),), exclude=EXCLUDE_PATTERN)
+
+    generateBaseline(violations, baselineSpaces)
+
+    monkeypatch.setattr('pydoclint.baseline.INDENT', '\t')
+    generateBaseline(violations, baselineTabs)
+
+    assert baselineSpaces.read_text().splitlines()[1].startswith('    ')
+    assert baselineTabs.read_text().splitlines()[1].startswith('\t')
+
+    key = codeFile.as_posix()
+    spaceParsed = sorted(parseBaseline(baselineSpaces)[key])
+    tabParsed = sorted(parseBaseline(baselineTabs)[key])
+    violationsStr = sorted(str(v) for v in violations[key])
+
+    assert spaceParsed == tabParsed == violationsStr
