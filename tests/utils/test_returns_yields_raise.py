@@ -1,11 +1,12 @@
 import ast
-from typing import Dict, Tuple
+from typing import Dict, List, Tuple
 
 import pytest
 
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
+    getRaisedExceptions,
     hasGeneratorAsReturnAnnotation,
     hasRaiseStatements,
     hasReturnAnnotation,
@@ -118,6 +119,7 @@ class HelperVisitor(ast.NodeVisitor):
         self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
         self.yieldStatements: Dict[Tuple[int, int, str], bool] = {}
         self.raiseStatements: Dict[Tuple[int, int, str], bool] = {}
+        self.raisedExceptions: Dict[Tuple[int, int, str], List[str]] = {}
         self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
         self.generatorAnnotations: Dict[Tuple[int, int, str], bool] = {}
 
@@ -126,6 +128,7 @@ class HelperVisitor(ast.NodeVisitor):
         self.returnStatements[functionId] = hasReturnStatements(node)
         self.yieldStatements[functionId] = hasYieldStatements(node)
         self.raiseStatements[functionId] = hasRaiseStatements(node)
+        self.raisedExceptions[functionId] = getRaisedExceptions(node)
         self.returnAnnotations[functionId] = hasReturnAnnotation(node)
         self.generatorAnnotations[functionId] = hasGeneratorAsReturnAnnotation(
             node,
@@ -328,6 +331,91 @@ def func6(arg1):
         raise TypeError
 
     return arg1 + 2
+
+def func7(arg0):
+    if True:
+        raise TypeError
+
+    try:
+        "foo"[-10]
+    except IndexError as e:
+        raise
+
+    try:
+        1 / 0
+    except ZeroDivisionError:
+        raise RuntimeError("a different error")
+
+    try:
+        pass
+    except OSError as e:
+        if e.args[0] == 2 and e.filename:
+            fp = None
+        else:
+            raise
+
+def func8(d):
+    try:
+        d[0][0]
+    except (KeyError, TypeError):
+        raise
+    finally:
+        pass
+
+def func9(d):
+    try:
+        d[0]
+    except IndexError:
+        try:
+            d[0][0]
+        except KeyError:
+            raise AssertionError() from e
+        except Exception:
+            pass
+        if True:
+            raise
+
+def func10():
+    # no variable resolution is done. this function looks like it throws GError.
+    GError = ZeroDivisionError
+    try:
+        1 / 0
+    except GError:
+        raise
+
+def func11(a):
+    # Duplicated exceptions will only be reported once
+    if a < 1:
+        raise ValueError
+
+    if a < 2:
+        raise ValueError
+
+    if a < 3:
+        raise ValueError
+
+    if a < 4:
+        raise ValueError
+
+    if a < 5:
+        raise ValueError
+
+def func12(a):
+    # Exceptions will be reported in alphabetical order, regardless of
+    # the order they are raised within the function body
+
+    Error1 = RuntimeError
+    Error2 = ValueError
+    Error3 = TypeError
+
+    if a < 1:
+        raise Error2
+
+    if a < 2:
+        raise Error1
+
+    if a < 3:
+        raise Error3
 """
 
 
@@ -345,6 +433,42 @@ def testHasRaiseStatements() -> None:
         (20, 0, 'func5'): False,
         (26, 0, 'func6'): True,
         (21, 4, 'func5_child1'): True,
+        (32, 0, 'func7'): True,
+        (54, 0, 'func8'): True,
+        (62, 0, 'func9'): True,
+        (75, 0, 'func10'): True,
+        (83, 0, 'func11'): True,
+        (100, 0, 'func12'): True,
+    }
+
+    assert result == expected
+
+
+def testWhichRaiseStatements() -> None:
+    tree = ast.parse(srcRaises)
+    visitor = HelperVisitor()
+    visitor.visit(tree)
+    result = visitor.raisedExceptions
+
+    expected = {
+        (2, 0, 'func1'): ['ValueError'],
+        (7, 0, 'func2'): ['Exception'],
+        (10, 0, 'func3'): ['TypeError'],
+        (17, 0, 'func4'): ['CustomError'],
+        (20, 0, 'func5'): [],
+        (26, 0, 'func6'): ['TypeError'],
+        (21, 4, 'func5_child1'): ['ValueError'],
+        (32, 0, 'func7'): [
+            'IndexError',
+            'OSError',
+            'RuntimeError',
+            'TypeError',
+        ],
+        (54, 0, 'func8'): ['KeyError', 'TypeError'],
+        (62, 0, 'func9'): ['AssertionError', 'IndexError'],
+        (75, 0, 'func10'): ['GError'],
+        (83, 0, 'func11'): ['ValueError'],
+        (100, 0, 'func12'): ['Error1', 'Error2', 'Error3'],
     }
 
     assert result == expected

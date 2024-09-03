@@ -17,6 +17,7 @@ from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
+    getRaisedExceptions,
     hasGeneratorAsReturnAnnotation,
     hasIteratorOrIterableAsReturnAnnotation,
     hasRaiseStatements,
@@ -32,6 +33,7 @@ from pydoclint.utils.special_methods import (
 )
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.visitor_helper import (
+    addMismatchedRaisesExceptionViolation,
     checkClassAttributesAgainstClassDocstring,
     checkDocArgsLengthAgainstActualArgs,
     checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs,
@@ -811,6 +813,7 @@ class Visitor(ast.NodeVisitor):
 
         v501 = Violation(code=501, line=lineNum, msgPrefix=msgPrefix)
         v502 = Violation(code=502, line=lineNum, msgPrefix=msgPrefix)
+        v503 = Violation(code=503, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasRaisesSection: bool = doc.hasRaisesSection
         hasRaiseStmt: bool = hasRaiseStatements(node)
@@ -821,5 +824,32 @@ class Visitor(ast.NodeVisitor):
         if not hasRaiseStmt and docstringHasRaisesSection:
             if not self.isAbstractMethod:
                 violations.append(v502)
+
+        # check that the raise statements match those in body.
+        if hasRaiseStmt:
+            docRaises: List[str] = []
+
+            for raises in doc.parsed.raises:
+                if raises.type_name:
+                    docRaises.append(raises.type_name)
+                elif doc.style == 'sphinx' and raises.description:
+                    # :raises: Exception: -> 'Exception'
+                    splitDesc = raises.description.split(':')
+                    if len(splitDesc) > 1 and ' ' not in splitDesc[0].strip():
+                        exc = splitDesc[0].strip()
+                        docRaises.append(exc)
+
+            docRaises.sort()
+            actualRaises = getRaisedExceptions(node)
+
+            if docRaises != actualRaises:
+                addMismatchedRaisesExceptionViolation(
+                    docRaises=docRaises,
+                    actualRaises=actualRaises,
+                    violations=violations,
+                    violationForRaisesMismatch=v503,
+                    lineNum=lineNum,
+                    msgPrefix=msgPrefix,
+                )
 
         return violations

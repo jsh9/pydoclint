@@ -521,3 +521,30 @@ def extractReturnTypeFromGenerator(returnAnnoText: str) -> str:
         returnType = returnAnnoText
 
     return stripQuotes(returnType)
+
+
+def addMismatchedRaisesExceptionViolation(
+        *,
+        docRaises: List[str],
+        actualRaises: List[str],
+        violations: List[Violation],
+        violationForRaisesMismatch: Violation,  # such as V503
+        lineNum: int,
+        msgPrefix: str,
+) -> None:
+    """
+    Add a violation for mismatched exception type between function
+    body and docstring
+    """
+    msgPostfix: str = (
+        f'Raises values in the docstring: {docRaises}.'
+        f' Raised exceptions in the body: {actualRaises}.'
+    )
+    violations.append(
+        Violation(
+            code=violationForRaisesMismatch.code,
+            line=lineNum,
+            msgPrefix=msgPrefix,
+            msgPostfix=msgPostfix,
+        )
+    )

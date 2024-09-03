@@ -32,6 +32,13 @@ def walk(node):
         yield node, parent
 
 
+def walk_dfs(node):
+    """Depth-first traversal of AST. Modified from `walk()` in this file"""
+    for child, parent in iter_child_nodes(node):
+        yield child, parent
+        yield from walk_dfs(child)
+
+
 def iter_child_nodes(node):
     """
     Yield all direct child nodes of *node*, that is, all fields that are nodes
