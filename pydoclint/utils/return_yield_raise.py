@@ -1,5 +1,14 @@
 import ast
-from typing import Callable, Dict, Generator, List, Optional, Tuple, Type
+from typing import (
+    Callable,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Tuple,
+    Type,
+    Union,
+)
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
@@ -98,6 +107,14 @@ def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> List[str]:
     return sorted(set(_getRaisedExceptions(node)))
 
 
+def _getFullAttribute(node: Union[ast.Attribute, ast.Name]) -> str:
+    """Get the full name of a symbol like a.b.c.foo"""
+    if isinstance(node, ast.Name):
+        return node.id
+
+    return _getFullAttribute(node.value) + '.' + node.attr
+
+
 def _getRaisedExceptions(
         node: FuncOrAsyncFuncDef,
 ) -> Generator[str, None, None]:
@@ -132,7 +149,17 @@ def _getRaisedExceptions(
         ):
             for subnode, _ in walk.walk_dfs(child):
                 if isinstance(subnode, ast.Name):
-                    yield subnode.id
+                    if isinstance(child.exc, ast.Attribute):
+                        # case: looks like m.n.exception
+                        yield _getFullAttribute(child.exc)
+                    elif isinstance(child.exc, ast.Call) and isinstance(
+                        child.exc.func, ast.Attribute
+                    ):
+                        # case: looks like m.n.exception()
+                        yield _getFullAttribute(child.exc.func)
+                    else:
+                        yield subnode.id
+
                     break
             else:
                 # if "raise" statement was alone, it must be inside an "except"
@@ -148,10 +175,17 @@ def _extractExceptionsFromExcept(
     if isinstance(node.type, ast.Name):
         yield node.type.id
 
+    if isinstance(node.type, ast.Attribute):
+        # case: looks like m.n.exception
+        yield _getFullAttribute(node.type)
+
     if isinstance(node.type, ast.Tuple):
-        for child, _ in walk.walk(node.type):
-            if isinstance(child, ast.Name):
-                yield child.id
+        for elt in node.type.elts:
+            if isinstance(elt, ast.Attribute):
+                # case: looks like m.n.exception
+                yield _getFullAttribute(elt)
+            elif isinstance(elt, ast.Name):
+                yield elt.id
 
 
 def _hasExpectedStatements(

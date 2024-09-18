@@ -832,6 +832,14 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'docstring do not match those in the function body Raises values in the '
         "docstring: ['ValueError', 'ValueError']. Raised exceptions in the body: "
         "['ValueError'].",
+        'DOC503: Method `B.func14` exceptions in the "Raises" section in the '
+        'docstring do not match those in the function body Raises values in the '
+        "docstring: ['CustomError']. Raised exceptions in the body: "
+        "['exceptions.CustomError'].",
+        'DOC503: Method `B.func15` exceptions in the "Raises" section in the '
+        'docstring do not match those in the function body Raises values in the '
+        "docstring: ['CustomError']. Raised exceptions in the body: "
+        "['exceptions.m.CustomError'].",
     ]
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
