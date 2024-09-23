@@ -10,6 +10,8 @@
 - [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
 - [5. Notes for Google-style users](#5-notes-for-google-style-users)
 - [6. How to adopt _pydoclint_ more easily in legacy projects](#6-how-to-adopt-pydoclint-more-easily-in-legacy-projects)
+- [7. How to integrate _pydoclint_ with different editors or IDEs](#7-how-to-integrate-pydoclint-with-different-editors-or-ides)
+  - [7.1. Integrate _pydoclint_ with Neovim using null-ls](#71-integrate-pydoclint-with-neovim-using-null-ls)
 
 <!--TOC-->
 
@@ -188,9 +190,16 @@ somewhere in your repo.
 For more details, please check out
 [this section](https://jsh9.github.io/pydoclint/config_options.html#12---baseline).
 
-## 7. Integrating pydoclint with Neovim using null-ls
+## 7. How to integrate _pydoclint_ with different editors or IDEs
 
-If you use [Neovim](https://neovim.io/), you can integrate pydoclint with your editor using the [null-ls](https://github.com/nvimtools/none-ls.nvim) plugin. null-ls allows you to use linters and formatters in Neovim in a simple and efficient way. First, make sure you have installed null-ls using your preferred package manager. Next, add the following configuration to your Neovim config file to register pydoclint as a diagnostic source:
+### 7.1. Integrate _pydoclint_ with Neovim using null-ls
+
+If you use [Neovim](https://neovim.io/), you can integrate _pydoclint_ with
+your editor using the [null-ls](https://github.com/nvimtools/none-ls.nvim)
+plugin. null-ls allows you to use linters and formatters in Neovim in a simple
+and efficient way. First, make sure you have installed null-ls using your
+preferred package manager. Next, add the following configuration to your Neovim
+config file to register _pydoclint_ as a diagnostic source:
 
 ```lua
 local null_ls = require("null-ls")
@@ -202,7 +211,9 @@ null_ls.setup({
 })
 ```
 
-This will enable pydoclint to provide diagnostic messages for your Python code directly in Neovim. You can further customize the behavior of pydoclint by passing additional options:
+This will enable _pydoclint_ to provide diagnostic messages for your Python
+code directly in Neovim. You can further customize the behavior of _pydoclint_
+by passing additional options:
 
 ```lua
 local null_ls = require("null-ls")
@@ -216,4 +227,7 @@ null_ls.setup({
 })
 ```
 
-Adjust the extra_args based on your preferred pydoclint configuration. With this setup, you can now enjoy the benefits of pydoclint's fast and comprehensive docstring linting directly within your Neovim editing environment
+Adjust the extra*args based on your preferred \_pydoclint* configuration. With
+this setup, you can now enjoy the benefits of _pydoclint_'s fast and
+comprehensive docstring linting directly within your Neovim editing
+environment.
