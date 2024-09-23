@@ -1,7 +1,7 @@
 import ast
 import copy
 import re
-from typing import List, Match, Optional, Tuple
+from typing import List, Match, Optional, Tuple, Union
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
@@ -233,3 +233,11 @@ def specialEqual(str1: str, str2: str) -> bool:
         return False
 
     return True
+
+
+def getFullAttributeName(node: Union[ast.Attribute, ast.Name]) -> str:
+    """Get the full name of a symbol like a.b.c.foo"""
+    if isinstance(node, ast.Name):
+        return node.id
+
+    return getFullAttributeName(node.value) + '.' + node.attr

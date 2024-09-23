@@ -1,19 +1,10 @@
 import ast
-from typing import (
-    Callable,
-    Dict,
-    Generator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Callable, Dict, Generator, List, Optional, Tuple, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
-from pydoclint.utils.generic import stringStartsWith
+from pydoclint.utils.generic import getFullAttributeName, stringStartsWith
 
 ReturnType = Type[ast.Return]
 ExprType = Type[ast.Expr]
@@ -107,14 +98,6 @@ def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> List[str]:
     return sorted(set(_getRaisedExceptions(node)))
 
 
-def _getFullAttribute(node: Union[ast.Attribute, ast.Name]) -> str:
-    """Get the full name of a symbol like a.b.c.foo"""
-    if isinstance(node, ast.Name):
-        return node.id
-
-    return _getFullAttribute(node.value) + '.' + node.attr
-
-
 def _getRaisedExceptions(
         node: FuncOrAsyncFuncDef,
 ) -> Generator[str, None, None]:
@@ -151,12 +134,12 @@ def _getRaisedExceptions(
                 if isinstance(subnode, ast.Name):
                     if isinstance(child.exc, ast.Attribute):
                         # case: looks like m.n.exception
-                        yield _getFullAttribute(child.exc)
+                        yield getFullAttributeName(child.exc)
                     elif isinstance(child.exc, ast.Call) and isinstance(
                         child.exc.func, ast.Attribute
                     ):
                         # case: looks like m.n.exception()
-                        yield _getFullAttribute(child.exc.func)
+                        yield getFullAttributeName(child.exc.func)
                     else:
                         yield subnode.id
 
@@ -177,13 +160,13 @@ def _extractExceptionsFromExcept(
 
     if isinstance(node.type, ast.Attribute):
         # case: looks like m.n.exception
-        yield _getFullAttribute(node.type)
+        yield getFullAttributeName(node.type)
 
     if isinstance(node.type, ast.Tuple):
         for elt in node.type.elts:
             if isinstance(elt, ast.Attribute):
                 # case: looks like m.n.exception
-                yield _getFullAttribute(elt)
+                yield getFullAttributeName(elt)
             elif isinstance(elt, ast.Name):
                 yield elt.id
 
