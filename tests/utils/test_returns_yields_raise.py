@@ -357,7 +357,7 @@ def func7(arg0):
 def func8(d):
     try:
         d[0][0]
-    except (KeyError, TypeError):
+    except (KeyError, TypeError, m.ValueError):
         raise
     finally:
         pass
@@ -416,6 +416,30 @@ def func12(a):
 
     if a < 3:
         raise Error3
+
+def func13(a):
+    # ensure we get `Exception`, `Exception()`, and `Exception('something')`
+    if a < 1:
+        raise ValueError
+    elif a < 2:
+        raise TypeError()
+    else:
+        raise IOError('IO Error!')
+
+def func14(a):
+    # check that we properly identify submodule exceptions.
+    if a < 1:
+        raise m.ValueError
+    elif a < 2:
+        raise m.n.ValueError()
+    else:
+        raise a.b.c.ValueError(msg="some msg")
+
+def func15():
+    try:
+        x = 1
+    except other.Exception:
+        raise
 """
 
 
@@ -439,6 +463,9 @@ def testHasRaiseStatements() -> None:
         (75, 0, 'func10'): True,
         (83, 0, 'func11'): True,
         (100, 0, 'func12'): True,
+        (117, 0, 'func13'): True,
+        (126, 0, 'func14'): True,
+        (135, 0, 'func15'): True,
     }
 
     assert result == expected
@@ -464,11 +491,18 @@ def testWhichRaiseStatements() -> None:
             'RuntimeError',
             'TypeError',
         ],
-        (54, 0, 'func8'): ['KeyError', 'TypeError'],
+        (54, 0, 'func8'): ['KeyError', 'TypeError', 'm.ValueError'],
         (62, 0, 'func9'): ['AssertionError', 'IndexError'],
         (75, 0, 'func10'): ['GError'],
         (83, 0, 'func11'): ['ValueError'],
         (100, 0, 'func12'): ['Error1', 'Error2', 'Error3'],
+        (117, 0, 'func13'): ['IOError', 'TypeError', 'ValueError'],
+        (126, 0, 'func14'): [
+            'a.b.c.ValueError',
+            'm.ValueError',
+            'm.n.ValueError',
+        ],
+        (135, 0, 'func15'): ['other.Exception'],
     }
 
     assert result == expected

@@ -229,3 +229,30 @@ class B:
             typo!
         """
         raise ValueError
+
+    def func14(self) -> None:
+        """
+        Should fail, expects `exceptions.CustomError`.
+
+        Raises
+        ------
+        CustomError
+            every time.
+        """
+        exceptions = object()
+        exceptions.CustomError = CustomError
+        raise exceptions.CustomError()
+
+    def func15(self) -> None:
+        """
+        Should fail, expects `exceptions.m.CustomError`.
+
+        Raises
+        ------
+        CustomError
+            every time.
+        """
+        exceptions = object()
+        exceptions.m = object()
+        exceptions.m.CustomError = CustomError
+        raise exceptions.m.CustomError
