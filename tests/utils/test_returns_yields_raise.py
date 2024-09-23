@@ -421,8 +421,10 @@ def func13(a):
     # ensure we get `Exception` and `Exception()`
     if a < 1:
         raise ValueError
-    else:
+    elif a < 2:
         raise TypeError()
+    else:
+        raise IOError('IO Error!')
 
 def func14(a):
     # check that we properly identify submodule exceptions.
@@ -462,8 +464,8 @@ def testHasRaiseStatements() -> None:
         (83, 0, 'func11'): True,
         (100, 0, 'func12'): True,
         (117, 0, 'func13'): True,
-        (124, 0, 'func14'): True,
-        (133, 0, 'func15'): True,
+        (126, 0, 'func14'): True,
+        (135, 0, 'func15'): True,
     }
 
     assert result == expected
@@ -494,13 +496,13 @@ def testWhichRaiseStatements() -> None:
         (75, 0, 'func10'): ['GError'],
         (83, 0, 'func11'): ['ValueError'],
         (100, 0, 'func12'): ['Error1', 'Error2', 'Error3'],
-        (117, 0, 'func13'): ['TypeError', 'ValueError'],
-        (124, 0, 'func14'): [
+        (117, 0, 'func13'): ['IOError', 'TypeError', 'ValueError'],
+        (126, 0, 'func14'): [
             'a.b.c.ValueError',
             'm.ValueError',
             'm.n.ValueError',
         ],
-        (133, 0, 'func15'): ['other.Exception'],
+        (135, 0, 'func15'): ['other.Exception'],
     }
 
     assert result == expected
