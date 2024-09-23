@@ -418,7 +418,7 @@ def func12(a):
         raise Error3
 
 def func13(a):
-    # ensure we get `Exception` and `Exception()`
+    # ensure we get `Exception`, `Exception()`, and `Exception('something')`
     if a < 1:
         raise ValueError
     elif a < 2:
