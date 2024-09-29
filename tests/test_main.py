@@ -1456,6 +1456,9 @@ def testNonAscii() -> None:
                 'args do not match: arg1'
             ],
         ),
+        ('15_very_long_annotations/sphinx.py', {'style': 'sphinx'}, []),
+        ('15_very_long_annotations/google.py', {'style': 'google'}, []),
+        ('15_very_long_annotations/numpy.py', {'style': 'numpy'}, []),
     ],
 )
 def testEdgeCases(

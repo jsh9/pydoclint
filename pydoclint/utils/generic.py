@@ -214,10 +214,14 @@ def appendArgsToCheckToV105(
 def specialEqual(str1: str, str2: str) -> bool:
     """
     Check string equality but treat any single quotes as the same as
-    double quotes.
+    double quotes, and also ignore line breaks in either strings.
     """
     if str1 == str2:
         return True  # using shortcuts to speed up evaluation
+
+    if '\n' in str1 or '\n' in str2:
+        str1 = str1.replace(' ', '').replace('\n', '')
+        str2 = str2.replace(' ', '').replace('\n', '')
 
     if len(str1) != len(str2):
         return False  # using shortcuts to speed up evaluation
