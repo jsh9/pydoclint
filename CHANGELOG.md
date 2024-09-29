@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.5.9] - 2024-09-29
+
+- Fixed
+
+  - Fixed an edge case where type annotations are very long
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.8...0.5.9
+
 ## [0.5.8] - 2024-09-23
 
 - Fixed
