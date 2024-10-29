@@ -1,7 +1,7 @@
 import ast
 import copy
 import re
-from typing import List, Match, Optional, Tuple
+from typing import List, Match, Optional, Tuple, Union
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
@@ -214,10 +214,14 @@ def appendArgsToCheckToV105(
 def specialEqual(str1: str, str2: str) -> bool:
     """
     Check string equality but treat any single quotes as the same as
-    double quotes.
+    double quotes, and also ignore line breaks in either strings.
     """
     if str1 == str2:
         return True  # using shortcuts to speed up evaluation
+
+    if '\n' in str1 or '\n' in str2:
+        str1 = str1.replace(' ', '').replace('\n', '')
+        str2 = str2.replace(' ', '').replace('\n', '')
 
     if len(str1) != len(str2):
         return False  # using shortcuts to speed up evaluation
@@ -233,3 +237,11 @@ def specialEqual(str1: str, str2: str) -> bool:
         return False
 
     return True
+
+
+def getFullAttributeName(node: Union[ast.Attribute, ast.Name]) -> str:
+    """Get the full name of a symbol like a.b.c.foo"""
+    if isinstance(node, ast.Name):
+        return node.id
+
+    return getFullAttributeName(node.value) + '.' + node.attr

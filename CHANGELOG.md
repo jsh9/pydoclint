@@ -1,5 +1,23 @@
 # Change Log
 
+## [0.5.9] - 2024-09-29
+
+- Fixed
+
+  - Fixed an edge case where type annotations are very long
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.8...0.5.9
+
+## [0.5.8] - 2024-09-23
+
+- Fixed
+
+  - Fixed the logic of handling exceptions namespaces (`a.b.c.MyException`)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.7...0.5.8
+
 ## [0.5.7] - 2024-09-02
 
 - Added
@@ -8,7 +26,11 @@
     function body match those in the "Raises" section of the docstring
 
 - Changed
+
   - Switched from tab to 4 spaces in baseline
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.6...0.5.7
 
 ## [0.5.6] - 2024-07-17
 
