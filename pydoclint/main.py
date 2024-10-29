@@ -1,4 +1,5 @@
 import ast
+import logging
 import re
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
@@ -329,6 +330,7 @@ def main(  # noqa: C901
         config: Optional[str],  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
+    logging.basicConfig(level=logging.WARN if quiet else logging.INFO)
     ctx.ensure_object(dict)
 
     if type_hints_in_docstring != 'None':  # it means users supply this option

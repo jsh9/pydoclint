@@ -1,3 +1,4 @@
+import logging
 import sys
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
@@ -36,7 +37,7 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     if not value:
         return None
 
-    print(f'Loading config from user-specified .toml file: {value}')
+    logging.info(f'Loading config from user-specified .toml file: {value}')
     config = parseOneTomlFile(tomlFilename=Path(value))
     updateCtxDefaultMap(ctx=ctx, config=config)
     return value
@@ -49,14 +50,14 @@ def parseToml(paths: Optional[Sequence[str]]) -> Dict[str, Any]:
 
     commonParent: Path = findCommonParentFolder(paths)
     tomlFilename = commonParent / Path('pyproject.toml')
-    print(f'Loading config from inferred .toml file path: {tomlFilename}')
+    logging.info(f'Loading config from inferred .toml file path: {tomlFilename}')
     return parseOneTomlFile(tomlFilename)
 
 
 def parseOneTomlFile(tomlFilename: Path) -> Dict[str, Any]:
     """Parse a .toml file"""
     if not tomlFilename.exists():
-        print(f'File "{tomlFilename}" does not exist; nothing to load.')
+        logging.info(f'File "{tomlFilename}" does not exist; nothing to load.')
         return {}
 
     try:
@@ -71,10 +72,10 @@ def parseOneTomlFile(tomlFilename: Path) -> Dict[str, Any]:
         finalConfig = {}
 
     if len(finalConfig) > 0:
-        print(f'Found options defined in {tomlFilename}:')
-        print(finalConfig)
+        logging.info(f'Found options defined in {tomlFilename}:')
+        logging.info(finalConfig)
     else:
-        print(f'No config found in {tomlFilename}.')
+        logging.info(f'No config found in {tomlFilename}.')
 
     return finalConfig
 
