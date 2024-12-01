@@ -50,7 +50,9 @@ def parseToml(paths: Optional[Sequence[str]]) -> Dict[str, Any]:
 
     commonParent: Path = findCommonParentFolder(paths)
     tomlFilename = commonParent / Path('pyproject.toml')
-    logging.info(f'Loading config from inferred .toml file path: {tomlFilename}')
+    logging.info(
+        f'Loading config from inferred .toml file path: {tomlFilename}'
+    )
     return parseOneTomlFile(tomlFilename)
 
 
