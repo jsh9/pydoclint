@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unpublished]
+
+- Changed
+  - Command line message about loading config file is now hidden with config
+    option `--quiet`
+
 ## [0.5.9] - 2024-09-29
 
 - Fixed
