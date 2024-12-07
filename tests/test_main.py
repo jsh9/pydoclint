@@ -1459,6 +1459,9 @@ def testNonAscii() -> None:
         ('15_very_long_annotations/sphinx.py', {'style': 'sphinx'}, []),
         ('15_very_long_annotations/google.py', {'style': 'google'}, []),
         ('15_very_long_annotations/numpy.py', {'style': 'numpy'}, []),
+        ('16_assign_to_attr/cases.py', {'style': 'sphinx'}, []),
+        ('16_assign_to_attr/cases.py', {'style': 'google'}, []),
+        ('16_assign_to_attr/cases.py', {'style': 'numpy'}, []),
     ],
 )
 def testEdgeCases(

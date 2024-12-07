@@ -92,7 +92,7 @@ class Arg:
     def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
         """Construct an Arg object from a Python ast.AnnAssign object"""
         return Arg(
-            name=astAnnAssign.target.id,
+            name=unparseAnnotation(astAnnAssign.target),
             typeHint=unparseAnnotation(astAnnAssign.annotation),
         )
 
@@ -220,6 +220,10 @@ class ArgList:
                     infoList.append(Arg(name=item.id, typeHint=''))
             elif isinstance(target, ast.Name):  # such as `a = 1` or `a = b = 2`
                 infoList.append(Arg(name=target.id, typeHint=''))
+            elif isinstance(target, ast.Attribute):  # e.g., uvw.xyz = 1
+                infoList.append(
+                    Arg(name=unparseAnnotation(target), typeHint='')
+                )
             else:
                 raise InternalError(
                     f'astAssign.targets[{i}] is of type {type(target)}'

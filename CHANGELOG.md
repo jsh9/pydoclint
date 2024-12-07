@@ -5,6 +5,9 @@
 - Changed
   - Command line message about loading config file is now hidden with config
     option `--quiet`
+- Fixed
+  - Fixed a bug where assigning a value to an attribute caused pydoclint to
+    crash
 
 ## [0.5.9] - 2024-09-29
 
