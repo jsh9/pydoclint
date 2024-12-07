@@ -38,7 +38,7 @@ else:  # python 3.8
         return fp.getvalue()
 
 
-def unparseAnnotation(
+def unparseName(
         node: Union[AnnotationType, ast.Module, None],
 ) -> Optional[str]:
     """Parse type annotations from argument list or return annotation."""

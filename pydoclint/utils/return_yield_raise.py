@@ -2,9 +2,9 @@ import ast
 from typing import Callable, Dict, Generator, List, Optional, Tuple, Type
 
 from pydoclint.utils import walk
-from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFullAttributeName, stringStartsWith
+from pydoclint.utils.unparser_custom import unparseName
 
 ReturnType = Type[ast.Return]
 ExprType = Type[ast.Expr]
@@ -32,7 +32,7 @@ def isReturnAnnotationNoReturn(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnnotation: str = unparseAnnotation(node.returns)
+    returnAnnotation: str = unparseName(node.returns)
     return returnAnnotation == 'NoReturn'
 
 
@@ -41,7 +41,7 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnno: str = unparseAnnotation(node.returns)
+    returnAnno: str = unparseName(node.returns)
     return returnAnno in {'Generator', 'AsyncGenerator'} or stringStartsWith(
         returnAnno, ('Generator[', 'AsyncGenerator[')
     )
@@ -52,7 +52,7 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnnotation: str = unparseAnnotation(node.returns)
+    returnAnnotation: str = unparseName(node.returns)
     return returnAnnotation in {
         'Iterator',
         'Iterable',

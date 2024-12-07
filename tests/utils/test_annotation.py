@@ -4,7 +4,7 @@ from typing import Dict, Optional
 
 import pytest
 
-from pydoclint.utils.annotation import unparseAnnotation
+from pydoclint.utils.unparser_custom import unparseName
 
 
 def testUnparseAnnotationInArguments() -> None:
@@ -122,7 +122,7 @@ def foo(
 def _getArgTypeHints(node: ast.FunctionDef) -> Dict[str, str]:
     hints = {}
     for arg_ in node.args.args:
-        hints[arg_.arg] = unparseAnnotation(arg_.annotation)
+        hints[arg_.arg] = unparseName(arg_.annotation)
 
     return hints
 
@@ -150,6 +150,6 @@ def testParseReturnAnnotation(src: str, expectedAnnotation: str):
     returnAnnotation: Optional[str] = None
     for node in tree.body:
         if isinstance(node, ast.FunctionDef):
-            returnAnnotation: str = unparseAnnotation(node.returns)
+            returnAnnotation: str = unparseName(node.returns)
 
     assert returnAnnotation == expectedAnnotation
