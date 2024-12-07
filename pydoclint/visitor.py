@@ -4,6 +4,7 @@ from typing import List, Optional
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
+from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
     collectFuncArgs,
     detectMethodType,
@@ -11,7 +12,6 @@ from pydoclint.utils.generic import (
     generateFuncMsgPrefix,
     getDocstring,
 )
-from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
@@ -244,7 +244,7 @@ class Visitor(ast.NodeVisitor):
                 'This should not have happened; please contact the authors'
                 ' and share the full call stack.'
             )
-            raise InternalError(msg)
+            raise EdgeCaseError(msg)
 
         className: str = parent_.name
         classLineNum: int = parent_.lineno

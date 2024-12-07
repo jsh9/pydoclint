@@ -3,8 +3,8 @@ from typing import List, Optional, Set
 
 from docstring_parser.common import DocstringAttr, DocstringParam
 
+from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import stripQuotes
-from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.unparser_custom import unparseName
 
 
@@ -212,7 +212,7 @@ class ArgList:
             if isinstance(target, ast.Tuple):  # such as `a, b = c, d = 1, 2`
                 for j, item in enumerate(target.elts):
                     if not isinstance(item, ast.Name):
-                        raise InternalError(
+                        raise EdgeCaseError(
                             f'astAssign.targets[{i}].elts[{j}] is of'
                             f' type {type(item)} instead of ast.Name'
                         )
@@ -223,7 +223,7 @@ class ArgList:
             elif isinstance(target, ast.Attribute):  # e.g., uvw.xyz = 1
                 infoList.append(Arg(name=unparseName(target), typeHint=''))
             else:
-                raise InternalError(
+                raise EdgeCaseError(
                     f'astAssign.targets[{i}] is of type {type(target)}'
                 )
 
@@ -292,7 +292,7 @@ class ArgList:
         """Find args with unmatched type hints."""
         if not self.equals(other, checkTypeHint=False, orderMatters=False):
             msg = 'These 2 arg lists do not have the same arg names'
-            raise InternalError(msg)
+            raise EdgeCaseError(msg)
 
         result: List[Arg] = []
         for selfArg in self.infoList:

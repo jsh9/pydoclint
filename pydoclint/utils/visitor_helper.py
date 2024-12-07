@@ -5,13 +5,13 @@ from typing import List, Optional, Set
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.doc import Doc
+from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
     appendArgsToCheckToV105,
     getDocstring,
     specialEqual,
     stripQuotes,
 )
-from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.special_methods import checkIsPropertyMethod
@@ -147,7 +147,7 @@ def extractClassAttributesFromNode(
 
     Raises
     ------
-    InternalError
+    EdgeCaseError
         When the length of item.targets is 0
     """
     if 'body' not in node.__dict__ or len(node.body) == 0:
@@ -159,7 +159,7 @@ def extractClassAttributesFromNode(
             atl.append(Arg.fromAstAnnAssign(itm))
         elif isinstance(itm, ast.Assign):  # no type hints
             if not isinstance(itm.targets, list) or len(itm.targets) == 0:
-                raise InternalError(
+                raise EdgeCaseError(
                     '`item.targets` needs to be a list of length > 0.'
                     f' Instead, it is {itm.targets}'
                 )

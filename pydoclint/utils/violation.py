@@ -2,7 +2,7 @@ import types
 from copy import deepcopy
 from typing import Tuple
 
-from pydoclint.utils.internal_error import InternalError
+from pydoclint.utils.edge_case_error import EdgeCaseError
 
 VIOLATION_CODES = types.MappingProxyType({
     1: 'Potential formatting errors in docstring. Error message:',
@@ -76,7 +76,7 @@ class Violation:
             msgPostfix: str = '',
     ) -> None:
         if code not in VIOLATION_CODES:
-            raise InternalError('Invalid violation code')
+            raise EdgeCaseError('Invalid violation code')
 
         self.line = line
         self.code = code

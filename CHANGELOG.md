@@ -10,6 +10,7 @@
     crash
 - Changed
   - Renamed function `unparseAnnotation()` into `unparseNode()`
+  - Renamed `EdgeCaseError` into `EdgeCaseError`
 
 ## [0.5.9] - 2024-09-29
 

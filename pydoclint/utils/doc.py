@@ -11,7 +11,7 @@ from docstring_parser.numpydoc import NumpydocParser
 from docstring_parser.rest import parse as parseSphinx
 
 from pydoclint.utils.arg import ArgList
-from pydoclint.utils.internal_error import InternalError
+from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.yield_arg import YieldArg
 
@@ -141,7 +141,7 @@ class Doc:
 
     def _raiseException(self) -> None:
         msg = f'Unknown style "{self.style}"; please contact the authors'
-        raise InternalError(msg)
+        raise EdgeCaseError(msg)
 
     @classmethod
     def _str(cls, something: Any) -> str:
