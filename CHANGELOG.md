@@ -8,6 +8,8 @@
 - Fixed
   - Fixed a bug where assigning a value to an attribute caused pydoclint to
     crash
+- Changed
+  - Renamed function `unparseAnnotation()` into `unparseNode()`
 
 ## [0.5.9] - 2024-09-29
 
