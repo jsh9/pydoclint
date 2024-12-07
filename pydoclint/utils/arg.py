@@ -3,9 +3,9 @@ from typing import List, Optional, Set
 
 from docstring_parser.common import DocstringAttr, DocstringParam
 
-from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.generic import stripQuotes
 from pydoclint.utils.internal_error import InternalError
+from pydoclint.utils.unparser_custom import unparseName
 
 
 class Arg:
@@ -85,15 +85,15 @@ class Arg:
     def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
         """Construct an Arg object from a Python AST argument object"""
         anno = astArg.annotation
-        typeHint: str = '' if anno is None else unparseAnnotation(anno)
+        typeHint: str = '' if anno is None else unparseName(anno)
         return Arg(name=astArg.arg, typeHint=typeHint)
 
     @classmethod
     def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
         """Construct an Arg object from a Python ast.AnnAssign object"""
         return Arg(
-            name=unparseAnnotation(astAnnAssign.target),
-            typeHint=unparseAnnotation(astAnnAssign.annotation),
+            name=unparseName(astAnnAssign.target),
+            typeHint=unparseName(astAnnAssign.annotation),
         )
 
     @classmethod
@@ -113,12 +113,12 @@ class Arg:
         # >>>     "ghi",
         # >>> ]
         try:
-            hint1_: str = unparseAnnotation(ast.parse(stripQuotes(hint1)))
+            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))
         except SyntaxError:
             hint1_ = hint1
 
         try:
-            hint2_: str = unparseAnnotation(ast.parse(stripQuotes(hint2)))
+            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))
         except SyntaxError:
             hint2_ = hint2
 
@@ -221,9 +221,7 @@ class ArgList:
             elif isinstance(target, ast.Name):  # such as `a = 1` or `a = b = 2`
                 infoList.append(Arg(name=target.id, typeHint=''))
             elif isinstance(target, ast.Attribute):  # e.g., uvw.xyz = 1
-                infoList.append(
-                    Arg(name=unparseAnnotation(target), typeHint='')
-                )
+                infoList.append(Arg(name=unparseName(target), typeHint=''))
             else:
                 raise InternalError(
                     f'astAssign.targets[{i}] is of type {type(target)}'

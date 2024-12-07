@@ -2,9 +2,9 @@ import ast
 import json
 from typing import List, Optional
 
-from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.generic import stripQuotes
 from pydoclint.utils.internal_error import InternalError
+from pydoclint.utils.unparser_custom import unparseName
 
 
 class ReturnAnnotation:
@@ -57,7 +57,7 @@ class ReturnAnnotation:
 
             if isinstance(parsedBody0.value, ast.Tuple):  # like Tuple[int, str]
                 elts: List = parsedBody0.value.elts
-                return [unparseAnnotation(_) for _ in elts]
+                return [unparseName(_) for _ in elts]
 
             raise InternalError('decompose(): This should not have happened')
         else:

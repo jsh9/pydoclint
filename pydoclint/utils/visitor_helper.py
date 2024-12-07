@@ -3,7 +3,6 @@ import ast
 import sys
 from typing import List, Optional, Set
 
-from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.generic import (
@@ -16,6 +15,7 @@ from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.special_methods import checkIsPropertyMethod
+from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.yield_arg import YieldArg
 
@@ -170,7 +170,7 @@ def extractClassAttributesFromNode(
                 atl.append(
                     Arg(
                         name=itm.name,
-                        typeHint=unparseAnnotation(itm.returns),
+                        typeHint=unparseName(itm.returns),
                     )
                 )
 
@@ -482,15 +482,15 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 
         if hasGeneratorAsReturnAnnotation:
             if sys.version_info >= (3, 9):
-                yieldType = unparseAnnotation(
+                yieldType = unparseName(
                     ast.parse(returnAnnoText).body[0].value.slice.elts[0]
                 )
             else:
-                yieldType = unparseAnnotation(
+                yieldType = unparseName(
                     ast.parse(returnAnnoText).body[0].value.slice.value.elts[0]
                 )
         elif hasIteratorOrIterableAsReturnAnnotation:
-            yieldType = unparseAnnotation(
+            yieldType = unparseName(
                 ast.parse(returnAnnoText).body[0].value.slice
             )
         else:
@@ -510,11 +510,11 @@ def extractReturnTypeFromGenerator(returnAnnoText: str) -> str:
         # https://docs.python.org/3/library/typing.html#typing.Generator
         returnType: str
         if sys.version_info >= (3, 9):
-            returnType = unparseAnnotation(
+            returnType = unparseName(
                 ast.parse(returnAnnoText).body[0].value.slice.elts[-1]
             )
         else:
-            returnType = unparseAnnotation(
+            returnType = unparseName(
                 ast.parse(returnAnnoText).body[0].value.slice.value.elts[-1]
             )
     except Exception:

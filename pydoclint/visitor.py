@@ -1,7 +1,6 @@
 import ast
 from typing import List, Optional
 
-from pydoclint.utils.annotation import unparseAnnotation
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
@@ -31,6 +30,7 @@ from pydoclint.utils.special_methods import (
     checkIsAbstractMethod,
     checkIsPropertyMethod,
 )
+from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.visitor_helper import (
     addMismatchedRaisesExceptionViolation,
@@ -518,7 +518,7 @@ class Visitor(ast.NodeVisitor):
 
         if self.checkReturnTypes:
             if hasReturnAnno:
-                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+                returnAnno = ReturnAnnotation(unparseName(node.returns))
             else:
                 returnAnno = ReturnAnnotation(annotation=None)
 
@@ -611,7 +611,7 @@ class Visitor(ast.NodeVisitor):
         noGenNorIterAsRetAnno = not hasGenAsRetAnno and not hasIterAsRetAnno
 
         if hasGenAsRetAnno or hasIterAsRetAnno:
-            returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+            returnAnno = ReturnAnnotation(unparseName(node.returns))
         else:
             # We don't check other return annotations here, because they
             # are checked above, in `checkReturns()`.
@@ -718,7 +718,7 @@ class Visitor(ast.NodeVisitor):
         onlyHasYieldStmt: bool = hasYieldStmt and not hasReturnStmt
         hasReturnAnno: bool = hasReturnAnnotation(node)
 
-        returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+        returnAnno = ReturnAnnotation(unparseName(node.returns))
         returnSec: List[ReturnArg] = doc.returnSection
 
         # Check the return section in the docstring
@@ -770,7 +770,7 @@ class Visitor(ast.NodeVisitor):
                 violations.append(v402)
         else:
             if self.checkYieldTypes:
-                returnAnno = ReturnAnnotation(unparseAnnotation(node.returns))
+                returnAnno = ReturnAnnotation(unparseName(node.returns))
                 yieldSec: List[YieldArg] = doc.yieldSection
 
                 if hasGenAsRetAnno or hasIterAsRetAnno:
