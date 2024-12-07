@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unpublished]
+## [0.5.10] - 2024-12-07
 
 - Changed
   - Command line message about loading config file is now hidden with config
@@ -10,6 +10,7 @@
     crash
 - Changed
   - Renamed function `unparseAnnotation()` into `unparseNode()`
+  - Renamed `EdgeCaseError` into `EdgeCaseError`
 
 ## [0.5.9] - 2024-09-29
 

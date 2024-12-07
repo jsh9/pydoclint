@@ -2,8 +2,8 @@ import ast
 import json
 from typing import List, Optional
 
+from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import stripQuotes
-from pydoclint.utils.internal_error import InternalError
 from pydoclint.utils.unparser_custom import unparseName
 
 
@@ -34,15 +34,15 @@ class ReturnAnnotation:
 
         Raises
         ------
-        InternalError
+        EdgeCaseError
             When the annotation string has strange values
         """
         if self._isTuple():  # noqa: R506
             if not self.annotation.endswith(']'):
-                raise InternalError('Return annotation not ending with `]`')
+                raise EdgeCaseError('Return annotation not ending with `]`')
 
             if len(self.annotation) < 7:
-                raise InternalError(f'Impossible annotation {self.annotation}')
+                raise EdgeCaseError(f'Impossible annotation {self.annotation}')
 
             if self.annotation.lower() == 'tuple[]':
                 return []
@@ -59,7 +59,7 @@ class ReturnAnnotation:
                 elts: List = parsedBody0.value.elts
                 return [unparseName(_) for _ in elts]
 
-            raise InternalError('decompose(): This should not have happened')
+            raise EdgeCaseError('decompose(): This should not have happened')
         else:
             return self.putAnnotationInList()
 
