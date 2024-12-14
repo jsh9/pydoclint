@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.5.11] - 2024-12-14
+
+- Fixed
+
+  - Fixed a bug where pydoclint uses variable names instead of the exception
+    itself (https://github.com/jsh9/pydoclint/issues/175)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.11...0.5.10
+
 ## [0.5.10] - 2024-12-07
 
 - Changed
@@ -9,8 +19,12 @@
   - Fixed a bug where assigning a value to an attribute caused pydoclint to
     crash
 - Changed
+
   - Renamed function `unparseAnnotation()` into `unparseNode()`
   - Renamed `EdgeCaseError` into `EdgeCaseError`
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.9...0.5.10
 
 ## [0.5.9] - 2024-09-29
 

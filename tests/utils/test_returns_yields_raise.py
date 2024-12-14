@@ -440,6 +440,15 @@ def func15():
         x = 1
     except other.Exception:
         raise
+
+def func16():
+    # ensure that "as e" doesn't mess up getting the name of an exception.
+    try:
+        3 + 3
+    except IOError as e:
+        raise e
+    except (KeyError, IndexError) as e:
+        raise e
 """
 
 
@@ -466,6 +475,7 @@ def testHasRaiseStatements() -> None:
         (117, 0, 'func13'): True,
         (126, 0, 'func14'): True,
         (135, 0, 'func15'): True,
+        (141, 0, 'func16'): True,
     }
 
     assert result == expected
@@ -503,6 +513,7 @@ def testWhichRaiseStatements() -> None:
             'm.n.ValueError',
         ],
         (135, 0, 'func15'): ['other.Exception'],
+        (141, 0, 'func16'): ['IOError', 'IndexError', 'KeyError'],
     }
 
     assert result == expected
