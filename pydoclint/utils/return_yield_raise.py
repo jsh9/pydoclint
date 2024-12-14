@@ -145,9 +145,13 @@ def _getRaisedExceptions(
                         and currentParentExceptHandler.name
                         and subnode.id == currentParentExceptHandler.name
                     ):
-                        # case: "except <> as e; raise e" -> we must yield the stuff in <>
-                        # note that if subnode.id != currentParentExceptHandler.name, then the user is raising something not bound by
-                        # this exception handler (meaning we should fall through to yielding the subnode.id)
+                        # case: "except <> as e; raise e" -> we must yield the
+                        # stuff in <>
+                        #
+                        # Note: if subnode.id != currentParentExceptHandler.name,
+                        # the user is raising something not bound by
+                        # this exception handler (meaning we should fall
+                        # through to yielding the subnode.id)
                         yield from _extractExceptionsFromExcept(
                             currentParentExceptHandler
                         )
