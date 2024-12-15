@@ -4,6 +4,8 @@
 
 - Changed
   - Dropped support for Python 3.8
+- Added
+  - Added static type checking using `mypy`
 
 ## [0.5.11] - 2024-12-14
 
