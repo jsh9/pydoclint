@@ -30,7 +30,7 @@ class ReturnAnnotation:
 
         Returns
         -------
-        List[str]
+        list[str]
             The decomposed element
 
         Raises

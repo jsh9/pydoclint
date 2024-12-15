@@ -375,7 +375,7 @@ class Visitor(ast.NodeVisitor):
 
         Returns
         -------
-        List[Violation]
+        list[Violation]
             A list of argument violations
         """
         astArgList: list[ast.arg] = collectFuncArgs(node)
