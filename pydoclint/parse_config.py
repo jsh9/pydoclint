@@ -87,10 +87,10 @@ def findCommonParentFolder(
         makeAbsolute: bool = True,  # allow makeAbsolute=False just for testing
 ) -> Path:
     """Find the common parent folder of the given ``paths``"""
-    paths = [Path(path) for path in paths]
+    paths_: Sequence[Path] = [Path(path) for path in paths]
 
-    common_parent = paths[0]
-    for path in paths[1:]:
+    common_parent = paths_[0]
+    for path in paths_[1:]:
         if len(common_parent.parts) > len(path.parts):
             common_parent, path = path, common_parent
 
