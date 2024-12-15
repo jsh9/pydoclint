@@ -356,7 +356,7 @@ def checkReturnTypesForNumpyStyle(
     returnAnnoItems: list[str] = returnAnnotation.decompose()
     returnAnnoInList: list[str] = returnAnnotation.putAnnotationInList()
 
-    returnSecTypes: List[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]
+    returnSecTypes: list[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]
 
     if returnAnnoInList != returnSecTypes:
         if len(returnAnnoItems) != len(returnSection):

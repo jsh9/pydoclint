@@ -122,7 +122,7 @@ class Visitor(ast.NodeVisitor):
         self.parent = currentParent  # restore
 
     def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102
-        parent_: Union[ast.ClassDef, FuncOrAsyncFuncDef] = self.parent  # type:ignore[assignment]
+        parent_: ast.ClassDef | FuncOrAsyncFuncDef = self.parent  # type:ignore[assignment]
         self.parent = node
 
         isClassConstructor: bool = node.name == '__init__' and isinstance(
