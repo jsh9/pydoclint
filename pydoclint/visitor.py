@@ -1,5 +1,5 @@
 import ast
-from typing import List, Union
+from typing import List, Optional, Union
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
@@ -620,7 +620,8 @@ class Visitor(ast.NodeVisitor):
             returnAnno = ReturnAnnotation(None)
 
         if not docstringHasYieldsSection:
-            yieldType: str = extractYieldTypeFromGeneratorOrIteratorAnnotation(
+            extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
+            yieldType: Optional[str] = extract(
                 returnAnnoText=returnAnno.annotation,
                 hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
@@ -724,7 +725,7 @@ class Visitor(ast.NodeVisitor):
         returnSec: List[ReturnArg] = doc.returnSection
 
         # Check the return section in the docstring
-        retTypeInGenerator: str
+        retTypeInGenerator: Optional[str]
         if not docstringHasReturnSection:
             if doc.isShortDocstring and self.skipCheckingShortDocstrings:
                 pass
@@ -778,7 +779,7 @@ class Visitor(ast.NodeVisitor):
 
                 if hasGenAsRetAnno or hasIterAsRetAnno:
                     extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-                    yieldType: str = extract(
+                    yieldType: Optional[str] = extract(
                         returnAnnoText=returnAnno.annotation,
                         hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                         hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,

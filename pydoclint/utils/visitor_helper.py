@@ -170,7 +170,7 @@ def extractClassAttributesFromNode(
                 atl.append(
                     Arg(
                         name=itm.name,
-                        typeHint=unparseName(itm.returns),
+                        typeHint=unparseName(itm.returns),  # type:ignore[arg-type]
                     )
                 )
 
@@ -355,7 +355,7 @@ def checkReturnTypesForNumpyStyle(
     returnAnnoItems: List[str] = returnAnnotation.decompose()
     returnAnnoInList: List[str] = returnAnnotation.putAnnotationInList()
 
-    returnSecTypes: List[str] = [stripQuotes(_.argType) for _ in returnSection]
+    returnSecTypes: List[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]
 
     if returnAnnoInList != returnSecTypes:
         if len(returnAnnoItems) != len(returnSection):
@@ -389,7 +389,7 @@ def checkReturnTypesForGoogleOrSphinxStyle(
     # use one compound style for tuples.
 
     if len(returnSection) > 0:
-        retArgType: str = stripQuotes(returnSection[0].argType)
+        retArgType: str = stripQuotes(returnSection[0].argType)  # type:ignore[assignment]
         if returnAnnotation.annotation is None:
             msg = 'Return annotation has 0 type(s); docstring'
             msg += ' return section has 1 type(s).'
@@ -426,7 +426,9 @@ def checkYieldTypesForViolations(
     # to check and less ambiguous.
 
     returnAnnoText: Optional[str] = returnAnnotation.annotation
-    yieldType: str = extractYieldTypeFromGeneratorOrIteratorAnnotation(
+
+    extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
+    yieldType: Optional[str] = extract(
         returnAnnoText,
         hasGeneratorAsReturnAnnotation,
         hasIteratorOrIterableAsReturnAnnotation,
@@ -470,20 +472,21 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText: Optional[str],
         hasGeneratorAsReturnAnnotation: bool,
         hasIteratorOrIterableAsReturnAnnotation: bool,
-) -> str:
+) -> Optional[str]:
     """Extract yield type from Generator or Iterator annotations"""
-    try:
-        # "Yield type" is the 0th element in a Generator
-        # type annotation (Generator[YieldType, SendType,
-        # ReturnType])
-        # https://docs.python.org/3/library/typing.html#typing.Generator
-        # Or it's the 0th (only) element in Iterator
-        yieldType: str
 
+    # "Yield type" is the 0th element in a Generator
+    # type annotation (Generator[YieldType, SendType,
+    # ReturnType])
+    # https://docs.python.org/3/library/typing.html#typing.Generator
+    # Or it's the 0th (only) element in Iterator
+    yieldType: Optional[str]
+
+    try:
         if hasGeneratorAsReturnAnnotation:
             if sys.version_info >= (3, 9):
                 yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]
+                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]
                 )
             else:
                 yieldType = unparseName(
@@ -491,7 +494,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
                 )
         elif hasIteratorOrIterableAsReturnAnnotation:
             yieldType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice
+                ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
             )
         else:
             yieldType = returnAnnoText
@@ -501,17 +504,20 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     return stripQuotes(yieldType)
 
 
-def extractReturnTypeFromGenerator(returnAnnoText: Optional[str]) -> str:
+def extractReturnTypeFromGenerator(
+        returnAnnoText: Optional[str],
+) -> Optional[str]:
     """Extract return type from Generator annotations"""
+
+    # "Return type" is the last element in a Generator
+    # type annotation (Generator[YieldType, SendType,
+    # ReturnType])
+    # https://docs.python.org/3/library/typing.html#typing.Generator
+    returnType: Optional[str]
     try:
-        # "Return type" is the last element in a Generator
-        # type annotation (Generator[YieldType, SendType,
-        # ReturnType])
-        # https://docs.python.org/3/library/typing.html#typing.Generator
-        returnType: str
         if sys.version_info >= (3, 9):
             returnType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice.elts[-1]
+                ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
             )
         else:
             returnType = unparseName(
