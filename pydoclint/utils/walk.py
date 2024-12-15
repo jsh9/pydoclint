@@ -17,29 +17,33 @@ This `ast.iter_fields()` function comes from:
 """
 import ast
 from collections import deque
+from typing import Deque, Generator, Tuple
 
 
-def walk(node):
+def walk(node: ast.AST) -> Generator[Tuple[ast.AST, ast.AST], None, None]:
     """
     Recursively yield all descendant nodes in the tree starting at *node*
     (including *node* itself), in no specified order.  This is useful if you
     only want to modify nodes in place and don't care about the context.
     """
-    todo = deque([(node, None)])
+    emptyNode: ast.AST = ast.Pass()
+    todo: Deque[Tuple[ast.AST, ast.AST]] = deque([(node, emptyNode)])
     while todo:
         node, parent = todo.popleft()
         todo.extend(iter_child_nodes(node))
         yield node, parent
 
 
-def walk_dfs(node):
+def walk_dfs(node: ast.AST) -> Generator[Tuple[ast.AST, ast.AST], None, None]:
     """Depth-first traversal of AST. Modified from `walk()` in this file"""
     for child, parent in iter_child_nodes(node):
         yield child, parent
         yield from walk_dfs(child)
 
 
-def iter_child_nodes(node):
+def iter_child_nodes(
+        node: ast.AST,
+) -> Generator[Tuple[ast.AST, ast.AST], None, None]:
     """
     Yield all direct child nodes of *node*, that is, all fields that are nodes
     and all items of fields that are lists of nodes.

@@ -38,6 +38,8 @@ class ReturnAnnotation:
             When the annotation string has strange values
         """
         if self._isTuple():  # noqa: R506
+            assert self.annotation is not None  # to help mypy understand type
+
             if not self.annotation.endswith(']'):
                 raise EdgeCaseError('Return annotation not ending with `]`')
 
@@ -49,15 +51,16 @@ class ReturnAnnotation:
 
             insideTuple: str = self.annotation[6:-1]
             if insideTuple.endswith('...'):  # like this: Tuple[int, ...]
-                return [self.annotation]  # b/c we don't know the tuple's length
+                # because we don't know the tuple's length
+                return [self.annotation]
 
-            parsedBody0: ast.Expr = ast.parse(insideTuple).body[0]
+            parsedBody0: ast.Expr = ast.parse(insideTuple).body[0]  # type:ignore[assignment]
             if isinstance(parsedBody0.value, ast.Name):  # like this: Tuple[int]
                 return [insideTuple]
 
             if isinstance(parsedBody0.value, ast.Tuple):  # like Tuple[int, str]
-                elts: List = parsedBody0.value.elts
-                return [unparseName(_) for _ in elts]
+                elts: List[ast.expr] = parsedBody0.value.elts
+                return [unparseName(_) for _ in elts]  # type:ignore[misc]
 
             raise EdgeCaseError('decompose(): This should not have happened')
         else:
@@ -65,7 +68,8 @@ class ReturnAnnotation:
 
     def _isTuple(self) -> bool:
         try:
-            annoHead = ast.parse(self.annotation).body[0].value.value.id
+            assert self.annotation is not None  # to help mypy understand type
+            annoHead = ast.parse(self.annotation).body[0].value.value.id  # type:ignore[attr-defined]
             return annoHead in {'tuple', 'Tuple'}
         except Exception:
             return False

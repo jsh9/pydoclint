@@ -3,7 +3,6 @@ import re
 import sys
 from typing import Optional, Union
 
-from pydoclint.utils.astTypes import AnnotationType
 from pydoclint.utils.edge_case_error import EdgeCaseError
 
 
@@ -32,7 +31,7 @@ else:  # python 3.8
 
 
 def unparseName(
-        node: Union[AnnotationType, ast.Module, None],
+        node: Union[ast.expr, ast.Module, None],
 ) -> Optional[str]:
     """Parse type annotations from argument list or return annotation."""
     if node is None:

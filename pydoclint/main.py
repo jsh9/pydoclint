@@ -362,7 +362,7 @@ def main(  # noqa: C901
         ctx.exit(1)
 
     # it means users supply this option
-    if require_return_section_when_returning_none != 'None':
+    if require_return_section_when_returning_none != 'None':  # type:ignore[comparison-overlap]
         click.echo(
             click.style(
                 ''.join([

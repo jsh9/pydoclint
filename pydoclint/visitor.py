@@ -1,5 +1,5 @@
 import ast
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
@@ -90,10 +90,10 @@ class Visitor(ast.NodeVisitor):
             requireYieldSectionWhenYieldingNothing
         )
 
-        self.parent: Optional[ast.AST] = None  # keep track of parent node
+        self.parent: ast.AST = ast.Pass()  # keep track of parent node
         self.violations: List[Violation] = []
 
-    def visit_ClassDef(self, node: ast.ClassDef):  # noqa: D102
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: D102
         currentParent = self.parent  # keep aside
         self.parent = node
 
@@ -120,8 +120,8 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = currentParent  # restore
 
-    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):  # noqa: D102
-        parent_ = self.parent  # keep aside
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102
+        parent_: Union[ast.ClassDef, FuncOrAsyncFuncDef] = self.parent  # type:ignore[assignment]
         self.parent = node
 
         isClassConstructor: bool = node.name == '__init__' and isinstance(
@@ -133,6 +133,7 @@ class Visitor(ast.NodeVisitor):
         self.isAbstractMethod = checkIsAbstractMethod(node)
 
         if isClassConstructor:
+            assert isinstance(parent_, ast.ClassDef)  # to help mypy know type
             docstring = self._checkClassDocstringAndConstructorDocstrings(
                 node=node,
                 parent_=parent_,
@@ -205,7 +206,8 @@ class Visitor(ast.NodeVisitor):
                 # different for class constructors.
                 returnViolations = (
                     self.checkReturnsAndYieldsInClassConstructor(
-                        parent=parent_, doc=doc
+                        parent=parent_,  # type: ignore[arg-type]
+                        doc=doc,
                     )
                 )
 
@@ -218,11 +220,11 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = parent_  # restore
 
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):  # noqa: D102
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:  # noqa: D102
         # Treat async functions similarly to regular ones
         self.visit_FunctionDef(node)
 
-    def visit_Raise(self, node: ast.Raise):  # noqa: D102
+    def visit_Raise(self, node: ast.Raise) -> None:  # noqa: D102
         self.generic_visit(node)
 
     def _checkClassDocstringAndConstructorDocstrings(  # noqa: C901
@@ -618,7 +620,8 @@ class Visitor(ast.NodeVisitor):
             returnAnno = ReturnAnnotation(None)
 
         if not docstringHasYieldsSection:
-            yieldType: str = extractYieldTypeFromGeneratorOrIteratorAnnotation(
+            extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
+            yieldType: Optional[str] = extract(
                 returnAnnoText=returnAnno.annotation,
                 hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
@@ -722,6 +725,7 @@ class Visitor(ast.NodeVisitor):
         returnSec: List[ReturnArg] = doc.returnSection
 
         # Check the return section in the docstring
+        retTypeInGenerator: Optional[str]
         if not docstringHasReturnSection:
             if doc.isShortDocstring and self.skipCheckingShortDocstrings:
                 pass
@@ -735,7 +739,7 @@ class Visitor(ast.NodeVisitor):
 
                     # fmt: on
                 ):
-                    retTypeInGenerator: str = extractReturnTypeFromGenerator(
+                    retTypeInGenerator = extractReturnTypeFromGenerator(
                         returnAnnoText=returnAnno.annotation,
                     )
                     # If "Generator[...]" is put in the return type annotation,
@@ -748,7 +752,7 @@ class Visitor(ast.NodeVisitor):
         else:
             if self.checkReturnTypes:
                 if hasGenAsRetAnno:
-                    retTypeInGenerator: str = extractReturnTypeFromGenerator(
+                    retTypeInGenerator = extractReturnTypeFromGenerator(
                         returnAnnoText=returnAnno.annotation,
                     )
                     checkReturnTypesForViolations(
@@ -775,7 +779,7 @@ class Visitor(ast.NodeVisitor):
 
                 if hasGenAsRetAnno or hasIterAsRetAnno:
                     extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-                    yieldType: str = extract(
+                    yieldType: Optional[str] = extract(
                         returnAnnoText=returnAnno.annotation,
                         hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                         hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,

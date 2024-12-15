@@ -1,5 +1,5 @@
 import pprint
-from typing import Any, List
+from typing import Any, List, Optional, Union
 
 from docstring_parser.common import (
     Docstring,
@@ -23,6 +23,7 @@ class Doc:
         self.docstring = docstring
         self.style = style
 
+        parser: Union[NumpydocParser, GoogleParser]
         if style == 'numpy':
             parser = NumpydocParser()
             self.parsed = parser.parse(docstring)
@@ -38,7 +39,7 @@ class Doc:
         return pprint.pformat(self.__dict__, indent=2)
 
     @property
-    def isShortDocstring(self) -> bool:
+    def isShortDocstring(self) -> bool:  # type:ignore[return]
         """Is the docstring a short one (containing only a summary)"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             # API documentation:
@@ -60,7 +61,7 @@ class Doc:
         self._raiseException()  # noqa: R503
 
     @property
-    def argList(self) -> ArgList:
+    def argList(self) -> ArgList:  # type:ignore[return]
         """The argument info in the docstring, presented as an ArgList"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringParam(self.parsed.params)
@@ -68,7 +69,7 @@ class Doc:
         self._raiseException()  # noqa: R503
 
     @property
-    def attrList(self) -> ArgList:
+    def attrList(self) -> ArgList:  # type:ignore[return]
         """The attributes info in the docstring, presented as an ArgList"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringAttr(self.parsed.attrs)
@@ -76,16 +77,16 @@ class Doc:
         self._raiseException()  # noqa: R503
 
     @property
-    def hasReturnsSection(self) -> bool:
+    def hasReturnsSection(self) -> bool:  # type:ignore[return]
         """Whether the docstring has a 'Returns' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
-            retSection: DocstringReturns = self.parsed.returns
+            retSection: Optional[DocstringReturns] = self.parsed.returns
             return retSection is not None and not retSection.is_generator
 
         self._raiseException()  # noqa: R503
 
     @property
-    def hasYieldsSection(self) -> bool:
+    def hasYieldsSection(self) -> bool:  # type:ignore[return]
         """Whether the docstring has a 'Yields' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             yieldSection: DocstringYields = self.parsed.yields
@@ -94,7 +95,7 @@ class Doc:
         self._raiseException()  # noqa: R503
 
     @property
-    def hasRaisesSection(self) -> bool:
+    def hasRaisesSection(self) -> bool:  # type:ignore[return]
         """Whether the docstring has a 'Raises' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return len(self.parsed.raises) > 0
