@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from itertools import groupby
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
 
 from pydoclint.utils.violation import Violation
 
@@ -10,7 +11,7 @@ INDENT = ' ' * LEN_INDENT
 
 
 def generateBaseline(
-        violationsInAllFiles: Dict[str, List[Violation]], path: Path
+        violationsInAllFiles: dict[str, list[Violation]], path: Path
 ) -> None:
     """Generate baseline file based of passed violations."""
     with path.open('w', encoding='utf-8') as baseline:
@@ -23,7 +24,7 @@ def generateBaseline(
                 baseline.write(f'{SEPARATOR}')
 
 
-def parseBaseline(path: Path) -> Dict[str, Set[str]]:
+def parseBaseline(path: Path) -> dict[str, set[str]]:
     """Parse baseline file."""
     with path.open('r', encoding='utf-8') as baseline:
         parsed: dict[str, set[str]] = {}
@@ -41,15 +42,15 @@ def parseBaseline(path: Path) -> Dict[str, Set[str]]:
 
 
 def removeBaselineViolations(
-        baseline: Dict[str, Set[str]],
-        violationsInAllFiles: Dict[str, List[Violation]],
-) -> Tuple[bool, Dict[str, List[Violation]]]:
+        baseline: dict[str, set[str]],
+        violationsInAllFiles: dict[str, list[Violation]],
+) -> tuple[bool, dict[str, list[Violation]]]:
     """
     Remove from the violation dictionary the already existing violations
     specified in the baseline file.
     """
     baselineRegenerationNeeded = False
-    clearedViolationsAllFiles: Dict[str, List[Violation]] = {}
+    clearedViolationsAllFiles: dict[str, list[Violation]] = {}
     for file, violations in violationsInAllFiles.items():
         if oldViolations := baseline.get(file):
             newViolations = []

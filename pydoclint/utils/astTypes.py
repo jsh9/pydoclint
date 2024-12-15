@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 import ast
 import sys
-from typing import Union
 
-FuncOrAsyncFuncDef = Union[ast.AsyncFunctionDef, ast.FunctionDef]
-ClassOrFunctionDef = Union[ast.ClassDef, ast.AsyncFunctionDef, ast.FunctionDef]
+FuncOrAsyncFuncDef = ast.AsyncFunctionDef | ast.FunctionDef
+ClassOrFunctionDef = ast.ClassDef | ast.AsyncFunctionDef | ast.FunctionDef
 
 LegacyBlockTypes = [
     ast.If,
