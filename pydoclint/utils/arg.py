@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import ast
-from typing import List, Optional, Set
 
 from docstring_parser.common import DocstringAttr, DocstringParam
 
@@ -84,8 +85,8 @@ class Arg:
     @classmethod
     def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
         """Construct an Arg object from a Python AST argument object"""
-        anno: Optional[ast.expr] = astArg.annotation
-        typeHint: Optional[str] = '' if anno is None else unparseName(anno)
+        anno: ast.expr | None = astArg.annotation
+        typeHint: str | None = '' if anno is None else unparseName(anno)
         assert typeHint is not None  # to help mypy better understand type
         return Arg(name=astArg.arg, typeHint=typeHint)
 
@@ -102,7 +103,7 @@ class Arg:
         return Arg(name=unparsedArgName, typeHint=unparsedTypeHint)
 
     @classmethod
-    def _str(cls, typeName: Optional[str]) -> str:
+    def _str(cls, typeName: str | None) -> str:
         return '' if typeName is None else typeName
 
     @classmethod
@@ -148,7 +149,7 @@ class ArgList:
     equality, length calculation, etc.
     """
 
-    def __init__(self, infoList: List[Arg]):
+    def __init__(self, infoList: list[Arg]) -> None:
         if not all(isinstance(_, Arg) for _ in infoList):
             raise TypeError('All elements of `infoList` must be Arg.')
 
@@ -186,7 +187,7 @@ class ArgList:
         return len(self.infoList)
 
     @classmethod
-    def fromDocstringParam(cls, params: List[DocstringParam]) -> 'ArgList':
+    def fromDocstringParam(cls, params: list[DocstringParam]) -> 'ArgList':
         """Construct an ArgList from a list of DocstringParam objects"""
         infoList = [
             Arg.fromDocstringParam(_)
@@ -198,7 +199,7 @@ class ArgList:
     @classmethod
     def fromDocstringAttr(
             cls,
-            params: List[DocstringAttr],
+            params: list[DocstringAttr],
     ) -> 'ArgList':
         """Construct an ArgList from a list of DocstringAttr objects"""
         infoList = [
@@ -212,7 +213,7 @@ class ArgList:
     @classmethod
     def fromAstAssign(cls, astAssign: ast.Assign) -> 'ArgList':
         """Construct an ArgList from variable declaration/assignment"""
-        infoList: List[Arg] = []
+        infoList: list[Arg] = []
         for i, target in enumerate(astAssign.targets):
             if isinstance(target, ast.Tuple):  # such as `a, b = c, d = 1, 2`
                 for j, item in enumerate(target.elts):
@@ -226,7 +227,7 @@ class ArgList:
             elif isinstance(target, ast.Name):  # such as `a = 1` or `a = b = 2`
                 infoList.append(Arg(name=target.id, typeHint=''))
             elif isinstance(target, ast.Attribute):  # e.g., uvw.xyz = 1
-                unparsedTarget: Optional[str] = unparseName(target)
+                unparsedTarget: str | None = unparseName(target)
                 assert unparsedTarget is not None  # to help mypy understand type
                 infoList.append(Arg(name=unparsedTarget, typeHint=''))
             else:
@@ -295,13 +296,13 @@ class ArgList:
 
         return verdict  # noqa: R504
 
-    def findArgsWithDifferentTypeHints(self, other: 'ArgList') -> List[Arg]:
+    def findArgsWithDifferentTypeHints(self, other: 'ArgList') -> list[Arg]:
         """Find args with unmatched type hints."""
         if not self.equals(other, checkTypeHint=False, orderMatters=False):
             msg = 'These 2 arg lists do not have the same arg names'
             raise EdgeCaseError(msg)
 
-        result: List[Arg] = []
+        result: list[Arg] = []
         for selfArg in self.infoList:
             selfArgTypeHint: str = selfArg.typeHint
             otherArgTypeHint: str = other.lookup[selfArg.name]
@@ -314,7 +315,7 @@ class ArgList:
             self,
             other: 'ArgList',
             checkTypeHint: bool = True,
-    ) -> Set[Arg]:
+    ) -> set[Arg]:
         """Find the args that are in this object but not in `other`."""
         if checkTypeHint:
             return set(self.infoList) - set(other.infoList)

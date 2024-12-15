@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import ast
-from typing import List, Optional, Union
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
@@ -91,7 +92,7 @@ class Visitor(ast.NodeVisitor):
         )
 
         self.parent: ast.AST = ast.Pass()  # keep track of parent node
-        self.violations: List[Violation] = []
+        self.violations: list[Violation] = []
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:  # noqa: D102
         currentParent = self.parent  # keep aside
@@ -121,7 +122,7 @@ class Visitor(ast.NodeVisitor):
         self.parent = currentParent  # restore
 
     def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102
-        parent_: Union[ast.ClassDef, FuncOrAsyncFuncDef] = self.parent  # type:ignore[assignment]
+        parent_: ast.ClassDef | FuncOrAsyncFuncDef = self.parent  # type:ignore[assignment]
         self.parent = node
 
         isClassConstructor: bool = node.name == '__init__' and isinstance(
@@ -140,10 +141,10 @@ class Visitor(ast.NodeVisitor):
                 initDocstring=docstring,
             )
 
-        argViolations: List[Violation]
-        returnViolations: List[Violation]
-        yieldViolations: List[Violation]
-        raiseViolations: List[Violation]
+        argViolations: list[Violation]
+        returnViolations: list[Violation]
+        yieldViolations: list[Violation]
+        raiseViolations: list[Violation]
 
         if docstring == '':
             # We don't check functions without docstrings.
@@ -357,7 +358,7 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
             doc: Doc,
-    ) -> List[Violation]:
+    ) -> list[Violation]:
         """
         Check input arguments of the function.
 
@@ -374,10 +375,10 @@ class Visitor(ast.NodeVisitor):
 
         Returns
         -------
-        List[Violation]
+        list[Violation]
             A list of argument violations
         """
-        astArgList: List[ast.arg] = collectFuncArgs(node)
+        astArgList: list[ast.arg] = collectFuncArgs(node)
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)
         msgPrefix: str = generateFuncMsgPrefix(node, parent_, appendColon=True)
@@ -414,7 +415,7 @@ class Visitor(ast.NodeVisitor):
         if docArgs.length == 0 and funcArgs.length == 0:
             return []
 
-        violations: List[Violation] = []
+        violations: list[Violation] = []
 
         checkDocArgsLengthAgainstActualArgs(
             docArgs=docArgs,
@@ -473,7 +474,7 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
-    ) -> List[Violation]:
+    ) -> list[Violation]:
         """Check return statement & return type annotation of this function"""
         lineNum: int = node.lineno
         msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
@@ -492,7 +493,7 @@ class Visitor(ast.NodeVisitor):
 
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
-        violations: List[Violation] = []
+        violations: list[Violation] = []
         if not docstringHasReturnSection and not isPropertyMethod:
             if (
                 # fmt: off
@@ -525,7 +526,7 @@ class Visitor(ast.NodeVisitor):
                 returnAnno = ReturnAnnotation(annotation=None)
 
             if docstringHasReturnSection:
-                returnSec: List[ReturnArg] = doc.returnSection
+                returnSec: list[ReturnArg] = doc.returnSection
             else:
                 returnSec = []
 
@@ -566,9 +567,9 @@ class Visitor(ast.NodeVisitor):
             cls,
             parent: ast.ClassDef,
             doc: Doc,
-    ) -> List[Violation]:
+    ) -> list[Violation]:
         """Check the presence of a Returns/Yields section in class docstring"""
-        violations: List[Violation] = []
+        violations: list[Violation] = []
         if doc.hasReturnsSection:
             violations.append(
                 Violation(
@@ -594,9 +595,9 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
-    ) -> List[Violation]:
+    ) -> list[Violation]:
         """Check violations on 'yield' statements or 'Generator' annotation"""
-        violations: List[Violation] = []
+        violations: list[Violation] = []
 
         lineNum: int = node.lineno
         msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
@@ -621,7 +622,7 @@ class Visitor(ast.NodeVisitor):
 
         if not docstringHasYieldsSection:
             extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-            yieldType: Optional[str] = extract(
+            yieldType: str | None = extract(
                 returnAnnoText=returnAnno.annotation,
                 hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
@@ -645,7 +646,7 @@ class Visitor(ast.NodeVisitor):
 
         if hasYieldStmt and self.checkYieldTypes:
             if docstringHasYieldsSection:
-                yieldSec: List[YieldArg] = doc.yieldSection
+                yieldSec: list[YieldArg] = doc.yieldSection
             else:
                 yieldSec = []
 
@@ -668,7 +669,7 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
-    ) -> List[Violation]:
+    ) -> list[Violation]:
         """
         Check violations when a function has both `return` and `yield`
         statements in it.
@@ -699,7 +700,7 @@ class Visitor(ast.NodeVisitor):
         # Just a sanity check:
         assert (hasYieldStatements(node) and hasReturnStatements(node)) is True
 
-        violations: List[Violation] = []
+        violations: list[Violation] = []
 
         lineNum: int = node.lineno
         msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
@@ -722,10 +723,10 @@ class Visitor(ast.NodeVisitor):
         hasReturnAnno: bool = hasReturnAnnotation(node)
 
         returnAnno = ReturnAnnotation(unparseName(node.returns))
-        returnSec: List[ReturnArg] = doc.returnSection
+        returnSec: list[ReturnArg] = doc.returnSection
 
         # Check the return section in the docstring
-        retTypeInGenerator: Optional[str]
+        retTypeInGenerator: str | None
         if not docstringHasReturnSection:
             if doc.isShortDocstring and self.skipCheckingShortDocstrings:
                 pass
@@ -775,11 +776,11 @@ class Visitor(ast.NodeVisitor):
         else:
             if self.checkYieldTypes:
                 returnAnno = ReturnAnnotation(unparseName(node.returns))
-                yieldSec: List[YieldArg] = doc.yieldSection
+                yieldSec: list[YieldArg] = doc.yieldSection
 
                 if hasGenAsRetAnno or hasIterAsRetAnno:
                     extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-                    yieldType: Optional[str] = extract(
+                    yieldType: str | None = extract(
                         returnAnnoText=returnAnno.annotation,
                         hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                         hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
@@ -808,9 +809,9 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
-    ) -> List[Violation]:
+    ) -> list[Violation]:
         """Check violations on 'raise' statements"""
-        violations: List[Violation] = []
+        violations: list[Violation] = []
 
         lineNum: int = node.lineno
         msgPrefix = generateFuncMsgPrefix(node, parent, appendColon=False)
@@ -831,7 +832,7 @@ class Visitor(ast.NodeVisitor):
 
         # check that the raise statements match those in body.
         if hasRaiseStmt:
-            docRaises: List[str] = []
+            docRaises: list[str] = []
 
             for raises in doc.parsed.raises:
                 if raises.type_name:

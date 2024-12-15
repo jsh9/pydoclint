@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import ast
 import json
-from typing import List, Optional
 
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import stripQuotes
@@ -10,8 +11,8 @@ from pydoclint.utils.unparser_custom import unparseName
 class ReturnAnnotation:
     """A class to hold the return annotation in a function's signature"""
 
-    def __init__(self, annotation: Optional[str]) -> None:
-        self.annotation: Optional[str] = stripQuotes(annotation)
+    def __init__(self, annotation: str | None) -> None:
+        self.annotation: str | None = stripQuotes(annotation)
 
     def __str__(self) -> str:
         return f'ReturnAnnotation(annotation={json.dumps(self.annotation)})'
@@ -19,7 +20,7 @@ class ReturnAnnotation:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def decompose(self) -> List[str]:
+    def decompose(self) -> list[str]:
         """
         Numpy style allows decomposing the returning tuple into individual
         element.  For example, if the return annotation is `Tuple[int, bool]`,
@@ -29,7 +30,7 @@ class ReturnAnnotation:
 
         Returns
         -------
-        List[str]
+        list[str]
             The decomposed element
 
         Raises
@@ -59,7 +60,7 @@ class ReturnAnnotation:
                 return [insideTuple]
 
             if isinstance(parsedBody0.value, ast.Tuple):  # like Tuple[int, str]
-                elts: List[ast.expr] = parsedBody0.value.elts
+                elts: list[ast.expr] = parsedBody0.value.elts
                 return [unparseName(_) for _ in elts]  # type:ignore[misc]
 
             raise EdgeCaseError('decompose(): This should not have happened')
@@ -74,6 +75,6 @@ class ReturnAnnotation:
         except Exception:
             return False
 
-    def putAnnotationInList(self) -> List[str]:
+    def putAnnotationInList(self) -> list[str]:
         """Put annotation string in a list"""
         return [] if self.annotation is None else [self.annotation]

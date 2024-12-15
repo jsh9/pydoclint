@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import ast
 import re
 import sys
-from typing import Optional, Union
 
 from pydoclint.utils.edge_case_error import EdgeCaseError
 
@@ -31,8 +32,8 @@ else:  # python 3.8
 
 
 def unparseName(
-        node: Union[ast.expr, ast.Module, None],
-) -> Optional[str]:
+        node: ast.expr | ast.Module | None,
+) -> str | None:
     """Parse type annotations from argument list or return annotation."""
     if node is None:
         return None

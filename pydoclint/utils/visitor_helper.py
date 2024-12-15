@@ -1,7 +1,8 @@
 """Helper functions to classes/methods in visitor.py"""
+from __future__ import annotations
+
 import ast
 import sys
-from typing import List, Optional, Set
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.doc import Doc
@@ -30,7 +31,7 @@ def checkClassAttributesAgainstClassDocstring(
         *,
         node: ast.ClassDef,
         style: str,
-        violations: List[Violation],
+        violations: list[Violation],
         lineNum: int,
         msgPrefix: str,
         shouldCheckArgOrder: bool,
@@ -153,7 +154,7 @@ def extractClassAttributesFromNode(
     if 'body' not in node.__dict__ or len(node.body) == 0:
         return ArgList([])
 
-    atl: List[Arg] = []
+    atl: list[Arg] = []
     for itm in node.body:
         if isinstance(itm, ast.AnnAssign):  # with type hints ("a: int = 1")
             atl.append(Arg.fromAstAnnAssign(itm))
@@ -184,7 +185,7 @@ def checkDocArgsLengthAgainstActualArgs(
         *,
         docArgs: ArgList,
         actualArgs: ArgList,
-        violations: List[Violation],
+        violations: list[Violation],
         violationForDocArgsLengthShorter: Violation,  # such as V101, V601
         violationForDocArgsLengthLonger: Violation,  # such as V102, V602
 ) -> None:
@@ -200,7 +201,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
         *,
         docArgs: ArgList,
         actualArgs: ArgList,
-        violations: List[Violation],
+        violations: list[Violation],
         actualArgsAreClassAttributes: bool,
         violationForOrderMismatch: Violation,  # such as V104, V604
         violationForTypeHintMismatch: Violation,  # such as V105, V605
@@ -250,16 +251,16 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
             violations.append(violationForOrderMismatch)
             violations.append(v105new)
         else:
-            argsInFuncNotInDoc: Set[Arg] = actualArgs.subtract(
+            argsInFuncNotInDoc: set[Arg] = actualArgs.subtract(
                 docArgs,
                 checkTypeHint=False,
             )
-            argsInDocNotInFunc: Set[Arg] = docArgs.subtract(
+            argsInDocNotInFunc: set[Arg] = docArgs.subtract(
                 actualArgs,
                 checkTypeHint=False,
             )
 
-            msgPostfixParts: List[str] = []
+            msgPostfixParts: list[str] = []
 
             string0 = (
                 'Attributes in the class definition but not in the'
@@ -304,8 +305,8 @@ def checkReturnTypesForViolations(
         *,
         style: str,
         returnAnnotation: ReturnAnnotation,
-        violationList: List[Violation],
-        returnSection: List[ReturnArg],
+        violationList: list[Violation],
+        returnSection: list[ReturnArg],
         violation: Violation,
 ) -> None:
     """Check return types between function signature and docstring"""
@@ -328,8 +329,8 @@ def checkReturnTypesForViolations(
 def checkReturnTypesForNumpyStyle(
         *,
         returnAnnotation: ReturnAnnotation,
-        violationList: List[Violation],
-        returnSection: List[ReturnArg],
+        violationList: list[Violation],
+        returnSection: list[ReturnArg],
         violation: Violation,
 ) -> None:
     """Check return types for numpy docstring style"""
@@ -352,10 +353,10 @@ def checkReturnTypesForNumpyStyle(
     #
     #  This is why we are comparing both the decomposed annotation
     #  types and the original annotation type
-    returnAnnoItems: List[str] = returnAnnotation.decompose()
-    returnAnnoInList: List[str] = returnAnnotation.putAnnotationInList()
+    returnAnnoItems: list[str] = returnAnnotation.decompose()
+    returnAnnoInList: list[str] = returnAnnotation.putAnnotationInList()
 
-    returnSecTypes: List[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]
+    returnSecTypes: list[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]
 
     if returnAnnoInList != returnSecTypes:
         if len(returnAnnoItems) != len(returnSection):
@@ -376,8 +377,8 @@ def checkReturnTypesForNumpyStyle(
 def checkReturnTypesForGoogleOrSphinxStyle(
         *,
         returnAnnotation: ReturnAnnotation,
-        violationList: List[Violation],
-        returnSection: List[ReturnArg],
+        violationList: list[Violation],
+        returnSection: list[ReturnArg],
         violation: Violation,
 ) -> None:
     """Check return types for Google or Sphinx docstring style"""
@@ -410,8 +411,8 @@ def checkReturnTypesForGoogleOrSphinxStyle(
 def checkYieldTypesForViolations(
         *,
         returnAnnotation: ReturnAnnotation,
-        violationList: List[Violation],
-        yieldSection: List[YieldArg],
+        violationList: list[Violation],
+        yieldSection: list[YieldArg],
         violation: Violation,
         hasGeneratorAsReturnAnnotation: bool,
         hasIteratorOrIterableAsReturnAnnotation: bool,
@@ -425,10 +426,10 @@ def checkYieldTypesForViolations(
     # values into one `Generator[..., ..., ...]`, because it is easier
     # to check and less ambiguous.
 
-    returnAnnoText: Optional[str] = returnAnnotation.annotation
+    returnAnnoText: str | None = returnAnnotation.annotation
 
     extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-    yieldType: Optional[str] = extract(
+    yieldType: str | None = extract(
         returnAnnoText,
         hasGeneratorAsReturnAnnotation,
         hasIteratorOrIterableAsReturnAnnotation,
@@ -469,10 +470,10 @@ def checkYieldTypesForViolations(
 
 
 def extractYieldTypeFromGeneratorOrIteratorAnnotation(
-        returnAnnoText: Optional[str],
+        returnAnnoText: str | None,
         hasGeneratorAsReturnAnnotation: bool,
         hasIteratorOrIterableAsReturnAnnotation: bool,
-) -> Optional[str]:
+) -> str | None:
     """Extract yield type from Generator or Iterator annotations"""
     #
     # "Yield type" is the 0th element in a Generator
@@ -480,7 +481,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     # ReturnType])
     # https://docs.python.org/3/library/typing.html#typing.Generator
     # Or it's the 0th (only) element in Iterator
-    yieldType: Optional[str]
+    yieldType: str | None
 
     try:
         if hasGeneratorAsReturnAnnotation:
@@ -504,16 +505,14 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     return stripQuotes(yieldType)
 
 
-def extractReturnTypeFromGenerator(
-        returnAnnoText: Optional[str],
-) -> Optional[str]:
+def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     """Extract return type from Generator annotations"""
     #
     # "Return type" is the last element in a Generator
     # type annotation (Generator[YieldType, SendType,
     # ReturnType])
     # https://docs.python.org/3/library/typing.html#typing.Generator
-    returnType: Optional[str]
+    returnType: str | None
     try:
         if sys.version_info >= (3, 9):
             returnType = unparseName(
@@ -531,9 +530,9 @@ def extractReturnTypeFromGenerator(
 
 def addMismatchedRaisesExceptionViolation(
         *,
-        docRaises: List[str],
-        actualRaises: List[str],
-        violations: List[Violation],
+        docRaises: list[str],
+        actualRaises: list[str],
+        violations: list[Violation],
         violationForRaisesMismatch: Violation,  # such as V503
         lineNum: int,
         msgPrefix: str,

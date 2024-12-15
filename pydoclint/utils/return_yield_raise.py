@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import ast
-from typing import Callable, Dict, Generator, List, Optional, Tuple, Type
+from typing import Callable, Generator, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
@@ -8,8 +10,8 @@ from pydoclint.utils.unparser_custom import unparseName
 
 ReturnType = Type[ast.Return]
 ExprType = Type[ast.expr]
-YieldAndYieldFromTypes = Tuple[Type[ast.Yield], Type[ast.YieldFrom]]
-FuncOrAsyncFuncTypes = Tuple[Type[ast.FunctionDef], Type[ast.AsyncFunctionDef]]
+YieldAndYieldFromTypes = tuple[Type[ast.Yield], Type[ast.YieldFrom]]
+FuncOrAsyncFuncTypes = tuple[Type[ast.FunctionDef], Type[ast.AsyncFunctionDef]]
 FuncOrAsyncFunc = (ast.FunctionDef, ast.AsyncFunctionDef)
 
 
@@ -23,7 +25,7 @@ def isReturnAnnotationNone(node: FuncOrAsyncFuncDef) -> bool:
     return _isNone(node.returns)
 
 
-def _isNone(node: Optional[ast.expr]) -> bool:
+def _isNone(node: ast.expr | None) -> bool:
     return isinstance(node, ast.Constant) and node.value is None
 
 
@@ -32,7 +34,7 @@ def isReturnAnnotationNoReturn(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnnotation: Optional[str] = unparseName(node.returns)
+    returnAnnotation: str | None = unparseName(node.returns)
     return returnAnnotation == 'NoReturn'
 
 
@@ -41,7 +43,7 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnno: Optional[str] = unparseName(node.returns)
+    returnAnno: str | None = unparseName(node.returns)
     return returnAnno in {'Generator', 'AsyncGenerator'} or stringStartsWith(
         returnAnno, ('Generator[', 'AsyncGenerator[')
     )
@@ -52,7 +54,7 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnnotation: Optional[str] = unparseName(node.returns)
+    returnAnnotation: str | None = unparseName(node.returns)
     return returnAnnotation in {
         'Iterator',
         'Iterable',
@@ -93,7 +95,7 @@ def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
     return _hasExpectedStatements(node, isThisNodeARaiseStmt)
 
 
-def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> List[str]:
+def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> list[str]:
     """Get the raised exceptions in a function node as a sorted list"""
     return sorted(set(_getRaisedExceptions(node)))
 
@@ -105,9 +107,9 @@ def _getRaisedExceptions(
     childLineNum: int = -999
 
     # key: child lineno, value: (parent lineno, is parent a function?)
-    familyTree: Dict[int, Tuple[int, bool]] = {}
+    familyTree: dict[int, tuple[int, bool]] = {}
 
-    currentParentExceptHandler: Optional[ast.ExceptHandler] = None
+    currentParentExceptHandler: ast.ExceptHandler | None = None
 
     # Depth-first guarantees the last-seen exception handler
     # is a parent of child.
@@ -198,7 +200,7 @@ def _hasExpectedStatements(
     foundExpectedStmt: bool = False
 
     # key: child lineno, value: (parent lineno, is parent a function?)
-    familyTree: Dict[int, Tuple[int, bool]] = {}
+    familyTree: dict[int, tuple[int, bool]] = {}
 
     for child, parent in walk.walk(node):
         childLineNum = _updateFamilyTree(child, parent, familyTree)
@@ -223,7 +225,7 @@ def _hasExpectedStatements(
 def _updateFamilyTree(
         child: ast.AST,
         parent: ast.AST,
-        familyTree: Dict[int, Tuple[int, bool]],
+        familyTree: dict[int, tuple[int, bool]],
 ) -> int:
     """
     Structure of `familyTree`:
@@ -256,7 +258,7 @@ def _getLineNum(node: ast.AST) -> int:
 
 def _confirmThisStmtIsNotWithinNestedFunc(
         foundStatementTemp: bool,
-        familyTree: Dict[int, Tuple[int, bool]],
+        familyTree: dict[int, tuple[int, bool]],
         lineNumOfStatement: int,
         lineNumOfThisNode: int,
 ) -> bool:
@@ -278,7 +280,7 @@ def _confirmThisStmtIsNotWithinNestedFunc(
 
 
 def _lookupParentFunc(
-        familyLine: Dict[int, Tuple[int, bool]],
+        familyLine: dict[int, tuple[int, bool]],
         lineNumOfChildNode: int,
 ) -> int:
     """

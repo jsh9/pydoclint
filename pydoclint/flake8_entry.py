@@ -1,8 +1,9 @@
 # mypy: disable-error-code=attr-defined
+from __future__ import annotations
 
 import ast
 import importlib.metadata as importlib_metadata
-from typing import Any, Generator, Tuple
+from typing import Any, Generator
 
 from pydoclint.visitor import Visitor
 
@@ -230,7 +231,7 @@ class Plugin:
         )
         cls.style = options.style
 
-    def run(self) -> Generator[Tuple[int, int, str, Any], None, None]:
+    def run(self) -> Generator[tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
         if self.type_hints_in_docstring != 'None':  # user supplies this option
             raise ValueError(

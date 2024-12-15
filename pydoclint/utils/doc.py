@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import pprint
-from typing import Any, List, Optional, Union
+from typing import Any
 
 from docstring_parser.common import (
     Docstring,
@@ -23,7 +25,7 @@ class Doc:
         self.docstring = docstring
         self.style = style
 
-        parser: Union[NumpydocParser, GoogleParser]
+        parser: NumpydocParser | GoogleParser
         if style == 'numpy':
             parser = NumpydocParser()
             self.parsed = parser.parse(docstring)
@@ -80,7 +82,7 @@ class Doc:
     def hasReturnsSection(self) -> bool:  # type:ignore[return]
         """Whether the docstring has a 'Returns' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
-            retSection: Optional[DocstringReturns] = self.parsed.returns
+            retSection: DocstringReturns | None = self.parsed.returns
             return retSection is not None and not retSection.is_generator
 
         self._raiseException()  # noqa: R503
@@ -103,11 +105,11 @@ class Doc:
         self._raiseException()  # noqa: R503
 
     @property
-    def returnSection(self) -> List[ReturnArg]:
+    def returnSection(self) -> list[ReturnArg]:
         """Get the return section of the docstring"""
         if isinstance(self.parsed, Docstring):  # Google, numpy, Sphinx styles
-            returnSection: List[DocstringReturns] = self.parsed.many_returns
-            result: List[ReturnArg] = []
+            returnSection: list[DocstringReturns] = self.parsed.many_returns
+            result: list[ReturnArg] = []
             for element in returnSection:
                 result.append(
                     ReturnArg(
@@ -122,11 +124,11 @@ class Doc:
         return []
 
     @property
-    def yieldSection(self) -> List[YieldArg]:
+    def yieldSection(self) -> list[YieldArg]:
         """Get the yield section of the docstring"""
         if isinstance(self.parsed, Docstring):  # Google, numpy, Sphinx styles
-            yieldSection: List[DocstringYields] = self.parsed.many_yields
-            result: List[YieldArg] = []
+            yieldSection: list[DocstringYields] = self.parsed.many_yields
+            result: list[YieldArg] = []
             for element in yieldSection:
                 result.append(
                     YieldArg(

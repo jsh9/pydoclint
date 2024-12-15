@@ -4,6 +4,7 @@
 
 - Changed
   - Dropped support for Python 3.8
+  - Use "modern" type annotation, such as `list` and `str | None`
 - Added
   - Added static type checking using `mypy`
 
