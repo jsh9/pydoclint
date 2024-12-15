@@ -385,7 +385,7 @@ def testReturns(style: str, filename: str) -> None:
 )
 @pytest.mark.skipif(
     pythonVersionBelow310(),
-    reason='Python 3.8 and 3.9 do not support match-case syntax',
+    reason='Python 3.9 does not support match-case syntax',
 )
 def testReturnsPy310plus(style: str, filename: str) -> None:
     violations = _checkFile(

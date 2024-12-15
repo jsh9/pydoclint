@@ -3,6 +3,8 @@ import re
 import sys
 from typing import Optional, Union
 
+from pydoclint.utils.edge_case_error import EdgeCaseError
+
 
 def replaceTupleBracket(string: str) -> str:
     """
@@ -25,15 +27,7 @@ if sys.version_info >= (3, 11):
 elif sys.version_info >= (3, 9):
     unparse = ast.unparse
 else:  # python 3.8
-    from io import StringIO
-
-    from pydoclint.utils.unparser import Unparser
-
-    def unparse(tree: ast.AST) -> str:
-        """Unparse an AST tree"""
-        fp = StringIO()
-        Unparser(tree, file=fp)
-        return fp.getvalue()
+    raise EdgeCaseError('pydoclint does not support Python 3.8 any more')
 
 
 def unparseName(
