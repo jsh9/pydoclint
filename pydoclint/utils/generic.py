@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import ast
 import copy
 import re
-from typing import List, Match, Optional, Tuple, Union
+from typing import TYPE_CHECKING, List, Match, Optional, Tuple, Union
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.violation import Violation
+
+if TYPE_CHECKING:
+    from pydoclint.utils.arg import Arg, ArgList
 
 
 def collectFuncArgs(node: FuncOrAsyncFuncDef) -> List[ast.arg]:
@@ -159,7 +164,7 @@ def getNodeName(node: ast.AST) -> str:
     if node is None:
         return ''
 
-    return node.name if 'name' in node.__dict__ else ''
+    return getattr(node, 'name', '')
 
 
 def stringStartsWith(
@@ -208,11 +213,11 @@ def _replacer(match: Match[str]) -> str:
 def appendArgsToCheckToV105(
         *,
         original_v105: Violation,
-        funcArgs: 'ArgList',  # noqa: F821
-        docArgs: 'ArgList',  # noqa: F821
+        funcArgs: ArgList,
+        docArgs: ArgList,
 ) -> Violation:
     """Append the arg names to check to the error message of v105 or v605"""
-    argsToCheck: List['Arg'] = funcArgs.findArgsWithDifferentTypeHints(docArgs)  # noqa: F821
+    argsToCheck: List[Arg] = funcArgs.findArgsWithDifferentTypeHints(docArgs)
     argNames: str = ', '.join(_.name for _ in argsToCheck)
     return original_v105.appendMoreMsg(moreMsg=argNames)
 
@@ -250,4 +255,4 @@ def getFullAttributeName(node: Union[ast.Attribute, ast.Name]) -> str:
     if isinstance(node, ast.Name):
         return node.id
 
-    return getFullAttributeName(node.value) + '.' + node.attr
+    return getFullAttributeName(node.value) + '.' + node.attr  # type:ignore[arg-type]
