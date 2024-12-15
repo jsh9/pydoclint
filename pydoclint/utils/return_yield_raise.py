@@ -23,7 +23,7 @@ def isReturnAnnotationNone(node: FuncOrAsyncFuncDef) -> bool:
     return _isNone(node.returns)
 
 
-def _isNone(node: ast.AST) -> bool:
+def _isNone(node: Optional[ast.expr]) -> bool:
     return isinstance(node, ast.Constant) and node.value is None
 
 
@@ -32,7 +32,7 @@ def isReturnAnnotationNoReturn(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnnotation: str = unparseName(node.returns)
+    returnAnnotation: Optional[str] = unparseName(node.returns)
     return returnAnnotation == 'NoReturn'
 
 
@@ -41,7 +41,7 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnno: str = unparseName(node.returns)
+    returnAnno: Optional[str] = unparseName(node.returns)
     return returnAnno in {'Generator', 'AsyncGenerator'} or stringStartsWith(
         returnAnno, ('Generator[', 'AsyncGenerator[')
     )
@@ -52,7 +52,7 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     if node.returns is None:
         return False
 
-    returnAnnotation: str = unparseName(node.returns)
+    returnAnnotation: Optional[str] = unparseName(node.returns)
     return returnAnnotation in {
         'Iterator',
         'Iterable',
@@ -240,14 +240,15 @@ def _updateFamilyTree(
 
 
 def _getLineNum(node: ast.AST) -> int:
+    lineNum: int
     try:
         if 'lineno' in node.__dict__:  # normal case
-            lineNum = node.lineno
+            lineNum = node.lineno  # type:ignore[attr-defined]
         elif 'pattern' in node.__dict__:  # the node is a `case ...:`
-            lineNum = node.pattern.lineno
-        else:
-            lineNum = node.lineno  # this could fail
-    except Exception:
+            lineNum = node.pattern.lineno  # type:ignore[attr-defined]
+        else:  # fallback case, but this could still fail
+            lineNum = node.lineno  # type:ignore[attr-defined]
+    except AttributeError:  # if `node` doesn't have any of those attributes
         lineNum = -1
 
     return lineNum

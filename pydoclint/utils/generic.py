@@ -162,8 +162,14 @@ def getNodeName(node: ast.AST) -> str:
     return node.name if 'name' in node.__dict__ else ''
 
 
-def stringStartsWith(string: str, substrings: Tuple[str, ...]) -> bool:
+def stringStartsWith(
+        string: Optional[str],
+        substrings: Tuple[str, ...],
+) -> bool:
     """Check whether the string starts with any of the substrings"""
+    if string is None:
+        return False
+
     for substring in substrings:
         if string.startswith(substring):
             return True
