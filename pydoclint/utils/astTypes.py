@@ -4,15 +4,6 @@ from typing import Union
 
 FuncOrAsyncFuncDef = Union[ast.AsyncFunctionDef, ast.FunctionDef]
 ClassOrFunctionDef = Union[ast.ClassDef, ast.AsyncFunctionDef, ast.FunctionDef]
-AnnotationType = Union[
-    ast.Name,
-    ast.Subscript,
-    ast.Index,
-    ast.Tuple,
-    ast.Constant,
-    ast.BinOp,
-    ast.Attribute,
-]
 
 LegacyBlockTypes = [
     ast.If,

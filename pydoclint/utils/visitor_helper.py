@@ -467,7 +467,7 @@ def checkYieldTypesForViolations(
 
 
 def extractYieldTypeFromGeneratorOrIteratorAnnotation(
-        returnAnnoText: str,
+        returnAnnoText: Optional[str],
         hasGeneratorAsReturnAnnotation: bool,
         hasIteratorOrIterableAsReturnAnnotation: bool,
 ) -> str:
@@ -501,7 +501,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     return stripQuotes(yieldType)
 
 
-def extractReturnTypeFromGenerator(returnAnnoText: str) -> str:
+def extractReturnTypeFromGenerator(returnAnnoText: Optional[str]) -> str:
     """Extract return type from Generator annotations"""
     try:
         # "Return type" is the last element in a Generator

@@ -70,7 +70,7 @@ def getFunctionId(node: FuncOrAsyncFuncDef) -> Tuple[int, int, str]:
     return node.lineno, node.col_offset, node.name
 
 
-def detectMethodType(node: ast.FunctionDef) -> MethodType:
+def detectMethodType(node: FuncOrAsyncFuncDef) -> MethodType:
     """
     Detect whether the function def is an instance method,
     a classmethod, or a staticmethod.
