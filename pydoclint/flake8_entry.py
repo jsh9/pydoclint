@@ -1,3 +1,5 @@
+# mypy: disable-error-code=attr-defined
+
 import ast
 import importlib.metadata as importlib_metadata
 from typing import Any, Generator, Tuple
@@ -15,7 +17,7 @@ class Plugin:
         self._tree = tree
 
     @classmethod
-    def add_options(cls, parser):  # noqa: D102
+    def add_options(cls, parser: Any) -> None:  # noqa: D102
         parser.add_option(
             '--style',
             action='store',
@@ -196,7 +198,7 @@ class Plugin:
         )
 
     @classmethod
-    def parse_options(cls, options):  # noqa: D102
+    def parse_options(cls, options: Any) -> None:  # noqa: D102
         cls.type_hints_in_signature = options.type_hints_in_signature
         cls.type_hints_in_docstring = options.type_hints_in_docstring
         cls.arg_type_hints_in_signature = options.arg_type_hints_in_signature
