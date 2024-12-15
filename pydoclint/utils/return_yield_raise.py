@@ -7,7 +7,7 @@ from pydoclint.utils.generic import getFullAttributeName, stringStartsWith
 from pydoclint.utils.unparser_custom import unparseName
 
 ReturnType = Type[ast.Return]
-ExprType = Type[ast.Expr]
+ExprType = Type[ast.expr]
 YieldAndYieldFromTypes = Tuple[Type[ast.Yield], Type[ast.YieldFrom]]
 FuncOrAsyncFuncTypes = Tuple[Type[ast.FunctionDef], Type[ast.AsyncFunctionDef]]
 FuncOrAsyncFunc = (ast.FunctionDef, ast.AsyncFunctionDef)
