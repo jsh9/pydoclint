@@ -29,7 +29,7 @@ class Arg:
     def __str__(self) -> str:
         return f'{self.name}: {self.typeHint}'
 
-    def __eq__(self, other: 'Arg') -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Arg):
             return False
 
@@ -84,17 +84,22 @@ class Arg:
     @classmethod
     def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
         """Construct an Arg object from a Python AST argument object"""
-        anno = astArg.annotation
-        typeHint: str = '' if anno is None else unparseName(anno)
+        anno: Optional[ast.expr] = astArg.annotation
+        typeHint: Optional[str] = '' if anno is None else unparseName(anno)
+        assert typeHint is not None  # to help mypy better understand type
         return Arg(name=astArg.arg, typeHint=typeHint)
 
     @classmethod
     def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
         """Construct an Arg object from a Python ast.AnnAssign object"""
-        return Arg(
-            name=unparseName(astAnnAssign.target),
-            typeHint=unparseName(astAnnAssign.annotation),
-        )
+        unparsedArgName = unparseName(astAnnAssign.target)
+        unparsedTypeHint = unparseName(astAnnAssign.annotation)
+
+        # These assertions are to help mypy better interpret types
+        assert unparsedArgName is not None
+        assert unparsedTypeHint is not None
+
+        return Arg(name=unparsedArgName, typeHint=unparsedTypeHint)
 
     @classmethod
     def _str(cls, typeName: Optional[str]) -> str:
@@ -113,12 +118,12 @@ class Arg:
         # >>>     "ghi",
         # >>> ]
         try:
-            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))
+            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))  # type:ignore[arg-type,assignment]
         except SyntaxError:
             hint1_ = hint1
 
         try:
-            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))
+            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))  # type:ignore[arg-type,assignment]
         except SyntaxError:
             hint2_ = hint2
 
@@ -156,7 +161,7 @@ class ArgList:
     def __str__(self) -> str:
         return '[' + ', '.join(str(_) for _ in self.infoList) + ']'
 
-    def __eq__(self, other: 'ArgList') -> bool:
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ArgList):
             return False
 
@@ -221,7 +226,9 @@ class ArgList:
             elif isinstance(target, ast.Name):  # such as `a = 1` or `a = b = 2`
                 infoList.append(Arg(name=target.id, typeHint=''))
             elif isinstance(target, ast.Attribute):  # e.g., uvw.xyz = 1
-                infoList.append(Arg(name=unparseName(target), typeHint=''))
+                unparsedTarget: Optional[str] = unparseName(target)
+                assert unparsedTarget is not None  # to help mypy understand type
+                infoList.append(Arg(name=unparsedTarget, typeHint=''))
             else:
                 raise EdgeCaseError(
                     f'astAssign.targets[{i}] is of type {type(target)}'
@@ -303,7 +310,11 @@ class ArgList:
 
         return result
 
-    def subtract(self, other: 'ArgList', checkTypeHint=True) -> Set[Arg]:
+    def subtract(
+            self,
+            other: 'ArgList',
+            checkTypeHint: bool = True,
+    ) -> Set[Arg]:
         """Find the args that are in this object but not in `other`."""
         if checkTypeHint:
             return set(self.infoList) - set(other.infoList)
