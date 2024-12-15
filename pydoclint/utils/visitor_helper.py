@@ -474,7 +474,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         hasIteratorOrIterableAsReturnAnnotation: bool,
 ) -> Optional[str]:
     """Extract yield type from Generator or Iterator annotations"""
-
+    #
     # "Yield type" is the 0th element in a Generator
     # type annotation (Generator[YieldType, SendType,
     # ReturnType])
@@ -508,7 +508,7 @@ def extractReturnTypeFromGenerator(
         returnAnnoText: Optional[str],
 ) -> Optional[str]:
     """Extract return type from Generator annotations"""
-
+    #
     # "Return type" is the last element in a Generator
     # type annotation (Generator[YieldType, SendType,
     # ReturnType])
