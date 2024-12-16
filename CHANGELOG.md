@@ -1,14 +1,19 @@
 # Change Log
 
-## [unpublished]
+## [0.5.12] - 2024-12-15
 
 - Changed
   - Dropped support for Python 3.8
   - Use "modern" type annotation, such as `list` and `str | None`
 - Added
+
   - Added static type checking using `mypy`
   - A new config option,
     `--only-attrs-with-ClassVar-are-treated-as-class-attrs`
+  - Ensured support for Python 3.12 and 3.13
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.11...0.5.12
 
 ## [0.5.11] - 2024-12-14
 
@@ -18,7 +23,7 @@
     itself (https://github.com/jsh9/pydoclint/issues/175)
 
 - Full diff
-  - https://github.com/jsh9/pydoclint/compare/0.5.11...0.5.10
+  - https://github.com/jsh9/pydoclint/compare/0.5.10...0.5.11
 
 ## [0.5.10] - 2024-12-07
 
