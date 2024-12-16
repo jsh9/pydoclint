@@ -1462,6 +1462,74 @@ def testNonAscii() -> None:
         ('16_assign_to_attr/cases.py', {'style': 'sphinx'}, []),
         ('16_assign_to_attr/cases.py', {'style': 'google'}, []),
         ('16_assign_to_attr/cases.py', {'style': 'numpy'}, []),
+        (
+            '17_ClassVar/cases.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'onlyAttrsWithClassVarAreTreatedAsClassAttrs': False,
+            },
+            [
+                'DOC601: Class `AttrsClass`: Class docstring contains fewer class attributes '
+                'than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `AttrsClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [b: int, d: '
+                'str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC601: Class `DataClass`: Class docstring contains fewer class attributes '
+                'than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `DataClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [f: int, g: '
+                'float, h: str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC601: Class `PydanticClass`: Class docstring contains fewer class '
+                'attributes than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `PydanticClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [j: int, k: '
+                'float, l: str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+            ],
+        ),
+        (
+            '17_ClassVar/cases.py',
+            {
+                'style': 'google',
+                'checkClassAttributes': True,
+                'onlyAttrsWithClassVarAreTreatedAsClassAttrs': True,
+            },
+            [
+                'DOC602: Class `AttrsClass`: Class docstring contains more class attributes '
+                'than in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `AttrsClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: [c: '
+                'float]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC605: Class `DataClass`: Attribute names match, but type hints in these '
+                'attributes do not match: e  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+            ],
+        ),
     ],
 )
 def testEdgeCases(

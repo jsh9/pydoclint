@@ -283,5 +283,51 @@ class MyClass:
         node=parsed.body[0],
         shouldDocumentPrivateClassAttributes=docPriv,
         treatPropertyMethodsAsClassAttrs=treatProp,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+    )
+    assert extracted == expected
+
+
+@pytest.mark.parametrize(
+    'onlyAttrsWithClassVarAreTreatedAsClassAttrs, expected',
+    [
+        (
+            True,
+            ArgList(
+                [Arg(name='a', typeHint='int'), Arg(name='c', typeHint='str')]
+            ),
+        ),
+        (
+            False,
+            ArgList([
+                Arg(name='a', typeHint='ClassVar[int]'),
+                Arg(name='b', typeHint='bool'),
+                Arg(name='c', typeHint='ClassVar[str]'),
+                Arg(name='d', typeHint='float'),
+            ]),
+        ),
+    ],
+)
+def testExtractClassAttributesFromNode_ClassVarOnly(
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
+        expected: ArgList,
+) -> None:
+    code: str = """
+from typing import ClassVar
+
+class MyClass:
+    a: ClassVar[int]
+    b: bool
+    c: ClassVar[str]
+    d: float = 1.0
+"""
+    parsed = ast.parse(code)
+    extracted: ArgList = extractClassAttributesFromNode(
+        node=parsed.body[1],
+        shouldDocumentPrivateClassAttributes=False,
+        treatPropertyMethodsAsClassAttrs=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
+            onlyAttrsWithClassVarAreTreatedAsClassAttrs
+        ),
     )
     assert extracted == expected

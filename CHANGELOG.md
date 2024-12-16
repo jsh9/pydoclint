@@ -7,6 +7,8 @@
   - Use "modern" type annotation, such as `list` and `str | None`
 - Added
   - Added static type checking using `mypy`
+  - A new config option,
+    `--only-attrs-with-ClassVar-are-treated-as-class-attrs`
 
 ## [0.5.11] - 2024-12-14
 

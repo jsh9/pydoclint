@@ -40,6 +40,7 @@ def checkClassAttributesAgainstClassDocstring(
         skipCheckingShortDocstrings: bool,
         shouldDocumentPrivateClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
     actualArgs: ArgList = extractClassAttributesFromNode(
@@ -48,6 +49,9 @@ def checkClassAttributesAgainstClassDocstring(
             shouldDocumentPrivateClassAttributes
         ),
         treatPropertyMethodsAsClassAttrs=treatPropertyMethodsAsClassAttributes,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
+            onlyAttrsWithClassVarAreTreatedAsClassAttrs
+        ),
     )
 
     classDocstring: str = getDocstring(node)
@@ -126,6 +130,7 @@ def extractClassAttributesFromNode(
         node: ast.ClassDef,
         shouldDocumentPrivateClassAttributes: bool,
         treatPropertyMethodsAsClassAttrs: bool,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
 ) -> ArgList:
     """
     Extract class attributes from an AST node.
@@ -140,6 +145,11 @@ def extractClassAttributesFromNode(
     treatPropertyMethodsAsClassAttrs : bool
         Whether we'd like to treat property methods as class attributes.
         If ``True``, property methods will be included in the return value.
+    onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
+        If ``True``, only the attributes whose type annotations are wrapped
+        within ``ClassVar`` (where ``ClassVar`` is imported from ``typing``)
+        are treated as class attributes, and all other attributes are
+        treated as instance attributes.
 
     Returns
     -------
@@ -149,7 +159,7 @@ def extractClassAttributesFromNode(
     Raises
     ------
     EdgeCaseError
-        When the length of item.targets is 0
+        When the length of ``item.targets`` is 0
     """
     if 'body' not in node.__dict__ or len(node.body) == 0:
         return ArgList([])
@@ -177,6 +187,18 @@ def extractClassAttributesFromNode(
 
     if not shouldDocumentPrivateClassAttributes:
         atl = [_ for _ in atl if not _.name.startswith('_')]
+
+    if onlyAttrsWithClassVarAreTreatedAsClassAttrs:
+        atl = [
+            Arg(
+                name=_.name,
+                typeHint=_.typeHint[9:-1],  # remove "ClassVar[" and "]"
+            )
+            for _ in atl
+            if (
+                _.typeHint.startswith('ClassVar[') and _.typeHint.endswith(']')
+            )
+        ]
 
     return ArgList(infoList=atl)
 
