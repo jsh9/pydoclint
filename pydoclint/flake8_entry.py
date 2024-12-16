@@ -197,6 +197,19 @@ class Plugin:
                 ' this option and --check-class-attributes to True.'
             ),
         )
+        parser.add_option(
+            '-oawcv',
+            '--only-attrs-with-ClassVar-are-treated-as-class-attrs',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, only the attributes whose type annotations are wrapped'
+                ' within `ClassVar` (where `ClassVar` is imported from `typing`)'
+                ' are treated as class attributes, and all other attributes are'
+                ' treated as instance attributes.'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options: Any) -> None:  # noqa: D102
@@ -228,6 +241,9 @@ class Plugin:
         )
         cls.treat_property_methods_as_class_attributes = (
             options.treat_property_methods_as_class_attributes
+        )
+        cls.only_attrs_with_ClassVar_are_treated_as_class_attrs = (
+            options.only_attrs_with_ClassVar_are_treated_as_class_attrs
         )
         cls.style = options.style
 

@@ -236,6 +236,19 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-oawcv',
+    '--only-attrs-with-ClassVar-are-treated-as-class-attrs',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, only the attributes whose type annotations are wrapped'
+        ' within `ClassVar` (where `ClassVar` is imported from `typing`)'
+        ' are treated as class attributes, and all other attributes are'
+        ' treated as instance attributes.'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -325,6 +338,7 @@ def main(  # noqa: C901
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
+        only_attrs_with_classvar_are_treated_as_class_attrs: bool,
         generate_baseline: bool,
         baseline: str,
         show_filenames_in_every_violation_message: bool,
@@ -413,6 +427,9 @@ def main(  # noqa: C901
         ),
         treatPropertyMethodsAsClassAttributes=(
             treat_property_methods_as_class_attributes
+        ),
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
+            only_attrs_with_classvar_are_treated_as_class_attrs
         ),
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
@@ -531,6 +548,7 @@ def _checkPaths(
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
         treatPropertyMethodsAsClassAttributes: bool = False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         quiet: bool = False,
@@ -583,6 +601,9 @@ def _checkPaths(
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
             ),
+            onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
+                onlyAttrsWithClassVarAreTreatedAsClassAttrs
+            ),
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
@@ -610,6 +631,7 @@ def _checkFile(
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
         treatPropertyMethodsAsClassAttributes: bool = False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
 ) -> list[Violation]:
@@ -637,6 +659,9 @@ def _checkFile(
         ),
         treatPropertyMethodsAsClassAttributes=(
             treatPropertyMethodsAsClassAttributes
+        ),
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
+            onlyAttrsWithClassVarAreTreatedAsClassAttrs
         ),
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing
