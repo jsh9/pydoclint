@@ -1,6 +1,6 @@
 # Change Log
 
-## [unpublished]
+## [0.5.12] - 2024-12-15
 
 - Changed
   - Dropped support for Python 3.8
@@ -9,6 +9,7 @@
   - Added static type checking using `mypy`
   - A new config option,
     `--only-attrs-with-ClassVar-are-treated-as-class-attrs`
+  - Ensured support for Python 3.12 and 3.13
 
 ## [0.5.11] - 2024-12-14
 
