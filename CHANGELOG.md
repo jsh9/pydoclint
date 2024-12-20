@@ -1,5 +1,11 @@
 # Change Log
 
+## [unpublished]
+
+- Fixed
+  - Fixed a bug where assigning a dict value (such as `abc['something'] = 123`)
+    would result in EdgeCaseError
+
 ## [0.5.12] - 2024-12-15
 
 - Changed
