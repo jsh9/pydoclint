@@ -226,14 +226,22 @@ class ArgList:
                     infoList.append(Arg(name=item.id, typeHint=''))
             elif isinstance(target, ast.Name):  # such as `a = 1` or `a = b = 2`
                 infoList.append(Arg(name=target.id, typeHint=''))
-            elif isinstance(target, ast.Attribute):  # e.g., uvw.xyz = 1
-                unparsedTarget: str | None = unparseName(target)
-                assert unparsedTarget is not None  # to help mypy understand type
-                infoList.append(Arg(name=unparsedTarget, typeHint=''))
             else:
-                raise EdgeCaseError(
-                    f'astAssign.targets[{i}] is of type {type(target)}'
-                )
+                try:  # we may not know all potential cases, so we use try/catch
+                    unparsedTarget: str | None = unparseName(target)
+                    assert unparsedTarget is not None  # to help mypy understand type
+                    infoList.append(Arg(name=unparsedTarget, typeHint=''))
+                except Exception as ex:
+                    lineRange: str = (
+                        f'in Line {astAssign.lineno}'
+                        if astAssign.lineno == astAssign.end_lineno
+                        else f'in Lines {astAssign.lineno}-{astAssign.end_lineno}'
+                    )
+                    msg: str = (
+                        f'Edge case encountered {lineRange}.'
+                        f' astAssign.targets[{i}] is of type {type(target)}.'
+                    )
+                    raise EdgeCaseError(msg) from ex
 
         return ArgList(infoList=infoList)
 

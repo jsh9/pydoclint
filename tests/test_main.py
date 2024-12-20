@@ -1530,6 +1530,7 @@ def testNonAscii() -> None:
                 'correctly document class attributes.)',
             ],
         ),
+        ('18_assign_to_subscript/case.py', {}, []),
     ],
 )
 def testEdgeCases(
