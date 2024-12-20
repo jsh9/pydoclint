@@ -638,7 +638,10 @@ def _checkFile(
     if not filename.is_file():  # sometimes folder names can end with `.py`
         return []
 
-    with open(filename, encoding='utf8') as fp:
+    with open(filename, encoding='utf-8', errors='replace') as fp:
+        # Note: errors='replace' would replace unrecognized characters with
+        #       question marks. This may not be a perfect solution, but for
+        #       not this may be good enough.
         src: str = ''.join(fp.readlines())
 
     tree: ast.Module = ast.parse(src)
