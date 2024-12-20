@@ -1,10 +1,14 @@
 # Change Log
 
-## [unpublished]
+## [0.5.13] - 2024-12-20
 
 - Fixed
   - Fixed a bug where assigning a dict value (such as `abc['something'] = 123`)
     would result in EdgeCaseError
+  - Fixed a bug where non-UTF-8 encoded files would crash _pydoclint_
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.12...0.5.13
 
 ## [0.5.12] - 2024-12-15
 
