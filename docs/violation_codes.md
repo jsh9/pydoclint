@@ -4,14 +4,14 @@
 
 <!--TOC-->
 
-- [0. `DOC0xx`: Docstring parsing issues](#0-doc0xx-docstring-parsing-issues)
-- [1. `DOC1xx`: Violations about input arguments](#1-doc1xx-violations-about-input-arguments)
+- [0. `DOC0xx`: Docstring parsing issues](#0-doc0xx--docstring-parsing-issues)
+- [1. `DOC1xx`: Violations about input arguments](#1-doc1xx--violations-about-input-arguments)
   - [Notes on `DOC103`](#notes-on-doc103)
-- [2. `DOC2xx`: Violations about return argument(s)](#2-doc2xx-violations-about-return-arguments)
-- [3. `DOC3xx`: Violations about class docstring and class constructor](#3-doc3xx-violations-about-class-docstring-and-class-constructor)
-- [4. `DOC4xx`: Violations about "yield" statements](#4-doc4xx-violations-about-yield-statements)
-- [5. `DOC5xx`: Violations about "raise" statements](#5-doc5xx-violations-about-raise-statements)
-- [6. `DOC6xx`: Violations about class attributes](#6-doc6xx-violations-about-class-attributes)
+- [2. `DOC2xx`: Violations about return argument(s)](#2-doc2xx--violations-about-return-arguments)
+- [3. `DOC3xx`: Violations about class docstring and class constructor](#3-doc3xx--violations-about-class-docstring-and-class-constructor)
+- [4. `DOC4xx`: Violations about "yield" statements](#4-doc4xx--violations-about-yield-statements)
+- [5. `DOC5xx`: Violations about "raise" statements](#5-doc5xx--violations-about-raise-statements)
+- [6. `DOC6xx`: Violations about class attributes](#6-doc6xx--violations-about-class-attributes)
 
 <!--TOC-->
 
