@@ -1563,6 +1563,19 @@ def testNonAscii() -> None:
                 + ' (<unknown>, line 2)'
             ],
         ),
+        (
+            '21_syntax_error/case_21c.py',
+            {},
+            [
+                'DOC002: Syntax errors; cannot parse'  # noqa: ISC003
+                + ' this Python file. Error message: Missing '
+                + "parentheses in call to 'print'."
+                + ' Did you mean print({foo})?'.format(
+                    foo='"BOM BOOM!"' if sys.version_info < (3, 10) else '...'
+                )
+                + ' (<unknown>, line 2)'
+            ],
+        ),
     ],
 )
 def testEdgeCases(
