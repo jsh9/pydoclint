@@ -652,9 +652,15 @@ def _checkFile(
         if re.search('invalid non-printable character', str(e), re.IGNORECASE):
             src_ = replaceInvisibleChars(src)
             tree = ast.parse(src_)
-        else:
-            # Re-raise the exception if the message doesn't match
-            raise
+        else:  # other syntax errors
+            return [
+                Violation(
+                    code=2,
+                    line=0,
+                    msgPrefix='',
+                    msgPostfix=str(e),
+                )
+            ]
 
     visitor = Visitor(
         style=style,

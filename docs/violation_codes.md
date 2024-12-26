@@ -22,6 +22,7 @@
 | Code     | Explanation                              |
 | -------- | ---------------------------------------- |
 | `DOC001` | Potential formatting errors in docstring |
+| `DOC002` | Syntax error in the Python file          |
 
 ## 1. `DOC1xx`: Violations about input arguments
 
