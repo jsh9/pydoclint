@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+from typing import Any
 
 from docstring_parser.common import DocstringAttr, DocstringParam
 
@@ -217,33 +218,55 @@ class ArgList:
         for i, target in enumerate(astAssign.targets):
             if isinstance(target, ast.Tuple):  # such as `a, b = c, d = 1, 2`
                 for j, item in enumerate(target.elts):
-                    if not isinstance(item, ast.Name):
-                        raise EdgeCaseError(
-                            f'astAssign.targets[{i}].elts[{j}] is of'
-                            f' type {type(item)} instead of ast.Name'
-                        )
-
-                    infoList.append(Arg(name=item.id, typeHint=''))
-            elif isinstance(target, ast.Name):  # such as `a = 1` or `a = b = 2`
-                infoList.append(Arg(name=target.id, typeHint=''))
-            else:
-                try:  # we may not know all potential cases, so we use try/catch
-                    unparsedTarget: str | None = unparseName(target)
-                    assert unparsedTarget is not None  # to help mypy understand type
-                    infoList.append(Arg(name=unparsedTarget, typeHint=''))
-                except Exception as ex:
-                    lineRange: str = (
-                        f'in Line {astAssign.lineno}'
-                        if astAssign.lineno == astAssign.end_lineno
-                        else f'in Lines {astAssign.lineno}-{astAssign.end_lineno}'
+                    cls.unparseTargetAndAppendToInfoList(
+                        target=item,
+                        infoList=infoList,
+                        lineNum=astAssign.lineno,
+                        endLineNum=astAssign.end_lineno,
+                        i=i,
+                        j=j,
                     )
-                    msg: str = (
-                        f'Edge case encountered {lineRange}.'
-                        f' astAssign.targets[{i}] is of type {type(target)}.'
-                    )
-                    raise EdgeCaseError(msg) from ex
+            else:  # a single element
+                cls.unparseTargetAndAppendToInfoList(
+                    target=target,
+                    infoList=infoList,
+                    lineNum=astAssign.lineno,
+                    endLineNum=astAssign.end_lineno,
+                    i=i,
+                    j=None,
+                )
 
         return ArgList(infoList=infoList)
+
+    @classmethod
+    def unparseTargetAndAppendToInfoList(
+            cls,
+            *,
+            target: Any,
+            infoList: list[Arg],
+            lineNum: int,
+            endLineNum: int,
+            i: int,
+            j: int | None = None,
+    ) -> None:
+        try:  # we may not know all potential cases, so we use try/catch
+            unparsedTarget: str | None = unparseName(target)
+            assert unparsedTarget is not None  # to help mypy understand type
+            infoList.append(Arg(name=unparsedTarget, typeHint=''))
+        except Exception as ex:
+            lineRange: str = (
+                f'in Line {lineNum}'
+                if lineNum == endLineNum
+                else f'in Lines {lineNum}-{endLineNum}'
+            )
+            msg1: str = f'Edge case encountered {lineRange}.'
+            msg2: str = (
+                f' astAssign.targets[{i}] is of type {type(target)}.'
+                if j is None
+                else f' astAssign.targets[{i}].elts[{j}] is of type {type(target)}.'
+            )
+            msg: str = msg1 + msg2
+            raise EdgeCaseError(msg) from ex
 
     def contains(self, arg: Arg) -> bool:
         """Whether a given `Arg` object exists in the list"""
