@@ -7,6 +7,7 @@ from pydoclint.utils.edge_case_error import EdgeCaseError
 
 VIOLATION_CODES = types.MappingProxyType({
     1: 'Potential formatting errors in docstring. Error message:',
+    2: 'Syntax errors; cannot parse this Python file. Error message:',
 
     101: 'Docstring contains fewer arguments than in function signature.',
     102: 'Docstring contains more arguments than in function signature.',

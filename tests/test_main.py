@@ -1533,6 +1533,49 @@ def testNonAscii() -> None:
         ('18_assign_to_subscript/case.py', {}, []),
         ('19_file_encoding/nonascii.py', {}, []),  # from: https://github.com/ipython/ipython/blob/0334d9f71e7a97394a73c15c663ca50d65df62e1/IPython/core/tests/nonascii.py
         ('19_file_encoding/nonascii2.py', {}, []),  # from: https://github.com/ipython/ipython/blob/0334d9f71e7a97394a73c15c663ca50d65df62e1/IPython/core/tests/nonascii2.py
+        ('20_invisible_zero_width_chars/case.py', {}, []),
+        (
+            '21_syntax_error/case_21a.py',
+            {},
+            [
+                'DOC002: Syntax errors; cannot parse'  # noqa: ISC003
+                + ' this Python file. Error message: '
+                + (
+                    'unterminated string literal (detected at line 4)'
+                    if sys.version_info >= (3, 10)
+                    else 'invalid syntax'
+                )
+                + ' (<unknown>, line {num})'.format(
+                    num=1 if sys.version_info < (3, 10) else 4
+                )
+            ],
+        ),
+        (
+            '21_syntax_error/case_21b.py',
+            {},
+            [
+                'DOC002: Syntax errors; cannot parse'  # noqa: ISC003
+                + ' this Python file. Error message: Missing '
+                + "parentheses in call to 'print'."
+                + ' Did you mean print({foo})?'.format(
+                    foo="'haha'" if sys.version_info < (3, 10) else '...'
+                )
+                + ' (<unknown>, line 2)'
+            ],
+        ),
+        (
+            '21_syntax_error/case_21c.py',
+            {},
+            [
+                'DOC002: Syntax errors; cannot parse'  # noqa: ISC003
+                + ' this Python file. Error message: Missing '
+                + "parentheses in call to 'print'."
+                + ' Did you mean print({foo})?'.format(
+                    foo='"BOM BOOM!"' if sys.version_info < (3, 10) else '...'
+                )
+                + ' (<unknown>, line 2)'
+            ],
+        ),
     ],
 )
 def testEdgeCases(
@@ -1540,10 +1583,12 @@ def testEdgeCases(
         options: Dict[str, Any],
         expectedViolations: List[str],
 ) -> None:
-    violations = _checkFile(
-        filename=DATA_DIR / 'edge_cases' / filename,
-        **options,
-    )
+    fullFilename: Path = DATA_DIR / 'edge_cases' / filename
+
+    if not fullFilename.is_file() and filename != '14_folders_ending_in_py.py':
+        raise FileNotFoundError('The file you want to test does not exist')
+
+    violations = _checkFile(filename=fullFilename, **options)
     assert list(map(str, violations)) == expectedViolations
 
 

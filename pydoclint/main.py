@@ -16,6 +16,7 @@ from pydoclint.baseline import (
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
+from pydoclint.utils.invisibleChars import replaceInvisibleChars
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 
@@ -644,7 +645,23 @@ def _checkFile(
         #       not this may be good enough.
         src: str = ''.join(fp.readlines())
 
-    tree: ast.Module = ast.parse(src)
+    tree: ast.Module
+    try:
+        tree = ast.parse(src)
+    except SyntaxError as e:
+        if str(e).startswith('invalid non-printable character'):
+            src_ = replaceInvisibleChars(src)
+            try:
+                # In case there's another syntax error after fixing
+                # this invalid non-printable character error
+                tree = ast.parse(src_)
+            except SyntaxError as e2:
+                return [Violation(code=2, line=0, msgPostfix=str(e2))]
+        else:  # other syntax errors
+            return [Violation(code=2, line=0, msgPostfix=str(e))]
+    except Exception as e3:  # other non-SyntaxError exceptions
+        raise e3
+
     visitor = Visitor(
         style=style,
         argTypeHintsInSignature=argTypeHintsInSignature,

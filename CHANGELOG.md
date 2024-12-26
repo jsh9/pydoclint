@@ -1,5 +1,18 @@
 # Change Log
 
+## [unpublished]
+
+- Changed
+
+  - Added `DOC002` (syntax error) to handle cases where there are syntax errors
+    in the Python file
+  - Replaced invisible and zero-width characters with empty strings so that
+    Python's AST can correctly parse the files
+  - Added end-to-end test (essentially an integration test)
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.13...0.5.14
+
 ## [0.5.13] - 2024-12-20
 
 - Fixed
