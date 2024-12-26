@@ -1,6 +1,6 @@
 # Change Log
 
-## [unpublished]
+## [0.5.14] - 2024-12-26
 
 - Changed
 
@@ -9,6 +9,10 @@
   - Replaced invisible and zero-width characters with empty strings so that
     Python's AST can correctly parse the files
   - Added end-to-end test (essentially an integration test)
+
+- Fixed
+
+  - A bug in ast.assign
 
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.13...0.5.14
