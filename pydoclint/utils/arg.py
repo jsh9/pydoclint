@@ -218,7 +218,7 @@ class ArgList:
         for i, target in enumerate(astAssign.targets):
             if isinstance(target, ast.Tuple):  # such as `a, b = c, d = 1, 2`
                 for j, item in enumerate(target.elts):
-                    cls.unparseTargetAndAppendToInfoList(
+                    cls._unparseTargetAndAppendToInfoList(
                         target=item,
                         infoList=infoList,
                         lineNum=astAssign.lineno,
@@ -227,7 +227,7 @@ class ArgList:
                         j=j,
                     )
             else:  # a single element
-                cls.unparseTargetAndAppendToInfoList(
+                cls._unparseTargetAndAppendToInfoList(
                     target=target,
                     infoList=infoList,
                     lineNum=astAssign.lineno,
@@ -239,13 +239,13 @@ class ArgList:
         return ArgList(infoList=infoList)
 
     @classmethod
-    def unparseTargetAndAppendToInfoList(
+    def _unparseTargetAndAppendToInfoList(
             cls,
             *,
             target: Any,
             infoList: list[Arg],
-            lineNum: int,
-            endLineNum: int,
+            lineNum: int | None,
+            endLineNum: int | None,
             i: int,
             j: int | None = None,
     ) -> None:
