@@ -938,7 +938,9 @@ def testParsingErrors_google() -> None:
         'DOC001: Class `A`: Potential formatting errors in docstring. Error message: '
         "Expected a colon in 'arg1'.",
         'DOC001: Function/method `__init__`: Potential formatting errors in '
-        "docstring. Error message: Expected a colon in 'arg1'.",
+        "docstring. Error message: Expected a colon in 'arg1'. (Note: DOC001 could "
+        'trigger other unrelated violations under this function/method too. Please '
+        'fix the docstring formatting first.)',
     ]
     assert list(map(str, violations)) == expected
 
@@ -959,7 +961,24 @@ def testParsingErrors_numpy() -> None:
         argTypeHintsInSignature=False,
         style='numpy',
     )
-    expected = []  # not sure how to craft docstrings with parsing errors yet
+    expected = [
+        'DOC001: Class `A`: Potential formatting errors in docstring. Error message: '
+        "Section 'Parameters' is not empty but nothing was parsed.",
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        "docstring. Error message: Section 'Parameters' is not empty but nothing was "
+        'parsed. (Note: DOC001 could trigger other unrelated violations under this '
+        'function/method too. Please fix the docstring formatting first.)',
+        'DOC001: Function/method `method2`: Potential formatting errors in docstring. '
+        "Error message: Section 'Yields' is not empty but nothing was parsed. (Note: "
+        'DOC001 could trigger other unrelated violations under this function/method '
+        'too. Please fix the docstring formatting first.)',
+        'DOC101: Method `A.method2`: Docstring contains fewer arguments than in '
+        'function signature.',
+        'DOC103: Method `A.method2`: Docstring arguments are different from function '
+        'arguments. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+        'Arguments in the function signature but not in the docstring: [arg4: ].',
+    ]
     assert list(map(str, violations)) == expected
 
 
@@ -1574,23 +1593,6 @@ def testNonAscii() -> None:
                     foo='"BOM BOOM!"' if sys.version_info < (3, 10) else '...'
                 )
                 + ' (<unknown>, line 2)'
-            ],
-        ),
-        (
-            '22_docstring_parsing_error/case.py',
-            {'style': 'numpy'},
-            [
-                'DOC001: Function/method `setup_custom_logger`: Potential formatting errors '
-                "in docstring. Error message: Section 'Yields' is not empty but nothing was "
-                'parsed. (Note: DOC001 could trigger other unrelated violations under this '
-                'function/method too. Please fix the docstring formatting first.)',
-                'DOC101: Function `setup_custom_logger`: Docstring contains fewer arguments '
-                'than in function signature.',
-                'DOC103: Function `setup_custom_logger`: Docstring arguments are different '
-                'from function arguments. (Or could be other formatting issues: '
-                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                'Arguments in the function signature but not in the docstring: [caplog: '
-                'pytest.LogCaptureFixture].',
             ],
         ),
     ],

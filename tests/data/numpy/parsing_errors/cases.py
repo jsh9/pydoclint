@@ -24,3 +24,13 @@ class A:
             arg 3
         """
         pass
+
+    def method2(self, arg4):
+        """
+        Yields
+        ------
+            Something to yield. This is not the correct docstring
+            format and will lead to DOC001, because the yielded
+            type is needed.
+        """
+        pass
