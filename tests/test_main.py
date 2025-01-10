@@ -1576,6 +1576,23 @@ def testNonAscii() -> None:
                 + ' (<unknown>, line 2)'
             ],
         ),
+        (
+            '22_docstring_parsing_error/case.py',
+            {'style': 'numpy'},
+            [
+                'DOC001: Function/method `setup_custom_logger`: Potential formatting errors '
+                "in docstring. Error message: Section 'Yields' is not empty but nothing was "
+                'parsed. (Note: DOC001 could trigger other unrelated violations under this '
+                'function/method too. Please fix the docstring formatting first.)',
+                'DOC101: Function `setup_custom_logger`: Docstring contains fewer arguments '
+                'than in function signature.',
+                'DOC103: Function `setup_custom_logger`: Docstring arguments are different '
+                'from function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [caplog: '
+                'pytest.LogCaptureFixture].',
+            ],
+        ),
     ],
 )
 def testEdgeCases(

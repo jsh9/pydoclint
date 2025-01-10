@@ -168,12 +168,18 @@ class Visitor(ast.NodeVisitor):
                 doc: Doc = Doc(docstring=docstring, style=self.style)
             except Exception as excp:
                 doc = Doc(docstring='', style=self.style)
+                msgPostfix: str = (
+                    str(excp).replace('\n', ' ')
+                    + ' (Note: DOC001 could trigger other unrelated'
+                    + ' violations under this function/method too. Please'
+                    + ' fix the docstring formatting first.)'
+                )
                 self.violations.append(
                     Violation(
                         code=1,
                         line=node.lineno,
                         msgPrefix=f'Function/method `{node.name}`:',
-                        msgPostfix=str(excp).replace('\n', ' '),
+                        msgPostfix=msgPostfix,
                     )
                 )
 
