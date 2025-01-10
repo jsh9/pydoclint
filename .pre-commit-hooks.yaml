@@ -5,3 +5,12 @@
   language: python
   types: [python]
   require_serial: true
+- id: pydoclint-flake8
+  name: pydoclint-flake8
+  description: "Run `pydoclint` via `flake8`"
+  entry: flake8
+  args: [--select=DOC]
+  language: python
+  types: [python]
+  require_serial: true
+  additional_dependencies: [flake8]
