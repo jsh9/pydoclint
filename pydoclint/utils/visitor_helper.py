@@ -508,7 +508,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     try:
         if hasGeneratorAsReturnAnnotation:
             if isinstance(
-                ast.parse(returnAnnoText).body[0].value.slice,    # type:ignore[attr-defined,arg-type]
+                ast.parse(returnAnnoText).body[0].value.slice,  # type:ignore[attr-defined,arg-type]
                 ast.Constant,
             ):
                 # This means returnAnnoText is something like "Generator[None]"
