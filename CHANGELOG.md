@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.5.15] - 2025-01-10
+
+- Changed
+
+  - Changed to using v0.0.10 of docstring_parser_fork, which now throws a
+    `ParseError` when a non-empty docstring section cannot be parsed (in Numpy
+    style). This `ParseError` would lead to DOC001.
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.14...0.5.15
+
 ## [0.5.14] - 2024-12-26
 
 - Changed
