@@ -1595,6 +1595,11 @@ def testNonAscii() -> None:
                 + ' (<unknown>, line 2)'
             ],
         ),
+        (
+            '22_PEP696_generator/case.py',
+            {'style': 'numpy'},
+            [],
+        ),
     ],
 )
 def testEdgeCases(
