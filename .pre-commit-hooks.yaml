@@ -7,7 +7,7 @@
   require_serial: true
 - id: pydoclint-flake8
   name: pydoclint-flake8
-  description: "Run `pydoclint` via `flake8`"
+  description: "Run `pydoclint` as a `flake8` plugin"
   entry: flake8
   args: [--select=DOC]
   language: python

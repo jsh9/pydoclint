@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.5.16] - 2025-01-11
+
+- Added
+
+  - A pre-commit hook for using _pydoclint_ as a flake8 plugin
+
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.15...0.5.16
+
 ## [0.5.15] - 2025-01-10
 
 - Changed
