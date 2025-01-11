@@ -44,6 +44,8 @@ The corresponding Github repository of _pydoclint_ is:
   - [2.1. As a native command line tool](#21-as-a-native-command-line-tool)
   - [2.2. As a _flake8_ plugin](#22-as-a-flake8-plugin)
   - [2.3. As a pre-commit hook](#23-as-a-pre-commit-hook)
+    - [2.3.1. Native mode](#231-native-mode)
+    - [2.3.2. As a _flake8_ plugin](#232-as-a-flake8-plugin)
   - [2.4. Native vs _flake8_](#24-native-vs-flake8)
   - [2.5. How to configure _pydoclint_](#25-how-to-configure-pydoclint)
   - [2.6. How to ignore certain violations in _flake8_ mode](#26-how-to-ignore-certain-violations-in-flake8-mode)
@@ -95,8 +97,12 @@ other built-in _flake8_ linters on your code.
 
 ### 2.3. As a pre-commit hook
 
-_pydoclint_ is configured for [pre-commit](https://pre-commit.com/) and can be
-set up as a hook with the following `.pre-commit-config.yaml` configuration:
+_pydoclint_ can be use as a [pre-commit hook](https://pre-commit.com/), both in
+the "native" mode or as a _flake8_ plugin.
+
+To use it, put the following in your `.pre-commit-config.yaml` file:
+
+#### 2.3.1. Native mode
 
 ```yaml
 - repo: https://github.com/jsh9/pydoclint
@@ -106,7 +112,18 @@ set up as a hook with the following `.pre-commit-config.yaml` configuration:
       args: [--style=google, --check-return-types=False]
 ```
 
-You will need to install `pre-commit` and run `pre-commit install`.
+(Replace `<latest_tag>` with the latest release tag in
+https://github.com/jsh9/pydoclint/releases)
+
+#### 2.3.2. As a _flake8_ plugin
+
+```yaml
+- repo: https://github.com/jsh9/pydoclint
+  rev: <latest_tag>
+  hooks:
+    - id: pydoclint-flake8
+      args: [--style=google, --check-return-types=False]
+```
 
 ### 2.4. Native vs _flake8_
 
