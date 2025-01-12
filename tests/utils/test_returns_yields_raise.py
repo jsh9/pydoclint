@@ -7,6 +7,7 @@ from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
+    hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
     hasRaiseStatements,
     hasReturnAnnotation,
@@ -83,6 +84,33 @@ class MyClass:
 """
 
 
+src8 = """
+def func8():
+    return
+"""
+
+
+src9 = """
+def func9():
+    # In tested function, so it doesn't
+    # count as having a return statement
+    def func9_child1():
+        return
+"""
+
+
+src10 = """
+def func10():
+    # When mixed, we still consider it
+    # as having a bare return statement
+    if 1 > 2:
+        return 501
+
+    if 2 > 6:
+        return
+"""
+
+
 @pytest.mark.parametrize(
     'src, expected',
     [
@@ -92,6 +120,9 @@ class MyClass:
         (src4, False),
         (src5, True),
         (src6, True),
+        (src8, True),
+        (src9, False),
+        (src10, True),
     ],
 )
 def testHasReturnStatements(src: str, expected: bool) -> None:
@@ -99,6 +130,27 @@ def testHasReturnStatements(src: str, expected: bool) -> None:
     assert len(tree.body) == 1  # sanity check
     assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
     assert hasReturnStatements(tree.body[0]) == expected
+
+
+@pytest.mark.parametrize(
+    'src, expected',
+    [
+        (src1, False),
+        (src2, False),
+        (src3, False),
+        (src4, False),
+        (src5, False),
+        (src6, False),
+        (src8, True),
+        (src9, False),
+        (src10, True),
+    ],
+)
+def testHasBareReturnStatements(src: str, expected: bool) -> None:
+    tree = ast.parse(src)
+    assert len(tree.body) == 1  # sanity check
+    assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
+    assert hasBareReturnStatements(tree.body[0]) == expected
 
 
 def testHasReturnStatements_inClass() -> None:

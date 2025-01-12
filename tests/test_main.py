@@ -1600,6 +1600,61 @@ def testNonAscii() -> None:
             {'style': 'numpy'},
             [],
         ),
+        (
+            '23_bare_return_stmt_with_yield/google.py',
+            {
+                'style': 'google',
+                'argTypeHintsInDocstring': False,
+                'checkYieldTypes': False,
+                'checkReturnTypes': True,
+            },
+            [
+                'DOC203: Function `my_func_2` return type(s) in docstring not consistent with '
+                "the return annotation. Return annotation types: ['None']; docstring return "
+                "section types: ['']"
+            ],
+        ),
+        (
+            '23_bare_return_stmt_with_yield/google.py',
+            {
+                'style': 'google',
+                'argTypeHintsInDocstring': False,
+                'checkYieldTypes': False,
+                'checkReturnTypes': False,
+            },
+            [],
+        ),
+        (
+            '23_bare_return_stmt_with_yield/google.py',
+            {
+                'style': 'google',
+                'argTypeHintsInDocstring': False,
+                'checkYieldTypes': True,
+                'checkReturnTypes': True,
+            },
+            [
+                'DOC404: Function `my_func_1` yield type(s) in docstring not consistent with '
+                'the return annotation. The yield type (the 0th arg in '
+                'Generator[...]/Iterator[...]): int; docstring "yields" section types:',
+                'DOC203: Function `my_func_2` return type(s) in docstring not consistent with '
+                "the return annotation. Return annotation types: ['None']; docstring return "
+                "section types: ['']",
+            ],
+        ),
+        (
+            '23_bare_return_stmt_with_yield/google.py',
+            {
+                'style': 'google',
+                'argTypeHintsInDocstring': False,
+                'checkYieldTypes': True,
+                'checkReturnTypes': False,
+            },
+            [
+                'DOC404: Function `my_func_1` yield type(s) in docstring not consistent with '
+                'the return annotation. The yield type (the 0th arg in '
+                'Generator[...]/Iterator[...]): int; docstring "yields" section types:',
+            ],
+        ),
     ],
 )
 def testEdgeCases(
@@ -1627,6 +1682,8 @@ def testPlayground() -> None:
         filename=DATA_DIR / 'playground.py',
         style='google',
         skipCheckingRaises=True,
+        argTypeHintsInDocstring=False,
+        checkYieldTypes=False,
     )
     expected = []
     assert list(map(str, violations)) == expected
