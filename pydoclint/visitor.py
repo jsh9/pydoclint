@@ -19,6 +19,7 @@ from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
+    hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
     hasIteratorOrIterableAsReturnAnnotation,
     hasRaiseStatements,
@@ -736,6 +737,11 @@ class Visitor(ast.NodeVisitor):
         onlyHasYieldStmt: bool = hasYieldStmt and not hasReturnStmt
         hasReturnAnno: bool = hasReturnAnnotation(node)
 
+        if hasReturnStmt:
+            hasBareReturnStmt: bool = hasBareReturnStatements(node)
+        else:
+            hasBareReturnStmt = False  # to save some time
+
         returnAnno = ReturnAnnotation(unparseName(node.returns))
         returnSec: list[ReturnArg] = doc.returnSection
 
@@ -751,6 +757,11 @@ class Visitor(ast.NodeVisitor):
                     and (hasReturnStmt or (
                         hasReturnAnno and not hasGenAsRetAnno
                     ))
+
+                    # If the return statement in the function body is a bare
+                    # return, we don't throw DOC201 or DOC405. See more at:
+                    # https://github.com/jsh9/pydoclint/issues/126#issuecomment-2136497913
+                    and not hasBareReturnStmt
 
                     # fmt: on
                 ):
@@ -813,7 +824,9 @@ class Visitor(ast.NodeVisitor):
                 else:
                     violations.append(v405)
             else:
-                if not hasGenAsRetAnno or not hasIterAsRetAnno:
+                if (
+                    not hasGenAsRetAnno or not hasIterAsRetAnno
+                ) and not hasBareReturnStmt:
                     violations.append(v405)
 
         return violations

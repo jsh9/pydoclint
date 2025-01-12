@@ -86,6 +86,18 @@ def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
     return _hasExpectedStatements(node, isThisNodeAReturnStmt)
 
 
+def hasBareReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """
+    Check whether the function node has bare return statements (i.e.,
+    just a "return" without anything behind it)
+    """
+
+    def isThisNodeABareReturnStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Return) and node_.value is None
+
+    return _hasExpectedStatements(node, isThisNodeABareReturnStmt)
+
+
 def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any raise statements"""
 

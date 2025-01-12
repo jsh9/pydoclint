@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unpublished]
+
+- Fixed
+  - False positive DOC405 and DOC201 when we have bare return statements
+    together with `yield` statements
+
 ## [0.5.18] - 2025-01-12
 
 - Fixed
