@@ -247,9 +247,22 @@ def specialEqual(str1: str, str2: str) -> bool:
     return True
 
 
-def getFullAttributeName(node: ast.Attribute | ast.Name) -> str:
-    """Get the full name of a symbol like a.b.c.foo"""
-    if isinstance(node, ast.Name):
-        return node.id
+def doList1ItemsStartWithList2Items(
+        list1: list[str],
+        list2: list[str],
+) -> bool:
+    """
+    Check whether all the elements in list1 start with the corresponding
+    element in list2.
+    """
+    if list1 == list2:
+        return True
 
-    return getFullAttributeName(node.value) + '.' + node.attr  # type:ignore[arg-type]
+    if len(list1) != len(list2):
+        return False
+
+    for elem1, elem2 in zip(list1, list2):
+        if not elem1.startswith(elem2):
+            return False
+
+    return True

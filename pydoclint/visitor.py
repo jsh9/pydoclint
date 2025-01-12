@@ -9,6 +9,7 @@ from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
     collectFuncArgs,
     detectMethodType,
+    doList1ItemsStartWithList2Items,
     generateClassMsgPrefix,
     generateFuncMsgPrefix,
     getDocstring,
@@ -858,9 +859,14 @@ class Visitor(ast.NodeVisitor):
                         docRaises.append(exc)
 
             docRaises.sort()
-            actualRaises = getRaisedExceptions(node)
+            actualRaises: list[str] = getRaisedExceptions(node)
 
-            if docRaises != actualRaises:
+            if not doList1ItemsStartWithList2Items(actualRaises, docRaises):
+                # We only do partial string comparison because there are
+                # cases like `raise a.b.c.MyException.e.f(1, 2)`, where the
+                # expected docstring exception is `a.b.c.MyException`, but
+                # there isn't an effective way to cleanly remove `e.f` at the
+                # end solely based on AST manipulation.
                 addMismatchedRaisesExceptionViolation(
                     docRaises=docRaises,
                     actualRaises=actualRaises,

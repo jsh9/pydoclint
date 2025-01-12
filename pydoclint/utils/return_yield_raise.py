@@ -5,7 +5,7 @@ from typing import Callable, Generator, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
-from pydoclint.utils.generic import getFullAttributeName, stringStartsWith
+from pydoclint.utils.generic import stringStartsWith
 from pydoclint.utils.unparser_custom import unparseName
 
 ReturnType = Type[ast.Return]
@@ -111,6 +111,8 @@ def _getRaisedExceptions(
 
     currentParentExceptHandler: ast.ExceptHandler | None = None
 
+    exceptionName: str | None
+
     # Depth-first guarantees the last-seen exception handler
     # is a parent of child.
     for child, parent in walk.walk_dfs(node):
@@ -136,12 +138,16 @@ def _getRaisedExceptions(
                 if isinstance(subnode, ast.Name):
                     if isinstance(child.exc, ast.Attribute):
                         # case: looks like m.n.exception
-                        yield getFullAttributeName(child.exc)
+                        exceptionName = unparseName(child.exc)
+                        assert isinstance(exceptionName, str)  # make mypy happy
+                        yield exceptionName
                     elif isinstance(child.exc, ast.Call) and isinstance(
                         child.exc.func, ast.Attribute
                     ):
                         # case: looks like m.n.exception()
-                        yield getFullAttributeName(child.exc.func)
+                        exceptionName = unparseName(child.exc.func)
+                        assert isinstance(exceptionName, str)  # make mypy happy
+                        yield exceptionName
                     elif (
                         currentParentExceptHandler
                         and currentParentExceptHandler.name
@@ -175,15 +181,21 @@ def _extractExceptionsFromExcept(
     if isinstance(node.type, ast.Name):
         yield node.type.id
 
+    exceptionName: str | None
+
     if isinstance(node.type, ast.Attribute):
         # case: looks like m.n.exception
-        yield getFullAttributeName(node.type)
+        exceptionName = unparseName(node.type)
+        assert isinstance(exceptionName, str)  # to make mypy happy
+        yield exceptionName
 
     if isinstance(node.type, ast.Tuple):
         for elt in node.type.elts:
             if isinstance(elt, ast.Attribute):
                 # case: looks like m.n.exception
-                yield getFullAttributeName(elt)
+                exceptionName = unparseName(elt)
+                assert isinstance(exceptionName, str)  # to make mypy happy
+                yield exceptionName
             elif isinstance(elt, ast.Name):
                 yield elt.id
 
