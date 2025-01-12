@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.5.17] - 2025-01-12
+
+- Added
+  - A new config option `--auto-regenerate-baseline` to automatically
+    regenerate the baseline file for every successful _pydoclint_ run
+
 ## [0.5.16] - 2025-01-11
 
 - Added
