@@ -255,11 +255,11 @@ def doList1ItemsStartWithList2Items(
     Check whether all the elements in list1 start with the corresponding
     element in list2.
     """
-    if list1 == list2:
-        return True
-
     if len(list1) != len(list2):
         return False
+
+    if list1 == list2:  # short-circuit, maybe faster than explicit for loop
+        return True
 
     for elem1, elem2 in zip(list1, list2):
         if not elem1.startswith(elem2):
