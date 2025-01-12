@@ -1,10 +1,11 @@
 # Change Log
 
-## [Unpublished] - 2025-01-12
+## [Unpublished]
 
 - Fixed
   - An issue where custom exceptions such as `a.b.c.MyException.from_str`
     cannot be properly parsed and compared
+  - A minor wording issue in DOC503 violation message
 
 ## [0.5.17] - 2025-01-12
 

@@ -54,7 +54,7 @@ VIOLATION_CODES = types.MappingProxyType({
 
     501: 'has "raise" statements, but the docstring does not have a "Raises" section',
     502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',
-    503: 'exceptions in the "Raises" section in the docstring do not match those in the function body',
+    503: 'exceptions in the "Raises" section in the docstring do not match those in the function body.',
 
     601: 'Class docstring contains fewer class attributes than actual class attributes.',
     602: 'Class docstring contains more class attributes than in actual class attributes.',
