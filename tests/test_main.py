@@ -610,7 +610,7 @@ def testAllowInitDocstring(style: str) -> None:
         'DOC305: Class `C`: Class docstring has a "Raises" section; please put it in '
         'the __init__() docstring',
         'DOC503: Method `C.__init__` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body Raises values in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: ['TypeError']. Raised exceptions in the body: ['ValueError'].",
         'DOC306: Class `D`: The class docstring does not need a "Yields" section, '
         'because __init__() cannot yield anything',
@@ -808,10 +808,10 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'DOC501: Method `B.func1` has "raise" statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func1` exceptions in the "Raises" section in the docstring '
-        'do not match those in the function body Raises values in the docstring: []. '
+        'do not match those in the function body. Raised exceptions in the docstring: []. '
         "Raised exceptions in the body: ['ValueError'].",
         'DOC503: Method `B.func4` exceptions in the "Raises" section in the docstring '
-        'do not match those in the function body Raises values in the docstring: '
+        'do not match those in the function body. Raised exceptions in the docstring: '
         "['CurtomError']. Raised exceptions in the body: ['CustomError'].",
         'DOC502: Method `B.func5` has a "Raises" section in the docstring, but there '
         'are not "raise" statements in the body',
@@ -822,22 +822,22 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'DOC501: Function `inner9a` has "raise" statements, but the docstring does '
         'not have a "Raises" section',
         'DOC503: Function `inner9a` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body Raises values in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: []. Raised exceptions in the body: ['FileNotFoundError'].",
         'DOC503: Method `B.func11` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body Raises values in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: ['TypeError']. Raised exceptions in the body: ['TypeError', "
         "'ValueError'].",
         'DOC503: Method `B.func13` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body Raises values in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: ['ValueError', 'ValueError']. Raised exceptions in the body: "
         "['ValueError'].",
         'DOC503: Method `B.func14` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body Raises values in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: ['CustomError']. Raised exceptions in the body: "
         "['exceptions.CustomError'].",
         'DOC503: Method `B.func15` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body Raises values in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: ['CustomError']. Raised exceptions in the body: "
         "['exceptions.m.CustomError'].",
     ]
@@ -870,7 +870,7 @@ def testRaisesPy310plus(style: str, skipRaisesCheck: bool) -> None:
         'DOC501: Method `B.func10` has "raise" statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func10` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body Raises values in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: []. Raised exceptions in the body: ['ValueError'].",
     ]
     expected1 = []

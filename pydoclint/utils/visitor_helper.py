@@ -568,7 +568,7 @@ def addMismatchedRaisesExceptionViolation(
     body and docstring
     """
     msgPostfix: str = (
-        f'Raises values in the docstring: {docRaises}.'
+        f'Raised exceptions in the docstring: {docRaises}.'
         f' Raised exceptions in the body: {actualRaises}.'
     )
     violations.append(
