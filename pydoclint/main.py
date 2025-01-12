@@ -280,7 +280,7 @@ def validateStyleValue(
     '--auto-regenerate-baseline',
     type=bool,
     show_default=True,
-    default=False,
+    default=True,
     help=(
         'If True, automatically regenerate the baseline file every time'
         ' pydoclint runs successfully.'
