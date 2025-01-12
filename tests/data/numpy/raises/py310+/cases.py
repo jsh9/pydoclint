@@ -1,5 +1,5 @@
 # This can be merged into the parent folder after Py39 support is dropped.
-# Because Python 3.9 does not suport match-case syntax.
+# Because Python 3.9 does not support match-case syntax.
 
 
 class B:

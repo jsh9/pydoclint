@@ -1,10 +1,18 @@
 # Change Log
 
+## [Unpublished] - 2025-01-12
+
+- Fixed
+  - An issue where custom exceptions such as `a.b.c.MyException.from_str`
+    cannot be properly parsed and compared
+
 ## [0.5.17] - 2025-01-12
 
 - Added
   - A new config option `--auto-regenerate-baseline` to automatically
     regenerate the baseline file for every successful _pydoclint_ run
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.16...0.5.17
 
 ## [0.5.16] - 2025-01-11
 

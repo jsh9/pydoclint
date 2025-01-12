@@ -1,6 +1,9 @@
 import pytest
 
-from pydoclint.utils.generic import stripQuotes
+from pydoclint.utils.generic import (
+    doList1ItemsStartWithList2Items,
+    stripQuotes,
+)
 
 
 @pytest.mark.parametrize(
@@ -25,4 +28,39 @@ from pydoclint.utils.generic import stripQuotes
 )
 def testStripQuotes(inputStr: str, expected: str) -> None:
     output = stripQuotes(inputStr)
+    assert output == expected
+
+
+@pytest.mark.parametrize(
+    'list1, list2, expected',
+    [
+        ([], [], True),
+        (
+            ['abc', 'def', 'ghi'],
+            ['abc', 'def', 'ghi'],
+            True,
+        ),
+        (
+            ['abc', 'def', 'ghi'],
+            ['abc', 'def', 'ghi', 'jkl'],
+            False,
+        ),
+        (
+            ['abc123', 'def456', 'ghi789'],
+            ['abc', 'def', 'ghi'],
+            True,
+        ),
+        (
+            ['abc', 'def', 'ghi'],
+            ['abc123', 'def456', 'ghi789'],
+            False,
+        ),
+    ],
+)
+def testDoList1ItemsStartWithList2Items(
+        list1: list[str],
+        list2: list[str],
+        expected: bool,
+) -> None:
+    output = doList1ItemsStartWithList2Items(list1, list2)
     assert output == expected

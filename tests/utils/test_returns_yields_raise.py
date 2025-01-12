@@ -449,6 +449,18 @@ def func16():
         raise e
     except (KeyError, IndexError) as e:
         raise e
+
+def func17():
+    if a < 1:
+        raise MyException.a.b.c(('a', 'b'))
+    elif a < 2:
+        raise YourException.a.b.c(1)
+    elif a < 3:
+        raise a.b.c.TheirException.from_str.d.e('my_str')
+    elif a < 4:
+        raise a.b.c.d.e.f.g.WhoseException.h.i.j.k
+    else:
+        pass
 """
 
 
@@ -476,6 +488,7 @@ def testHasRaiseStatements() -> None:
         (126, 0, 'func14'): True,
         (135, 0, 'func15'): True,
         (141, 0, 'func16'): True,
+        (150, 0, 'func17'): True,
     }
 
     assert result == expected
@@ -514,6 +527,14 @@ def testWhichRaiseStatements() -> None:
         ],
         (135, 0, 'func15'): ['other.Exception'],
         (141, 0, 'func16'): ['IOError', 'IndexError', 'KeyError'],
+        (150, 0, 'func17'): [
+            # We are unable to detect and drop the parts after "Exception"
+            # here, so we will perform partial string matching later.
+            'MyException.a.b.c',
+            'YourException.a.b.c',
+            'a.b.c.TheirException.from_str.d.e',
+            'a.b.c.d.e.f.g.WhoseException.h.i.j.k',
+        ],
     }
 
     assert result == expected

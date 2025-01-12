@@ -174,3 +174,23 @@ class B:
         exceptions.m = object()
         exceptions.m.CustomError = CustomError
         raise exceptions.m.CustomError
+
+    def func16(self) -> None:
+        """
+        It should pass.
+
+        :raises MyException: if a < 1
+        :raises YourException: if a < 2
+        :raises a.b.c.TheirException: if a < 3
+        :raises a.b.c.d.e.f.g.WhoseException: if a < 4
+        """
+        if a < 1:
+            raise MyException.a.b.c(('a', 'b'))
+        elif a < 2:
+            raise YourException.a.b.c(1)
+        elif a < 3:
+            raise a.b.c.TheirException.from_str.d.e('my_str')
+        elif a < 4:
+            raise a.b.c.d.e.f.g.WhoseException.h.i.j.k
+        else:
+            pass
