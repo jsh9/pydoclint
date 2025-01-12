@@ -11,7 +11,7 @@ from pydoclint import __version__
 from pydoclint.baseline import (
     generateBaseline,
     parseBaseline,
-    removeBaselineViolations,
+    reEvaluateBaseline,
 )
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
@@ -276,6 +276,17 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-arb',
+    '--auto-regenerate-baseline',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, automatically regenerate the baseline file every time'
+        ' pydoclint runs successfully.'
+    ),
+)
+@click.option(
     '-sfn',
     '--show-filenames-in-every-violation-message',
     type=bool,
@@ -341,6 +352,7 @@ def main(  # noqa: C901
         require_yield_section_when_yielding_nothing: bool,
         only_attrs_with_classvar_are_treated_as_class_attrs: bool,
         generate_baseline: bool,
+        auto_regenerate_baseline: bool,
         baseline: str,
         show_filenames_in_every_violation_message: bool,
         config: str | None,  # don't remove it b/c it's required by `click`
@@ -400,7 +412,7 @@ def main(  # noqa: C901
             click.echo(
                 click.style(
                     "The baseline file was specified but it doesn't exist.\n"
-                    'Use --generate-baseline True to generate it.',
+                    'Use `--generate-baseline=True` to generate it first.',
                     fg='red',
                     bold=True,
                 ),
@@ -444,8 +456,8 @@ def main(  # noqa: C901
         if baseline is None:
             click.echo(
                 click.style(
-                    'The baseline file was not specified. '
-                    'Use --baseline option or specify it in your config file',
+                    'The baseline file was not specified. Use the'
+                    ' --baseline option or specify it in your config file',
                     fg='red',
                     bold=True,
                 ),
@@ -456,30 +468,51 @@ def main(  # noqa: C901
         generateBaseline(violationsInAllFiles, baselinePath)
         click.echo(
             click.style(
-                'Baseline file was sucessfuly generated', fg='green', bold=True
+                'The baseline file was successfully generated',
+                fg='green',
+                bold=True,
             ),
             err=echoAsError,
         )
         ctx.exit(0)
 
     if baseline is not None:
-        parsedBaseline = parseBaseline(baselinePath)
+        parsedBaseline: dict[str, list[str]] = parseBaseline(baselinePath)
         (
             baselineRegenerationNeeded,
+            unfixedBaselineViolationsInAllFiles,
             violationsInAllFiles,
-        ) = removeBaselineViolations(parsedBaseline, violationsInAllFiles)
+        ) = reEvaluateBaseline(parsedBaseline, violationsInAllFiles)
         if baselineRegenerationNeeded:
-            click.echo(
-                click.style(
-                    'Some old violations was fixed. Please regenerate'
-                    ' your baseline file after fixing new problems.\n'
-                    'Use option --generate-baseline True',
-                    fg='red',
-                    bold=True,
-                ),
-                err=echoAsError,
-            )
+            if auto_regenerate_baseline:
+                generateBaseline(
+                    violationsAllFiles=unfixedBaselineViolationsInAllFiles,
+                    path=baselinePath,
+                )
+                click.echo(
+                    click.style(
+                        'Some old violations were fixed, and'
+                        ' the baseline file was successfully re-generated',
+                        fg='green',
+                        bold=True,
+                    ),
+                    err=echoAsError,
+                )
+            else:
+                click.echo(
+                    click.style(
+                        'Some old violations were fixed. Please regenerate'
+                        ' your baseline file after fixing new problems.\n'
+                        'Use `--generate-baseline=True`. Or you can use'
+                        ' `--auto-regenerate-baseline=True` to do this'
+                        ' automatically in the future.',
+                        fg='red',
+                        bold=True,
+                    ),
+                    err=echoAsError,
+                )
 
+    # Print violation messages nicely to the terminal
     violationCounter: int = 0
     if len(violationsInAllFiles) > 0:
         counter = 0

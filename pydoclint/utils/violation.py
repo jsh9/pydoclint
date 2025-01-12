@@ -110,6 +110,16 @@ class Violation:
 
         return f'{self.line}: {self.__str__()}'
 
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Violation):
+            return False
+
+        return (
+            self.line == other.line
+            and self.code == other.code
+            and self.msg == other.msg
+        )
+
     def getInfoForFlake8(self) -> tuple[int, int, str]:
         """Get the violation info for flake8"""
         colOffset: int = 0  # we don't need column offset to locate the issue
