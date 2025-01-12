@@ -1,12 +1,10 @@
 # Change Log
 
-## [0.5.19] - 2025-01-12
+## [Unpublished]
 
 - Fixed
   - False positive DOC405 and DOC201 when we have bare return statements
     together with `yield` statements
-- Full diff
-  - https://github.com/jsh9/pydoclint/compare/0.5.18...0.5.19
 
 ## [0.5.18] - 2025-01-12
 
