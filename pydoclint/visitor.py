@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import ast
 
+from docstring_parser import ParseError
+
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
@@ -15,6 +17,10 @@ from pydoclint.utils.generic import (
     getDocstring,
 )
 from pydoclint.utils.method_type import MethodType
+from pydoclint.utils.parse_docstring import (
+    parseDocstring,
+    parseDocstringInGivenStyle,
+)
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
@@ -70,6 +76,7 @@ class Visitor(ast.NodeVisitor):
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
             shouldDocumentStarArguments: bool = True,
+            checkStyleMismatch: bool = False,
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -98,6 +105,7 @@ class Visitor(ast.NodeVisitor):
             requireYieldSectionWhenYieldingNothing
         )
         self.shouldDocumentStarArguments: bool = shouldDocumentStarArguments
+        self.checkStyleMismatch: bool = checkStyleMismatch
 
         self.parent: ast.AST = ast.Pass()  # keep track of parent node
         self.violations: list[Violation] = []
@@ -132,7 +140,7 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = currentParent  # restore
 
-    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102, C901
         parent_: ast.ClassDef | FuncOrAsyncFuncDef = self.parent  # type:ignore[assignment]
         self.parent = node
 
@@ -157,7 +165,7 @@ class Visitor(ast.NodeVisitor):
         yieldViolations: list[Violation]
         raiseViolations: list[Violation]
 
-        if docstring == '':
+        if docstring.strip() == '':
             # We don't check functions without docstrings.
             # We defer to
             # flake8-docstrings (https://github.com/PyCQA/flake8-docstrings)
@@ -168,12 +176,25 @@ class Visitor(ast.NodeVisitor):
             yieldViolations = []
             raiseViolations = []
         else:
-            try:
-                doc: Doc = Doc(docstring=docstring, style=self.style)
-            except Exception as excp:
-                doc = Doc(docstring='', style=self.style)
+            doc: Doc
+            potentialParsingError: ParseError | None
+            styleMismatch: bool
+
+            if self.checkStyleMismatch:
+                doc, potentialParsingError, styleMismatch = parseDocstring(
+                    docstring,
+                    userSpecifiedStyle=self.style,
+                )
+            else:
+                doc, potentialParsingError = parseDocstringInGivenStyle(
+                    docstring,
+                    style=self.style,
+                )
+                styleMismatch = False  # always silence DOC003
+
+            if potentialParsingError is not None:
                 msgPostfix: str = (
-                    str(excp).replace('\n', ' ')
+                    str(potentialParsingError).replace('\n', ' ')
                     + ' (Note: DOC001 could trigger other unrelated'
                     + ' violations under this function/method too. Please'
                     + ' fix the docstring formatting first.)'
@@ -184,6 +205,19 @@ class Visitor(ast.NodeVisitor):
                         line=node.lineno,
                         msgPrefix=f'Function/method `{node.name}`:',
                         msgPostfix=msgPostfix,
+                    )
+                )
+
+            if styleMismatch:
+                self.violations.append(
+                    Violation(
+                        code=3,
+                        line=node.lineno,
+                        msgPrefix=f'Function/method `{node.name}`:',
+                        msgPostfix=(
+                            f'You specified "{self.style}" style, but the'
+                            f' docstring is likely not written in this style.'
+                        ),
                     )
                 )
 

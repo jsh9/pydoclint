@@ -37,6 +37,8 @@ class Doc:
         else:
             self._raiseException()
 
+        self.docstringSize = self.parsed.size
+
     def __repr__(self) -> str:
         return pprint.pformat(self.__dict__, indent=2)
 

@@ -223,6 +223,18 @@ class Plugin:
                 ' appear in the docstring.'
             ),
         )
+        parser.add_option(
+            '-csm',
+            '--check-style-mismatch',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, check that style specified in --style matches the detected'
+                ' style of the docstring. If there is a mismatch, DOC003 will be'
+                ' reported. Setting this to False will silence all DOC003 violations.'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options: Any) -> None:  # noqa: D102
@@ -261,6 +273,7 @@ class Plugin:
         cls.should_document_star_arguments = (
             options.should_document_star_arguments
         )
+        cls.check_style_mismatch = options.check_style_mismatch
         cls.style = options.style
 
     def run(self) -> Generator[tuple[int, int, str, Any], None, None]:
@@ -342,6 +355,10 @@ class Plugin:
             '--should-document-star-arguments',
             self.should_document_star_arguments,
         )
+        checkStyleMismatch = self._bool(
+            '--check-style-mismatch',
+            self.check_style_mismatch,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -372,6 +389,7 @@ class Plugin:
                 treatPropertyMethodsAsClassAttributes
             ),
             shouldDocumentStarArguments=shouldDocumentStarArguments,
+            checkStyleMismatch=checkStyleMismatch,
             style=self.style,
         )
         v.visit(self._tree)

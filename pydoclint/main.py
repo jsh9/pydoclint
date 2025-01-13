@@ -263,6 +263,18 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-csm',
+    '--check-style-mismatch',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, check that style specified in --style matches the detected'
+        ' style of the docstring. If there is a mismatch, DOC003 will be'
+        ' reported. Setting this to False will silence all DOC003 violations.'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -365,6 +377,7 @@ def main(  # noqa: C901
         require_yield_section_when_yielding_nothing: bool,
         only_attrs_with_classvar_are_treated_as_class_attrs: bool,
         should_document_star_arguments: bool,
+        check_style_mismatch: bool,
         generate_baseline: bool,
         auto_regenerate_baseline: bool,
         baseline: str,
@@ -465,6 +478,7 @@ def main(  # noqa: C901
             require_yield_section_when_yielding_nothing
         ),
         shouldDocumentStarArguments=should_document_star_arguments,
+        checkStyleMismatch=check_style_mismatch,
     )
 
     if generate_baseline:
@@ -601,6 +615,7 @@ def _checkPaths(
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
+        checkStyleMismatch: bool = False,
         quiet: bool = False,
         exclude: str = '',
 ) -> dict[str, list[Violation]]:
@@ -661,6 +676,7 @@ def _checkPaths(
                 requireYieldSectionWhenYieldingNothing
             ),
             shouldDocumentStarArguments=shouldDocumentStarArguments,
+            checkStyleMismatch=checkStyleMismatch,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -686,6 +702,7 @@ def _checkFile(
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
+        checkStyleMismatch: bool = False,
 ) -> list[Violation]:
     if not filename.is_file():  # sometimes folder names can end with `.py`
         return []
@@ -741,6 +758,7 @@ def _checkFile(
             requireYieldSectionWhenYieldingNothing
         ),
         shouldDocumentStarArguments=shouldDocumentStarArguments,
+        checkStyleMismatch=checkStyleMismatch,
     )
     visitor.visit(tree)
     return visitor.violations
