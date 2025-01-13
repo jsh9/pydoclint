@@ -933,6 +933,7 @@ def testParsingErrors_google() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'google/parsing_errors/cases.py',
         style='google',
+        checkStyleMismatch=True,
     )
     expected = [
         'DOC001: Class `A`: Potential formatting errors in docstring. Error message: '
@@ -941,6 +942,10 @@ def testParsingErrors_google() -> None:
         "docstring. Error message: Expected a colon in 'arg1'. (Note: DOC001 could "
         'trigger other unrelated violations under this function/method too. Please '
         'fix the docstring formatting first.)',
+        'DOC003: Function/method `__init__`: Docstring style mismatch. (Please read '
+        'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+        'specified "google" style, but the docstring is likely not written in this '
+        'style.',
     ]
     assert list(map(str, violations)) == expected
 
@@ -949,6 +954,7 @@ def testParsingErrors_sphinx() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'sphinx/parsing_errors/cases.py',
         style='sphinx',
+        checkStyleMismatch=True,
     )
     expected = []  # not sure how to craft docstrings with parsing errors yet
     assert list(map(str, violations)) == expected
@@ -960,6 +966,7 @@ def testParsingErrors_numpy() -> None:
         argTypeHintsInDocstring=False,
         argTypeHintsInSignature=False,
         style='numpy',
+        checkStyleMismatch=True,
     )
     expected = [
         'DOC001: Class `A`: Potential formatting errors in docstring. Error message: '
@@ -968,10 +975,18 @@ def testParsingErrors_numpy() -> None:
         "docstring. Error message: Section 'Parameters' is not empty but nothing was "
         'parsed. (Note: DOC001 could trigger other unrelated violations under this '
         'function/method too. Please fix the docstring formatting first.)',
+        'DOC003: Function/method `__init__`: Docstring style mismatch. (Please read '
+        'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+        'specified "numpy" style, but the docstring is likely not written in this '
+        'style.',
         'DOC001: Function/method `method2`: Potential formatting errors in docstring. '
         "Error message: Section 'Yields' is not empty but nothing was parsed. (Note: "
         'DOC001 could trigger other unrelated violations under this function/method '
         'too. Please fix the docstring formatting first.)',
+        'DOC003: Function/method `method2`: Docstring style mismatch. (Please read '
+        'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+        'specified "numpy" style, but the docstring is likely not written in this '
+        'style.',
         'DOC101: Method `A.method2`: Docstring contains fewer arguments than in '
         'function signature.',
         'DOC103: Method `A.method2`: Docstring arguments are different from function '
@@ -980,6 +995,86 @@ def testParsingErrors_numpy() -> None:
         'Arguments in the function signature but not in the docstring: [arg4: ].',
     ]
     assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize(
+    'expectedStyle, expectedViolations',
+    [
+        (
+            'google',
+            [
+                'DOC003: Function/method `func2a`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "google" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func2b`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "google" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func3a`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "google" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func3b`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "google" style, but the docstring is likely not written in this '
+                'style.',
+            ],
+        ),
+        (
+            'numpy',
+            [
+                'DOC003: Function/method `func1a`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "numpy" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func1b`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "numpy" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func3a`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "numpy" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func3b`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "numpy" style, but the docstring is likely not written in this '
+                'style.',
+            ],
+        ),
+        (
+            'sphinx',
+            [
+                'DOC003: Function/method `func1a`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "sphinx" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func1b`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "sphinx" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func2a`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "sphinx" style, but the docstring is likely not written in this '
+                'style.',
+                'DOC003: Function/method `func2b`: Docstring style mismatch. (Please read '
+                'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
+                'specified "sphinx" style, but the docstring is likely not written in this '
+                'style.',
+            ],
+        ),
+    ],
+)
+def testDocstringStyleMismatch(
+        expectedStyle: str,
+        expectedViolations: list[str],
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'common/style_mismatch.py',
+        style=expectedStyle,
+        checkStyleMismatch=True,
+    )
+    assert list(map(str, violations)) == expectedViolations
 
 
 @pytest.mark.parametrize(

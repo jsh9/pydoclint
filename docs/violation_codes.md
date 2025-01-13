@@ -19,10 +19,11 @@
 
 ## 0. `DOC0xx`: Docstring parsing issues
 
-| Code     | Explanation                              |
-| -------- | ---------------------------------------- |
-| `DOC001` | Potential formatting errors in docstring |
-| `DOC002` | Syntax error in the Python file          |
+| Code     | Explanation                                                                                    |
+| -------- | ---------------------------------------------------------------------------------------------- |
+| `DOC001` | Potential formatting errors in docstring                                                       |
+| `DOC002` | Syntax error in the Python file                                                                |
+| `DOC003` | Docstring style mismatch ([explanation](https://jsh9.github.io/pydoclint/style_mismatch.html)) |
 
 ## 1. `DOC1xx`: Violations about input arguments
 

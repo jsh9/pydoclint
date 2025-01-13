@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.6.0] - 2025-01-13
+
+- Added
+  - A new violation code, `DOC003`, to detect docstring style mismatch (when
+    docstrings are written in the style different from specified)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.19...0.6.0
+
 ## [0.5.19] - 2025-01-12
 
 - Fixed
