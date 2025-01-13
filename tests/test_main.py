@@ -1655,6 +1655,44 @@ def testNonAscii() -> None:
                 'Generator[...]/Iterator[...]): int; docstring "yields" section types:',
             ],
         ),
+        (
+            '24_star_arguments/numpy.py',
+            {'style': 'numpy', 'shouldDocumentStarArguments': True},
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
+                'function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [**kwargs: '
+                'Any, *args: Any].',
+                'DOC101: Function `function_3`: Docstring contains fewer arguments than in '
+                'function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [*args: Any].',
+            ],
+        ),
+        (
+            '24_star_arguments/numpy.py',
+            {'style': 'numpy', 'shouldDocumentStarArguments': False},
+            [
+                'DOC102: Function `function_2`: Docstring contains more arguments than in '
+                'function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the function signature: [**kwargs: '
+                'Any, *args: Any].',
+                'DOC102: Function `function_3`: Docstring contains more arguments than in '
+                'function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the function signature: [**kwargs: Any].',
+            ],
+        ),
     ],
 )
 def testEdgeCases(
@@ -1680,10 +1718,7 @@ def testPlayground() -> None:
     """
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
-        style='google',
-        skipCheckingRaises=True,
-        argTypeHintsInDocstring=False,
-        checkYieldTypes=False,
+        style='numpy',
     )
     expected = []
     assert list(map(str, violations)) == expected

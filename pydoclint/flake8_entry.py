@@ -210,6 +210,19 @@ class Plugin:
                 ' treated as instance attributes.'
             ),
         )
+        parser.add_option(
+            '-sdsa',
+            '--should-document-star-arguments',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, "star arguments" (such as *args, **kwargs,'
+                ' **props, etc.) in the function signature should be'
+                ' documented in the docstring. If False, they should not'
+                ' appear in the docstring.'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options: Any) -> None:  # noqa: D102
@@ -244,6 +257,9 @@ class Plugin:
         )
         cls.only_attrs_with_ClassVar_are_treated_as_class_attrs = (
             options.only_attrs_with_ClassVar_are_treated_as_class_attrs
+        )
+        cls.should_document_star_arguments = (
+            options.should_document_star_arguments
         )
         cls.style = options.style
 
@@ -322,6 +338,10 @@ class Plugin:
             '--treat-property-methods-as-class-attributes',
             self.treat_property_methods_as_class_attributes,
         )
+        shouldDocumentStarArguments = self._bool(
+            '--should-document-star-arguments',
+            self.should_document_star_arguments,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -351,6 +371,7 @@ class Plugin:
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
             ),
+            shouldDocumentStarArguments=shouldDocumentStarArguments,
             style=self.style,
         )
         v.visit(self._tree)

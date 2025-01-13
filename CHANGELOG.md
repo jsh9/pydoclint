@@ -1,10 +1,17 @@
 # Change Log
 
-## [Unpublished]
+## [0.5.19] - 2025-01-12
 
 - Fixed
   - False positive DOC405 and DOC201 when we have bare return statements
     together with `yield` statements
+- Added
+  - A new config option `--should-document-star-arguments` (if `False`, star
+    arguments such as `*args` and `**kwargs` should not be documented in the
+    docstring)
+  - A pre-commit step to check that "Full diff" is always added in CHANGELOG.md
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.5.18...0.5.19
 
 ## [0.5.18] - 2025-01-12
 

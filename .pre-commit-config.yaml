@@ -38,3 +38,11 @@ repos:
         entry: python .pre_commit_helper_scripts/copy_readme.py
         language: system
         types: [python]
+
+  - repo: local
+    hooks:
+      - id: check_full_diff_in_changelog
+        name: Check "full diff" exists in CHANGELOG.md
+        entry: python .pre_commit_helper_scripts/check_full_diff_in_changelog.py
+        language: python
+        additional_dependencies: ["markdown-it-py"]

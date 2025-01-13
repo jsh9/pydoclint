@@ -69,6 +69,7 @@ class Visitor(ast.NodeVisitor):
             onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
+            shouldDocumentStarArguments: bool = True,
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -96,6 +97,7 @@ class Visitor(ast.NodeVisitor):
         self.requireYieldSectionWhenYieldingNothing: bool = (
             requireYieldSectionWhenYieldingNothing
         )
+        self.shouldDocumentStarArguments: bool = shouldDocumentStarArguments
 
         self.parent: ast.AST = ast.Pass()  # keep track of parent node
         self.violations: list[Violation] = []
@@ -425,6 +427,14 @@ class Visitor(ast.NodeVisitor):
             # functions that must accept a certain number of input arguments.)
             funcArgs = ArgList(
                 [_ for _ in funcArgs.infoList if set(_.name) != {'_'}]
+            )
+
+        if not self.shouldDocumentStarArguments:
+            # This is "should not" rather than "need not", which means that
+            # if this config option is set to False, there CANNOT be
+            # documentation of star arguments in the docstring
+            funcArgs = ArgList(
+                [_ for _ in funcArgs.infoList if not _.name.startswith('*')]
             )
 
         if docArgs.length == 0 and funcArgs.length == 0:

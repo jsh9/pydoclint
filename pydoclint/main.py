@@ -250,6 +250,19 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-sdsa',
+    '--should-document-star-arguments',
+    type=bool,
+    show_default=True,
+    default=True,
+    help=(
+        'If True, "star arguments" (such as *args, **kwargs,'
+        ' **props, etc.) in the function signature should be'
+        ' documented in the docstring. If False, they should not'
+        ' appear in the docstring.'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -351,6 +364,7 @@ def main(  # noqa: C901
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
         only_attrs_with_classvar_are_treated_as_class_attrs: bool,
+        should_document_star_arguments: bool,
         generate_baseline: bool,
         auto_regenerate_baseline: bool,
         baseline: str,
@@ -450,6 +464,7 @@ def main(  # noqa: C901
         requireYieldSectionWhenYieldingNothing=(
             require_yield_section_when_yielding_nothing
         ),
+        shouldDocumentStarArguments=should_document_star_arguments,
     )
 
     if generate_baseline:
@@ -585,6 +600,7 @@ def _checkPaths(
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
+        shouldDocumentStarArguments: bool = True,
         quiet: bool = False,
         exclude: str = '',
 ) -> dict[str, list[Violation]]:
@@ -644,6 +660,7 @@ def _checkPaths(
             requireYieldSectionWhenYieldingNothing=(
                 requireYieldSectionWhenYieldingNothing
             ),
+            shouldDocumentStarArguments=shouldDocumentStarArguments,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -668,6 +685,7 @@ def _checkFile(
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
+        shouldDocumentStarArguments: bool = True,
 ) -> list[Violation]:
     if not filename.is_file():  # sometimes folder names can end with `.py`
         return []
@@ -722,6 +740,7 @@ def _checkFile(
         requireYieldSectionWhenYieldingNothing=(
             requireYieldSectionWhenYieldingNothing
         ),
+        shouldDocumentStarArguments=shouldDocumentStarArguments,
     )
     visitor.visit(tree)
     return visitor.violations
