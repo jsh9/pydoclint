@@ -63,7 +63,6 @@ class Doc:
         elif style == 'google':
             parser = GoogleParser()
             self.parsed = parser.parse(docstring)
-
         elif style == 'sphinx':
             self.parsed = parseSphinx(docstring)
         else:
