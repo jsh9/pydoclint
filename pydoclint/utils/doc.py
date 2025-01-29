@@ -21,12 +21,12 @@ from pydoclint.utils.yield_arg import YieldArg
 class Doc:
     """A class to hold docstring and to provide info on the parsed docstring"""
 
-    def __init__(self, docstring: str, style: str = "numpy") -> None:
+    def __init__(self, docstring: str, style: str = 'numpy') -> None:
         self.docstring = docstring
         self.style = style
 
         parser: NumpydocParser | GoogleParser
-        if style == "numpy":
+        if style == 'numpy':
             parser = NumpydocParser()
             self.parsed = parser.parse(docstring)
 
@@ -47,20 +47,24 @@ class Doc:
             #          foo: int, default 10
             #          bar: int = 10
             for k, metadata in enumerate(self.parsed.meta):
-                if metadata.args[0] == "param":
+                if metadata.args[0] == 'param':
                     # use of `in` can be replaced with a pre-compiled `re`, but
                     # in general, for short simple patterns like this, `in` is
                     # faster than regex.
                     if metadata.type_name is not None:
-                        if (ix := metadata.type_name.find(", default")) >= 0:
-                            self.parsed.meta[k].type_name = metadata.type_name[:ix]
-                        elif (ix := metadata.type_name.find(" = ")) >= 0:
-                            self.parsed.meta[k].type_name = metadata.type_name[:ix]
-        elif style == "google":
+                        if (ix := metadata.type_name.find(', default')) >= 0:
+                            self.parsed.meta[k].type_name = metadata.type_name[
+                                :ix
+                            ]
+                        elif (ix := metadata.type_name.find(' = ')) >= 0:
+                            self.parsed.meta[k].type_name = metadata.type_name[
+                                :ix
+                            ]
+        elif style == 'google':
             parser = GoogleParser()
             self.parsed = parser.parse(docstring)
 
-        elif style == "sphinx":
+        elif style == 'sphinx':
             self.parsed = parseSphinx(docstring)
         else:
             self._raiseException()
@@ -73,7 +77,7 @@ class Doc:
     @property
     def isShortDocstring(self) -> bool:  # type:ignore[return]
         """Is the docstring a short one (containing only a summary)"""
-        if self.style in {"google", "numpy", "sphinx"}:
+        if self.style in {'google', 'numpy', 'sphinx'}:
             # API documentation:
             # https://rr-.github.io/docstring_parser/docstring_parser.Docstring.html
             return (
@@ -95,7 +99,7 @@ class Doc:
     @property
     def argList(self) -> ArgList:  # type:ignore[return]
         """The argument info in the docstring, presented as an ArgList"""
-        if self.style in {"google", "numpy", "sphinx"}:
+        if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringParam(self.parsed.params)
 
         self._raiseException()  # noqa: R503
@@ -103,7 +107,7 @@ class Doc:
     @property
     def attrList(self) -> ArgList:  # type:ignore[return]
         """The attributes info in the docstring, presented as an ArgList"""
-        if self.style in {"google", "numpy", "sphinx"}:
+        if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringAttr(self.parsed.attrs)
 
         self._raiseException()  # noqa: R503
@@ -111,7 +115,7 @@ class Doc:
     @property
     def hasReturnsSection(self) -> bool:  # type:ignore[return]
         """Whether the docstring has a 'Returns' section"""
-        if self.style in {"google", "numpy", "sphinx"}:
+        if self.style in {'google', 'numpy', 'sphinx'}:
             retSection: DocstringReturns | None = self.parsed.returns
             return retSection is not None and not retSection.is_generator
 
@@ -120,7 +124,7 @@ class Doc:
     @property
     def hasYieldsSection(self) -> bool:  # type:ignore[return]
         """Whether the docstring has a 'Yields' section"""
-        if self.style in {"google", "numpy", "sphinx"}:
+        if self.style in {'google', 'numpy', 'sphinx'}:
             yieldSection: DocstringYields = self.parsed.yields
             return yieldSection is not None
 
@@ -129,7 +133,7 @@ class Doc:
     @property
     def hasRaisesSection(self) -> bool:  # type:ignore[return]
         """Whether the docstring has a 'Raises' section"""
-        if self.style in {"google", "numpy", "sphinx"}:
+        if self.style in {'google', 'numpy', 'sphinx'}:
             return len(self.parsed.raises) > 0
 
         self._raiseException()  # noqa: R503
@@ -178,4 +182,4 @@ class Doc:
 
     @classmethod
     def _str(cls, something: Any) -> str:
-        return "" if something is None else str(something)
+        return '' if something is None else str(something)
