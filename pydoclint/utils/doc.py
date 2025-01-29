@@ -51,13 +51,13 @@ class Doc:
                     # use of `in` can be replaced with a pre-compiled `re`, but
                     # in general, for short simple patterns like this, `in` is
                     # faster than regex.
-                    if metadata.type_name is not None:
-                        if (ix := metadata.type_name.find(', default')) >= 0:
-                            self.parsed.meta[k].type_name = metadata.type_name[
+                    if metadata.type_name is not None:  # type:ignore[attr-defined]
+                        if (ix := metadata.type_name.find(', default')) >= 0:  # type:ignore[attr-defined]
+                            self.parsed.meta[k].type_name = metadata.type_name[  # type:ignore[attr-defined]
                                 :ix
                             ]
-                        elif (ix := metadata.type_name.find(' = ')) >= 0:
-                            self.parsed.meta[k].type_name = metadata.type_name[
+                        elif (ix := metadata.type_name.find(' = ')) >= 0:  # type:ignore[attr-defined]
+                            self.parsed.meta[k].type_name = metadata.type_name[  # type:ignore[attr-defined]
                                 :ix
                             ]
         elif style == 'google':
