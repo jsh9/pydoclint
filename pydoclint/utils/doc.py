@@ -44,8 +44,8 @@ class Doc:
             #   supports a couple different specs:
             #      Parameters
             #      ----------
-            #          foo: int, default 10
-            #          bar: int = 10
+            #      foo: int, default 10
+            #      bar: int = 10        # noqa: E800
             for k, metadata in enumerate(self.parsed.meta):
                 if metadata.args[0] == 'param':
                     # use of `in` can be replaced with a pre-compiled `re`, but
