@@ -135,6 +135,32 @@ def testArguments(
 
 
 @pytest.mark.parametrize(
+    'style, filename',
+    list(
+        itertools.product(
+            ['numpy'],
+            ['defaults.py'],
+        ),
+    ),
+)
+def testtArgumentDefaults(
+        style: str,
+        filename: str,
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/args/{filename}',
+        checkArgOrder=False,  # this is checked elsewhere and should be orthogonal
+        checkReturnTypes=False,  # because this test only checks arguments
+        style=style,
+    )
+
+    expectedViolations: List[str] = [
+        'DOC105: Function `func3`: Argument names match, but type hints in these args do not match: arg_1, arg_4',
+    ]
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize(
     'style, checkClassAttr',
     list(
         itertools.product(
