@@ -48,9 +48,6 @@ class Doc:
             #      bar: int = 10        # noqa: E800
             for k, metadata in enumerate(self.parsed.meta):
                 if metadata.args[0] == 'param':
-                    # use of `in` can be replaced with a pre-compiled `re`, but
-                    # in general, for short simple patterns like this, `in` is
-                    # faster than regex.
                     if metadata.type_name is not None:  # type:ignore[attr-defined]
                         if (ix := metadata.type_name.find(', default')) >= 0:  # type:ignore[attr-defined]
                             self.parsed.meta[k].type_name = metadata.type_name[  # type:ignore[attr-defined]
