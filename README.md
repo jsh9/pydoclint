@@ -186,8 +186,10 @@ For more details, please read the
 
 #### 2.7.3. Pitfall: default values of arguments
 
-_pydoclint_ does not like adding default values of arguments in the docstring,
-even if this style is allowed in the numpy docstring style guide.
+_pydoclint_ allows specification of default values for formal arguments in the docstring when
+the method for doing so is described in the relevant style guide. However, values specified in
+the docstring will not be checked for congruence with the values specified in the function
+signature. 
 
 For more rationale, please read
 [this page](https://jsh9.github.io/pydoclint/notes_for_users.html#3-notes-on-writing-type-hints).
