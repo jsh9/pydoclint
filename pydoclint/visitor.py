@@ -28,7 +28,7 @@ from pydoclint.utils.return_yield_raise import (
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
     hasIteratorOrIterableAsReturnAnnotation,
-    hasRaiseStatements,
+    hasRaiseOrAssertStatements,
     hasReturnAnnotation,
     hasReturnStatements,
     hasYieldStatements,
@@ -892,7 +892,7 @@ class Visitor(ast.NodeVisitor):
         v503 = Violation(code=503, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasRaisesSection: bool = doc.hasRaisesSection
-        hasRaiseStmt: bool = hasRaiseStatements(node)
+        hasRaiseStmt: bool = hasRaiseOrAssertStatements(node)
 
         if hasRaiseStmt and not docstringHasRaisesSection:
             violations.append(v501)
