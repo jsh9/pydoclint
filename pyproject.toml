@@ -1,6 +1,6 @@
 [project]
 name = "pydoclint"
-version = "0.6.0"
+version = "0.6.1"
 description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
 authors = [ {name = "Jian Shi"}, ]
 readme = "README.md"
