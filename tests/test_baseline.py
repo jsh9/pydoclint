@@ -46,15 +46,16 @@ def testBaselineCreation(baselineFile, style: str):
         len(violations) == 0
         for filename, violations in remainingViolationsInAllFiles.items()
     )
+
     # In the future, this assertion could break if we add new files
     # to DATA_DIR. But it's good that this could act as a sanity check.
-    if sys.version_info < (3, 10):
-        assert len(unfixedBaselineViolationsInAllFiles) == 26
-    else:
+    expectedViolations = 26 if sys.version_info < (3, 10) else 32
+    if style == 'numpy':
         # Numpy style has one more violation than the other two because
         # we have one more test case for Numpy: default argument values
-        expectedViolations = 33 if style == 'numpy' else 32
-        assert len(unfixedBaselineViolationsInAllFiles) == expectedViolations
+        expectedViolations += 1
+
+    assert len(unfixedBaselineViolationsInAllFiles) == expectedViolations
 
 
 badDocstringFunction = '''
