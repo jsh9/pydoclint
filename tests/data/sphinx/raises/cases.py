@@ -194,3 +194,28 @@ class B:
             raise a.b.c.d.e.f.g.WhoseException.h.i.j.k
         else:
             pass
+
+    def func17(self) -> None:
+        """
+        It should pass.
+
+        :raises AssertionError: every time, without a message.
+        """
+        assert False
+
+    def func18(self) -> None:
+        """
+        It should pass.
+
+        :raises AssertionError: every time, with a message.
+        """
+        assert False, 'False'
+
+    def func19(self) -> None:
+        """
+        Should fail, expects `AssertionError`.
+
+        :return: None
+        :rtype: None
+        """
+        assert False

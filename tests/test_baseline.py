@@ -314,6 +314,11 @@ def testBaselineIndent(
     Returns
     -------
     None
+
+    Raises
+    ------
+    AssertionError
+        When spaceParsed, tabParsed, and violationStr are not all identical
     """
 
     codeFile = tmp_path / 'code.py'
