@@ -187,6 +187,7 @@ def some_fn(arg1: int = 10):
 ```
 
 The Parameter block of the doc string should use one of these formats:
+
 ```python
     Parameters
     ----------
