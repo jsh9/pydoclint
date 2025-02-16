@@ -805,7 +805,7 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         style=style,
     )
     expected0 = [
-        'DOC501: Method `B.func1` has "raise" statements, but the docstring does not '
+        'DOC501: Method `B.func1` has raise/assert statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func1` exceptions in the "Raises" section in the docstring '
         'do not match those in the function body. Raised exceptions in the docstring: []. '
@@ -819,7 +819,7 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'are not "raise" statements in the body',
         'DOC502: Method `B.func9a` has a "Raises" section in the docstring, but there '
         'are not "raise" statements in the body',
-        'DOC501: Function `inner9a` has "raise" statements, but the docstring does '
+        'DOC501: Function `inner9a` has raise/assert statements, but the docstring does '
         'not have a "Raises" section',
         'DOC503: Function `inner9a` exceptions in the "Raises" section in the '
         'docstring do not match those in the function body. Raised exceptions in the '
@@ -841,7 +841,7 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         "docstring: ['CustomError']. Raised exceptions in the body: "
         "['exceptions.m.CustomError'].",
         # should this be `has "assert" statements`
-        'DOC501: Method `B.func19` has "raise" statements, but the docstring does not '
+        'DOC501: Method `B.func19` has raise/assert statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func19` exceptions in the "Raises" section in the '
         'docstring do not match those in the function body. Raised exceptions in the '
@@ -875,7 +875,7 @@ def testRaisesPy310plus(style: str, skipRaisesCheck: bool) -> None:
         style=style,
     )
     expected0 = [
-        'DOC501: Method `B.func10` has "raise" statements, but the docstring does not '
+        'DOC501: Method `B.func10` has raise/assert statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func10` exceptions in the "Raises" section in the '
         'docstring do not match those in the function body. Raised exceptions in the '

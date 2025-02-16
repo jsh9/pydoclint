@@ -892,17 +892,17 @@ class Visitor(ast.NodeVisitor):
         v503 = Violation(code=503, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasRaisesSection: bool = doc.hasRaisesSection
-        hasRaiseStmt: bool = hasRaiseOrAssertStatements(node)
+        hasRaiseOrAssertStmt: bool = hasRaiseOrAssertStatements(node)
 
-        if hasRaiseStmt and not docstringHasRaisesSection:
+        if hasRaiseOrAssertStmt and not docstringHasRaisesSection:
             violations.append(v501)
 
-        if not hasRaiseStmt and docstringHasRaisesSection:
+        if not hasRaiseOrAssertStmt and docstringHasRaisesSection:
             if not self.isAbstractMethod:
                 violations.append(v502)
 
         # check that the raise statements match those in body.
-        if hasRaiseStmt:
+        if hasRaiseOrAssertStmt:
             docRaises: list[str] = []
 
             for raises in doc.parsed.raises:

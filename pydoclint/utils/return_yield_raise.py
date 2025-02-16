@@ -220,8 +220,8 @@ def _hasExpectedStatements(
         isThisNodeAnExpectedStmt: Callable[[ast.AST], bool],
 ) -> bool:
     """
-    Check whether the node contains an expected statement (return, yield, raise,
-    or assert).
+    Check whether the node contains an expected statement (return, yield,
+    raise, or assert).
     """
     childLineNum: int = -999
     foundExpectedStmt: bool = False
@@ -290,8 +290,8 @@ def _confirmThisStmtIsNotWithinNestedFunc(
         lineNumOfThisNode: int,
 ) -> bool:
     """
-    Check whether we REALLY found the expected statement (return, yield, raise,
-    or assert).
+    Check whether we REALLY found the expected statement (return, yield,
+    raise, or assert).
 
     Returns True if this statement is not within a nested function of `node`.
     Returns False if otherwise.

@@ -87,7 +87,7 @@ have a return section.
 
 | Code     | Explanation                                                                                               |
 | -------- | --------------------------------------------------------------------------------------------------------- |
-| `DOC501` | Function/method has "raise" statements, but the docstring does not have a "Raises" section                |
+| `DOC501` | Function/method has raise/assert statements, but the docstring does not have a "Raises" section           |
 | `DOC502` | Function/method has a "Raises" section in the docstring, but there are not "raise" statements in the body |
 | `DOC503` | Exceptions in the "Raises" section in the docstring do not match those in the function body               |
 

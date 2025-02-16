@@ -282,7 +282,7 @@ def testSomeViolationsAreFixedButNewViolationsOccur(
     }
 
     additionalViolations = [
-        'DOC501: Function `bad_docstring_func` has "raise" statements, but'
+        'DOC501: Function `bad_docstring_func` has raise/assert statements, but'
         ' the docstring does not have a "Raises" section',
         'DOC503: Function `bad_docstring_func` exceptions in the "Raises"'
         ' section in the docstring do not match those in the function body.'
