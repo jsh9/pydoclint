@@ -10,9 +10,6 @@
 - [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
 - [5. Notes for Google-style users](#5-notes-for-google-style-users)
 - [6. Writing default arguments in numpy-style docstrings](#6-writing-default-arguments-in-numpy-style-docstrings)
-- [7. How to adopt _pydoclint_ more easily in legacy projects](#7-how-to-adopt-pydoclint-more-easily-in-legacy-projects)
-- [8. How to integrate _pydoclint_ with different editors or IDEs](#8-how-to-integrate-pydoclint-with-different-editors-or-ides)
-  - [8.1. Integrate _pydoclint_ with Neovim using null-ls](#81-integrate-pydoclint-with-neovim-using-null-ls)
 
 <!--TOC-->
 
@@ -182,7 +179,7 @@ The [numpy docstring style guide](https://numpydoc.readthedocs.io/en/latest/form
 specifies a few different ways to include default values for
 function args in the the docstring.
 
-For a function with a signature like:
+For a function with a signature like this:
 
 ```python
 def some_fn(arg1: int = 10):
@@ -201,6 +198,26 @@ The following styles are currently supported:
 
     arg1 : int = 10
 ```
+
+And for a function with a signature like this:
+
+``python
+def some_fn(arg1: int | None = None):
+
+````
+
+The following styles are currently supported:
+```python
+    Parameters
+    ----------
+    arg1 : int, optional
+
+    arg1 : int | None, default is None
+
+    arg1 : int | None, default: None
+
+    arg1 : int | None = None
+````
 
 The portion following the type hints are ignored and not checked for
 congruence with the function signature.
