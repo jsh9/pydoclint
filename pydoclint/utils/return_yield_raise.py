@@ -98,11 +98,11 @@ def hasBareReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
     return _hasExpectedStatements(node, isThisNodeABareReturnStmt)
 
 
-def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether the function node has any raise statements"""
+def hasRaiseOrAssertStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the function node has any raise or assert statements"""
 
     def isThisNodeARaiseStmt(node_: ast.AST) -> bool:
-        return isinstance(node_, ast.Raise)
+        return isinstance(node_, (ast.Raise, ast.Assert))
 
     return _hasExpectedStatements(node, isThisNodeARaiseStmt)
 
@@ -112,10 +112,10 @@ def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> list[str]:
     return sorted(set(_getRaisedExceptions(node)))
 
 
-def _getRaisedExceptions(
+def _getRaisedExceptions(  # noqa: C901
         node: FuncOrAsyncFuncDef,
 ) -> Generator[str, None, None]:
-    """Yield the raised exceptions in a function node"""
+    """Yield the raised exceptions or asserts in a function node"""
     childLineNum: int = -999
 
     # key: child lineno, value: (parent lineno, is parent a function?)
@@ -129,6 +129,9 @@ def _getRaisedExceptions(
     # is a parent of child.
     for child, parent in walk.walk_dfs(node):
         childLineNum = _updateFamilyTree(child, parent, familyTree)
+
+        if isinstance(child, ast.Assert):
+            yield 'AssertionError (implicitly from the `assert` statement)'
 
         if isinstance(parent, ast.ExceptHandler):
             currentParentExceptHandler = parent
@@ -217,8 +220,8 @@ def _hasExpectedStatements(
         isThisNodeAnExpectedStmt: Callable[[ast.AST], bool],
 ) -> bool:
     """
-    Check whether the node contains an expected statement (return, yield, or
-    raise).
+    Check whether the node contains an expected statement (return, yield,
+    raise, or assert).
     """
     childLineNum: int = -999
     foundExpectedStmt: bool = False
@@ -288,7 +291,7 @@ def _confirmThisStmtIsNotWithinNestedFunc(
 ) -> bool:
     """
     Check whether we REALLY found the expected statement (return, yield,
-    or raise).
+    raise, or assert).
 
     Returns True if this statement is not within a nested function of `node`.
     Returns False if otherwise.

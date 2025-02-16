@@ -37,6 +37,8 @@ class ReturnAnnotation:
         ------
         EdgeCaseError
             When the annotation string has strange values
+        AssertionError
+            When the assertion fails
         """
         if self._isTuple():  # noqa: R506
             assert self.annotation is not None  # to help mypy understand type

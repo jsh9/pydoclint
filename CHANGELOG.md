@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.6.1] - 2025-02-16
+
+- Changed
+  - Now if a function as an `assert` statement, an `AssertError` declaration is
+    by default required in the docstring's "Asserts" section (if relevant
+    config options to check raises/assertions are turned on)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.0...0.6.1
+
 ## [0.6.0] - 2025-01-13
 
 - Added

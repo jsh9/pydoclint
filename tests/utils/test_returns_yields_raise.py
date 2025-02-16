@@ -9,7 +9,7 @@ from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
-    hasRaiseStatements,
+    hasRaiseOrAssertStatements,
     hasReturnAnnotation,
     hasReturnStatements,
     hasYieldStatements,
@@ -179,7 +179,7 @@ class HelperVisitor(ast.NodeVisitor):
         functionId: Tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = hasReturnStatements(node)
         self.yieldStatements[functionId] = hasYieldStatements(node)
-        self.raiseStatements[functionId] = hasRaiseStatements(node)
+        self.raiseStatements[functionId] = hasRaiseOrAssertStatements(node)
         self.raisedExceptions[functionId] = getRaisedExceptions(node)
         self.returnAnnotations[functionId] = hasReturnAnnotation(node)
         self.generatorAnnotations[functionId] = hasGeneratorAsReturnAnnotation(

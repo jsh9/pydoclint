@@ -56,7 +56,7 @@ VIOLATION_CODES = types.MappingProxyType({
         ' https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html'
     ),
 
-    501: 'has "raise" statements, but the docstring does not have a "Raises" section',
+    501: 'has raise/assert statements, but the docstring does not have a "Raises" section',
     502: 'has a "Raises" section in the docstring, but there are not "raise" statements in the body',
     503: 'exceptions in the "Raises" section in the docstring do not match those in the function body.',
 
