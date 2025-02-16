@@ -112,7 +112,7 @@ def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> list[str]:
     return sorted(set(_getRaisedExceptions(node)))
 
 
-def _getRaisedExceptions(
+def _getRaisedExceptions(  # noqa: C901
         node: FuncOrAsyncFuncDef,
 ) -> Generator[str, None, None]:
     """Yield the raised exceptions or asserts in a function node"""
@@ -131,7 +131,7 @@ def _getRaisedExceptions(
         childLineNum = _updateFamilyTree(child, parent, familyTree)
 
         if isinstance(child, ast.Assert):
-            yield 'AssertionError'
+            yield 'AssertionError (implicitly from the `assert` statement)'
 
         if isinstance(parent, ast.ExceptHandler):
             currentParentExceptHandler = parent

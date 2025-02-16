@@ -843,10 +843,12 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         # should this be `has "assert" statements`
         'DOC501: Method `B.func19` has "raise" statements, but the docstring does not '
         'have a "Raises" section',
-        'DOC503: Method `B.func19` exceptions in the "Raises" section in the docstring '
-        'do not match those in the function body. Raised exceptions in the docstring: []. '
-        "Raised exceptions in the body: ['AssertionError'].",
+        'DOC503: Method `B.func19` exceptions in the "Raises" section in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
+        "docstring: []. Raised exceptions in the body: ['AssertionError (implicitly "
+        "from the `assert` statement)'].",
     ]
+
     expected1 = []
     expected = expected1 if skipRaisesCheck else expected0
     assert list(map(str, violations)) == expected
