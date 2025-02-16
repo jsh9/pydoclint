@@ -29,6 +29,34 @@ class Doc:
         if style == 'numpy':
             parser = NumpydocParser()
             self.parsed = parser.parse(docstring)
+
+            # - `docstring_parser.parse()` doesn't handle default values that
+            #   follow the typehint on the same line, according to the numpy
+            #   docstring specification. As a result, the typehint returned from
+            #   `parse()` is contaminated by the default value, resulting in a
+            #   mismatch between the hint in the call signature and the hint in
+            #   the docstring, which is an error.
+            #
+            # - To fix this, iterate through the parameter type hints extracted
+            #   from the docstring and remove the default value specification.
+            #
+            # - Since the numpydoc specification is vague about the format, this
+            #   supports a couple different specs:
+            #      Parameters
+            #      ----------
+            #      foo: int, default 10
+            #      bar: int = 10        # noqa: E800
+            for k, metadata in enumerate(self.parsed.meta):
+                if metadata.args[0] == 'param':
+                    if metadata.type_name is not None:  # type:ignore[attr-defined]
+                        if (ix := metadata.type_name.find(', default')) >= 0:  # type:ignore[attr-defined]
+                            self.parsed.meta[k].type_name = metadata.type_name[  # type:ignore[attr-defined]
+                                :ix
+                            ]
+                        elif (ix := metadata.type_name.find(' = ')) >= 0:  # type:ignore[attr-defined]
+                            self.parsed.meta[k].type_name = metadata.type_name[  # type:ignore[attr-defined]
+                                :ix
+                            ]
         elif style == 'google':
             parser = GoogleParser()
             self.parsed = parser.parse(docstring)
