@@ -143,7 +143,7 @@ def testArguments(
         ),
     ),
 )
-def testtArgumentDefaults(
+def testArgumentDefaults(
         style: str,
         filename: str,
 ) -> None:

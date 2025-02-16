@@ -1,11 +1,14 @@
 
-def func1(arg_1: str = 'value 1',
-          arg_2: str = 'value 2',
-          arg_3: str = 'value 3',
-          arg_4: str = 'value 4',
-          ) -> int:
+def func1(
+        arg_1: str = 'value 1',
+        arg_2: str = 'value 2',
+        arg_3: str = 'value 3',
+        arg_4: str = 'value 4',
+) -> int:
     """
     Function to test arg default spec
+
+    There should not be any violations in this function.
 
     Parameters
     ----------
@@ -30,13 +33,20 @@ def func1(arg_1: str = 'value 1',
     return 1
 
 
-def func2(arg_1: str = 'value 1',
-          arg_2: str = 'value 2',
-          arg_3: str = 'value 3',
-          arg_4: str = 'value 4',
-          ) -> int:
+def func2(
+        arg_1: str = 'value 1',
+        arg_2: str = 'value 2',
+        arg_3: str = 'value 3',
+        arg_4: str = 'value 4',
+) -> int:
     """
-    Function to test arg default spec
+    Function to test arg default spec.
+
+    There should not be any violations in this function.
+
+    The difference between this function and `func1` is: in the docstring of
+    this function, there is no space before the colon (":") in the Parameters
+    section.
 
     Parameters
     ----------
@@ -60,13 +70,18 @@ def func2(arg_1: str = 'value 1',
 
     return 1
 
-def func3(arg_1: str = 'value 1',
-          arg_2: str = 'value 2',
-          arg_3: str = 'value 3',
-          arg_4: str = 'value 4',
-          ) -> int:
+
+def func3(
+        arg_1: str = 'value 1',
+        arg_2: str = 'value 2',
+        arg_3: str = 'value 3',
+        arg_4: str = 'value 4',
+) -> int:
     """
-    Function to test arg default spec
+    Function to test arg default spec.
+
+    DOC105 violation will be raised for `arg_1` and `arg_4`, because they
+    don't follow the expected style for annotating argument defaults.
 
     Parameters
     ----------
