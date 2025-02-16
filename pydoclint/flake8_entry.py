@@ -156,7 +156,9 @@ class Plugin:
             parse_from_config=True,
             help=(
                 'If True, underscore arguments (such as _, __, ...) in the function'
-                ' signature do not need to appear in the docstring.'
+                ' signature do not need to appear in the docstring. Note: "underscore'
+                ' arguments" are not the same as "arguments with leading'
+                ' underscores" (such as `_a`).'
             ),
         )
         parser.add_option(

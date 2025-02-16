@@ -185,6 +185,9 @@ return annotation in the function signature are consistent.
 If True, underscore arguments (such as \_, \_\_, ...) in the function signature
 do not need to appear in the docstring.
 
+Note: "underscore arguments" are not the same as "arguments with leading
+underscores" (such as `_a`).
+
 ## 14. `--check-class-attributes` (shortform: `-cca`, default: `True`)
 
 If True, check the class attributes (defined under the class definition)
