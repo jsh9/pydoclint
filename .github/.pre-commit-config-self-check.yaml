@@ -9,4 +9,4 @@ repos:
         entry: pydoclint --config=pyproject.toml
         language: system
         types: [python]
-        exclude: "^(tests?/)"
+        exclude: "^(setup\\.py$|tests?/)"
