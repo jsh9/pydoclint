@@ -51,7 +51,10 @@ def testBaselineCreation(baselineFile, style: str):
     if sys.version_info < (3, 10):
         assert len(unfixedBaselineViolationsInAllFiles) == 26
     else:
-        assert len(unfixedBaselineViolationsInAllFiles) == 32
+        # Numpy style has one more violation than the other two because
+        # we have one more test case for Numpy: default argument values
+        expectedViolations = 33 if style == 'numpy' else 32
+        assert len(unfixedBaselineViolationsInAllFiles) == expectedViolations
 
 
 badDocstringFunction = '''
