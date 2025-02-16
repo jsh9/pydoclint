@@ -25,6 +25,9 @@ flake8 = ["flake8>=4"]
 [project.entry-points."flake8.extension"]
 DOC = "pydoclint.flake8_entry:Plugin"
 
+[tool.setuptools.packages.find]
+include = ["pydoclint"]
+
 [tool.isort]
 multi_line_output = 3
 include_trailing_comma = true
