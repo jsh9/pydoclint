@@ -1,30 +1,3 @@
-[project]
-name = "pydoclint"
-version = "0.6.0"
-description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
-authors = [ {name = "Jian Shi"}, ]
-readme = "README.md"
-urls.Repository = "https://github.com/jsh9/pydoclint"
-license = { file = "LICENSE" }
-classifiers = [
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
-]
-requires-python = ">=3.9"
-dependencies = [
-    "click>=8.1.0",
-    "docstring_parser_fork>=0.0.12",
-    "tomli>=2.0.1; python_version<'3.11'",
-]
-scripts = { pydoclint = "pydoclint.main:main" }
-
-[project.optional-dependencies]
-flake8 = ["flake8>=4"]
-
-[project.entry-points."flake8.extension"]
-DOC = "pydoclint.flake8_entry:Plugin"
-
 [tool.isort]
 multi_line_output = 3
 include_trailing_comma = true
@@ -42,10 +15,3 @@ check-class-attributes = false
 [tool.mypy]
 strict = true
 exclude = "pydoclint/utils/unparser.py"
-
-[build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[tool.distutils.bdist_wheel]
-universal = true
