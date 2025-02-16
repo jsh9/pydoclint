@@ -9,7 +9,7 @@
 - [3. Notes on writing type hints](#3-notes-on-writing-type-hints)
 - [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
 - [5. Notes for Google-style users](#5-notes-for-google-style-users)
-- [6. Notes for Numpy-style users](#6-notes-for-numpy-style-users)
+- [6. Writing default arguments in numpy-style docstrings](#6-writing-default-arguments-in-numpy-style-docstrings)
 - [7. How to adopt _pydoclint_ more easily in legacy projects](#7-how-to-adopt-pydoclint-more-easily-in-legacy-projects)
 - [8. How to integrate _pydoclint_ with different editors or IDEs](#8-how-to-integrate-pydoclint-with-different-editors-or-ides)
   - [8.1. Integrate _pydoclint_ with Neovim using null-ls](#81-integrate-pydoclint-with-neovim-using-null-ls)
@@ -176,33 +176,34 @@ configurable options of _pydoclint_, and
 [here](https://jsh9.github.io/pydoclint/how_to_config.html) is how to configure
 _pydoclint_.
 
-## 6. Notes for Numpy-style users
+## 6. Writing default arguments in numpy-style docstrings
 
-The numpy style guide specifies a few different ways to include default values for
-function args in the the docstring. The following styles are currently supported.
+The [numpy docstring style guide](https://numpydoc.readthedocs.io/en/latest/format.html)
+specifies a few different ways to include default values for
+function args in the the docstring.
+
 For a function with a signature like:
 
 ```python
 def some_fn(arg1: int = 10):
 ```
 
-The Parameter block of the doc string should use one of these formats:
+The following styles are currently supported:
 
 ```python
     Parameters
     ----------
     arg1 : int, default 10
-OR
-    arg1 : int, default is 10
-OR
-    arg1 : int, default: 10
-OR
-    arg1 : int = 10
 
+    arg1 : int, default is 10
+
+    arg1 : int, default: 10
+
+    arg1 : int = 10
 ```
 
-The portion following the type hints are ignored and not checked for congruence with the
-function signature.
+The portion following the type hints are ignored and not checked for
+congruence with the function signature.
 
 ## 7. How to adopt _pydoclint_ more easily in legacy projects
 
