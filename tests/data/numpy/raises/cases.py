@@ -314,3 +314,14 @@ class B:
         None
         """
         assert False
+
+    def func20(self) -> None:
+        """
+        It should pass.
+
+        Raises
+        ------
+        AssertionError123
+            every time, with a message.
+        """
+        assert False, 'False'

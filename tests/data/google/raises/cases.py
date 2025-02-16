@@ -253,3 +253,12 @@ class B:
             None
         """
         assert False
+
+    def func20(self) -> None:
+        """
+        Should fail, expects `AssertionError`.
+
+        Raises:
+            AssertionError123: every time, with a message.
+        """
+        assert False

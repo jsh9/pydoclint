@@ -219,3 +219,11 @@ class B:
         :rtype: None
         """
         assert False
+
+    def func20(self) -> None:
+        """
+        It should pass.
+
+        :raises AssertionError123: every time, with a message.
+        """
+        assert False, 'False'

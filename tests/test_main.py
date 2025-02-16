@@ -846,6 +846,10 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: []. Raised exceptions in the body: ['AssertionError (implicitly "
         "from the `assert` statement)'].",
+        'DOC503: Method `B.func20` exceptions in the "Raises" section in the '
+        'docstring do not match those in the function body. Raised exceptions in the '
+        "docstring: ['AssertionError123']. Raised exceptions in the body: "
+        "['AssertionError (implicitly from the `assert` statement)'].",
     ]
 
     expected1 = []
