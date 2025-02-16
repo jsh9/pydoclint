@@ -840,7 +840,6 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: ['CustomError']. Raised exceptions in the body: "
         "['exceptions.m.CustomError'].",
-        # should this be `has "assert" statements`
         'DOC501: Method `B.func19` has raise/assert statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func19` exceptions in the "Raises" section in the '
