@@ -1,0 +1,5 @@
+[tool.pydoclint]
+style = 'numpy'
+exclude = '\.git|.?venv|\.tox|tests/data|build'
+require-return-section-when-returning-nothing = true
+check-class-attributes = false

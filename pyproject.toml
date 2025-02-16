@@ -36,12 +36,6 @@ include_trailing_comma = true
 wrap-line-with-long-string = true
 extend-exclude = 'tests/data'
 
-[tool.pydoclint]
-style = 'numpy'
-exclude = '\.git|.?venv|\.tox|tests/data|build'
-require-return-section-when-returning-nothing = true
-check-class-attributes = false
-
 [tool.mypy]
 strict = true
 exclude = "pydoclint/utils/unparser.py"
