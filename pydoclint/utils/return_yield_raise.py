@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import ast
-from typing import Callable, Iterator, Type
+from typing import Callable, Generator, Type
 
 from pydoclint.utils import walk
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
@@ -114,7 +114,7 @@ def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> list[str]:
 
 def _getRaisedExceptions(
         node: FuncOrAsyncFuncDef,
-) -> Iterator[str, None, None]:
+) -> Generator[str, None, None]:
     """Yield the raised exceptions or asserts in a function node"""
     childLineNum: int = -999
 
@@ -192,7 +192,7 @@ def _getRaisedExceptions(
 
 def _extractExceptionsFromExcept(
         node: ast.ExceptHandler,
-) -> Iterator[str]:
+) -> Generator[str, None, None]:
     if isinstance(node.type, ast.Name):
         yield node.type.id
 
