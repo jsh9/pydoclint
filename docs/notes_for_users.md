@@ -188,7 +188,7 @@ To use this feature, you only need to generate a "baseline violations" file
 somewhere in your repo.
 
 For more details, please check out
-[this section](https://jsh9.github.io/pydoclint/config_options.html#12---baseline).
+[this section](https://jsh9.github.io/pydoclint/config_options.html#20---baseline).
 
 ## 7. How to integrate _pydoclint_ with different editors or IDEs
 

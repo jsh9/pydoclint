@@ -56,6 +56,7 @@ The corresponding Github repository of _pydoclint_ is:
 - [3. Style violation codes](#3-style-violation-codes)
 - [4. Additional notes for users](#4-additional-notes-for-users)
 - [5. Notes for developers](#5-notes-for-developers)
+- [6. Miscellaneous notes](#6-miscellaneous-notes)
 
 <!--TOC-->
 
@@ -222,3 +223,9 @@ If you'd like to contribute to the code base of _pydoclint_, thank you!
 
 [This guide](https://jsh9.github.io/pydoclint/notes_for_developers.html) can
 hopefully help you get familiar with the code base faster.
+
+## 6. Miscellaneous notes
+
+- [Checking class attributes](https://jsh9.github.io/pydoclint/checking_class_attributes.html)
+- [Notes on `Generator` vs `Iterator`](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html)
+- [More about docstring style mismatch (`DOC003`)](https://jsh9.github.io/pydoclint/style_mismatch.html)
