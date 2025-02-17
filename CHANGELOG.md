@@ -1,5 +1,10 @@
 # Change Log
 
+## [Unpublished]
+
+- Fixed
+  - An issue where no error was thrown when the user does not supply a path
+
 ## [0.6.1] - 2025-02-16
 
 - Changed
