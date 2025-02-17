@@ -449,6 +449,17 @@ def main(  # noqa: C901
             )
             ctx.exit(1)
 
+    if len(paths) == 0:
+        click.echo(
+            click.style(
+                'You did not specify a path to run pydoclint on.',
+                fg='red',
+                bold=True,
+            ),
+            err=echoAsError,
+        )
+        ctx.exit(1)
+
     violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(
         quiet=quiet,
         exclude=exclude,
