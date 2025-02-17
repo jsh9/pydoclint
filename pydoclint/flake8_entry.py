@@ -353,6 +353,10 @@ class Plugin:
             '--treat-property-methods-as-class-attributes',
             self.treat_property_methods_as_class_attributes,
         )
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs = self._bool(
+            '--only-attrs-with-ClassVar-are-treated-as-class-attrs',
+            self.only_attrs_with_ClassVar_are_treated_as_class_attrs,
+        )
         shouldDocumentStarArguments = self._bool(
             '--should-document-star-arguments',
             self.should_document_star_arguments,
@@ -389,6 +393,9 @@ class Plugin:
             ),
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
+            ),
+            onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
+                onlyAttrsWithClassVarAreTreatedAsClassAttrs
             ),
             shouldDocumentStarArguments=shouldDocumentStarArguments,
             checkStyleMismatch=checkStyleMismatch,
