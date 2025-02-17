@@ -1,9 +1,13 @@
 # Change Log
 
-## [Unpublished]
+## [0.6.2] - 2025-02-17
 
 - Fixed
   - An issue where no error was thrown when the user does not supply a path
+  - A bug where `--only-attrs-with-ClassVar-are-treated-as-class-attrs` is not
+    properly passed to the visitor in the flake8 mode
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.1...0.6.2
 
 ## [0.6.1] - 2025-02-16
 
