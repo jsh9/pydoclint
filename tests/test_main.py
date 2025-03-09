@@ -789,23 +789,29 @@ def testReturnAndYield(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, skipRaisesCheck',
+    'style, skipRaisesCheck, shouldDeclareAssertErr',
     itertools.product(
         ['google', 'numpy', 'sphinx'],
         [False, True],
+        [False, True],
     ),
 )
-def testRaises(style: str, skipRaisesCheck: bool) -> None:
+def testRaises(
+        style: str,
+        skipRaisesCheck: bool,
+        shouldDeclareAssertErr: bool,
+) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/raises/cases.py',
         skipCheckingRaises=skipRaisesCheck,
         argTypeHintsInSignature=False,
         argTypeHintsInDocstring=False,
         checkReturnTypes=False,
+        shouldDeclareAssertErrorIfAssertStatementExists=shouldDeclareAssertErr,
         style=style,
     )
     expected0 = [
-        'DOC501: Method `B.func1` has raise/assert statements, but the docstring does not '
+        'DOC501: Method `B.func1` has raise statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func1` exceptions in the "Raises" section in the docstring '
         'do not match those in the function body. Raised exceptions in the docstring: []. '
@@ -819,7 +825,7 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'are not "raise" statements in the body',
         'DOC502: Method `B.func9a` has a "Raises" section in the docstring, but there '
         'are not "raise" statements in the body',
-        'DOC501: Function `inner9a` has raise/assert statements, but the docstring does '
+        'DOC501: Function `inner9a` has raise statements, but the docstring does '
         'not have a "Raises" section',
         'DOC503: Function `inner9a` exceptions in the "Raises" section in the '
         'docstring do not match those in the function body. Raised exceptions in the '
@@ -840,20 +846,31 @@ def testRaises(style: str, skipRaisesCheck: bool) -> None:
         'docstring do not match those in the function body. Raised exceptions in the '
         "docstring: ['CustomError']. Raised exceptions in the body: "
         "['exceptions.m.CustomError'].",
-        'DOC501: Method `B.func19` has raise/assert statements, but the docstring does not '
-        'have a "Raises" section',
-        'DOC503: Method `B.func19` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body. Raised exceptions in the '
-        "docstring: []. Raised exceptions in the body: ['AssertionError (implicitly "
-        "from the `assert` statement)'].",
-        'DOC503: Method `B.func20` exceptions in the "Raises" section in the '
-        'docstring do not match those in the function body. Raised exceptions in the '
-        "docstring: ['AssertionError123']. Raised exceptions in the body: "
-        "['AssertionError (implicitly from the `assert` statement)'].",
+    ]
+
+    expectedTrue = [  # for if shouldDeclareAssertErr is True
+        'DOC504: Method `B.func19` has assert statements, but the docstring does not '
+        'have a "Raises" section. (Assert statements could raise "AssertError".)'
+    ]
+
+    expectedFalse = [  # for if shouldDeclareAssertErr is False
+        'DOC502: Method `B.func17` has a "Raises" section in the docstring, but there '
+        'are not "raise" statements in the body',
+        'DOC502: Method `B.func18` has a "Raises" section in the docstring, but there '
+        'are not "raise" statements in the body',
+        'DOC502: Method `B.func20` has a "Raises" section in the docstring, but there '
+        'are not "raise" statements in the body',
     ]
 
     expected1 = []
-    expected = expected1 if skipRaisesCheck else expected0
+    expected = (
+        expected1
+        if skipRaisesCheck
+        else (
+            expected0
+            + (expectedTrue if shouldDeclareAssertErr else expectedFalse)
+        )
+    )
     assert list(map(str, violations)) == expected
 
 
@@ -878,7 +895,7 @@ def testRaisesPy310plus(style: str, skipRaisesCheck: bool) -> None:
         style=style,
     )
     expected0 = [
-        'DOC501: Method `B.func10` has raise/assert statements, but the docstring does not '
+        'DOC501: Method `B.func10` has raise statements, but the docstring does not '
         'have a "Raises" section',
         'DOC503: Method `B.func10` exceptions in the "Raises" section in the '
         'docstring do not match those in the function body. Raised exceptions in the '

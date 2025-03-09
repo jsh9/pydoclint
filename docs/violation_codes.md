@@ -10,7 +10,7 @@
 - [2. `DOC2xx`: Violations about return argument(s)](#2-doc2xx-violations-about-return-arguments)
 - [3. `DOC3xx`: Violations about class docstring and class constructor](#3-doc3xx-violations-about-class-docstring-and-class-constructor)
 - [4. `DOC4xx`: Violations about "yield" statements](#4-doc4xx-violations-about-yield-statements)
-- [5. `DOC5xx`: Violations about "raise" statements](#5-doc5xx-violations-about-raise-statements)
+- [5. `DOC5xx`: Violations about "raise" and "assert" statements](#5-doc5xx-violations-about-raise-and-assert-statements)
 - [6. `DOC6xx`: Violations about class attributes](#6-doc6xx-violations-about-class-attributes)
 
 <!--TOC-->
@@ -83,13 +83,14 @@ have a return section.
 | `DOC403` | Function/method has a "Yields" section in the docstring, but there are no "yield" statements, or the return annotation is not a Generator/Iterator/Iterable |
 | `DOC404` | The types in the docstring's Yields section and the return annotation in the signature are not consistent                                                   |
 
-## 5. `DOC5xx`: Violations about "raise" statements
+## 5. `DOC5xx`: Violations about "raise" and "assert" statements
 
-| Code     | Explanation                                                                                               |
-| -------- | --------------------------------------------------------------------------------------------------------- |
-| `DOC501` | Function/method has raise/assert statements, but the docstring does not have a "Raises" section           |
-| `DOC502` | Function/method has a "Raises" section in the docstring, but there are not "raise" statements in the body |
-| `DOC503` | Exceptions in the "Raises" section in the docstring do not match those in the function body               |
+| Code     | Explanation                                                                                                                               |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `DOC501` | Function/method has raise statements, but the docstring does not have a "Raises" section                                                  |
+| `DOC502` | Function/method has a "Raises" section in the docstring, but there are not "raise" statements in the body                                 |
+| `DOC503` | Exceptions in the "Raises" section in the docstring do not match those in the function body                                               |
+| `DOC504` | Function/method has assert statements, but the docstring does not have a "Raises" section. (Assert statements could raise "AssertError".) |
 
 ## 6. `DOC6xx`: Violations about class attributes
 

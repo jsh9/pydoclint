@@ -202,7 +202,7 @@ _pydoclint_ currently has 7 categories of style violation codes:
 - `DOC2xx`: Violations about return argument(s)
 - `DOC3xx`: Violations about class docstring and class constructor
 - `DOC4xx`: Violations about "yield" statements
-- `DOC5xx`: Violations about "raise" statements
+- `DOC5xx`: Violations about "raise" and "assert" statements
 - `DOC6xx`: Violations about class attributes
 
 For detailed explanations of each violation code, please read this page:

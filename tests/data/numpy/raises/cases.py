@@ -285,6 +285,8 @@ class B:
 
     def func17(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         It should pass.
 
         Raises
@@ -296,6 +298,8 @@ class B:
 
     def func18(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         It should pass.
 
         Raises
@@ -307,6 +311,8 @@ class B:
 
     def func19(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         Should fail, expects `AssertionError`.
 
         Returns
@@ -317,6 +323,8 @@ class B:
 
     def func20(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         It should pass.
 
         Raises

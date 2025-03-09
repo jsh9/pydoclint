@@ -98,13 +98,22 @@ def hasBareReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
     return _hasExpectedStatements(node, isThisNodeABareReturnStmt)
 
 
-def hasRaiseOrAssertStatements(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether the function node has any raise or assert statements"""
+def hasRaiseStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the function node has any raise statements"""
 
     def isThisNodeARaiseStmt(node_: ast.AST) -> bool:
-        return isinstance(node_, (ast.Raise, ast.Assert))
+        return isinstance(node_, ast.Raise)
 
     return _hasExpectedStatements(node, isThisNodeARaiseStmt)
+
+
+def hasAssertStatements(node: FuncOrAsyncFuncDef) -> bool:
+    """Check whether the function node has any assert statements"""
+
+    def isThisNodeAnAssertStmt(node_: ast.AST) -> bool:
+        return isinstance(node_, ast.Assert)
+
+    return _hasExpectedStatements(node, isThisNodeAnAssertStmt)
 
 
 def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> list[str]:

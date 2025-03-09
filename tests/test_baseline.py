@@ -282,7 +282,7 @@ def testSomeViolationsAreFixedButNewViolationsOccur(
     }
 
     additionalViolations = [
-        'DOC501: Function `bad_docstring_func` has raise/assert statements, but'
+        'DOC501: Function `bad_docstring_func` has raise statements, but'
         ' the docstring does not have a "Raises" section',
         'DOC503: Function `bad_docstring_func` exceptions in the "Raises"'
         ' section in the docstring do not match those in the function body.'
@@ -314,11 +314,6 @@ def testBaselineIndent(
     Returns
     -------
     None
-
-    Raises
-    ------
-    AssertionError
-        When spaceParsed, tabParsed, and violationStr are not all identical
     """
 
     codeFile = tmp_path / 'code.py'
