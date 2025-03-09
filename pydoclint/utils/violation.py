@@ -127,7 +127,7 @@ class Violation:
     def getInfoForFlake8(self) -> tuple[int, int, str]:
         """Get the violation info for flake8"""
         colOffset: int = 0  # we don't need column offset to locate the issue
-        msg = f'{self.fullErrorCode} {self.msg}'  # no colon b/c that would cause 'yesqa' issues
+        msg = f'{self.fullErrorCode} {self.msg}'  # no colon b/c that would cause 'yesqa' issues  # noqa: LN002
         return self.line, colOffset, msg
 
     def appendMoreMsg(self, moreMsg: str) -> 'Violation':
