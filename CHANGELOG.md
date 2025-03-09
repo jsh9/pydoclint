@@ -1,5 +1,14 @@
 # Change Log
 
+## [unpublished]
+
+- Changed
+  - Added `DOC504` and a config option
+    `--should-declare-assert-error-if-assert-statement-exists`. If this option
+    is True and a function has an `assert` statement, an `AssertError`
+    declaration is required in the docstring. Otherwise `DOC504` is raised.
+    (This changes the behavior introduced in v0.6.1.)
+
 ## [0.6.2] - 2025-02-17
 
 - Fixed
