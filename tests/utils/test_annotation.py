@@ -28,7 +28,7 @@ def foo(
         arg16: Callable[[int, str, bool], float],
         arg17: Callable[..., ReturnType],
         arg18: Callable[ParamSpecVariable, ReturnType],
-        arg19: Callable[Concatenate[Arg1Type, Arg2Type, ..., ParamSpecVariable], ReturnType],
+        arg19: Callable[Concatenate[Arg1Type, Arg2Type, ..., ParamSpecVariable], ReturnType],  # noqa: LN002
         arg20: Type[User],
         arg21: Type[BasicUser | ProUser],
         arg22: Literal[True],
