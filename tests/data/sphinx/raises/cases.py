@@ -197,6 +197,8 @@ class B:
 
     def func17(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         It should pass.
 
         :raises AssertionError: every time, without a message.
@@ -205,6 +207,8 @@ class B:
 
     def func18(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         It should pass.
 
         :raises AssertionError: every time, with a message.
@@ -213,6 +217,8 @@ class B:
 
     def func19(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         Should fail, expects `AssertionError`.
 
         :return: None
@@ -222,6 +228,8 @@ class B:
 
     def func20(self) -> None:
         """
+        When --should-declare-assert-error-if-assert-statement-exists is True:
+
         It should pass.
 
         :raises AssertionError123: every time, with a message.

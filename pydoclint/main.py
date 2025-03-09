@@ -265,6 +265,19 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-sdae',
+    '--should-declare-assert-error-if-assert-statement-exists',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, we need to declare AssertError in the "Raises"'
+        ' section of the docstring if there are any "assert"'
+        ' statements in the function body. This is because an "assert"'
+        ' statement could raise an AssertError.'
+    ),
+)
+@click.option(
     '-csm',
     '--check-style-mismatch',
     type=bool,
@@ -379,6 +392,7 @@ def main(  # noqa: C901
         require_yield_section_when_yielding_nothing: bool,
         only_attrs_with_classvar_are_treated_as_class_attrs: bool,
         should_document_star_arguments: bool,
+        should_declare_assert_error_if_assert_statement_exists: bool,
         check_style_mismatch: bool,
         generate_baseline: bool,
         auto_regenerate_baseline: bool,
@@ -491,6 +505,9 @@ def main(  # noqa: C901
             require_yield_section_when_yielding_nothing
         ),
         shouldDocumentStarArguments=should_document_star_arguments,
+        shouldDeclareAssertErrorIfAssertStatementExists=(
+            should_declare_assert_error_if_assert_statement_exists
+        ),
         checkStyleMismatch=check_style_mismatch,
     )
 
@@ -628,6 +645,7 @@ def _checkPaths(
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
+        shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
         quiet: bool = False,
         exclude: str = '',
@@ -689,6 +707,9 @@ def _checkPaths(
                 requireYieldSectionWhenYieldingNothing
             ),
             shouldDocumentStarArguments=shouldDocumentStarArguments,
+            shouldDeclareAssertErrorIfAssertStatementExists=(
+                shouldDeclareAssertErrorIfAssertStatementExists
+            ),
             checkStyleMismatch=checkStyleMismatch,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
@@ -715,6 +736,7 @@ def _checkFile(
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
+        shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
 ) -> list[Violation]:
     if not filename.is_file():  # sometimes folder names can end with `.py`
@@ -771,6 +793,9 @@ def _checkFile(
             requireYieldSectionWhenYieldingNothing
         ),
         shouldDocumentStarArguments=shouldDocumentStarArguments,
+        shouldDeclareAssertErrorIfAssertStatementExists=(
+            shouldDeclareAssertErrorIfAssertStatementExists
+        ),
         checkStyleMismatch=checkStyleMismatch,
     )
     visitor.visit(tree)

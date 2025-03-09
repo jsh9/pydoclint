@@ -25,10 +25,11 @@ from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
+    hasAssertStatements,
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
     hasIteratorOrIterableAsReturnAnnotation,
-    hasRaiseOrAssertStatements,
+    hasRaiseStatements,
     hasReturnAnnotation,
     hasReturnStatements,
     hasYieldStatements,
@@ -76,6 +77,7 @@ class Visitor(ast.NodeVisitor):
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
             shouldDocumentStarArguments: bool = True,
+            shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
             checkStyleMismatch: bool = False,
     ) -> None:
         self.style: str = style
@@ -105,6 +107,9 @@ class Visitor(ast.NodeVisitor):
             requireYieldSectionWhenYieldingNothing
         )
         self.shouldDocumentStarArguments: bool = shouldDocumentStarArguments
+        self.shouldDeclareAssertErrorIfAssertStatementExists: bool = (
+            shouldDeclareAssertErrorIfAssertStatementExists
+        )
         self.checkStyleMismatch: bool = checkStyleMismatch
 
         self.parent: ast.AST = ast.Pass()  # keep track of parent node
@@ -875,7 +880,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkRaises(
+    def checkRaises(  # noqa: C901
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
@@ -890,19 +895,37 @@ class Visitor(ast.NodeVisitor):
         v501 = Violation(code=501, line=lineNum, msgPrefix=msgPrefix)
         v502 = Violation(code=502, line=lineNum, msgPrefix=msgPrefix)
         v503 = Violation(code=503, line=lineNum, msgPrefix=msgPrefix)
+        v504 = Violation(code=504, line=lineNum, msgPrefix=msgPrefix)
 
         docstringHasRaisesSection: bool = doc.hasRaisesSection
-        hasRaiseOrAssertStmt: bool = hasRaiseOrAssertStatements(node)
+        hasRaiseStmt: bool = hasRaiseStatements(node)
+        hasAssertStmt: bool = hasAssertStatements(node)
 
-        if hasRaiseOrAssertStmt and not docstringHasRaisesSection:
+        if hasRaiseStmt and not docstringHasRaisesSection:
             violations.append(v501)
 
-        if not hasRaiseOrAssertStmt and docstringHasRaisesSection:
-            if not self.isAbstractMethod:
+        if self.shouldDeclareAssertErrorIfAssertStatementExists:
+            if (
+                not hasAssertStmt
+                and not hasRaiseStmt
+                and docstringHasRaisesSection
+                and not self.isAbstractMethod
+            ):
+                violations.append(v502)
+        else:
+            if (
+                not hasRaiseStmt
+                and docstringHasRaisesSection
+                and not self.isAbstractMethod
+            ):
                 violations.append(v502)
 
+        if self.shouldDeclareAssertErrorIfAssertStatementExists:
+            if hasAssertStmt and not docstringHasRaisesSection:
+                violations.append(v504)
+
         # check that the raise statements match those in body.
-        if hasRaiseOrAssertStmt:
+        if hasRaiseStmt:
             docRaises: list[str] = []
 
             for raises in doc.parsed.raises:

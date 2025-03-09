@@ -226,6 +226,18 @@ class Plugin:
             ),
         )
         parser.add_option(
+            '-sdae',
+            '--should-declare-assert-error-if-assert-statement-exists',
+            action='store',
+            default='False',
+            help=(
+                'If True, we need to declare AssertError in the "Raises"'
+                ' section of the docstring if there are any "assert"'
+                ' statements in the function body. This is because an "assert"'
+                ' statement could raise an AssertError.'
+            ),
+        )
+        parser.add_option(
             '-csm',
             '--check-style-mismatch',
             action='store',
