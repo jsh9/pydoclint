@@ -1,6 +1,6 @@
 # Change Log
 
-## [unpublished]
+## [0.6.3] - 2025-03-30
 
 - Added
   - Added `DOC504` and a config option
@@ -9,6 +9,11 @@
     declaration is required in the docstring. Otherwise `DOC504` is raised.
     (This changes the behavior introduced in v0.6.1.)
   - Added a new config option `--ignore-private-args` (default to `False`)
+- Changed
+  - Canceled the ignoring of `LN002` violation in flake8 config in tox
+  - Fix a typo in maximum line length setting in flake8 config in tox
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.2...0.6.3
 
 ## [0.6.2] - 2025-02-17
 
