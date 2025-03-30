@@ -517,7 +517,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
                 )
             else:
                 yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]
+                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]  # noqa: LN002
                 )
         elif hasIteratorOrIterableAsReturnAnnotation:
             yieldType = unparseName(
@@ -542,7 +542,7 @@ def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     try:
         if sys.version_info >= (3, 9):
             returnType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
+                ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]  # noqa: LN002
             )
         else:
             returnType = unparseName(

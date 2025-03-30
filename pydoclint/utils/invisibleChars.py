@@ -1,7 +1,7 @@
 def replaceInvisibleChars(text: str) -> str:
     """Replace invisible characters so that AST can correctly parse the code"""
     invisibleToSpace = {
-        '\uFEFF': ' ',  # Byte order mark (zero-width but might act as a separator)
+        '\uFEFF': ' ',  # Byte order mark: 0-width but might act as a separator
     }
 
     invisibleToEmpty = {

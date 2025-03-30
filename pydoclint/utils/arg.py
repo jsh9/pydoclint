@@ -120,12 +120,12 @@ class Arg:
         # >>>     "ghi",
         # >>> ]
         try:
-            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))  # type:ignore[arg-type,assignment]
+            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))  # type:ignore[arg-type,assignment]  # noqa: LN002
         except SyntaxError:
             hint1_ = hint1
 
         try:
-            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))  # type:ignore[arg-type,assignment]
+            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))  # type:ignore[arg-type,assignment]  # noqa: LN002
         except SyntaxError:
             hint2_ = hint2
 
@@ -263,7 +263,7 @@ class ArgList:
             msg2: str = (
                 f' astAssign.targets[{i}] is of type {type(target)}.'
                 if j is None
-                else f' astAssign.targets[{i}].elts[{j}] is of type {type(target)}.'
+                else f' astAssign.targets[{i}].elts[{j}] is of type {type(target)}.'  # noqa: LN001
             )
             msg: str = msg1 + msg2
             raise EdgeCaseError(msg) from ex

@@ -163,14 +163,14 @@ def _getRaisedExceptions(  # noqa: C901
                     if isinstance(child.exc, ast.Attribute):
                         # case: looks like m.n.exception
                         exceptionName = unparseName(child.exc)
-                        assert isinstance(exceptionName, str)  # make mypy happy
+                        assert isinstance(exceptionName, str)  # satisfy mypy
                         yield exceptionName
                     elif isinstance(child.exc, ast.Call) and isinstance(
                         child.exc.func, ast.Attribute
                     ):
                         # case: looks like m.n.exception()
                         exceptionName = unparseName(child.exc.func)
-                        assert isinstance(exceptionName, str)  # make mypy happy
+                        assert isinstance(exceptionName, str)  # satisfy mypy
                         yield exceptionName
                     elif (
                         currentParentExceptHandler
@@ -180,7 +180,8 @@ def _getRaisedExceptions(  # noqa: C901
                         # case: "except <> as e; raise e" -> we must yield the
                         # stuff in <>
                         #
-                        # Note: if subnode.id != currentParentExceptHandler.name,
+                        # Note:
+                        # if subnode.id != currentParentExceptHandler.name,
                         # the user is raising something not bound by
                         # this exception handler (meaning we should fall
                         # through to yielding the subnode.id)
