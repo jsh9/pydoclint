@@ -310,7 +310,7 @@ class Visitor(ast.NodeVisitor):
 
         classDocstring: str = getDocstring(parent_)
 
-        if len(initDocstring) == 0:  # __init__() doesn't have its own docstring
+        if len(initDocstring) == 0:  # __init__() doesn't have own docstring
             # Check class docstring instead, because that's what we care
             # about when checking the class constructor.
             return classDocstring
@@ -818,8 +818,8 @@ class Visitor(ast.NodeVisitor):
                         returnAnnoText=returnAnno.annotation,
                     )
                     # If "Generator[...]" is put in the return type annotation,
-                    # we don't need a "Returns" section in the docstring. Instead,
-                    # we need a "Yields" section.
+                    # we don't need a "Returns" section in the docstring.
+                    # Instead, we need a "Yields" section.
                     if self.requireReturnSectionWhenReturningNothing:
                         violations.append(v201)
                     elif retTypeInGenerator not in {'None', 'NoReturn'}:
@@ -857,7 +857,7 @@ class Visitor(ast.NodeVisitor):
                     yieldType: str | None = extract(
                         returnAnnoText=returnAnno.annotation,
                         hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
-                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,  # noqa: LN001
                     )
                     checkYieldTypesForViolations(
                         returnAnnotation=ReturnAnnotation(yieldType),
@@ -865,7 +865,7 @@ class Visitor(ast.NodeVisitor):
                         yieldSection=yieldSec,
                         violation=v404,
                         hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
-                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,  # noqa: LN001
                         requireYieldSectionWhenYieldingNothing=(
                             self.requireYieldSectionWhenYieldingNothing
                         ),

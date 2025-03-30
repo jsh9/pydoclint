@@ -120,12 +120,12 @@ class Arg:
         # >>>     "ghi",
         # >>> ]
         try:
-            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))  # type:ignore[arg-type,assignment]
+            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))  # type:ignore[arg-type,assignment]  # noqa: LN002
         except SyntaxError:
             hint1_ = hint1
 
         try:
-            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))  # type:ignore[arg-type,assignment]
+            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))  # type:ignore[arg-type,assignment]  # noqa: LN002
         except SyntaxError:
             hint2_ = hint2
 
