@@ -201,6 +201,18 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-ipa',
+    '--ignore-private-args',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, private arguments (those with leading underscores in their'
+        ' names but are not purely `_`, `__`, etc.) in the function signature'
+        ' do not need to appear in the docstring.'
+    ),
+)
+@click.option(
     '-cca',
     '--check-class-attributes',
     type=bool,
@@ -384,6 +396,7 @@ def main(  # noqa: C901
         check_return_types: bool,
         check_yield_types: bool,
         ignore_underscore_args: bool,
+        ignore_private_args: bool,
         check_class_attributes: bool,
         should_document_private_class_attributes: bool,
         treat_property_methods_as_class_attributes: bool,
@@ -488,6 +501,7 @@ def main(  # noqa: C901
         checkReturnTypes=check_return_types,
         checkYieldTypes=check_yield_types,
         ignoreUnderscoreArgs=ignore_underscore_args,
+        ignorePrivateArgs=ignore_private_args,
         checkClassAttributes=check_class_attributes,
         shouldDocumentPrivateClassAttributes=(
             should_document_private_class_attributes
@@ -638,6 +652,7 @@ def _checkPaths(
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
         ignoreUnderscoreArgs: bool = True,
+        ignorePrivateArgs: bool = False,
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
         treatPropertyMethodsAsClassAttributes: bool = False,
@@ -690,6 +705,7 @@ def _checkPaths(
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+            ignorePrivateArgs=ignorePrivateArgs,
             checkClassAttributes=checkClassAttributes,
             shouldDocumentPrivateClassAttributes=(
                 shouldDocumentPrivateClassAttributes
@@ -729,6 +745,7 @@ def _checkFile(
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
         ignoreUnderscoreArgs: bool = True,
+        ignorePrivateArgs: bool = False,
         checkClassAttributes: bool = True,
         shouldDocumentPrivateClassAttributes: bool = False,
         treatPropertyMethodsAsClassAttributes: bool = False,
@@ -776,6 +793,7 @@ def _checkFile(
         checkReturnTypes=checkReturnTypes,
         checkYieldTypes=checkYieldTypes,
         ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+        ignorePrivateArgs=ignorePrivateArgs,
         checkClassAttributes=checkClassAttributes,
         shouldDocumentPrivateClassAttributes=(
             shouldDocumentPrivateClassAttributes

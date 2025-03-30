@@ -162,6 +162,18 @@ class Plugin:
             ),
         )
         parser.add_option(
+            '-ipa',
+            '--ignore-private-args',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, private arguments (those with leading underscores '
+                ' in their names but are not purely `_`, `__`, etc.) in the'
+                ' function signature do not need to appear in the docstring.'
+            ),
+        )
+        parser.add_option(
             '-cca',
             '--check-class-attributes',
             action='store',
@@ -274,6 +286,7 @@ class Plugin:
         cls.check_return_types = options.check_return_types
         cls.check_yield_types = options.check_yield_types
         cls.ignore_underscore_args = options.ignore_underscore_args
+        cls.ignore_private_args = options.ignore_private_args
         cls.check_class_attributes = options.check_class_attributes
         cls.should_document_private_class_attributes = (
             options.should_document_private_class_attributes
@@ -353,6 +366,10 @@ class Plugin:
             '--ignore-underscore-args',
             self.ignore_underscore_args,
         )
+        ignorePrivateArgs = self._bool(
+            '--ignore-private-args',
+            self.ignore_private_args,
+        )
         checkClassAttributes = self._bool(
             '--check-class-attributes',
             self.check_class_attributes,
@@ -399,6 +416,7 @@ class Plugin:
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+            ignorePrivateArgs=ignorePrivateArgs,
             checkClassAttributes=checkClassAttributes,
             shouldDocumentPrivateClassAttributes=(
                 shouldDocumentPrivateClassAttributes

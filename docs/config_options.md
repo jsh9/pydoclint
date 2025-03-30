@@ -24,17 +24,18 @@ page:
 - [11. `--require-yield-section-when-yielding-nothing` (shortform: `-rys`, default: `True`)](#11---require-yield-section-when-yielding-nothing-shortform--rys-default-true)
 - [12. `--check-yield-types` (shortform: `-cyt`, default: `True`)](#12---check-yield-types-shortform--cyt-default-true)
 - [13. `--ignore-underscore-args` (shortform: `-iua`, default: `True`)](#13---ignore-underscore-args-shortform--iua-default-true)
-- [14. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#14---check-class-attributes-shortform--cca-default-true)
-- [15. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)](#15---should-document-private-class-attributes-shortform--sdpca-default-false)
-- [16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#16---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
-- [17. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False)](#17---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
-- [18. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#18---should-document-star-arguments-shortform--sdsa-default-true)
-- [19. `--check-style-mismatch` (shortform: `-csm`, default: `True`)](#19---check-style-mismatch-shortform--csm-default-true)
-- [20. `--baseline`](#20---baseline)
-- [21. `--generate-baseline` (default: `False`)](#21---generate-baseline-default-false)
-- [22. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#22---auto-regenerate-baseline-shortform--arb-default-true)
-- [23. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#23---show-filenames-in-every-violation-message-shortform--sfn-default-false)
-- [24. `--config` (default: `pyproject.toml`)](#24---config-default-pyprojecttoml)
+- [14. `--ignore-private-args` (shortform: `-ipa`, default: `False`)](#14---ignore-private-args-shortform--ipa-default-false)
+- [15. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#15---check-class-attributes-shortform--cca-default-true)
+- [16. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)](#16---should-document-private-class-attributes-shortform--sdpca-default-false)
+- [17. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#17---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
+- [18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False)](#18---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
+- [19. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#19---should-document-star-arguments-shortform--sdsa-default-true)
+- [20. `--check-style-mismatch` (shortform: `-csm`, default: `True`)](#20---check-style-mismatch-shortform--csm-default-true)
+- [21. `--baseline`](#21---baseline)
+- [22. `--generate-baseline` (default: `False`)](#22---generate-baseline-default-false)
+- [23. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#23---auto-regenerate-baseline-shortform--arb-default-true)
+- [24. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#24---show-filenames-in-every-violation-message-shortform--sfn-default-false)
+- [25. `--config` (default: `pyproject.toml`)](#25---config-default-pyprojecttoml)
 
 <!--TOC-->
 
@@ -185,10 +186,16 @@ return annotation in the function signature are consistent.
 If True, underscore arguments (such as \_, \_\_, ...) in the function signature
 do not need to appear in the docstring.
 
-Note: "underscore arguments" are not the same as "arguments with leading
-underscores" (such as `_a`).
+Note: "underscore arguments" are not the same as "private arguments" (i.e.,
+"arguments with leading underscores") such as `_a`.
 
-## 14. `--check-class-attributes` (shortform: `-cca`, default: `True`)
+## 14. `--ignore-private-args` (shortform: `-ipa`, default: `False`)
+
+If True, private arguments (those with leading underscores in their
+names but are not purely `_`, `__`, etc.) in the function signature
+do not need to appear in the docstring.
+
+## 15. `--check-class-attributes` (shortform: `-cca`, default: `True`)
 
 If True, check the class attributes (defined under the class definition)
 against the "Attributes" section of the class's docstring.
@@ -197,37 +204,37 @@ Please read
 [this page](https://jsh9.github.io/pydoclint/checking_class_attributes.html)
 for more instructions.
 
-## 15. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)
+## 16. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)
 
 If True, private class attributes (those that start with leading `_`) should be
 documented. If False, they should not be documented.
 
-## 16. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)
+## 17. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)
 
 If True, treat `@property` methods as class properties. This means that they
 need to be documented in the "Attributes" section of the class docstring, and
 there cannot be any docstring under the @property methods. This option is only
 effective when --check-class-attributes is True.
 
-## 17. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False)
+## 18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False)
 
 If True, only the attributes whose type annotations are wrapped within
 `ClassVar` (where `ClassVar` is imported from `typing`) are treated as class
 attributes, and all other attributes are treated as instance attributes.
 
-## 18. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)
+## 19. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)
 
 If True, "star arguments" (such as `*args`, `**kwargs`, `**props`, etc.)
 in the function signature should be documented in the docstring. If False,
 they should not appear in the docstring.
 
-## 19. `--check-style-mismatch` (shortform: `-csm`, default: `True`)
+## 20. `--check-style-mismatch` (shortform: `-csm`, default: `True`)
 
 If True, check that style specified in --style matches the detected
 style of the docstring. If there is a mismatch, DOC003 will be
 reported. Setting this to False will silence all DOC003 violations.
 
-## 20. `--baseline`
+## 21. `--baseline`
 
 Baseline allows you to remember the current project state and then show only
 new violations, ignoring old ones. This can be very useful when you'd like to
@@ -249,12 +256,12 @@ If `--generate-baseline` is not passed to _pydoclint_ (the default
 is `False`), _pydoclint_ will read your baseline file, and ignore all
 violations specified in that file.
 
-## 21. `--generate-baseline` (default: `False`)
+## 22. `--generate-baseline` (default: `False`)
 
 Required to use with `--baseline` option. If `True`, generate the baseline file
 that contains all current violations.
 
-## 22. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)
+## 23. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)
 
 If it's set to True, _pydoclint_ will automatically regenerate the baseline
 file every time you fix violations in the baseline and rerun _pydoclint_.
@@ -262,7 +269,7 @@ file every time you fix violations in the baseline and rerun _pydoclint_.
 This saves you from having to manually regenerate the baseline file by setting
 `--generate-baseline=True` and run _pydoclint_.
 
-## 23. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
+## 24. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
 
 If False, in the terminal the violation messages are grouped by file names:
 
@@ -296,7 +303,7 @@ This can be convenient if you would like to click on each violation message and
 go to the corresponding line in your IDE. (Note: not all terminal app offers
 this functionality.)
 
-## 24. `--config` (default: `pyproject.toml`)
+## 25. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this

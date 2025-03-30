@@ -70,6 +70,7 @@ class Visitor(ast.NodeVisitor):
             checkReturnTypes: bool = True,
             checkYieldTypes: bool = True,
             ignoreUnderscoreArgs: bool = True,
+            ignorePrivateArgs: bool = False,
             checkClassAttributes: bool = True,
             shouldDocumentPrivateClassAttributes: bool = False,
             treatPropertyMethodsAsClassAttributes: bool = False,
@@ -90,6 +91,7 @@ class Visitor(ast.NodeVisitor):
         self.checkReturnTypes: bool = checkReturnTypes
         self.checkYieldTypes: bool = checkYieldTypes
         self.ignoreUnderscoreArgs: bool = ignoreUnderscoreArgs
+        self.ignorePrivateArgs: bool = ignorePrivateArgs
         self.checkClassAttributes: bool = checkClassAttributes
         self.shouldDocumentPrivateClassAttributes: bool = (
             shouldDocumentPrivateClassAttributes
@@ -466,6 +468,17 @@ class Visitor(ast.NodeVisitor):
             # functions that must accept a certain number of input arguments.)
             funcArgs = ArgList(
                 [_ for _ in funcArgs.infoList if set(_.name) != {'_'}]
+            )
+
+        if self.ignorePrivateArgs:
+            # "Private arguments" are those whose names have leading
+            # underscores, but whose names are not purely _, __, ___, etc.
+            funcArgs = ArgList(
+                [
+                    _
+                    for _ in funcArgs.infoList
+                    if not _.name.startswith('_') or set(_.name) == {'_'}
+                ]
             )
 
         if not self.shouldDocumentStarArguments:
