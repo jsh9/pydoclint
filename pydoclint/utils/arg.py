@@ -263,7 +263,7 @@ class ArgList:
             msg2: str = (
                 f' astAssign.targets[{i}] is of type {type(target)}.'
                 if j is None
-                else f' astAssign.targets[{i}].elts[{j}] is of type {type(target)}.'  # noqa: LN002
+                else f' astAssign.targets[{i}].elts[{j}] is of type {type(target)}.'  # noqa: LN001
             )
             msg: str = msg1 + msg2
             raise EdgeCaseError(msg) from ex
