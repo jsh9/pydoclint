@@ -1876,6 +1876,7 @@ def testNonAscii() -> None:
             },
             [],
         ),
+        ('26_decompose_tuples/cases.py', {}, []),
     ],
 )
 def testEdgeCases(
