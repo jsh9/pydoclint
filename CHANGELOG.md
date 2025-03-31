@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.6.4] - 2025-03-30
+
+- Fixed
+  - A bug with tuple decomposition in docstrings
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.3...0.6.4
+
 ## [0.6.3] - 2025-03-30
 
 - Added

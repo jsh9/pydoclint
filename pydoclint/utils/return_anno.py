@@ -58,7 +58,7 @@ class ReturnAnnotation:
                 return [self.annotation]
 
             parsedBody0: ast.Expr = ast.parse(insideTuple).body[0]  # type:ignore[assignment]  # noqa: LN002
-            if isinstance(parsedBody0.value, ast.Name):  # like this: Tuple[int]  # noqa: LN002
+            if isinstance(parsedBody0.value, (ast.Attribute, ast.Name)):  # such as Tuple[int]  # noqa: LN002
                 return [insideTuple]
 
             if isinstance(parsedBody0.value, ast.Tuple):  # like Tuple[int, str]  # noqa: LN002
