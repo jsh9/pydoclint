@@ -952,7 +952,10 @@ class Visitor(ast.NodeVisitor):
                         docRaises.append(exc)
 
             docRaises.sort()
-            actualRaises: list[str] = getRaisedExceptions(node)
+            actualRaises: list[str] = getRaisedExceptions(
+                node,
+                self.shouldDeclareAssertErrorIfAssertStatementExists,
+            )
 
             if not doList1ItemsStartWithList2Items(actualRaises, docRaises):
                 # We only do partial string comparison because there are

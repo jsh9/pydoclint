@@ -116,13 +116,17 @@ def hasAssertStatements(node: FuncOrAsyncFuncDef) -> bool:
     return _hasExpectedStatements(node, isThisNodeAnAssertStmt)
 
 
-def getRaisedExceptions(node: FuncOrAsyncFuncDef) -> list[str]:
+def getRaisedExceptions(
+        node: FuncOrAsyncFuncDef,
+        shouldDeclareAssertError: bool = False,
+) -> list[str]:
     """Get the raised exceptions in a function node as a sorted list"""
-    return sorted(set(_getRaisedExceptions(node)))
+    return sorted(set(_getRaisedExceptions(node, shouldDeclareAssertError)))
 
 
 def _getRaisedExceptions(  # noqa: C901
         node: FuncOrAsyncFuncDef,
+        shouldDeclareAssertError: bool = False,
 ) -> Generator[str, None, None]:
     """Yield the raised exceptions or asserts in a function node"""
     childLineNum: int = -999
@@ -139,7 +143,7 @@ def _getRaisedExceptions(  # noqa: C901
     for child, parent in walk.walk_dfs(node):
         childLineNum = _updateFamilyTree(child, parent, familyTree)
 
-        if isinstance(child, ast.Assert):
+        if isinstance(child, ast.Assert) and shouldDeclareAssertError:
             yield 'AssertionError (implicitly from the `assert` statement)'
 
         if isinstance(parent, ast.ExceptHandler):
