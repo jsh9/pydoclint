@@ -165,7 +165,7 @@ class Plugin:
             '-ipa',
             '--ignore-private-args',
             action='store',
-            default='True',
+            default='False',
             parse_from_config=True,
             help=(
                 'If True, private arguments (those with leading underscores '
