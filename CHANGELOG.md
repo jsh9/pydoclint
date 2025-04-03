@@ -1,9 +1,13 @@
 # Change Log
 
-## [unpublished]
+## [0.6.5] - 2025-04-03
 
 - Fixed
   - A typo in the default config value of `--ignore-private-args`
+  - A bug with checking assert errors when `shouldDeclareAssertErrorIfAssertStatementExists`
+    is False
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.4...0.6.5
 
 ## [0.6.4] - 2025-03-30
 
