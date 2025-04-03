@@ -1877,6 +1877,7 @@ def testNonAscii() -> None:
             [],
         ),
         ('26_decompose_tuples/cases.py', {}, []),
+        ('27_declare_assert_error/cases.py', {'style': 'google'}, []),
     ],
 )
 def testEdgeCases(
