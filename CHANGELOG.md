@@ -1,5 +1,10 @@
 # Change Log
 
+## [unpublished]
+
+- Fixed
+  - A typo in the default config value of `--ignore-private-args`
+
 ## [0.6.4] - 2025-03-30
 
 - Fixed
