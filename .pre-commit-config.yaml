@@ -1,3 +1,7 @@
+ci:
+  skip:
+    # not supported by pre-commit.ci
+    - check-self
 repos:
   - repo: https://github.com/pycqa/isort
     rev: 6.0.1
@@ -46,3 +50,12 @@ repos:
         entry: python .pre_commit_helper_scripts/check_full_diff_in_changelog.py
         language: python
         additional_dependencies: ["markdown-it-py"]
+
+  - repo: local
+    hooks:
+      - id: check-self
+        name: check-self
+        entry: pydoclint --config=pyproject.toml
+        language: system
+        types: [python]
+        exclude: "^(tests?/)"
