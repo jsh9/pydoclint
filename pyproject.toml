@@ -54,3 +54,4 @@ check-class-attributes = false
 [tool.mypy]
 strict = true
 exclude = "pydoclint/utils/unparser.py"
+
