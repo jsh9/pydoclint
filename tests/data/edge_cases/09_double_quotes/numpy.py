@@ -1,6 +1,9 @@
 # fmt: off
 
-# This edge case comes from https://github.com/jsh9/pydoclint/issues/105
+# The edge cases comes from:
+# https://github.com/jsh9/pydoclint/issues/105
+# https://github.com/jsh9/pydoclint/issues/231
+
 
 from __future__ import annotations
 
@@ -55,3 +58,22 @@ def func_3() -> tuple[Literal['foo'], Literal["bar"]]:
         the function signature.
     """
     return "foo", 'bar'
+
+
+async def upload_tickets(
+    file: Annotated[UploadFile, File(description="Excel file with tickets")],
+) -> dict:
+    """
+    Upload and process tickets from an Excel file.
+
+    Parameters
+    ----------
+    file : Annotated[UploadFile, File(description="Excel file with tickets")]
+        The uploaded Excel file containing ticket data.
+
+    Returns
+    -------
+    dict
+        Processed ticket data.
+    """
+    pass

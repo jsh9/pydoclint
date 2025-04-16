@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.6.6] - 2025-04-16
+
+- Fixed
+  - A bug where double quotes in function signature type hints are not treated
+    as interchangeable as double quotes in the docstring
+- Changed
+  - Changed the default of option `--quiet` from False to True
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.5...0.6.6
+
 ## [0.6.5] - 2025-04-03
 
 - Fixed
