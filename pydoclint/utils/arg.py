@@ -6,7 +6,7 @@ from typing import Any
 from docstring_parser.common import DocstringAttr, DocstringParam
 
 from pydoclint.utils.edge_case_error import EdgeCaseError
-from pydoclint.utils.generic import stripQuotes
+from pydoclint.utils.generic import specialEqual, stripQuotes
 from pydoclint.utils.unparser_custom import unparseName
 
 
@@ -129,7 +129,7 @@ class Arg:
         except SyntaxError:
             hint2_ = hint2
 
-        return hint1_ == hint2_
+        return specialEqual(hint1_, hint2_)
 
     @classmethod
     def _removeEscapeChar(cls, string: str) -> str:
