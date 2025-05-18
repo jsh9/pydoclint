@@ -30,7 +30,7 @@ page:
 - [17. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#17---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
 - [18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False)](#18---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
 - [19. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#19---should-document-star-arguments-shortform--sdsa-default-true)
-- [20. `--check-style-mismatch` (shortform: `-csm`, default: `True`)](#20---check-style-mismatch-shortform--csm-default-true)
+- [20. `--check-style-mismatch` (shortform: `-csm`, default: `False`)](#20---check-style-mismatch-shortform--csm-default-false)
 - [21. `--baseline`](#21---baseline)
 - [22. `--generate-baseline` (default: `False`)](#22---generate-baseline-default-false)
 - [23. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#23---auto-regenerate-baseline-shortform--arb-default-true)
@@ -228,7 +228,7 @@ If True, "star arguments" (such as `*args`, `**kwargs`, `**props`, etc.)
 in the function signature should be documented in the docstring. If False,
 they should not appear in the docstring.
 
-## 20. `--check-style-mismatch` (shortform: `-csm`, default: `True`)
+## 20. `--check-style-mismatch` (shortform: `-csm`, default: `False`)
 
 If True, check that style specified in --style matches the detected
 style of the docstring. If there is a mismatch, DOC003 will be
