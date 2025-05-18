@@ -1,9 +1,13 @@
 # Change Log
 
-## [Unpublished]
+## [0.6.7] - 2025-05-18
 
 - Changed
   - Reverted the default behavior of `--quiet` to be `False`
+- Fixed
+  - Fixed a typo in the documentation
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.6...0.6.7
 
 ## [0.6.6] - 2025-04-16
 
