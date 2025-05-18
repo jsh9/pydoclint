@@ -49,7 +49,7 @@ def validateStyleValue(
     '-q',
     '--quiet',
     is_flag=True,
-    default=True,
+    default=False,
     help='If True, do not print the file names being checked to the terminal.',
 )
 @click.option(

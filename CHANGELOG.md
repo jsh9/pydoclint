@@ -1,5 +1,10 @@
 # Change Log
 
+## [Unpublished]
+
+- Changed
+  - Reverted the default behavior of `--quiet` to be `False`
+
 ## [0.6.6] - 2025-04-16
 
 - Fixed
