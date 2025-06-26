@@ -9,9 +9,7 @@
 - [3. Notes on writing type hints](#3-notes-on-writing-type-hints)
 - [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
 - [5. Notes for Google-style users](#5-notes-for-google-style-users)
-- [6. How to adopt _pydoclint_ more easily in legacy projects](#6-how-to-adopt-pydoclint-more-easily-in-legacy-projects)
-- [7. How to integrate _pydoclint_ with different editors or IDEs](#7-how-to-integrate-pydoclint-with-different-editors-or-ides)
-  - [7.1. Integrate _pydoclint_ with Neovim using null-ls](#71-integrate-pydoclint-with-neovim-using-null-ls)
+- [6. Writing default arguments in numpy-style docstrings](#6-writing-default-arguments-in-numpy-style-docstrings)
 
 <!--TOC-->
 
@@ -175,7 +173,56 @@ configurable options of _pydoclint_, and
 [here](https://jsh9.github.io/pydoclint/how_to_config.html) is how to configure
 _pydoclint_.
 
-## 6. How to adopt _pydoclint_ more easily in legacy projects
+## 6. Writing default arguments in numpy-style docstrings
+
+The [numpy docstring style guide](https://numpydoc.readthedocs.io/en/latest/format.html)
+specifies a few different ways to include default values for
+function args in the the docstring.
+
+For a function with a signature like this:
+
+```python
+def some_fn(arg1: int = 10):
+```
+
+The following styles are currently supported:
+
+```python
+    Parameters
+    ----------
+    arg1 : int, default 10
+
+    arg1 : int, default is 10
+
+    arg1 : int, default: 10
+
+    arg1 : int = 10
+```
+
+And for a function with a signature like this:
+
+``python
+def some_fn(arg1: int | None = None):
+
+````
+
+The following styles are currently supported:
+```python
+    Parameters
+    ----------
+    arg1 : int, optional
+
+    arg1 : int | None, default is None
+
+    arg1 : int | None, default: None
+
+    arg1 : int | None = None
+````
+
+The portion following the type hints are ignored and not checked for
+congruence with the function signature.
+
+## 7. How to adopt _pydoclint_ more easily in legacy projects
 
 If you have large legacy projects, adoting a new linter may be daunting: you'll
 see hundreds or even thousands of violations at first.
@@ -190,9 +237,9 @@ somewhere in your repo.
 For more details, please check out
 [this section](https://jsh9.github.io/pydoclint/config_options.html#20---baseline).
 
-## 7. How to integrate _pydoclint_ with different editors or IDEs
+## 8. How to integrate _pydoclint_ with different editors or IDEs
 
-### 7.1. Integrate _pydoclint_ with Neovim using null-ls
+### 8.1. Integrate _pydoclint_ with Neovim using null-ls
 
 If you use [Neovim](https://neovim.io/), you can integrate _pydoclint_ with
 your editor using the [null-ls](https://github.com/nvimtools/none-ls.nvim)
