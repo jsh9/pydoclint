@@ -2,9 +2,14 @@
 
 ## Code Style
 
-- This project uses camelCase for function and variable names (not snake_case)
+- Use camelCase for function and variable names (not snake_case)
 
-## Branch Naming Convention
+## Branch Naming
 
-- Use format: `yyyy-mm-dd-What-this-branch-does`
-- Example: `2025-01-15-Add-numpy-style-detection`
+- Format: `yyyy-mm-dd-What-this-branch-does`
+
+## Commit Messages & PR Titles
+
+- Use action verbs (imperative mood), not past tense
+- Good: "Add feature", "Fix bug"
+- Bad: "Added feature", "Fixed bug"
