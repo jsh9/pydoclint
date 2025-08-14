@@ -1,5 +1,20 @@
 # Change Log
 
+## [0.6.8] - 2025-08-14
+
+- Changed
+  - Enhanced numpy-style docstring detection with pattern-based recognition
+  - Added pattern-based detection that looks for section headers with dashes
+    (e.g., `Returns\n-------`) before falling back to size-based comparison
+- Updated
+  - Updated documentation to reflect new detection logic and reformatted to 79
+    chars per line
+- Added
+  - Added comprehensive test coverage for the new numpy-style detection
+    functionality
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.7...0.6.8
+
 ## [0.6.7] - 2025-05-18
 
 - Changed
