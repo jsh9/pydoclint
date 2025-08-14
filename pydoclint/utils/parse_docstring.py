@@ -8,19 +8,18 @@ from pydoclint.utils.doc import Doc
 
 
 def _containsNumpyStylePattern(docstring: str) -> bool:
-    """
-    Check if docstring contains numpy-style section headers with dashes.
+    # Check if docstring contains numpy-style section headers with dashes.
+    #
+    # Looks for patterns like:
+    # Returns
+    # -------
+    #
+    # Args:
+    # -----
+    #
+    # Examples
+    # --------
 
-    Looks for patterns like:
-    Returns
-    -------
-
-    Args:
-    -----
-
-    Examples
-    --------
-    """
     # Pattern to match section headers followed by dashes on the next line
     # Matches common numpy docstring sections followed by 3+ dashes
     sections = (
