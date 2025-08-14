@@ -29,7 +29,6 @@ bit more "Pythonic" and easier to read.)
 ## 3. Specifying options in a configuration file
 
 - Native:
-
   - In a `.toml` file somewhere in your project folder, add a section like this
     (put in the config that you need):
 
