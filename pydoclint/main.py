@@ -593,7 +593,7 @@ def main(  # noqa: C901
             counter += 1
             if len(violationsInThisFile) > 0:
                 if counter > 1:
-                    print('')
+                    click.echo('', err=echoAsError)
 
                 if not show_filenames_in_every_violation_message:
                     click.echo(

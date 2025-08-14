@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.6.9] - 2025-08-14
+
+- Fixed
+  - Fixed output formatting bug where blank lines between files would appear at
+    the end when redirecting output to a file instead of between each file
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.8...0.6.9
+
 ## [0.6.8] - 2025-08-14
 
 - Changed
