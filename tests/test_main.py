@@ -1003,24 +1003,20 @@ def testParsingErrors_numpy() -> None:
         "docstring. Error message: Section 'Parameters' is not empty but nothing was "
         'parsed. (Note: DOC001 could trigger other unrelated violations under this '
         'function/method too. Please fix the docstring formatting first.)',
-        'DOC003: Function/method `__init__`: Docstring style mismatch. (Please read '
-        'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
-        'specified "numpy" style, but the docstring is likely not written in this '
-        'style.',
         'DOC001: Function/method `method2`: Potential formatting errors in docstring. '
         "Error message: Section 'Yields' is not empty but nothing was parsed. (Note: "
         'DOC001 could trigger other unrelated violations under this function/method '
         'too. Please fix the docstring formatting first.)',
-        'DOC003: Function/method `method2`: Docstring style mismatch. (Please read '
-        'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
-        'specified "numpy" style, but the docstring is likely not written in this '
-        'style.',
         'DOC101: Method `A.method2`: Docstring contains fewer arguments than in '
         'function signature.',
         'DOC103: Method `A.method2`: Docstring arguments are different from function '
         'arguments. (Or could be other formatting issues: '
         'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
         'Arguments in the function signature but not in the docstring: [arg4: ].',
+        'DOC003: Function/method `funcWithGoogleStyle`: Docstring style mismatch. '
+        '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html '
+        '). You specified "numpy" style, but the docstring is likely not written '
+        'in this style.',
     ]
     assert list(map(str, violations)) == expected
 
@@ -1878,6 +1874,64 @@ def testNonAscii() -> None:
         ),
         ('26_decompose_tuples/cases.py', {}, []),
         ('27_declare_assert_error/cases.py', {'style': 'google'}, []),
+        (
+            '28_numpy_style_detection/case.py',
+            {
+                'style': 'numpy',
+                'checkStyleMismatch': True,
+            },
+            [
+                'DOC101: Function `funcWithReturnsSection`: Docstring contains fewer '
+                'arguments than in function signature.',
+                'DOC103: Function `funcWithReturnsSection`: Docstring arguments are different '
+                'from function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [arg1: str].',
+                'DOC003: Function/method `funcWithoutNumpyDashes`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "numpy" style, but the docstring is likely not written in this '
+                'style.',
+            ],
+        ),
+        (
+            '28_numpy_style_detection/case.py',
+            {
+                'style': 'google',
+                'checkStyleMismatch': True,
+            },
+            [
+                'DOC003: Function/method `add1`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `add2`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `funcWithReturnsSection`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC101: Function `funcWithReturnsSection`: Docstring contains fewer '
+                'arguments than in function signature.',
+                'DOC103: Function `funcWithReturnsSection`: Docstring arguments are different '
+                'from function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [arg1: str].',
+                'DOC003: Function/method `funcWithArgsSection`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `funcWithExamplesSection`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `funcWithNumpyStyleDashes`: Docstring style '
+                'mismatch. (Please read more at '
+                'https://jsh9.github.io/pydoclint/style_mismatch.html ). You specified '
+                '"google" style, but the docstring is likely not written in this style.',
+            ],
+        ),
     ],
 )
 def testEdgeCases(
@@ -1903,7 +1957,7 @@ def testPlayground() -> None:
     """
     violations = _checkFile(
         filename=DATA_DIR / 'playground.py',
-        style='numpy',
+        style='google',
     )
     expected = []
     assert list(map(str, violations)) == expected

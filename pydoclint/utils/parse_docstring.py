@@ -1,8 +1,35 @@
 from __future__ import annotations
 
+import re
+
 from docstring_parser import ParseError
 
 from pydoclint.utils.doc import Doc
+
+
+def _containsNumpyStylePattern(docstring: str) -> bool:
+    """
+    Check if docstring contains numpy-style section headers with dashes.
+
+    Looks for patterns like:
+    Returns
+    -------
+
+    Args:
+    -----
+
+    Examples
+    --------
+    """
+    # Pattern to match section headers followed by dashes on the next line
+    # Matches common numpy docstring sections followed by 3+ dashes
+    sections = (
+        r'Args?|Arguments?|Parameters?|Param|Returns?|Return|Yields?|Yield|'
+        r'Raises?|Raise|Examples?|Example|Notes?|Note|See Also|References?|'
+        r'Reference'
+    )
+    pattern = rf'^\s*({sections})\s*:?\s*\n\s*-{{3,}}\s*$'
+    return bool(re.search(pattern, docstring, re.MULTILINE | re.IGNORECASE))
 
 
 def parseDocstring(
@@ -13,6 +40,12 @@ def parseDocstring(
     Parse docstring in all 3 docstring styles and return the one that
     is parsed with the most likely style.
     """
+    # Check if docstring contains numpy-style section headers with dashes
+    if _containsNumpyStylePattern(docstring):
+        # Force numpy style parsing when numpy pattern is detected
+        docNumpy, excNumpy = parseDocstringInGivenStyle(docstring, 'numpy')
+        return docNumpy, excNumpy, userSpecifiedStyle != 'numpy'
+
     docNumpy, excNumpy = parseDocstringInGivenStyle(docstring, 'numpy')
     docGoogle, excGoogle = parseDocstringInGivenStyle(docstring, 'google')
     docSphinx, excSphinx = parseDocstringInGivenStyle(docstring, 'sphinx')
