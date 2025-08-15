@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.6.10] - 2025-08-14
+
+- Changed
+  - Migrated from setup.cfg/setup.py to pyproject.toml for modern Python
+    packaging
+  - Consolidated all package metadata into pyproject.toml [project] section
+  - Removed deprecated setup.cfg and setup.py files
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.9...0.6.10
+
 ## [0.6.9] - 2025-08-14
 
 - Fixed
