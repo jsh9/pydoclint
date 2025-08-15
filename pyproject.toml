@@ -1,3 +1,43 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pydoclint"
+version = "0.6.9"
+description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "jsh9"},
+]
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+]
+requires-python = ">=3.9"
+dependencies = [
+    "click>=8.1.0",
+    "docstring_parser_fork>=0.0.12",
+    "tomli>=2.0.1; python_version<'3.11'",
+]
+
+[project.optional-dependencies]
+flake8 = ["flake8>=4"]
+
+[project.urls]
+Homepage = "https://github.com/jsh9/pydoclint"
+
+[project.scripts]
+pydoclint = "pydoclint.main:main"
+
+[project.entry-points."flake8.extension"]
+DOC = "pydoclint.flake8_entry:Plugin"
+
+[tool.setuptools.packages.find]
+exclude = ["tests*", "testing*"]
+
 [tool.isort]
 multi_line_output = 3
 include_trailing_comma = true
