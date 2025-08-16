@@ -1,5 +1,9 @@
 # pydoclint
 
+[![Downloads](https://static.pepy.tech/badge/pydoclint)](https://pepy.tech/project/pydoclint)
+[![Downloads](https://static.pepy.tech/badge/pydoclint/month)](https://pepy.tech/project/pydoclint)
+[![Downloads](https://static.pepy.tech/badge/pydoclint/week)](https://pepy.tech/project/pydoclint)
+
 _Pydoclint_ is a Python docstring linter to check whether a docstring's
 sections (arguments, returns, raises, ...) match the function signature or
 function implementation.
