@@ -16,7 +16,7 @@ def testArg_initializationCheck():
         (Arg(name='1', typeHint='2'), '1: 2'),
         (Arg(name='arg1', typeHint='str'), 'arg1: str'),
         (Arg(name='obj', typeHint='int | float'), 'obj: int | float'),
-        (Arg(name='arg1\_\_', typeHint='Any'), 'arg1__: Any'),  # noqa: W605
+        (Arg(name='arg1\\_\\_', typeHint='Any'), 'arg1__: Any'),  # noqa: W605
         (Arg(name='**kwargs', typeHint='Any'), '**kwargs: Any'),
         (Arg(name='\\**kwargs', typeHint='Any'), '**kwargs: Any'),
     ],
@@ -211,8 +211,8 @@ def testArgList_length(input_: ArgList, expected: int) -> None:
             ArgList([Arg('\\*args', '1'), Arg('**kwargs', '2')]),
         ),
         (
-            ArgList([Arg('arg1\_', '1'), Arg('arg2__', '2')]),  # noqa: W605
-            ArgList([Arg('arg1_', '1'), Arg('arg2\_\_', '2')]),  # noqa: W605
+            ArgList([Arg('arg1\\_', '1'), Arg('arg2__', '2')]),  # noqa: W605
+            ArgList([Arg('arg1_', '1'), Arg('arg2\\_\\_', '2')]),  # noqa: W605
         ),
     ],
 )
@@ -325,8 +325,8 @@ def testArgList_contains(
             {Arg('**kwargs', '2')},
         ),
         (
-            ArgList([Arg('arg1\_', '1'), Arg('arg2__', '2')]),  # noqa: W605
-            ArgList([Arg('arg2\_\_', '2')]),  # noqa: W605
+            ArgList([Arg('arg1\\_', '1'), Arg('arg2__', '2')]),  # noqa: W605
+            ArgList([Arg('arg2\\_\\_', '2')]),  # noqa: W605
             {Arg('arg1_', '1')},
         ),
     ],
