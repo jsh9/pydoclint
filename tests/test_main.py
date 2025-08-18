@@ -352,20 +352,22 @@ def testReturns(style: str, filename: str) -> None:
             "docstring return section types: ['bool']"
         )
 
-    expectedViolations.extend([
-        'DOC202: Method `MyClass.func101` has a return section in docstring, but '
-        'there are no return statements or annotations',
-        'DOC203: Method `MyClass.func101` return type(s) in docstring not consistent '
-        'with the return annotation. Return annotation has 0 type(s); docstring '
-        'return section has 1 type(s).',
-        'DOC201: Function `inner101` does not have a return section in docstring',
-        'DOC203: Function `inner101` return type(s) in docstring not consistent with '
-        'the return annotation. Return annotation has 1 type(s); docstring return '
-        'section has 0 type(s).',
-        'DOC203: Method `MyClass.zipLists1` return type(s) in docstring not consistent with '
-        "the return annotation. Return annotation types: ['Iterator[Tuple[Any, "
-        "Any]]']; docstring return section types: ['Iterator[Tuple[Any, int]]']",
-    ])
+    expectedViolations.extend(
+        [
+            'DOC202: Method `MyClass.func101` has a return section in docstring, but '
+            'there are no return statements or annotations',
+            'DOC203: Method `MyClass.func101` return type(s) in docstring not consistent '
+            'with the return annotation. Return annotation has 0 type(s); docstring '
+            'return section has 1 type(s).',
+            'DOC201: Function `inner101` does not have a return section in docstring',
+            'DOC203: Function `inner101` return type(s) in docstring not consistent with '
+            'the return annotation. Return annotation has 1 type(s); docstring return '
+            'section has 0 type(s).',
+            'DOC203: Method `MyClass.zipLists1` return type(s) in docstring not consistent with '
+            "the return annotation. Return annotation types: ['Iterator[Tuple[Any, "
+            "Any]]']; docstring return section types: ['Iterator[Tuple[Any, int]]']",
+        ]
+    )
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
     if filename == 'function.py':
@@ -1669,8 +1671,16 @@ def testNonAscii() -> None:
             ],
         ),
         ('18_assign_to_subscript/case.py', {}, []),
-        ('19_file_encoding/nonascii.py', {}, []),  # from: https://github.com/ipython/ipython/blob/0334d9f71e7a97394a73c15c663ca50d65df62e1/IPython/core/tests/nonascii.py
-        ('19_file_encoding/nonascii2.py', {}, []),  # from: https://github.com/ipython/ipython/blob/0334d9f71e7a97394a73c15c663ca50d65df62e1/IPython/core/tests/nonascii2.py
+        (
+            '19_file_encoding/nonascii.py',
+            {},
+            [],
+        ),  # from: https://github.com/ipython/ipython/blob/0334d9f71e7a97394a73c15c663ca50d65df62e1/IPython/core/tests/nonascii.py
+        (
+            '19_file_encoding/nonascii2.py',
+            {},
+            [],
+        ),  # from: https://github.com/ipython/ipython/blob/0334d9f71e7a97394a73c15c663ca50d65df62e1/IPython/core/tests/nonascii2.py
         ('20_invisible_zero_width_chars/case.py', {}, []),
         (
             '21_syntax_error/case_21a.py',

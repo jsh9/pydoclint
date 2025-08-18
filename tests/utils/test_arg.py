@@ -157,18 +157,24 @@ def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
             '[1: 2, 2: 3]',
         ),
         (
-            ArgList([
-                Arg('1', '2'),
-                Arg('2', '3'),
-                Arg('3', '456789'),
-            ]),
+            ArgList(
+                [
+                    Arg('1', '2'),
+                    Arg('2', '3'),
+                    Arg('3', '456789'),
+                ]
+            ),
             '[1: 2, 2: 3, 3: 456789]',
         ),
         (
-            ArgList([
-                Arg('var1', 'str'),
-                Arg('myValue', 'Union[int, str, Optional[Dict[str, str]]]'),
-            ]),
+            ArgList(
+                [
+                    Arg('var1', 'str'),
+                    Arg(
+                        'myValue', 'Union[int, str, Optional[Dict[str, str]]]'
+                    ),
+                ]
+            ),
             '[var1: str, myValue: Union[int, str, Optional[Dict[str, str]]]]',
         ),
     ],

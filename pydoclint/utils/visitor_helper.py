@@ -1,4 +1,5 @@
 """Helper functions to classes/methods in visitor.py"""
+
 from __future__ import annotations
 
 import ast

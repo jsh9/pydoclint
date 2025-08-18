@@ -42,10 +42,6 @@ exclude = ["tests*", "testing*"]
 multi_line_output = 3
 include_trailing_comma = true
 
-[tool.cercis]
-wrap-line-with-long-string = true
-extend-exclude = 'tests/data'
-
 [tool.pydoclint]
 style = 'numpy'
 exclude = '\.git|.?venv|\.tox|tests/data|build'

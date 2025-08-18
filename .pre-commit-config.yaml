@@ -4,11 +4,11 @@ repos:
     hooks:
       - id: isort
 
-  - repo: https://github.com/jsh9/cercis
-    rev: 0.2.5
+  - repo: https://github.com/jsh9/muff-pre-commit
+    rev: 0.12.9
     hooks:
-      - id: cercis
-        exclude: ^tests/data/
+      - id: muff-format
+        args: [--config, muff.toml]
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8

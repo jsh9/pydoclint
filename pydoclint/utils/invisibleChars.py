@@ -1,28 +1,28 @@
 def replaceInvisibleChars(text: str) -> str:
     """Replace invisible characters so that AST can correctly parse the code"""
     invisibleToSpace = {
-        '\uFEFF': ' ',  # Byte order mark: 0-width but might act as a separator
+        '\ufeff': ' ',  # Byte order mark: 0-width but might act as a separator
     }
 
     invisibleToEmpty = {
-        '\u200B': '',  # Zero width space
-        '\u200C': '',  # Zero width non-joiner
-        '\u200D': '',  # Zero width joiner
+        '\u200b': '',  # Zero width space
+        '\u200c': '',  # Zero width non-joiner
+        '\u200d': '',  # Zero width joiner
         '\u2060': '',  # Word joiner
-        '\u180E': '',  # Mongolian vowel separator
-        '\u061C': '',  # Arabic letter mark
-        '\u200E': '',  # Left-to-right mark
-        '\u200F': '',  # Right-to-left mark
-        '\u202A': '',  # Left-to-right embedding
-        '\u202B': '',  # Right-to-left embedding
-        '\u202C': '',  # Pop directional formatting
-        '\u202D': '',  # Left-to-right override
-        '\u202E': '',  # Right-to-left override
+        '\u180e': '',  # Mongolian vowel separator
+        '\u061c': '',  # Arabic letter mark
+        '\u200e': '',  # Left-to-right mark
+        '\u200f': '',  # Right-to-left mark
+        '\u202a': '',  # Left-to-right embedding
+        '\u202b': '',  # Right-to-left embedding
+        '\u202c': '',  # Pop directional formatting
+        '\u202d': '',  # Left-to-right override
+        '\u202e': '',  # Right-to-left override
         '\u2061': '',  # Function application
         '\u2062': '',  # Invisible times
         '\u2063': '',  # Invisible separator
         '\u2064': '',  # Invisible plus
-        '\u034F': '',  # Combining grapheme joiner
+        '\u034f': '',  # Combining grapheme joiner
     }
 
     for char, replacement in {**invisibleToSpace, **invisibleToEmpty}.items():

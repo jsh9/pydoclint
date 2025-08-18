@@ -1,0 +1,6 @@
+line-length = 79
+exclude = ["tests/data"]
+
+[format]
+quote-style = "single"
+docstring-code-format = true

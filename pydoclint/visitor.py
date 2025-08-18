@@ -519,8 +519,7 @@ class Visitor(ast.NodeVisitor):
             # Otherwise, the error message of DOC109 would not make sense.
             # ("The option `--arg-type-hints-in-docstring` is `True` but
             # there are no type hints in the docstring arg list")
-            len(docArgs) > 0
-            and docArgs.noTypeHints()
+            len(docArgs) > 0 and docArgs.noTypeHints()
         ):
             violations.append(v109)
 
@@ -576,7 +575,6 @@ class Visitor(ast.NodeVisitor):
                 # fmt: off
                 not (onlyHasYieldStmt and hasIterAsRetAnno)
                 and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
-
                 # fmt: on
             ):
                 # If "Generator[...]" is put in the return type annotation,
@@ -588,7 +586,6 @@ class Visitor(ast.NodeVisitor):
                     # fmt: off
                     not isReturnAnnotationNone(node)
                     and not isReturnAnnotationNoReturn(node)
-
                     # fmt: on
                 ):
                     violations.append(v201)
@@ -816,15 +813,14 @@ class Visitor(ast.NodeVisitor):
                 if (
                     # fmt: off
                     not (onlyHasYieldStmt and hasIterAsRetAnno)
-                    and (hasReturnStmt or (
-                        hasReturnAnno and not hasGenAsRetAnno
-                    ))
-
+                    and (
+                        hasReturnStmt
+                        or (hasReturnAnno and not hasGenAsRetAnno)
+                    )
                     # If the return statement in the function body is a bare
                     # return, we don't throw DOC201 or DOC405. See more at:
                     # https://github.com/jsh9/pydoclint/issues/126#issuecomment-2136497913
                     and not hasBareReturnStmt
-
                     # fmt: on
                 ):
                     retTypeInGenerator = extractReturnTypeFromGenerator(
