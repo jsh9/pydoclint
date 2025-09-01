@@ -1,5 +1,12 @@
 # Change Log
 
+## [Unpublished]
+
+- Changed
+  - Replace `Prettier` with: [yamlfix](https://github.com/lyz-code/yamlfix),
+    [mdformat](https://github.com/hukkin/mdformat), and
+    [pretty-format-json](https://github.com/pre-commit/pre-commit-hooks?tab=readme-ov-file#pretty-format-json)
+
 ## [0.6.10] - 2025-08-14
 
 - Changed
