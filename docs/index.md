@@ -37,7 +37,7 @@ here: [https://jsh9.github.io/pydoclint](https://jsh9.github.io/pydoclint)
 The corresponding Github repository of _pydoclint_ is:
 [https://github.com/jsh9/pydoclint](https://github.com/jsh9/pydoclint)
 
----
+______________________________________________________________________
 
 **Table of Contents**
 
@@ -108,10 +108,10 @@ other built-in _flake8_ linters on your code.
 Should you use _pydoclint_ as a native command line tool or a _flake8_ plugin?
 Here's comparison:
 
-|                 | Pros                                     | Cons                                                          |
-| --------------- | ---------------------------------------- | ------------------------------------------------------------- |
-| Native tool     | Slightly faster; supports "baseline" [*] | No inline or project-wide omission support right now [**]     |
-| _flake8_ plugin | Supports inline or project-wide omission | Slightly slower because other flake8 plugins are run together |
+|                 | Pros                                      | Cons                                                          |
+| --------------- | ----------------------------------------- | ------------------------------------------------------------- |
+| Native tool     | Slightly faster; supports "baseline" [\*] | No inline or project-wide omission support right now [\*\*]   |
+| _flake8_ plugin | Supports inline or project-wide omission  | Slightly slower because other flake8 plugins are run together |
 
 \*) "Baseline" allows you to log the current violation state of your existing
 project, making adoption of _pydoclint_ much easier.

@@ -1,6 +1,7 @@
+---
 printWidth: 79
 endOfLine: auto
 overrides:
-  - files: "*.md"
+  - files: '*.md'
     options:
       proseWrap: always
