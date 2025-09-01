@@ -66,7 +66,7 @@ From this example, we can see a few things:
 
 1. The class attributes should be put in a different docstring section than the
    argument passed into the class constructor (`__init__()`)
-1. Both the class attributes and the input arguments to `__init__()` are in the
+2. Both the class attributes and the input arguments to `__init__()` are in the
    same docstring. (This is assuming the _pydoclint_ option
    `--allow-init-docstring` is `False`)
 

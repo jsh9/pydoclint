@@ -28,7 +28,7 @@ page:
 - [15. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#15---check-class-attributes-shortform--cca-default-true)
 - [16. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)](#16---should-document-private-class-attributes-shortform--sdpca-default-false)
 - [17. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#17---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
-- [18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)](#18---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
+- [18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False)](#18---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
 - [19. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#19---should-document-star-arguments-shortform--sdsa-default-true)
 - [20. `--check-style-mismatch` (shortform: `-csm`, default: `False`)](#20---check-style-mismatch-shortform--csm-default-false)
 - [21. `--baseline`](#21---baseline)
@@ -191,9 +191,9 @@ Note: "underscore arguments" are not the same as "private arguments" (i.e.,
 
 ## 14. `--ignore-private-args` (shortform: `-ipa`, default: `False`)
 
-If True, private arguments (those with leading underscores in their names but
-are not purely `_`, `__`, etc.) in the function signature do not need to appear
-in the docstring.
+If True, private arguments (those with leading underscores in their
+names but are not purely `_`, `__`, etc.) in the function signature
+do not need to appear in the docstring.
 
 ## 15. `--check-class-attributes` (shortform: `-cca`, default: `True`)
 
@@ -216,7 +216,7 @@ need to be documented in the "Attributes" section of the class docstring, and
 there cannot be any docstring under the @property methods. This option is only
 effective when --check-class-attributes is True.
 
-## 18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)
+## 18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False)
 
 If True, only the attributes whose type annotations are wrapped within
 `ClassVar` (where `ClassVar` is imported from `typing`) are treated as class
@@ -224,15 +224,15 @@ attributes, and all other attributes are treated as instance attributes.
 
 ## 19. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)
 
-If True, "star arguments" (such as `*args`, `**kwargs`, `**props`, etc.) in the
-function signature should be documented in the docstring. If False, they should
-not appear in the docstring.
+If True, "star arguments" (such as `*args`, `**kwargs`, `**props`, etc.)
+in the function signature should be documented in the docstring. If False,
+they should not appear in the docstring.
 
 ## 20. `--check-style-mismatch` (shortform: `-csm`, default: `False`)
 
-If True, check that style specified in --style matches the detected style of
-the docstring. If there is a mismatch, DOC003 will be reported. Setting this to
-False will silence all DOC003 violations.
+If True, check that style specified in --style matches the detected
+style of the docstring. If there is a mismatch, DOC003 will be
+reported. Setting this to False will silence all DOC003 violations.
 
 ## 21. `--baseline`
 
@@ -252,9 +252,9 @@ If you also set `--generate-baseline=True` (or `--generate-baseline True`),
 _pydoclint_ will generate a file that contains all current violations of your
 project.
 
-If `--generate-baseline` is not passed to _pydoclint_ (the default is `False`),
-_pydoclint_ will read your baseline file, and ignore all violations specified
-in that file.
+If `--generate-baseline` is not passed to _pydoclint_ (the default
+is `False`), _pydoclint_ will read your baseline file, and ignore all
+violations specified in that file.
 
 ## 22. `--generate-baseline` (default: `False`)
 
