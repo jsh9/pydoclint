@@ -58,6 +58,8 @@ class Doc:
                 and len(self.parsed.raises) == 0
                 and self.parsed.returns is None
                 and len(self.parsed.many_returns) == 0
+                and self.parsed.yields is None
+                and len(self.parsed.many_yields) == 0
                 and len(self.parsed.examples) == 0
                 and self.parsed.deprecation is None
             )
