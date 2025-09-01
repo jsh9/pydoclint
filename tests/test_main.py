@@ -1942,6 +1942,19 @@ def testNonAscii() -> None:
                 '"google" style, but the docstring is likely not written in this style.',
             ],
         ),
+        (
+            '29_yields_section/case.py',
+            {
+                'style': 'google',
+                'skipCheckingShortDocstrings': True,
+            },
+            [
+                'DOC404: Function `test_yield_with_typing_no_args` yield type(s) in docstring '
+                'not consistent with the return annotation. The yield type (the 0th arg in '
+                'Generator[...]/Iterator[...]): Generator[typing.Any]; docstring "yields" '
+                'section types: Generator123[typing.Any]'
+            ],
+        ),
     ],
 )
 def testEdgeCases(
