@@ -110,11 +110,10 @@ As mentioned in Section 2 above, _pydoclint_ uses static syntax analysis. As a
 result, it cannot really "know" that these type annotations are in fact
 equivalent:
 
-| Type annotation   | Equivalent version |
-| ----------------- | ------------------ | ----- |
-| `Optional[str]`   | `str               | None` |
-| `Union[str, int]` | `int               | str`  |
-| `Tuple[str, int]` | `tuple[str, int]`  |
+| Type annotation | Equivalent version | | ----------------- |
+------------------ | ----- | | `Optional[str]` | `str               | None` | |
+`Union[str, int]` | `int               | str` | | `Tuple[str, int]` |
+`tuple[str, int]` |
 
 Additionally, _pydoclint_ does not recognize some docstring conventions allowed
 in the docstring style guide, such as using "`int, optional`" for
