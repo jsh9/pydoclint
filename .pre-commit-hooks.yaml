@@ -1,13 +1,15 @@
+---
 - id: pydoclint
   name: pydoclint
-  description: "A Python docstring linter that checks arguments, returns, yields, and raises sections"
+  description: A Python docstring linter that checks arguments, returns, yields,
+    and raises sections
   entry: pydoclint
   language: python
   types: [python]
   require_serial: true
 - id: pydoclint-flake8
   name: pydoclint-flake8
-  description: "Run `pydoclint` as a `flake8` plugin"
+  description: Run `pydoclint` as a `flake8` plugin
   entry: flake8
   args: [--select=DOC]
   language: python

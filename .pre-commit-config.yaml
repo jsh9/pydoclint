@@ -1,39 +1,37 @@
+---
 repos:
   - repo: https://github.com/pycqa/isort
     rev: 6.0.1
     hooks:
       - id: isort
-
   - repo: https://github.com/jsh9/muff-pre-commit
     rev: 0.12.9
     hooks:
       - id: muff-format
         args: [--config, muff.toml]
-
+  - repo: https://github.com/lyz-code/yamlfix
+    rev: 1.17.0
+    hooks:
+      - id: yamlfix
   - repo: https://github.com/hukkin/mdformat
     rev: 0.7.22  # Use the ref you want to point at
     hooks:
-    - id: mdformat
-      args: [--wrap, "79"]
-      additional_dependencies:
-      - mdformat-tables
-
+      - id: mdformat
+        args: [--wrap, '79']
+        additional_dependencies: [mdformat-tables]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
-
   - repo: https://github.com/pre-commit/pre-commit
     rev: v4.3.0
     hooks:
       - id: validate_manifest
-
   - repo: https://github.com/jsh9/markdown-toc-creator
     rev: 0.0.10
     hooks:
       - id: markdown-toc-creator
-
   - repo: local
     hooks:
       - id: copy_readme
@@ -41,11 +39,10 @@ repos:
         entry: python .pre_commit_helper_scripts/copy_readme.py
         language: system
         types: [python]
-
   - repo: local
     hooks:
       - id: check_full_diff_in_changelog
         name: Check "full diff" exists in CHANGELOG.md
         entry: python .pre_commit_helper_scripts/check_full_diff_in_changelog.py
         language: python
-        additional_dependencies: ["markdown-it-py"]
+        additional_dependencies: [markdown-it-py]

@@ -51,3 +51,7 @@ check-class-attributes = false
 [tool.mypy]
 strict = true
 exclude = "pydoclint/utils/unparser.py"
+
+[tool.yamlfix]
+line_length = 79
+none_representation = "null"
