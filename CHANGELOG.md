@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.6.11] - 2025-08-31
+
+- Fixed
+  - A bug where short docstring is incorrectly detected
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.10...0.6.11
+
 ## [0.6.10] - 2025-08-14
 
 - Changed
