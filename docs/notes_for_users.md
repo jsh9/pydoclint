@@ -111,9 +111,9 @@ result, it cannot really "know" that these type annotations are in fact
 equivalent:
 
 | Type annotation   | Equivalent version |
-| ----------------- | ------------------ | ----- |
-| `Optional[str]`   | `str               | None` |
-| `Union[str, int]` | `int               | str`  |
+| ----------------- | ------------------ |
+| `Optional[str]`   | `str \| None`      |
+| `Union[str, int]` | `int \| str`       |
 | `Tuple[str, int]` | `tuple[str, int]`  |
 
 Additionally, _pydoclint_ does not recognize some docstring conventions allowed

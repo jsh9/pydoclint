@@ -143,7 +143,6 @@
 
 - Added
   - A pre-commit hook for using _pydoclint_ as a flake8 plugin
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.15...0.5.16
 
@@ -153,7 +152,6 @@
   - Changed to using v0.0.10 of docstring_parser_fork, which now throws a
     `ParseError` when a non-empty docstring section cannot be parsed (in Numpy
     style). This `ParseError` would lead to DOC001.
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.14...0.5.15
 
@@ -165,10 +163,8 @@
   - Replaced invisible and zero-width characters with empty strings so that
     Python's AST can correctly parse the files
   - Added end-to-end test (essentially an integration test)
-
 - Fixed
   - A bug in ast.assign
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.13...0.5.14
 
@@ -178,7 +174,6 @@
   - Fixed a bug where assigning a dict value (such as `abc['something'] = 123`)
     would result in EdgeCaseError
   - Fixed a bug where non-UTF-8 encoded files would crash _pydoclint_
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.12...0.5.13
 
@@ -192,7 +187,6 @@
   - A new config option,
     `--only-attrs-with-ClassVar-are-treated-as-class-attrs`
   - Ensured support for Python 3.12 and 3.13
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.11...0.5.12
 
@@ -201,7 +195,6 @@
 - Fixed
   - Fixed a bug where pydoclint uses variable names instead of the exception
     itself (https://github.com/jsh9/pydoclint/issues/175)
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.10...0.5.11
 
@@ -216,7 +209,6 @@
 - Changed
   - Renamed function `unparseAnnotation()` into `unparseNode()`
   - Renamed `EdgeCaseError` into `EdgeCaseError`
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.9...0.5.10
 
@@ -224,7 +216,6 @@
 
 - Fixed
   - Fixed an edge case where type annotations are very long
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.8...0.5.9
 
@@ -232,7 +223,6 @@
 
 - Fixed
   - Fixed the logic of handling exceptions namespaces (`a.b.c.MyException`)
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.7...0.5.8
 
@@ -241,10 +231,8 @@
 - Added
   - A new violation code, `DOC503`, which checks that exceptions in the
     function body match those in the "Raises" section of the docstring
-
 - Changed
   - Switched from tab to 4 spaces in baseline
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.6...0.5.7
 
@@ -253,7 +241,6 @@
 - Fixed
   - Fixed a bug where _pydoclint_ treats folders whose names end with `.py` as
     files
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.5...0.5.6
 
@@ -262,11 +249,9 @@
 - Fixed
   - Fixed a bug where `a = b = c = 1` style cannot be properly parsed
     (https://github.com/jsh9/pydoclint/issues/151)
-
 - Changed
   - Changed the default of `--treat-property-methods-as-class-attributes` to
     `False` to restore backward compatibility
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.4...0.5.5
 
@@ -278,7 +263,6 @@
   - An option `--treat-property-methods-as-class-attributes` (if True,
     `@property` methods are treated like class attributes and need to be
     documented in the class docstring)
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.3...0.5.4
 
@@ -287,7 +271,6 @@
 - Changed
   - Added DOC604 & 605 test cases
   - Improved DOC605 error message
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.2...0.5.3
 
@@ -300,7 +283,6 @@
     - When a class has a short docstring (and
       `--skip-checking-short-docstrings`) is set to `True`, no DOC6xx
       violations will be reported
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.1...0.5.2
 
@@ -310,10 +292,8 @@
   - Fixed a bug in unparsing annotations when checking class attributes
   - Fixed a bug in checking class attributes where there are no attributes in
     class def or in docstring
-
 - Changed
   - Used a dedicated "attribute" section for Sphinx-style docstrings
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.5.0...0.5.1
 
@@ -330,7 +310,6 @@
     - Options like `--check-arg-order`, `--arg-type-hints-in-signature`, and
       `--arg-type-hints-in-docstring` are still effective in checking class
       attributes
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.4.2...0.5.0
 
@@ -339,7 +318,6 @@
 - Changed
   - Improved the violation message of DOC403 to remind users to add a return
     annotation
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.4.1...0.4.2
 
@@ -349,7 +327,6 @@
   - A bug where using double quotes in Literal type (such as `Literal["foo"]`
     could produce a false positive `DOC203` violation.
   - Removed useless argument `--src`
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.4.0...0.4.1
 
@@ -359,7 +336,6 @@
   - Improved the violation message of DOC105: the arguments with inconsistent
     type hints are now shown in the violation message to make violation
     correction much easier
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.10...0.4.0
 
@@ -369,7 +345,6 @@
   - A new config option `--show-filenames-in-every-violation-message` (or
     `-sfn`), which makes it more convenient to jump to the corresponding line
     in IDEs by clicking on the violation message in the terminal
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.9...0.3.10
 
@@ -378,7 +353,6 @@
 - Fixed
   - False positive violation `DOC203` when there is no docstring return section
     for methods with `@property` decorator
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.8...0.3.9
 
@@ -386,10 +360,8 @@
 
 - Fixed
   - A bug in handling prepended escape characters in docstrings
-
 - Changed
   - Improved documentation
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.7...0.3.8
 
@@ -399,7 +371,6 @@
   - Improved documentation
   - Disabled parallel mode for pre-commit
     (https://github.com/jsh9/pydoclint/pull/93)
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.6...0.3.7
 
@@ -408,7 +379,6 @@
 - Fixed
   - Updated dependency (docstring_parser_fork) to 0.0.5 to fix issues when
     parsing Google-style return section
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.5...0.3.6
 
@@ -418,7 +388,6 @@
   - When checking for consistency betwene the docstring arguments and the
     arguments in the function signature, ignore underscore arguments (`_`,
     `__`, `___`, ...) in the arguments in the function signature
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.4...0.3.5
 
@@ -427,7 +396,6 @@
 - Changed
   - Don't check type hints for DOC103
     (https://github.com/jsh9/pydoclint/pull/86)
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.3...0.3.4
 
@@ -437,11 +405,9 @@
   - Added baseline file integration and 2 options:
     1. `--generate-baseline True` Generate baseline content, and write it to a
        file specified from `--baseline` option path.
-    2. `--baseline <PATH>` Specify path to file with baseline content.
-
+    1. `--baseline <PATH>` Specify path to file with baseline content.
 - Changed
   - For the `--config` option, the default value is now `pyproject.toml`.
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.2...0.3.3
 
@@ -449,7 +415,6 @@
 
 - Changed
   - Make `flake8` an optional dependency
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.1...0.3.2
 
@@ -459,7 +424,6 @@
   - Added an option `--require-yield-section-when-yielding-nothing` (defaulting
     to `False`). When it's False, we don't need a "Yields" section when a
     function yields None (https://github.com/jsh9/pydoclint/issues/79)
-
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.3.0...0.3.1
 
@@ -498,19 +462,23 @@
 ## [0.2.2] - 2023-08-22
 
 - Improved
+
   - Improved handling of escape symbol (`\`) in docstrings
     (https://github.com/jsh9/pydoclint/issues/73)
 
 - Full diff
+
   - https://github.com/jsh9/pydoclint/compare/0.2.1...0.2.2
 
 ## [0.2.1] - 2023-08-21
 
 - Improved
+
   - Improved handling of backticks or double backticks being used in type hints
     in docstrings
 
 - Full diff
+
   - https://github.com/jsh9/pydoclint/compare/0.2.0...0.2.1
 
 ## [0.2.0] - 2023-08-18
@@ -758,7 +726,7 @@
 - Added
   - New command line options
 - Fixed
-  - Fixed an issue where star arguments (*, *args, \*\*kwargs) were omitted
+  - Fixed an issue where star arguments (\*, \*args, \*\*kwargs) were omitted
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.0.1...0.0.2
 

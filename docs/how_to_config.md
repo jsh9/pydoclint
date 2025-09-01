@@ -29,6 +29,7 @@ bit more "Pythonic" and easier to read.)
 ## 3. Specifying options in a configuration file
 
 - Native:
+
   - In a `.toml` file somewhere in your project folder, add a section like this
     (put in the config that you need):
 
@@ -49,6 +50,7 @@ bit more "Pythonic" and easier to read.)
     root directory of your project) if you do not specify the config file name.
 
 - Flake8:
+
   - In your flake8 config file (see
     [flake8's official doc](https://flake8.pycqa.org/en/latest/user/configuration.html#configuration-locations)),
     add the config you need under the section `[flake8]`
