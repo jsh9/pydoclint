@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Match
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
+from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
 
 if TYPE_CHECKING:
@@ -272,7 +273,7 @@ def doList1ItemsStartWithList2Items(
     return True
 
 
-def buildArgToDefaultMapping(
+def buildFuncArgToDefaultMapping(
         funcDef: FuncOrAsyncFuncDef,
 ) -> dict[ast.arg, ast.expr]:
     """
@@ -315,3 +316,54 @@ def buildArgToDefaultMapping(
             argToDefaultMapping[kwOnlyArgs[i]] = kwDefaults[i]  # type: ignore[assignment]  # noqa: LN002
 
     return argToDefaultMapping
+
+
+def buildClassAttrToDefaultMapping(
+        classDef: ast.ClassDef,
+) -> dict[str, ast.expr]:
+    """
+    Build a mapping from class attribute names to their default values using
+    proper AST structure.
+
+    Parameters
+    ----------
+    classDef : ast.ClassDef
+        Class definition node
+
+    Returns
+    -------
+    dict[str, ast.expr]
+        Dictionary mapping attribute names to their default values
+    """
+    attrToDefaultMapping: dict[str, ast.expr] = {}
+
+    # Iterate through the class body to find attribute assignments
+    for node in classDef.body:
+        if isinstance(node, ast.AnnAssign) and isinstance(
+            node.target, ast.Name
+        ):
+            # This is a typed attribute assignment like: attr: int = 42
+            if node.value is not None:
+                attrToDefaultMapping[node.target.id] = node.value
+        elif isinstance(node, ast.Assign):
+            # This is a regular assignment like: attr = 42
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    attrToDefaultMapping[target.id] = node.value
+
+    return attrToDefaultMapping
+
+
+def stripCommentsFromTypeHints(typeHint: str) -> str:
+    """
+    Strip comments from type hints to enable comparison between
+    docstring type hints and actual type hints.
+    """
+    result: str
+    try:
+        parsed = unparseName(ast.parse(typeHint))
+        result = parsed if parsed is not None else typeHint
+    except SyntaxError:
+        result = typeHint
+
+    return result

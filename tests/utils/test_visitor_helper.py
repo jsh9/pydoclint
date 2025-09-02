@@ -292,6 +292,7 @@ class MyClass:
         shouldDocumentPrivateClassAttributes=docPriv,
         treatPropertyMethodsAsClassAttrs=treatProp,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=False,
     )
     assert extracted == expected
 
@@ -339,5 +340,6 @@ class MyClass:
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
         ),
+        checkArgDefaults=False,
     )
     assert extracted == expected

@@ -1392,12 +1392,12 @@ def testNonAscii() -> None:
     'style, checkArgDefaults',
     list(
         itertools.product(
-            ['google', 'numpy'],
+            ['google', 'numpy'],  # no Sphinx style for now
             [True, False],
         ),
     ),
 )
-def testArgDefaultsNumpy(
+def testArgDefaults(
         style: str,
         checkArgDefaults: bool,
 ) -> None:

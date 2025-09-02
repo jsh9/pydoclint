@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.7.2] - 2025-09-02
+
+- Fixed
+  - A bug where false positive arg names are reported in the violation message
+- Added
+  - Support for checking class attribute default values (numpy and Google
+    styles only)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.1...0.7.2
+
 ## [0.7.1] - 2025-09-02
 
 - Added
