@@ -23,8 +23,8 @@ All the checking happens in the `visit_***()` methods in the `Visitor` class.
 ## 2. How to quickly sanity-check a code example?
 
 Put the code example in the file `tests/data/playground.py` (which is currently
-empty). And then run the test `testPlayground()` (in `tests/test_main.py`).
-Adjust the options accordingly.
+empty). And then run the test `testPlayground()` (in
+`tests/test_playground.py`). Adjust the options accordingly.
 
 ## 3. How to quickly debug a particular style violation?
 
