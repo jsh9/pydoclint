@@ -1971,6 +1971,81 @@ def testEdgeCases(
     assert list(map(str, violations)) == expectedViolations
 
 
+@pytest.mark.parametrize(
+    'checkArgDefaults, expectedViolations',
+    [
+        (
+            False,
+            [
+                'DOC105: Function `func2`: Argument names match, but type hints in these args '
+                'do not match: arg1, arg2',
+                'DOC105: Function `func3`: Argument names match, but type hints in these args '
+                'do not match: arg1, arg2',
+                'DOC105: Function `func4`: Argument names match, but type hints in these args '
+                'do not match: arg1, arg2',
+                'DOC105: Function `func5`: Argument names match, but type hints in these args '
+                'do not match: arg1, arg2',
+                'DOC105: Function `func6`: Argument names match, but type hints in these args '
+                'do not match: arg2',
+                'DOC105: Method `MyClass.method2`: Argument names match, but type hints in '
+                'these args do not match: arg1, arg2',
+                'DOC105: Method `MyClass.method3`: Argument names match, but type hints in '
+                'these args do not match: arg1, arg2',
+                'DOC105: Function `func_with_complex_defaults`: Argument names match, but '
+                'type hints in these args do not match: arg1, arg2, arg3, arg4',
+                'DOC105: Function `func_all_defaults`: Argument names match, but type hints '
+                'in these args do not match: arg1, arg2, arg3',
+                'DOC105: Function `func_single_quote_or_double_quote_dont_matter`: Argument '
+                'names match, but type hints in these args do not match: arg1, arg2',
+                'DOC105: Function `wrong_default_style`: Argument names match, but type hints '
+                'in these args do not match: arg1, arg2, arg3, arg4',
+                'DOC105: Function `space_does_not_matter`: Argument names match, but type '
+                'hints in these args do not match: arg1',
+            ],
+        ),
+        (
+            True,
+            [
+                'DOC105: Function `func1`: Argument names match, but type hints in these args '
+                'do not match: arg1, arg2 . (Note: docstring arg defaults should look like: '
+                '`, default=XXX`)',
+                'DOC105: Function `func4`: Argument names match, but type hints in these args '
+                'do not match: arg1, arg2 . (Note: docstring arg defaults should look like: '
+                '`, default=XXX`)',
+                'DOC105: Function `func5`: Argument names match, but type hints in these args '
+                'do not match: arg2, arg3 . (Note: docstring arg defaults should look like: '
+                '`, default=XXX`)',
+                'DOC105: Function `func7`: Argument names match, but type hints in these args '
+                'do not match: arg2 . (Note: docstring arg defaults should look like: `, '
+                'default=XXX`)',
+                'DOC105: Method `MyClass.method1`: Argument names match, but type hints in '
+                'these args do not match: arg1, arg2 . (Note: docstring arg defaults should '
+                'look like: `, default=XXX`)',
+                'DOC105: Method `MyClass.method3`: Argument names match, but type hints in '
+                'these args do not match: arg1, arg2 . (Note: docstring arg defaults should '
+                'look like: `, default=XXX`)',
+                'DOC105: Function `func_with_complex_defaults`: Argument names match, but '
+                'type hints in these args do not match: arg2, arg3, arg4 . (Note: docstring '
+                'arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `wrong_default_style`: Argument names match, but type hints '
+                'in these args do not match: arg2, arg3, arg4 . (Note: docstring arg defaults '
+                'should look like: `, default=XXX`)',
+            ],
+        ),
+    ],
+)
+def testArgDefaults(
+        checkArgDefaults: bool,
+        expectedViolations: List[str],
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'numpy/arg_defaults/cases.py',
+        style='numpy',
+        checkArgDefaults=checkArgDefaults,
+    )
+    assert list(map(str, violations)) == expectedViolations
+
+
 def testPlayground() -> None:
     """
     This is a placeholder test for testing the `playground.py` file.

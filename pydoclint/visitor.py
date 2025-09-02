@@ -9,6 +9,7 @@ from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
+    buildArgToDefaultMapping,
     collectFuncArgs,
     detectMethodType,
     doList1ItemsStartWithList2Items,
@@ -80,6 +81,7 @@ class Visitor(ast.NodeVisitor):
             shouldDocumentStarArguments: bool = True,
             shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
             checkStyleMismatch: bool = False,
+            checkArgDefaults: bool = False,
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -113,6 +115,7 @@ class Visitor(ast.NodeVisitor):
             shouldDeclareAssertErrorIfAssertStatementExists
         )
         self.checkStyleMismatch: bool = checkStyleMismatch
+        self.checkArgDefaults: bool = checkArgDefaults
 
         self.parent: ast.AST = ast.Pass()  # keep track of parent node
         self.violations: list[Violation] = []
@@ -438,6 +441,11 @@ class Visitor(ast.NodeVisitor):
         """
         astArgList: list[ast.arg] = collectFuncArgs(node)
 
+        if self.checkArgDefaults:
+            argToDefaultMapping: dict[ast.arg, ast.expr] = (
+                buildArgToDefaultMapping(node)
+            )
+
         isMethod: bool = isinstance(parent_, ast.ClassDef)
         msgPrefix: str = generateFuncMsgPrefix(node, parent_, appendColon=True)
 
@@ -450,7 +458,20 @@ class Visitor(ast.NodeVisitor):
         v101 = Violation(code=101, line=lineNum, msgPrefix=msgPrefix)
         v102 = Violation(code=102, line=lineNum, msgPrefix=msgPrefix)
         v104 = Violation(code=104, line=lineNum, msgPrefix=msgPrefix)
-        v105 = Violation(code=105, line=lineNum, msgPrefix=msgPrefix)
+
+        if self.checkArgDefaults:
+            v105 = Violation(
+                code=105,
+                line=lineNum,
+                msgPrefix=msgPrefix,
+                msgPostfix=(
+                    '. (Note: docstring arg defaults should'
+                    ' look like: `, default=XXX`)'
+                ),
+            )
+        else:
+            v105 = Violation(code=105, line=lineNum, msgPrefix=msgPrefix)
+
         v106 = Violation(code=106, line=lineNum, msgPrefix=msgPrefix)
         v107 = Violation(code=107, line=lineNum, msgPrefix=msgPrefix)
         v108 = Violation(code=108, line=lineNum, msgPrefix=msgPrefix)
@@ -459,7 +480,16 @@ class Visitor(ast.NodeVisitor):
         v111 = Violation(code=111, line=lineNum, msgPrefix=msgPrefix)
 
         docArgs: ArgList = doc.argList
-        funcArgs: ArgList = ArgList([Arg.fromAstArg(_) for _ in astArgList])
+
+        if self.checkArgDefaults:
+            funcArgs = ArgList(
+                [
+                    Arg.fromAstArgWithMapping(_, argToDefaultMapping)
+                    for _ in astArgList
+                ]
+            )
+        else:
+            funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
         if self.ignoreUnderscoreArgs:
             # Ignore underscore arguments (such as _, __, ___, ...).

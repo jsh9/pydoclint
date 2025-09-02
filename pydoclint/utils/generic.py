@@ -266,3 +266,48 @@ def doList1ItemsStartWithList2Items(
             return False
 
     return True
+
+
+def buildArgToDefaultMapping(
+        funcDef: FuncOrAsyncFuncDef,
+) -> dict[ast.arg, ast.expr]:
+    """
+    Build a mapping from AST arguments to their default values using
+    proper AST structure.
+
+    Parameters
+    ----------
+    funcDef : FuncOrAsyncFuncDef
+        Function definition node
+
+    Returns
+    -------
+    dict[ast.arg, ast.expr]
+        Dictionary mapping arguments to their default values
+    """
+    argToDefaultMapping: dict[ast.arg, ast.expr] = {}
+
+    regularArgs = funcDef.args.args
+    kwOnlyArgs = funcDef.args.kwonlyargs
+    defaults = funcDef.args.defaults
+    kwDefaults = funcDef.args.kw_defaults
+
+    # Map positional arguments to their defaults
+    # defaults correspond to the LAST len(defaults) regular arguments
+    if defaults:
+        numArgs = len(regularArgs)
+        numDefaults = len(defaults)
+        argsWithDefaultsStart = numArgs - numDefaults
+
+        for i, default in enumerate(defaults):
+            argIndex = argsWithDefaultsStart + i
+            if argIndex < len(regularArgs):
+                argToDefaultMapping[regularArgs[argIndex]] = default
+
+    # Map keyword-only arguments to their defaults
+    # kwDefaults has one-to-one correspondence with kwOnlyArgs
+    for i in range(len(kwDefaults)):
+        if i < len(kwOnlyArgs) and kwDefaults[i] is not None:
+            argToDefaultMapping[kwOnlyArgs[i]] = kwDefaults[i]  # type: ignore[assignment]  # noqa: LN002
+
+    return argToDefaultMapping

@@ -261,6 +261,19 @@ class Plugin:
                 ' reported. Setting this to False will silence all DOC003 violations.'
             ),
         )
+        parser.add_option(
+            '-cad',
+            '--check-arg-defaults',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, docstring type hints should contain default values '
+                'consistent with the function signature. If False, docstring '
+                'type hints should not contain default values. (Only applies '
+                'to numpy style for now.)'
+            ),
+        )
 
     @classmethod
     def parse_options(cls, options: Any) -> None:  # noqa: D102
@@ -301,6 +314,7 @@ class Plugin:
             options.should_document_star_arguments
         )
         cls.check_style_mismatch = options.check_style_mismatch
+        cls.check_arg_defaults = options.check_arg_defaults
         cls.style = options.style
 
     def run(self) -> Generator[tuple[int, int, str, Any], None, None]:
@@ -394,6 +408,10 @@ class Plugin:
             '--check-style-mismatch',
             self.check_style_mismatch,
         )
+        checkArgDefaults = self._bool(
+            '--check-arg-defaults',
+            self.check_arg_defaults,
+        )
 
         if self.style not in {'numpy', 'google', 'sphinx'}:
             raise ValueError(
@@ -429,6 +447,7 @@ class Plugin:
             ),
             shouldDocumentStarArguments=shouldDocumentStarArguments,
             checkStyleMismatch=checkStyleMismatch,
+            checkArgDefaults=checkArgDefaults,
             style=self.style,
         )
         v.visit(self._tree)

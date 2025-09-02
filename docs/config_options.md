@@ -31,11 +31,12 @@ page:
 - [18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)](#18---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
 - [19. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#19---should-document-star-arguments-shortform--sdsa-default-true)
 - [20. `--check-style-mismatch` (shortform: `-csm`, default: `False`)](#20---check-style-mismatch-shortform--csm-default-false)
-- [21. `--baseline`](#21---baseline)
-- [22. `--generate-baseline` (default: `False`)](#22---generate-baseline-default-false)
-- [23. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#23---auto-regenerate-baseline-shortform--arb-default-true)
-- [24. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#24---show-filenames-in-every-violation-message-shortform--sfn-default-false)
-- [25. `--config` (default: `pyproject.toml`)](#25---config-default-pyprojecttoml)
+- [21. `--check-arg-defaults` (shortform: `-cad`, default: `False`)](#21---check-arg-defaults-shortform--cad-default-false)
+- [22. `--baseline`](#22---baseline)
+- [23. `--generate-baseline` (default: `False`)](#23---generate-baseline-default-false)
+- [24. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#24---auto-regenerate-baseline-shortform--arb-default-true)
+- [25. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#25---show-filenames-in-every-violation-message-shortform--sfn-default-false)
+- [26. `--config` (default: `pyproject.toml`)](#26---config-default-pyprojecttoml)
 
 <!--TOC-->
 
@@ -234,7 +235,13 @@ If True, check that style specified in --style matches the detected style of
 the docstring. If there is a mismatch, DOC003 will be reported. Setting this to
 False will silence all DOC003 violations.
 
-## 21. `--baseline`
+## 21. `--check-arg-defaults` (shortform: `-cad`, default: `False`)
+
+If True, docstring type hints should contain default values consistent with the
+function signature. If False, docstring type hints should not contain default
+values. (Only applies to numpy style for now.)
+
+## 22. `--baseline`
 
 Baseline allows you to remember the current project state and then show only
 new violations, ignoring old ones. This can be very useful when you'd like to
@@ -256,12 +263,12 @@ If `--generate-baseline` is not passed to _pydoclint_ (the default is `False`),
 _pydoclint_ will read your baseline file, and ignore all violations specified
 in that file.
 
-## 22. `--generate-baseline` (default: `False`)
+## 23. `--generate-baseline` (default: `False`)
 
 Required to use with `--baseline` option. If `True`, generate the baseline file
 that contains all current violations.
 
-## 23. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)
+## 24. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)
 
 If it's set to True, _pydoclint_ will automatically regenerate the baseline
 file every time you fix violations in the baseline and rerun _pydoclint_.
@@ -269,7 +276,7 @@ file every time you fix violations in the baseline and rerun _pydoclint_.
 This saves you from having to manually regenerate the baseline file by setting
 `--generate-baseline=True` and run _pydoclint_.
 
-## 24. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
+## 25. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
 
 If False, in the terminal the violation messages are grouped by file names:
 
@@ -303,7 +310,7 @@ This can be convenient if you would like to click on each violation message and
 go to the corresponding line in your IDE. (Note: not all terminal app offers
 this functionality.)
 
-## 25. `--config` (default: `pyproject.toml`)
+## 26. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this

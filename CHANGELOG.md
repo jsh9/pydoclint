@@ -1,11 +1,16 @@
 # Change Log
 
-## [Unpublished]
+## [0.7.0] - 2025-09-01
 
+- Added
+  - A new config option `--check-arg-default` (default: False) to check
+    consistency of argument defaults (between docstring and function signature)
 - Changed
   - Replace `Prettier` with: [yamlfix](https://github.com/lyz-code/yamlfix),
     [mdformat](https://github.com/hukkin/mdformat), and
     [pretty-format-json](https://github.com/pre-commit/pre-commit-hooks?tab=readme-ov-file#pretty-format-json)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.6.11...0.7.0
 
 ## [0.6.11] - 2025-08-31
 

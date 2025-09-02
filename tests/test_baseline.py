@@ -49,9 +49,9 @@ def testBaselineCreation(baselineFile, style: str):
     # In the future, this assertion could break if we add new files
     # to DATA_DIR. But it's good that this could act as a sanity check.
     if sys.version_info < (3, 10):
-        assert len(unfixedBaselineViolationsInAllFiles) == 26
+        assert len(unfixedBaselineViolationsInAllFiles) == 27
     else:
-        assert len(unfixedBaselineViolationsInAllFiles) == 32
+        assert len(unfixedBaselineViolationsInAllFiles) == 33
 
 
 badDocstringFunction = '''

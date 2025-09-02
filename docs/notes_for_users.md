@@ -4,7 +4,7 @@
 
 <!--TOC-->
 
-- [1. Why is _pydoclint_ so much faster than _darglint_](#1-why-is-pydoclint-so-much-faster-than-darglint)
+- [1. Why is _pydoclint_ so much faster than _darglint_, hhe](#1-why-is-pydoclint-so-much-faster-than-darglint-hhe)
 - [2. Cases that _pydoclint_ is not designed to handle](#2-cases-that-pydoclint-is-not-designed-to-handle)
 - [3. Notes on writing type hints](#3-notes-on-writing-type-hints)
 - [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
@@ -15,7 +15,7 @@
 
 <!--TOC-->
 
-## 1. Why is _pydoclint_ so much faster than _darglint_
+## 1. Why is _pydoclint_ so much faster than _darglint_, hhe
 
 Based on the best understanding of the authors of _pydoclint_, here are some
 reasons (this may not be an exhaustive list):
@@ -129,51 +129,15 @@ in order to achieve fast linting and reduce ambiguity.
 
 ## 4. Notes on writing Sphinx-style docstrings
 
-The
-[official Sphinx documentation](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html)
-does not explicitly state this, so it is unclear what header to use to specify
-the type of what a function yields.
-
-Many people use `rtype`, but the authors of _pydoclint_ find it difficult to
-differentiate the type of return value and the type of yield value.
-
-Therefore, _pydoclint_ expects the convention of `ytype` for yield types. This
-is actually common practice, as evident from a code search on GitHub:
-https://github.com/search?q=%3Aytype%3A+language%3APython&type=code&l=Python
+See
+[minor style deviations](https://jsh9.github.io/pydoclint/style_deviations.html#sphinx)
+for more details.
 
 ## 5. Notes for Google-style users
 
-By default, _pydoclint_ checks return type and yield type consistencies, and it
-also requires argument types in the docstring. In other words, by _pydoclint_'s
-default, this is an acceptable Google-style docstring:
-
-```python
-"""
-This is a function.
-
-Args:
-    arg1 (int): Arg 1
-    arg2 (float): Arg 2
-    arg3 (Optional[Union[float, int, str]]): Arg 3
-
-Returns:
-    int: Result
-"""
-```
-
-However, this may not be the convention of a lot of Google-style docstring
-writers.
-
-But do not worry: here are some config options to tweak:
-
-- `--arg-type-hints-in-docstring`: you can set it to `False`
-- `--check-return-types`: you can set it to `False`
-- `--check-yield-types`: you can set it to `False`
-
-[Here](https://jsh9.github.io/pydoclint/config_options.html) are all the
-configurable options of _pydoclint_, and
-[here](https://jsh9.github.io/pydoclint/how_to_config.html) is how to configure
-_pydoclint_.
+See
+[minor style deviations](https://jsh9.github.io/pydoclint/style_deviations.html#google)
+for more details.
 
 ## 6. How to adopt _pydoclint_ more easily in legacy projects
 

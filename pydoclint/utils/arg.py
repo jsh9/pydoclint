@@ -92,6 +92,36 @@ class Arg:
         return Arg(name=astArg.arg, typeHint=typeHint)
 
     @classmethod
+    def fromAstArgWithMapping(
+            cls,
+            astArg: ast.arg,
+            argToDefaultMapping: dict[ast.arg, ast.expr],
+    ) -> 'Arg':
+        """Construct an Arg object from AST argument with its default value"""
+        anno: ast.expr | None = astArg.annotation
+        typeHint: str | None = '' if anno is None else unparseName(anno)
+        assert typeHint is not None  # to help mypy better understand type
+
+        defaultValue = argToDefaultMapping.get(astArg)
+
+        # Extract the actual default value
+        finalDefault = None
+        if defaultValue is not None:
+            if isinstance(defaultValue, ast.Constant):
+                finalDefault = defaultValue.value
+            else:
+                # Fallback to unparsing if it's not a simple constant
+                finalDefault = unparseName(defaultValue)
+
+        typeHintWithDefault = (
+            typeHint
+            if finalDefault is None
+            else f'{typeHint}, default={finalDefault!r}'
+        )
+
+        return Arg(name=astArg.arg, typeHint=typeHintWithDefault)
+
+    @classmethod
     def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
         """Construct an Arg object from a Python ast.AnnAssign object"""
         unparsedArgName = unparseName(astAnnAssign.target)

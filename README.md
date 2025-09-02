@@ -26,7 +26,9 @@ Currently, _pydoclint_ supports three docstring styles:
 [numpy](https://numpydoc.readthedocs.io/en/latest/format.html),
 [Google](https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html),
 and
-[Sphinx](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html).
+[Sphinx](https://sphinx-rtd-tutorial.readthedocs.io/en/latest/docstrings.html),
+with some
+[minor style deviations](https://jsh9.github.io/pydoclint/style_deviations.html).
 
 Another note: this linter and [pydocstyle](https://github.com/PyCQA/pydocstyle)
 serves complementary purposes. It is recommended that you use both together.

@@ -302,6 +302,19 @@ def validateStyleValue(
     ),
 )
 @click.option(
+    '-cad',
+    '--check-arg-defaults',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, docstring type hints should contain default values '
+        'consistent with the function signature. If False, docstring '
+        'type hints should not contain default values. (Only applies '
+        'to numpy style for now.)'
+    ),
+)
+@click.option(
     '--baseline',
     type=click.Path(
         exists=False,
@@ -407,6 +420,7 @@ def main(  # noqa: C901
         should_document_star_arguments: bool,
         should_declare_assert_error_if_assert_statement_exists: bool,
         check_style_mismatch: bool,
+        check_arg_defaults: bool,
         generate_baseline: bool,
         auto_regenerate_baseline: bool,
         baseline: str,
@@ -529,6 +543,7 @@ def main(  # noqa: C901
             should_declare_assert_error_if_assert_statement_exists
         ),
         checkStyleMismatch=check_style_mismatch,
+        checkArgDefaults=check_arg_defaults,
     )
 
     if generate_baseline:
@@ -668,6 +683,7 @@ def _checkPaths(
         shouldDocumentStarArguments: bool = True,
         shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
+        checkArgDefaults: bool = False,
         quiet: bool = False,
         exclude: str = '',
 ) -> dict[str, list[Violation]]:
@@ -733,6 +749,7 @@ def _checkPaths(
                 shouldDeclareAssertErrorIfAssertStatementExists
             ),
             checkStyleMismatch=checkStyleMismatch,
+            checkArgDefaults=checkArgDefaults,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -761,6 +778,7 @@ def _checkFile(
         shouldDocumentStarArguments: bool = True,
         shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
+        checkArgDefaults: bool = False,
 ) -> list[Violation]:
     if not filename.is_file():  # sometimes folder names can end with `.py`
         return []
@@ -821,6 +839,7 @@ def _checkFile(
             shouldDeclareAssertErrorIfAssertStatementExists
         ),
         checkStyleMismatch=checkStyleMismatch,
+        checkArgDefaults=checkArgDefaults,
     )
     visitor.visit(tree)
     return visitor.violations
