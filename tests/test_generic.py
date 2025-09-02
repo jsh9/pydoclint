@@ -84,8 +84,8 @@ def testDoList1ItemsStartWithList2Items(
         ),
         # Case 4: Complex defaults with various types
         (
-            'def func4(a, b=[1, 2], c=None, *args, d=True, e={"key": "value"}): pass',
-            {'b': [1, 2], 'c': None, 'd': True, 'e': {'key': 'value'}},
+            'def fn4(a, b=[1, 2], c=None, *args, d=True, e={"k": "v"}): pass',
+            {'b': '[1, 2]', 'c': None, 'd': True, 'e': "{'k': 'v'}"},
         ),
         # Case 5: Complex defaults with type hints and various types
         (
@@ -112,11 +112,6 @@ def testBuildFuncArgToDefaultMapping(
         except AttributeError:
             # Handle complex defaults by unparsing them
             defaultValue = ast.unparse(defaultConstant)
-            # For the test cases, we need to evaluate some expressions
-            if defaultValue == '[1, 2]':
-                defaultValue = [1, 2]
-            elif defaultValue == "{'key': 'value'}":
-                defaultValue = {'key': 'value'}
 
         actualMappings[argName] = defaultValue
 
@@ -165,13 +160,13 @@ class Test4:
         (
             """
 class Test5:
-    list_attr: list = [1, 2, 3]
-    dict_attr = {"key": "value"}
+    set_attr: set = {1, 2, 3, 4, 5, 6}
+    dict_attr = {"key": "value123"}
     none_attr: str = None
 """,
             {
-                'list_attr': [1, 2, 3],
-                'dict_attr': {'key': 'value'},
+                'set_attr': '{1, 2, 3, 4, 5, 6}',
+                'dict_attr': "{'key': 'value123'}",
                 'none_attr': None,
             },
         ),
@@ -203,11 +198,6 @@ def testBuildClassAttrToDefaultMapping(
         except AttributeError:
             # Handle complex defaults by unparsing them
             defaultValue = ast.unparse(defaultConstant)
-            # For the test cases, we need to evaluate some expressions
-            if defaultValue == '[1, 2, 3]':
-                defaultValue = [1, 2, 3]
-            elif defaultValue == "{'key': 'value'}":
-                defaultValue = {'key': 'value'}
 
         actualMappings[attrName] = defaultValue
 
