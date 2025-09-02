@@ -9,7 +9,7 @@ from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
-    buildArgToDefaultMapping,
+    buildFuncArgToDefaultMapping,
     collectFuncArgs,
     detectMethodType,
     doList1ItemsStartWithList2Items,
@@ -153,6 +153,7 @@ class Visitor(ast.NodeVisitor):
                 onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
                     self.onlyAttrsWithClassVarAreTreatedAsClassAttrs
                 ),
+                checkArgDefaults=self.checkArgDefaults,
             )
 
         self.generic_visit(node)
@@ -452,7 +453,7 @@ class Visitor(ast.NodeVisitor):
 
         if self.checkArgDefaults:
             argToDefaultMapping: dict[ast.arg, ast.expr] = (
-                buildArgToDefaultMapping(node)
+                buildFuncArgToDefaultMapping(node)
             )
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)

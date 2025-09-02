@@ -3,7 +3,8 @@ import ast
 import pytest
 
 from pydoclint.utils.generic import (
-    buildArgToDefaultMapping,
+    buildClassAttrToDefaultMapping,
+    buildFuncArgToDefaultMapping,
     doList1ItemsStartWithList2Items,
     stripQuotes,
 )
@@ -93,13 +94,13 @@ def testDoList1ItemsStartWithList2Items(
         ),
     ],
 )
-def testBuildArgToDefaultMapping(
+def testBuildFuncArgToDefaultMapping(
         funcCode: str,
         expectedMappings: dict[str, any],
 ) -> None:
     tree = ast.parse(funcCode)
     funcDef = tree.body[0]
-    mapping = buildArgToDefaultMapping(funcDef)
+    mapping = buildFuncArgToDefaultMapping(funcDef)
 
     # Convert the mapping to a more testable format (arg names to values)
     actualMappings = {}
@@ -118,5 +119,96 @@ def testBuildArgToDefaultMapping(
                 defaultValue = {'key': 'value'}
 
         actualMappings[argName] = defaultValue
+
+    assert actualMappings == expectedMappings
+
+
+@pytest.mark.parametrize(
+    'classCode, expectedMappings',
+    [
+        # Case 1: No attributes with defaults
+        (
+            """
+class Test1:
+    pass
+""",
+            {},
+        ),
+        # Case 2: Only typed attributes with defaults
+        (
+            """
+class Test2:
+    attr1: int = 42
+    attr2: str = "hello"
+""",
+            {'attr1': 42, 'attr2': 'hello'},
+        ),
+        # Case 3: Only untyped attributes
+        (
+            """
+class Test3:
+    attr1 = 42
+    attr2 = "world"
+""",
+            {'attr1': 42, 'attr2': 'world'},
+        ),
+        # Case 4: Mixed typed and untyped attributes
+        (
+            """
+class Test4:
+    typed_attr: bool = True
+    untyped_attr = 3.14
+""",
+            {'typed_attr': True, 'untyped_attr': 3.14},
+        ),
+        # Case 5: Complex defaults with various types
+        (
+            """
+class Test5:
+    list_attr: list = [1, 2, 3]
+    dict_attr = {"key": "value"}
+    none_attr: str = None
+""",
+            {
+                'list_attr': [1, 2, 3],
+                'dict_attr': {'key': 'value'},
+                'none_attr': None,
+            },
+        ),
+        # Case 6: Typed attribute without default (should not be included)
+        (
+            """
+class Test6:
+    attr1: int
+    attr2: str = "hello"
+""",
+            {'attr2': 'hello'},
+        ),
+    ],
+)
+def testBuildClassAttrToDefaultMapping(
+        classCode: str,
+        expectedMappings: dict[str, any],
+) -> None:
+    tree = ast.parse(classCode)
+    classDef = tree.body[0]
+    mapping = buildClassAttrToDefaultMapping(classDef)
+
+    # Convert the mapping to a more testable format (attr names to values)
+    actualMappings = {}
+    for attrName, defaultConstant in mapping.items():
+        try:
+            # Extract the actual value from the AST constant
+            defaultValue = defaultConstant.value
+        except AttributeError:
+            # Handle complex defaults by unparsing them
+            defaultValue = ast.unparse(defaultConstant)
+            # For the test cases, we need to evaluate some expressions
+            if defaultValue == '[1, 2, 3]':
+                defaultValue = [1, 2, 3]
+            elif defaultValue == "{'key': 'value'}":
+                defaultValue = {'key': 'value'}
+
+        actualMappings[attrName] = defaultValue
 
     assert actualMappings == expectedMappings

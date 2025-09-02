@@ -575,6 +575,19 @@ from tests.test_main import DATA_DIR
                 'section types: Generator123[typing.Any]'
             ],
         ),
+        (
+            '30_comments_in_type_hints/numpy.py',
+            {
+                'style': 'numpy',
+                'checkClassAttributes': True,
+                'checkArgDefaults': True,
+            },
+            [
+                'DOC105: Function `regular_function`: Argument names match, but type hints in '
+                'these args do not match: param4 . (Note: docstring arg defaults should look '
+                'like: `, default=XXX`)'
+            ],
+        ),
     ],
 )
 def testEdgeCases(

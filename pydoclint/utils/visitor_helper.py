@@ -10,6 +10,7 @@ from pydoclint.utils.doc import Doc
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
     appendArgsToCheckToV105,
+    buildClassAttrToDefaultMapping,
     getDocstring,
     specialEqual,
     stripQuotes,
@@ -42,6 +43,7 @@ def checkClassAttributesAgainstClassDocstring(
         shouldDocumentPrivateClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
+        checkArgDefaults: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
     actualArgs: ArgList = extractClassAttributesFromNode(
@@ -53,6 +55,7 @@ def checkClassAttributesAgainstClassDocstring(
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
         ),
+        checkArgDefaults=checkArgDefaults,
     )
 
     classDocstring: str = getDocstring(node)
@@ -132,6 +135,7 @@ def extractClassAttributesFromNode(
         shouldDocumentPrivateClassAttributes: bool,
         treatPropertyMethodsAsClassAttrs: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
+        checkArgDefaults: bool,
 ) -> ArgList:
     """
     Extract class attributes from an AST node.
@@ -151,6 +155,9 @@ def extractClassAttributesFromNode(
         within ``ClassVar`` (where ``ClassVar`` is imported from ``typing``)
         are treated as class attributes, and all other attributes are
         treated as instance attributes.
+    checkArgDefaults : bool
+        If True, we should extract the arguments' default values and attach
+        them to the type hints.
 
     Returns
     -------
@@ -201,7 +208,21 @@ def extractClassAttributesFromNode(
             )
         ]
 
-    return ArgList(infoList=atl)
+    astArgList = ArgList(infoList=atl)
+
+    if not checkArgDefaults:  # no need to add defaults to type hints
+        return astArgList
+
+    argToDefaultMapping: dict[str, ast.expr] = buildClassAttrToDefaultMapping(
+        node,
+    )
+
+    return ArgList(
+        [
+            Arg.fromArgWithMapping(_, argToDefaultMapping)
+            for _ in astArgList.infoList
+        ]
+    )
 
 
 def checkDocArgsLengthAgainstActualArgs(
