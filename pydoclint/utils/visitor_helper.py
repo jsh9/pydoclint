@@ -129,7 +129,7 @@ def checkClassAttributesAgainstClassDocstring(
     )
 
 
-def extractClassAttributesFromNode(
+def extractClassAttributesFromNode(  # noqa: C901
         *,
         node: ast.ClassDef,
         shouldDocumentPrivateClassAttributes: bool,

@@ -361,7 +361,8 @@ def stripCommentsFromTypeHints(typeHint: str) -> str:
     """
     result: str
     try:
-        result = unparseName(ast.parse(typeHint))
+        parsed = unparseName(ast.parse(typeHint))
+        result = parsed if parsed is not None else typeHint
     except SyntaxError:
         result = typeHint
 

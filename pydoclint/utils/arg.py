@@ -123,6 +123,7 @@ class Arg:
             arg: 'Arg',
             argToDefaultMapping: dict[str, ast.expr],
     ) -> 'Arg':
+        """Construct an Arg object from another Arg with its default value"""
         if arg.name in argToDefaultMapping:
             # This means there IS a default value, even if it's None
             defaultValue = argToDefaultMapping[arg.name]
