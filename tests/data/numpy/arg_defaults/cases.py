@@ -146,7 +146,7 @@ class MyClass:
 
 
 def func_with_complex_defaults(
-        arg1: int = 42,
+        arg1: int,
         arg2: list = None,
         arg3: dict = None,
         arg4: str = 'complex_string',
@@ -156,7 +156,7 @@ def func_with_complex_defaults(
 
     Parameters
     ----------
-    arg1 : int, default=42
+    arg1 : int
         Integer with default
     arg2 : list, default=None
         List with None default
@@ -254,5 +254,45 @@ def space_does_not_matter(
     ----------
     arg1 : int, default      =   1
         First argument
+    """
+    pass
+
+
+def default_string_double_quote(
+        arg1: str = "hello",
+        arg2: str = "world",
+        arg3: str = "morning",
+) -> None:
+    """
+    Default string
+
+    Parameters
+    ----------
+    arg1 : str, default=hello
+        This will trigger a violation
+    arg2 : str, default="world"
+        This will be fine
+    arg3 : str, default='morning'
+        This is also be fine
+    """
+    pass
+
+
+def default_string_single_quote(
+        arg1: str = 'hello',
+        arg2: str = 'world',
+        arg3: str = 'morning',
+) -> None:
+    """
+    Default string
+
+    Parameters
+    ----------
+    arg1 : str, default=hello
+        This will trigger a violation
+    arg2 : str, default="world"
+        This will be fine
+    arg3 : str, default='morning'
+        This is also be fine
     """
     pass

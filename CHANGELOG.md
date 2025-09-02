@@ -1,5 +1,12 @@
 # Change Log
 
+## [0.7.1] - 2025-09-02
+
+- Added
+  - Support for `--check-arg-default` for Google style
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.0...0.7.1
+
 ## [0.7.0] - 2025-09-01
 
 - Added

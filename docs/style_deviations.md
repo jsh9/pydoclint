@@ -17,6 +17,7 @@ reasons (such as unambiguity and speed).
   - [1.2. Default values](#12-default-values)
 - [2. Google](#2-google)
   - [2.1. Type annotation](#21-type-annotation)
+  - [2.2. Default values](#22-default-values)
 - [3. Sphinx](#3-sphinx)
   - [3.1. Yield type](#31-yield-type)
 
@@ -110,6 +111,20 @@ But do not worry: here are some config options to tweak:
 configurable options of _pydoclint_, and
 [here](https://jsh9.github.io/pydoclint/how_to_config.html) is how to configure
 _pydoclint_.
+
+### 2.2. Default values
+
+These styles to specify default values are ***not*** accepted by _pydoclint_:
+
+```
+flag (int, optional): The flag. Defaults to 1
+```
+
+This is accepted:
+
+```
+flag (int, default=None): The flag
+```
 
 ## 3. Sphinx
 

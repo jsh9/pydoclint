@@ -203,6 +203,10 @@ def _replacer(match: Match[str]) -> str:
     if match.group(0).startswith('Literal'):
         return match.group(0)
 
+    # If the matched string contains ', default=', preserve quotes after it
+    if ', default=' in match.group(0):
+        return match.group(0)
+
     # Otherwise, remove all quotes
     return match.group(0).replace('"', '').replace("'", '')
 
