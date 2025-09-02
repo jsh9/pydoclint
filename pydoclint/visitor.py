@@ -117,6 +117,15 @@ class Visitor(ast.NodeVisitor):
         self.checkStyleMismatch: bool = checkStyleMismatch
         self.checkArgDefaults: bool = checkArgDefaults
 
+        # Validate incompatible option combination
+        if self.style == 'sphinx' and self.checkArgDefaults:
+            raise ValueError(
+                'The option --check-arg-defaults is not compatible'
+                ' with --style=sphinx.'
+                ' This feature only applies to numpy and Google'
+                ' style docstrings.'
+            )
+
         self.parent: ast.AST = ast.Pass()  # keep track of parent node
         self.violations: list[Violation] = []
 

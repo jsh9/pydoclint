@@ -102,24 +102,16 @@ class Arg:
         typeHint: str | None = '' if anno is None else unparseName(anno)
         assert typeHint is not None  # to help mypy better understand type
 
-        defaultValue = argToDefaultMapping.get(astArg)
+        if astArg in argToDefaultMapping:
+            # This means there IS a default value, even if it's None
+            defaultValue = argToDefaultMapping[astArg]
+            return Arg(
+                name=astArg.arg,
+                typeHint=f'{typeHint}, default={unparseName(defaultValue)}',
+            )
 
-        # Extract the actual default value
-        finalDefault = None
-        if defaultValue is not None:
-            if isinstance(defaultValue, ast.Constant):
-                finalDefault = defaultValue.value
-            else:
-                # Fallback to unparsing if it's not a simple constant
-                finalDefault = unparseName(defaultValue)
-
-        typeHintWithDefault = (
-            typeHint
-            if finalDefault is None
-            else f'{typeHint}, default={finalDefault!r}'
-        )
-
-        return Arg(name=astArg.arg, typeHint=typeHintWithDefault)
+        # This means there is no default value, not even a "None"
+        return Arg(name=astArg.arg, typeHint=typeHint)
 
     @classmethod
     def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
@@ -367,7 +359,7 @@ class ArgList:
         for selfArg in self.infoList:
             selfArgTypeHint: str = selfArg.typeHint
             otherArgTypeHint: str = other.lookup[selfArg.name]
-            if selfArgTypeHint != otherArgTypeHint:
+            if not specialEqual(selfArgTypeHint, otherArgTypeHint):
                 result.append(selfArg)
 
         return result
