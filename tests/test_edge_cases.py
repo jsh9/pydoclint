@@ -588,6 +588,14 @@ from tests.test_main import DATA_DIR
                 'like: `, default=XXX`)'
             ],
         ),
+        (
+            '31_syntax_error_in_parsing_type_hints/numpy.py',
+            {
+                'style': 'numpy',
+                'checkArgDefaults': True,
+            },
+            [],
+        ),
     ],
 )
 def testEdgeCases(

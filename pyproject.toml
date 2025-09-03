@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pydoclint"
-version = "0.7.2"
+version = "0.7.3"
 description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
 readme = "README.md"
 license = {text = "MIT"}
