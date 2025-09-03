@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.7.3] - 2025-09-03
+
+- Fixed
+  - Fixed comment handling in type hints to properly ignore inline comments
+    when comparing type annotations between function signatures and docstrings
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.2...0.7.3
+
 ## [0.7.2] - 2025-09-02
 
 - Fixed

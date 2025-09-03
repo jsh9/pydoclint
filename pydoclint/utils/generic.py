@@ -227,10 +227,19 @@ def appendArgsToCheckToV105(
 def specialEqual(str1: str, str2: str) -> bool:
     """
     Check string equality but treat any single quotes as the same as
-    double quotes, and also ignore line breaks in either strings.
+    double quotes, and ignore line breaks in either strings, and also
+    ignore any in-line comments in either string.
     """
     if str1 == str2:
         return True  # using shortcuts to speed up evaluation
+
+    # Remove inline comments (everything after #).
+    # Note: str.partition() is faster than str.split() in this case.
+    if '#' in str1:
+        str1 = str1.partition('#')[0].rstrip()
+
+    if '#' in str2:
+        str2 = str2.partition('#')[0].rstrip()
 
     if '\n' in str1 or '\n' in str2:
         str1 = str1.replace(' ', '').replace('\n', '')
