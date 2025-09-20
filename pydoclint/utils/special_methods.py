@@ -24,7 +24,7 @@ def checkMethodContainsSpecifiedDecorator(
         and any(
             (  # noqa: PAR001
                 isinstance(_, ast.Name)
-                and hasattr(node.decorator_list[-1], 'id')
+                and hasattr(_, 'id')
                 and _.id == decorator
             )
             for _ in node.decorator_list
