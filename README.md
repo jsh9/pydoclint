@@ -19,7 +19,7 @@ Here is a comparison of linting time on some famous Python projects:
 | [numpy](https://github.com/numpy/numpy)                      | 2.0 sec   | 49 min 9 sec (1,475x slower)      |
 | [scikit-learn](https://github.com/scikit-learn/scikit-learn) | 2.4 sec   | 3 hr 5 min 33 sec (4,639x slower) |
 
-Additionally, _pydoclint_ can detect some quite a few style violations that
+Additionally, _pydoclint_ can detect quite a few style violations that
 darglint cannot.
 
 Currently, _pydoclint_ supports three docstring styles:
