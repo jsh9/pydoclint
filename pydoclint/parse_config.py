@@ -6,11 +6,16 @@ from pathlib import Path
 from typing import Any, Sequence
 
 import click
+from click.core import ParameterSource
 
 if sys.version_info >= (3, 11):
     import tomllib
 else:
     import tomli as tomllib
+
+
+class MissingPydoclintSectionError(RuntimeError):
+    """Raised when the [tool.pydoclint] section is missing in a config file."""
 
 
 def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
@@ -40,7 +45,22 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
         return None
 
     logging.info(f'Loading config from user-specified .toml file: {value}')
-    config = parseOneTomlFile(tomlFilename=Path(value))
+
+    # Only enforce when users explicitly specify a config file
+    enforcePydoclintSection = (
+        ctx.get_parameter_source(param.name) == ParameterSource.COMMANDLINE
+    )
+
+    try:
+        config = parseOneTomlFile(
+            tomlFilename=Path(value),
+            enforcePydoclintSection=enforcePydoclintSection,
+        )
+    except FileNotFoundError as exc:
+        raise click.BadParameter(str(exc), ctx=ctx, param=param) from exc
+    except MissingPydoclintSectionError as exc:
+        raise click.BadParameter(str(exc), ctx=ctx, param=param) from exc
+
     updateCtxDefaultMap(ctx=ctx, config=config)
     return value
 
@@ -58,22 +78,45 @@ def parseToml(paths: Sequence[str] | None) -> dict[str, Any]:
     return parseOneTomlFile(tomlFilename)
 
 
-def parseOneTomlFile(tomlFilename: Path) -> dict[str, Any]:
+def parseOneTomlFile(
+        tomlFilename: Path,
+        *,
+        enforcePydoclintSection: bool = False,
+) -> dict[str, Any]:
     """Parse a .toml file"""
     if not tomlFilename.exists():
-        logging.info(f'File "{tomlFilename}" does not exist; nothing to load.')
+        message = f'Config file "{tomlFilename}" does not exist.'
+        logging.info(f'{message} Nothing to load.')
+        if enforcePydoclintSection:
+            raise FileNotFoundError(message)
         return {}
 
     try:
         with open(tomlFilename, 'rb') as fp:
             rawConfig = tomllib.load(fp)
+    except Exception as exc:
+        logging.info(
+            f'Failed to load "{tomlFilename}": {exc}; ignoring this config file.'
+        )
+        if enforcePydoclintSection:
+            raise
+        return {}
 
-        pydoclintSection = rawConfig['tool']['pydoclint']
+    toolSection = rawConfig.get('tool')
+    if not isinstance(toolSection, dict) or 'pydoclint' not in toolSection:
+        message = (
+            f'Config file "{tomlFilename}" does not have'
+            ' a [tool.pydoclint] section.'
+        )
+        logging.info(message)
+        if enforcePydoclintSection:
+            raise MissingPydoclintSectionError(message)
+        finalConfig = {}
+    else:
+        pydoclintSection = toolSection['pydoclint']
         finalConfig = {
             k.replace('-', '_'): v for k, v in pydoclintSection.items()
         }
-    except Exception:
-        finalConfig = {}
 
     if len(finalConfig) > 0:
         logging.info(f'Found options defined in {tomlFilename}:')
