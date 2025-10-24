@@ -4,12 +4,12 @@ from typing import Any, Dict, List, Type
 import pytest
 from click.testing import CliRunner
 
+from pydoclint.main import main as cli_main
 from pydoclint.parse_config import (
     MissingPydoclintSectionError,
     findCommonParentFolder,
     parseOneTomlFile,
 )
-from pydoclint.main import main as cli_main
 
 THIS_DIR = Path(__file__).parent
 CONFIG_DATA_DIR: Path = THIS_DIR / 'test_data' / 'config_files'
@@ -75,11 +75,13 @@ def testParseOneTomlFileEnforceErrors(
 def _writeSamplePythonFile(directory: Path) -> Path:
     """Create a minimal Python file that passes linting."""
     samplePath = directory / 'sample.py'
+    # fmt: off
     samplePath.write_text(
         'def foo():\n'
         '    """Summary."""\n'
         '    pass\n'
     )
+    # fmt: on
     return samplePath
 
 
@@ -119,4 +121,3 @@ def testCliConfigMissingSectionRaisesError() -> None:
             'Config file "bad.toml" does not have a [tool.pydoclint] section.'
             in result.output
         )
-

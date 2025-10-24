@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to AI coding assistants when working with code in 
+This file provides guidance to AI coding assistants when working with code in
 this repository.
 
 ## pydoclint Project Conventions
