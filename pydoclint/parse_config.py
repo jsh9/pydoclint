@@ -89,6 +89,7 @@ def parseOneTomlFile(
         logging.info(f'{message} Nothing to load.')
         if enforcePydoclintSection:
             raise FileNotFoundError(message)
+
         return {}
 
     try:
@@ -100,6 +101,7 @@ def parseOneTomlFile(
         )
         if enforcePydoclintSection:
             raise
+
         return {}
 
     toolSection = rawConfig.get('tool')
@@ -111,6 +113,7 @@ def parseOneTomlFile(
         logging.info(message)
         if enforcePydoclintSection:
             raise MissingPydoclintSectionError(message)
+
         finalConfig = {}
     else:
         pydoclintSection = toolSection['pydoclint']

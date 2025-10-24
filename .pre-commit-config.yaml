@@ -1,4 +1,5 @@
 ---
+exclude: ^tests/test_data/
 repos:
   - repo: https://github.com/pycqa/isort
     rev: 6.0.1
@@ -34,6 +35,11 @@ repos:
     rev: 0.0.10
     hooks:
       - id: markdown-toc-creator
+  - repo: https://github.com/jsh9/blank-line-after-blocks
+    rev: 0.1.4
+    hooks:
+      - id: blank-line-after-blocks
+        args: [--exclude, r"tests/|_generated\.py$"]
   - repo: local
     hooks:
       - id: copy_readme
