@@ -6,7 +6,7 @@ import pytest
 from pydoclint.parse_config import findCommonParentFolder, parseOneTomlFile
 
 THIS_DIR = Path(__file__).parent
-DATA_DIR = THIS_DIR / 'data'
+DATA_DIR = THIS_DIR / 'test_data'
 
 
 @pytest.mark.parametrize(
