@@ -40,6 +40,11 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     -------
     str | None
         The full path of the .toml file
+
+    Raises
+    ------
+    click.BadParameter
+        If the path supplied doesn't exist or lacks a [tool.pydoclint] section
     """
     if not value:
         return None
