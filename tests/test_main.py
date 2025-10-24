@@ -9,7 +9,7 @@ import pytest
 from pydoclint.main import _checkFile
 
 THIS_DIR = Path(__file__).parent
-DATA_DIR = THIS_DIR / 'data'
+DATA_DIR = THIS_DIR / 'test_data'
 
 
 def pythonVersionBelow310():

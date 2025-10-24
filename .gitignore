@@ -161,3 +161,9 @@ cython_debug/
 
 # macOS stuff
 .DS_Store
+
+# Other IDE
+.vscode/
+
+# AI coding assistants
+.claude/

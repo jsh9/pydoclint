@@ -1,5 +1,15 @@
 # Change Log
 
+## [0.7.4] - 2025-10-24
+
+- Added
+  - Validation of invalid config file path
+  - Validation of `[tool.pydoclint]` section in the config file
+- Removed
+  - Python 3.9 support
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.3...0.7.4
+
 ## [0.7.3] - 2025-09-03
 
 - Fixed
