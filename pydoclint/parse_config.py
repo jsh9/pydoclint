@@ -98,7 +98,8 @@ def parseOneTomlFile(
             rawConfig = tomllib.load(fp)
     except Exception as exc:
         logging.info(
-            f'Failed to load "{tomlFilename}": {exc}; ignoring this config file.'
+            f'Failed to load "{tomlFilename}": {exc}; ignoring this'
+            ' config file.'
         )
         if enforcePydoclintSection:
             raise
