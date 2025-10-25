@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 
-def testMain():
+def testMain() -> None:
     """Essentially an integration test"""
     mainScriptPath: Path = Path.cwd().parent / 'pydoclint/main.py'
     result = subprocess.run(

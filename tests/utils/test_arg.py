@@ -5,7 +5,7 @@ import pytest
 from pydoclint.utils.arg import Arg, ArgList
 
 
-def testArg_initializationCheck():
+def testArg_initializationCheck() -> None:
     with pytest.raises(ValueError, match='`name` cannot be an empty string'):
         Arg(name='', typeHint='int')
 

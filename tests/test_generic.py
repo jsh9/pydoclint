@@ -1,4 +1,5 @@
 import ast
+from typing import Any
 
 import pytest
 
@@ -96,7 +97,7 @@ def testDoList1ItemsStartWithList2Items(
 )
 def testBuildFuncArgToDefaultMapping(
         funcCode: str,
-        expectedMappings: dict[str, any],
+        expectedMappings: dict[str, Any],
 ) -> None:
     tree = ast.parse(funcCode)
     funcDef = tree.body[0]
@@ -183,7 +184,7 @@ class Test6:
 )
 def testBuildClassAttrToDefaultMapping(
         classCode: str,
-        expectedMappings: dict[str, any],
+        expectedMappings: dict[str, Any],
 ) -> None:
     tree = ast.parse(classCode)
     classDef = tree.body[0]

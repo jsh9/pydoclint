@@ -20,7 +20,7 @@ if pythonVersionBelow310():
 
 
 @pytest.fixture
-def baselineFile(tmp_path_factory) -> Path:
+def baselineFile(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return tmp_path_factory.mktemp('baseline') / 'test-baseline.txt'
 
 
@@ -28,7 +28,7 @@ def baselineFile(tmp_path_factory) -> Path:
     'style',
     ['google', 'numpy', 'sphinx'],
 )
-def testBaselineCreation(baselineFile, style: str):
+def testBaselineCreation(baselineFile: Path, style: str) -> None:
     violationsInAllFiles = _checkPaths(
         paths=(DATA_DIR / style,),
         style=style,
@@ -168,12 +168,18 @@ expectedNewViolations = [
 @pytest.fixture(
     params=list(Path(DATA_DIR / 'numpy' / 'args').rglob('*.py'))[:5]
 )
-def violationsFile(request, tmp_path_factory) -> Path:
+def violationsFile(
+        request: pytest.FixtureRequest,
+        tmp_path_factory: pytest.TempPathFactory,
+) -> Path:
     tmpDir = tmp_path_factory.mktemp('new_violations')
     return shutil.copyfile(request.param, tmpDir / f'{request.param.name}')
 
 
-def testBaselineNewViolations(baselineFile: Path, violationsFile: Path):
+def testBaselineNewViolations(
+        baselineFile: Path,
+        violationsFile: Path,
+) -> None:
     violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(
         (violationsFile.as_posix(),), exclude=EXCLUDE_PATTERN
     )
@@ -204,11 +210,14 @@ def testBaselineNewViolations(baselineFile: Path, violationsFile: Path):
 
 
 @pytest.fixture
-def tmpFile(tmp_path_factory) -> Path:
+def tmpFile(tmp_path_factory: pytest.TempPathFactory) -> Path:
     return tmp_path_factory.mktemp('tmp') / 'code.py'
 
 
-def testSomeViolationsAreFixed(baselineFile: Path, tmpFile: Path):
+def testSomeViolationsAreFixed(
+        baselineFile: Path,
+        tmpFile: Path,
+) -> None:
     with tmpFile.open('w', encoding='utf-8') as f:
         f.write(twoFunctionsWithBadDocstrings)
 
@@ -241,7 +250,7 @@ def testSomeViolationsAreFixed(baselineFile: Path, tmpFile: Path):
 def testSomeViolationsAreFixedButNewViolationsOccur(
         baselineFile: Path,
         tmpFile: Path,
-):
+) -> None:
     with tmpFile.open('w', encoding='utf-8') as f:
         f.write(twoFunctionsWithBadDocstrings)
 

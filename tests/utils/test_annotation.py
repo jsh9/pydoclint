@@ -143,7 +143,7 @@ def _getArgTypeHints(node: ast.FunctionDef) -> dict[str, str]:
         ),
     ],
 )
-def testParseReturnAnnotation(src: str, expectedAnnotation: str):
+def testParseReturnAnnotation(src: str, expectedAnnotation: str) -> None:
     tree = ast.parse(src)
 
     returnAnnotation: str | None = None
