@@ -434,12 +434,10 @@ def main(  # noqa: C901
     if type_hints_in_docstring != 'None':  # it means users supply this option
         click.echo(
             click.style(
-                ''.join(
-                    [
-                        'The option `--type-hints-in-docstring` has been renamed;',
-                        ' please use `--arg-type-hints-in-docstring` instead',
-                    ]
-                ),
+                ''.join([
+                    'The option `--type-hints-in-docstring` has been renamed;',
+                    ' please use `--arg-type-hints-in-docstring` instead',
+                ]),
                 fg='red',
                 bold=True,
             ),
@@ -450,12 +448,10 @@ def main(  # noqa: C901
     if type_hints_in_signature != 'None':  # it means users supply this option
         click.echo(
             click.style(
-                ''.join(
-                    [
-                        'The option `--type-hints-in-signature` has been renamed;',
-                        ' please use `--arg-type-hints-in-signature` instead',
-                    ]
-                ),
+                ''.join([
+                    'The option `--type-hints-in-signature` has been renamed;',
+                    ' please use `--arg-type-hints-in-signature` instead',
+                ]),
                 fg='red',
                 bold=True,
             ),
@@ -467,13 +463,11 @@ def main(  # noqa: C901
     if require_return_section_when_returning_none != 'None':  # type:ignore[comparison-overlap]
         click.echo(
             click.style(
-                ''.join(
-                    [
-                        'The option `--require-return-section-when-returning-none`',
-                        ' has been renamed; please use',
-                        '`--require-return-section-when-returning-nothing` instead',
-                    ]
-                ),
+                ''.join([
+                    'The option `--require-return-section-when-returning-none`',
+                    ' has been renamed; please use',
+                    '`--require-return-section-when-returning-nothing` instead',
+                ]),
                 fg='red',
                 bold=True,
             ),

@@ -157,24 +157,18 @@ def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
             '[1: 2, 2: 3]',
         ),
         (
-            ArgList(
-                [
-                    Arg('1', '2'),
-                    Arg('2', '3'),
-                    Arg('3', '456789'),
-                ]
-            ),
+            ArgList([
+                Arg('1', '2'),
+                Arg('2', '3'),
+                Arg('3', '456789'),
+            ]),
             '[1: 2, 2: 3, 3: 456789]',
         ),
         (
-            ArgList(
-                [
-                    Arg('var1', 'str'),
-                    Arg(
-                        'myValue', 'Union[int, str, Optional[Dict[str, str]]]'
-                    ),
-                ]
-            ),
+            ArgList([
+                Arg('var1', 'str'),
+                Arg('myValue', 'Union[int, str, Optional[Dict[str, str]]]'),
+            ]),
             '[var1: str, myValue: Union[int, str, Optional[Dict[str, str]]]]',
         ),
     ],
@@ -280,32 +274,47 @@ def testArgList_contains(
     'obj1, obj2, expected',
     [
         (
-            ArgList(
-                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
-            ),
-            ArgList(
-                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
-            ),
+            ArgList([
+                Arg('a', '1'),
+                Arg('b', '2'),
+                Arg('c', '3'),
+                Arg('d', '4'),
+            ]),
+            ArgList([
+                Arg('a', '1'),
+                Arg('b', '2'),
+                Arg('c', '3'),
+                Arg('d', '4'),
+            ]),
             set(),
         ),
         (
             ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
-            ArgList(
-                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
-            ),
+            ArgList([
+                Arg('a', '1'),
+                Arg('b', '2'),
+                Arg('c', '3'),
+                Arg('d', '4'),
+            ]),
             set(),
         ),
         (
-            ArgList(
-                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
-            ),
+            ArgList([
+                Arg('a', '1'),
+                Arg('b', '2'),
+                Arg('c', '3'),
+                Arg('d', '4'),
+            ]),
             ArgList([Arg('c', '3'), Arg('d', '4'), Arg('e', '5')]),
             {Arg('a', '1'), Arg('b', '2')},
         ),
         (
-            ArgList(
-                [Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')]
-            ),
+            ArgList([
+                Arg('a', '1'),
+                Arg('b', '2'),
+                Arg('c', '3'),
+                Arg('d', '4'),
+            ]),
             ArgList([Arg('e', '5'), Arg('f', '6'), Arg('g', '7')]),
             {Arg('a', '1'), Arg('b', '2'), Arg('c', '3'), Arg('d', '4')},
         ),

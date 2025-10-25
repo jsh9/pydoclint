@@ -492,12 +492,10 @@ class Visitor(ast.NodeVisitor):
         docArgs: ArgList = doc.argList
 
         if self.checkArgDefaults:
-            funcArgs = ArgList(
-                [
-                    Arg.fromAstArgWithMapping(_, argToDefaultMapping)
-                    for _ in astArgList
-                ]
-            )
+            funcArgs = ArgList([
+                Arg.fromAstArgWithMapping(_, argToDefaultMapping)
+                for _ in astArgList
+            ])
         else:
             funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
@@ -506,28 +504,26 @@ class Visitor(ast.NodeVisitor):
             # This is because these arguments are only placeholders and do not
             # need to be explained in the docstring.  (This is often used in
             # functions that must accept a certain number of input arguments.)
-            funcArgs = ArgList(
-                [_ for _ in funcArgs.infoList if set(_.name) != {'_'}]
-            )
+            funcArgs = ArgList([
+                _ for _ in funcArgs.infoList if set(_.name) != {'_'}
+            ])
 
         if self.ignorePrivateArgs:
             # "Private arguments" are those whose names have leading
             # underscores, but whose names are not purely _, __, ___, etc.
-            funcArgs = ArgList(
-                [
-                    _
-                    for _ in funcArgs.infoList
-                    if not _.name.startswith('_') or set(_.name) == {'_'}
-                ]
-            )
+            funcArgs = ArgList([
+                _
+                for _ in funcArgs.infoList
+                if not _.name.startswith('_') or set(_.name) == {'_'}
+            ])
 
         if not self.shouldDocumentStarArguments:
             # This is "should not" rather than "need not", which means that
             # if this config option is set to False, there CANNOT be
             # documentation of star arguments in the docstring
-            funcArgs = ArgList(
-                [_ for _ in funcArgs.infoList if not _.name.startswith('*')]
-            )
+            funcArgs = ArgList([
+                _ for _ in funcArgs.infoList if not _.name.startswith('*')
+            ])
 
         if docArgs.length == 0 and funcArgs.length == 0:
             return []

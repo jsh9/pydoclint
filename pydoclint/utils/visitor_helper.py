@@ -217,12 +217,10 @@ def extractClassAttributesFromNode(  # noqa: C901
         node,
     )
 
-    return ArgList(
-        [
-            Arg.fromArgWithMapping(_, argToDefaultMapping)
-            for _ in astArgList.infoList
-        ]
-    )
+    return ArgList([
+        Arg.fromArgWithMapping(_, argToDefaultMapping)
+        for _ in astArgList.infoList
+    ])
 
 
 def checkDocArgsLengthAgainstActualArgs(

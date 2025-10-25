@@ -352,22 +352,20 @@ def testReturns(style: str, filename: str) -> None:
             "docstring return section types: ['bool']"
         )
 
-    expectedViolations.extend(
-        [
-            'DOC202: Method `MyClass.func101` has a return section in docstring, but '
-            'there are no return statements or annotations',
-            'DOC203: Method `MyClass.func101` return type(s) in docstring not consistent '
-            'with the return annotation. Return annotation has 0 type(s); docstring '
-            'return section has 1 type(s).',
-            'DOC201: Function `inner101` does not have a return section in docstring',
-            'DOC203: Function `inner101` return type(s) in docstring not consistent with '
-            'the return annotation. Return annotation has 1 type(s); docstring return '
-            'section has 0 type(s).',
-            'DOC203: Method `MyClass.zipLists1` return type(s) in docstring not consistent with '
-            "the return annotation. Return annotation types: ['Iterator[Tuple[Any, "
-            "Any]]']; docstring return section types: ['Iterator[Tuple[Any, int]]']",
-        ]
-    )
+    expectedViolations.extend([
+        'DOC202: Method `MyClass.func101` has a return section in docstring, but '
+        'there are no return statements or annotations',
+        'DOC203: Method `MyClass.func101` return type(s) in docstring not consistent '
+        'with the return annotation. Return annotation has 0 type(s); docstring '
+        'return section has 1 type(s).',
+        'DOC201: Function `inner101` does not have a return section in docstring',
+        'DOC203: Function `inner101` return type(s) in docstring not consistent with '
+        'the return annotation. Return annotation has 1 type(s); docstring return '
+        'section has 0 type(s).',
+        'DOC203: Method `MyClass.zipLists1` return type(s) in docstring not consistent with '
+        "the return annotation. Return annotation types: ['Iterator[Tuple[Any, "
+        "Any]]']; docstring return section types: ['Iterator[Tuple[Any, int]]']",
+    ])
 
     expectedViolationsCopy = copy.deepcopy(expectedViolations)
     if filename == 'function.py':

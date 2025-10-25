@@ -44,6 +44,7 @@ exclude = "pydoclint/utils/unparser.py"
 strict = true
 
 [tool.pydoclint]
+check-arg-defaults = true
 check-class-attributes = false
 exclude = '\.git|.?venv|\.tox|tests/test_data|build'
 require-return-section-when-returning-nothing = true
