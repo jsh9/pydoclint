@@ -198,7 +198,7 @@ def testBaselineNewViolations(
 
     strViolations = [
         str(violation)
-        for violation in list(remainingViolationsInAllFiles.values())[0]
+        for violation in next(iter(remainingViolationsInAllFiles.values()))
     ]
     assert strViolations == expectedNewViolations
 
@@ -255,8 +255,8 @@ def testSomeViolationsAreFixedButNewViolationsOccur(
     parsedBaseline: dict[str, list[str]] = parseBaseline(baselineFile)
 
     assert parsedBaseline == {
-        tmpFile.as_posix(): expectedNewViolations
-        + [
+        tmpFile.as_posix(): [
+            *expectedNewViolations,
             'DOC101: Function `func2`: Docstring contains fewer arguments than in function signature.',
             'DOC103: Function `func2`: Docstring arguments are different'
             ' from function arguments. (Or could be other formatting'
@@ -294,7 +294,7 @@ def testSomeViolationsAreFixedButNewViolationsOccur(
     ]
 
     assert len(remainingViolationsInAllFiles.keys()) == 1
-    assert list(remainingViolationsInAllFiles.keys())[0] == tmpFile.as_posix()
+    assert next(iter(remainingViolationsInAllFiles.keys())) == tmpFile.as_posix()
     assert [
         str(_) for _ in remainingViolationsInAllFiles[tmpFile.as_posix()]
     ] == additionalViolations
