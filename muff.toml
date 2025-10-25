@@ -80,6 +80,10 @@ ignore = [
   "S110", # it's fine to use "try-except-pass"
   "TD002", # no need to add author name in TODO comments
   "TRY003", # we can allow on-the-fly exception messages
+  "N802",  # This project uses camelCase.
+  "N803",  # See docs/notes_for_developers.md for reasons.
+  "N806",
+  "N816",
 ]
 preview = true
 
@@ -111,6 +115,7 @@ extend-ignore-names = [
   "PLC2701", # importing private functions is allowed in tests
   "PLR2004", # using magic numbers is allowed in tests
   "SLF001", # accessing private functions is allowed in tests
+  "E501", # Lines can be longer b/c many of them are violation messages.
 ]
 
 [lint.pydocstyle]
