@@ -13,6 +13,7 @@ def testMain():
             r'--exclude="\.git|.?venv|\.tox|build"',  # overrides pyproject.toml
             '.',
         ],
+        check=False,
         text=True,
         capture_output=True,
     )

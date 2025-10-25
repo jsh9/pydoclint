@@ -1,5 +1,4 @@
 import ast
-from typing import Dict, List, Tuple
 
 import pytest
 
@@ -160,7 +159,7 @@ def testHasReturnStatements_inClass() -> None:
     assert len(tree.body[0].body) == 3
 
     expected_list = [False, True, False]
-    for node, expected in zip(tree.body[0].body, expected_list):
+    for node, expected in zip(tree.body[0].body, expected_list, strict=False):
         assert hasReturnStatements(node) == expected
 
 
@@ -168,15 +167,15 @@ class HelperVisitor(ast.NodeVisitor):
     """A helper class to check each return statements in nested functions"""
 
     def __init__(self):
-        self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.yieldStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.raiseStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.raisedExceptions: Dict[Tuple[int, int, str], List[str]] = {}
-        self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
-        self.generatorAnnotations: Dict[Tuple[int, int, str], bool] = {}
+        self.returnStatements: dict[tuple[int, int, str], bool] = {}
+        self.yieldStatements: dict[tuple[int, int, str], bool] = {}
+        self.raiseStatements: dict[tuple[int, int, str], bool] = {}
+        self.raisedExceptions: dict[tuple[int, int, str], list[str]] = {}
+        self.returnAnnotations: dict[tuple[int, int, str], bool] = {}
+        self.generatorAnnotations: dict[tuple[int, int, str], bool] = {}
 
     def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):
-        functionId: Tuple[int, int, str] = getFunctionId(node)
+        functionId: tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = hasReturnStatements(node)
         self.yieldStatements[functionId] = hasYieldStatements(node)
         self.raiseStatements[functionId] = hasRaiseStatements(node)

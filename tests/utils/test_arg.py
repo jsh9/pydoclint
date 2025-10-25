@@ -1,4 +1,4 @@
-from typing import Any, List, Set
+from typing import Any
 
 import pytest
 
@@ -16,7 +16,7 @@ def testArg_initializationCheck():
         (Arg(name='1', typeHint='2'), '1: 2'),
         (Arg(name='arg1', typeHint='str'), 'arg1: str'),
         (Arg(name='obj', typeHint='int | float'), 'obj: int | float'),
-        (Arg(name='arg1\\_\\_', typeHint='Any'), 'arg1__: Any'),  # noqa: W605
+        (Arg(name='arg1\\_\\_', typeHint='Any'), 'arg1__: Any'),
         (Arg(name='**kwargs', typeHint='Any'), '**kwargs: Any'),
         (Arg(name='\\**kwargs', typeHint='Any'), '**kwargs: Any'),
     ],
@@ -129,7 +129,7 @@ def testArg_greaterThanOrEqualTo(arg1: Arg, arg2: Arg) -> None:
         ),
     ],
 )
-def testArg_sorting(original: Set[Arg], after: List[Arg]) -> None:
+def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
     assert sorted(original) == after
 
 
@@ -205,8 +205,8 @@ def testArgList_length(input_: ArgList, expected: int) -> None:
             ArgList([Arg('\\*args', '1'), Arg('**kwargs', '2')]),
         ),
         (
-            ArgList([Arg('arg1\\_', '1'), Arg('arg2__', '2')]),  # noqa: W605
-            ArgList([Arg('arg1_', '1'), Arg('arg2\\_\\_', '2')]),  # noqa: W605
+            ArgList([Arg('arg1\\_', '1'), Arg('arg2__', '2')]),
+            ArgList([Arg('arg1_', '1'), Arg('arg2\\_\\_', '2')]),
         ),
     ],
 )
@@ -334,8 +334,8 @@ def testArgList_contains(
             {Arg('**kwargs', '2')},
         ),
         (
-            ArgList([Arg('arg1\\_', '1'), Arg('arg2__', '2')]),  # noqa: W605
-            ArgList([Arg('arg2\\_\\_', '2')]),  # noqa: W605
+            ArgList([Arg('arg1\\_', '1'), Arg('arg2__', '2')]),
+            ArgList([Arg('arg2\\_\\_', '2')]),
             {Arg('arg1_', '1')},
         ),
     ],
@@ -343,6 +343,6 @@ def testArgList_contains(
 def testArgList_subtract(
         obj1: ArgList,
         obj2: ArgList,
-        expected: Set[Arg],
+        expected: set[Arg],
 ) -> None:
     assert obj1.subtract(obj2) == expected

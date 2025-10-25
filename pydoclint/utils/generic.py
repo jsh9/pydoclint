@@ -3,7 +3,8 @@ from __future__ import annotations
 import ast
 import copy
 import re
-from typing import TYPE_CHECKING, Match
+from re import Match
+from typing import TYPE_CHECKING
 
 from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
@@ -248,7 +249,7 @@ def specialEqual(str1: str, str2: str) -> bool:
         return False  # using shortcuts to speed up evaluation
 
     quotes = {'"', "'"}
-    for char1, char2 in zip(str1, str2):
+    for char1, char2 in zip(str1, str2, strict=False):
         if char1 == char2:
             continue
 
@@ -274,7 +275,7 @@ def doList1ItemsStartWithList2Items(
     if list1 == list2:  # short-circuit, maybe faster than explicit for loop
         return True
 
-    for elem1, elem2 in zip(list1, list2):
+    for elem1, elem2 in zip(list1, list2, strict=False):
         if not elem1.startswith(elem2):
             return False
 
@@ -321,7 +322,7 @@ def buildFuncArgToDefaultMapping(
     # kwDefaults has one-to-one correspondence with kwOnlyArgs
     for i in range(len(kwDefaults)):
         if i < len(kwOnlyArgs) and kwDefaults[i] is not None:
-            argToDefaultMapping[kwOnlyArgs[i]] = kwDefaults[i]  # type: ignore[assignment]  # noqa: LN002
+            argToDefaultMapping[kwOnlyArgs[i]] = kwDefaults[i]  # type: ignore[assignment]
 
     return argToDefaultMapping
 

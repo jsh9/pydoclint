@@ -64,7 +64,7 @@ class Doc:
                 and self.parsed.deprecation is None
             )
 
-        self._raiseException()  # noqa: R503
+        self._raiseException()
 
     @property
     def argList(self) -> ArgList:  # type:ignore[return]
@@ -72,7 +72,7 @@ class Doc:
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringParam(self.parsed.params)
 
-        self._raiseException()  # noqa: R503
+        self._raiseException()
 
     @property
     def attrList(self) -> ArgList:  # type:ignore[return]
@@ -80,7 +80,7 @@ class Doc:
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringAttr(self.parsed.attrs)
 
-        self._raiseException()  # noqa: R503
+        self._raiseException()
 
     @property
     def hasReturnsSection(self) -> bool:  # type:ignore[return]
@@ -89,7 +89,7 @@ class Doc:
             retSection: DocstringReturns | None = self.parsed.returns
             return retSection is not None and not retSection.is_generator
 
-        self._raiseException()  # noqa: R503
+        self._raiseException()
 
     @property
     def hasYieldsSection(self) -> bool:  # type:ignore[return]
@@ -98,7 +98,7 @@ class Doc:
             yieldSection: DocstringYields = self.parsed.yields
             return yieldSection is not None
 
-        self._raiseException()  # noqa: R503
+        self._raiseException()
 
     @property
     def hasRaisesSection(self) -> bool:  # type:ignore[return]
@@ -106,7 +106,7 @@ class Doc:
         if self.style in {'google', 'numpy', 'sphinx'}:
             return len(self.parsed.raises) > 0
 
-        self._raiseException()  # noqa: R503
+        self._raiseException()
 
     @property
     def returnSection(self) -> list[ReturnArg]:

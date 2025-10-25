@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import ast
-from typing import Callable, Generator, Type
+from collections.abc import Callable, Generator
 
 from pydoclint.utils import walk
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
 from pydoclint.utils.generic import stringStartsWith
 from pydoclint.utils.unparser_custom import unparseName
 
-ReturnType = Type[ast.Return]
-ExprType = Type[ast.expr]
-YieldAndYieldFromTypes = tuple[Type[ast.Yield], Type[ast.YieldFrom]]
-FuncOrAsyncFuncTypes = tuple[Type[ast.FunctionDef], Type[ast.AsyncFunctionDef]]
+ReturnType = type[ast.Return]
+ExprType = type[ast.expr]
+YieldAndYieldFromTypes = tuple[type[ast.Yield], type[ast.YieldFrom]]
+FuncOrAsyncFuncTypes = tuple[type[ast.FunctionDef], type[ast.AsyncFunctionDef]]
 FuncOrAsyncFunc = (ast.FunctionDef, ast.AsyncFunctionDef)
 
 
@@ -126,7 +126,7 @@ def getRaisedExceptions(
     return sorted(set(_getRaisedExceptions(node, shouldDeclareAssertError)))
 
 
-def _getRaisedExceptions(  # noqa: C901
+def _getRaisedExceptions(
         node: FuncOrAsyncFuncDef,
         shouldDeclareAssertError: bool = False,
 ) -> Generator[str, None, None]:

@@ -74,6 +74,7 @@ ignore = [
   "D200",
   "D205",
   "D400",
+  "FURB152", # don't replace "3.14" with math.pi
   "PLC1901", # it's fine to compare with empty string
   "S101", # it's fine to use assert
   "S110", # it's fine to use "try-except-pass"

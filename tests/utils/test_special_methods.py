@@ -1,5 +1,4 @@
 import ast
-from typing import Optional
 
 import pytest
 
@@ -61,7 +60,7 @@ def testCheckMethodContainsSpecifiedDecorator(
         decorator: str,
         expected: bool,
 ) -> None:
-    def getMethod1(tree_: ast.AST) -> Optional[ast.FunctionDef]:
+    def getMethod1(tree_: ast.AST) -> ast.FunctionDef | None:
         for node_ in ast.walk(tree_):
             if isinstance(node_, ast.FunctionDef) and node_.name == 'method1':
                 return node_

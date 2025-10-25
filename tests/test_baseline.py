@@ -315,7 +315,6 @@ def testBaselineIndent(
     -------
     None
     """
-
     codeFile = tmp_path / 'code.py'
     baselineSpaces = tmp_path / 'baseline_spaces.txt'
     baselineTabs = tmp_path / 'baseline_tabs.txt'

@@ -8,13 +8,13 @@ from pydoclint.utils.edge_case_error import EdgeCaseError
 VIOLATION_CODES = types.MappingProxyType({
     1: 'Potential formatting errors in docstring. Error message:',
     2: 'Syntax errors; cannot parse this Python file. Error message:',
-    3: (  # noqa: PAR001
+    3: (
         'Docstring style mismatch. (Please read more at'
         ' https://jsh9.github.io/pydoclint/style_mismatch.html ).'
     ),
     101: 'Docstring contains fewer arguments than in function signature.',
     102: 'Docstring contains more arguments than in function signature.',
-    103: (  # noqa: PAR001
+    103: (
         'Docstring arguments are different from function arguments.'
         ' (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
     ),
@@ -38,13 +38,13 @@ VIOLATION_CODES = types.MappingProxyType({
     307: 'The __init__() docstring does not need a "Yields" section, because __init__() cannot yield anything',
     401: '',  # Deprecated
     402: 'has "yield" statements, but the docstring does not have a "Yields" section',
-    403: (  # noqa: PAR001
+    403: (
         'has a "Yields" section in the docstring, but there are no "yield"'
         ' statements, or the return annotation is not a Generator/Iterator/Iterable.'
         ' (Or it could be because the function lacks a return annotation.)'
     ),
     404: 'yield type(s) in docstring not consistent with the return annotation.',
-    405: (  # noqa: PAR001
+    405: (
         'has both "return" and "yield" statements. Please use'
         ' Generator[YieldType, SendType, ReturnType] as the return type'
         ' annotation, and put your yield type in YieldType and return type'
@@ -57,7 +57,7 @@ VIOLATION_CODES = types.MappingProxyType({
     504: 'has assert statements, but the docstring does not have a "Raises" section. (Assert statements could raise "AssertError".)',
     601: 'Class docstring contains fewer class attributes than actual class attributes.',
     602: 'Class docstring contains more class attributes than in actual class attributes.',
-    603: (  # noqa: PAR001
+    603: (
         'Class docstring attributes are different from actual class attributes.'
         ' (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
     ),
@@ -122,10 +122,10 @@ class Violation:
     def getInfoForFlake8(self) -> tuple[int, int, str]:
         """Get the violation info for flake8"""
         colOffset: int = 0  # we don't need column offset to locate the issue
-        msg = f'{self.fullErrorCode} {self.msg}'  # no colon b/c that would cause 'yesqa' issues  # noqa: LN002
+        msg = f'{self.fullErrorCode} {self.msg}'  # no colon b/c that would cause 'yesqa' issues
         return self.line, colOffset, msg
 
-    def appendMoreMsg(self, moreMsg: str) -> 'Violation':
+    def appendMoreMsg(self, moreMsg: str) -> Violation:
         """Append more error message, and return a new Violation object"""
         new = deepcopy(self)
         new.msg = ''.join([
@@ -136,5 +136,5 @@ class Violation:
             moreMsg,
             ' ',
             new.msgPostfix,
-        ]).strip()  # noqa: PAR104
+        ]).strip()
         return new

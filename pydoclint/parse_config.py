@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import logging
 import sys
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 import click
 from click.core import ParameterSource
@@ -49,7 +50,7 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     if not value:
         return None
 
-    logging.info(f'Loading config from user-specified .toml file: {value}')
+    logging.info('Loading config from user-specified .toml file: %s', value)
 
     # Only enforce when users explicitly specify a config file
     assert param.name is not None  # so that mypy is happy
@@ -79,7 +80,7 @@ def parseToml(paths: Sequence[str] | None) -> dict[str, Any]:
     commonParent: Path = findCommonParentFolder(paths)
     tomlFilename = commonParent / Path('pyproject.toml')
     logging.info(
-        f'Loading config from inferred .toml file path: {tomlFilename}'
+        'Loading config from inferred .toml file path: %s', tomlFilename
     )
     return parseOneTomlFile(tomlFilename)
 
@@ -92,19 +93,18 @@ def parseOneTomlFile(
     """Parse a .toml file"""
     if not tomlFilename.exists():
         message = f'Config file "{tomlFilename}" does not exist.'
-        logging.info(f'{message} Nothing to load.')
+        logging.info('%s Nothing to load.', message)
         if enforcePydoclintSection:
             raise FileNotFoundError(message)
 
         return {}
 
     try:
-        with open(tomlFilename, 'rb') as fp:
+        with Path(tomlFilename).open('rb') as fp:
             rawConfig = tomllib.load(fp)
     except Exception as exc:
         logging.info(
-            f'Failed to load "{tomlFilename}": {exc}; ignoring this'
-            ' config file.'
+            'Failed to load "%s": %s; ignoring this', tomlFilename, exc
         )
         if enforcePydoclintSection:
             raise
@@ -129,10 +129,10 @@ def parseOneTomlFile(
         }
 
     if len(finalConfig) > 0:
-        logging.info(f'Found options defined in {tomlFilename}:')
+        logging.info('Found options defined in %s:', tomlFilename)
         logging.info(finalConfig)
     else:
-        logging.info(f'No config found in {tomlFilename}.')
+        logging.info('No config found in %s.', tomlFilename)
 
     return finalConfig
 

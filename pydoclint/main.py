@@ -428,7 +428,7 @@ def main(  # noqa: C901
         config: str | None,  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
-    logging.basicConfig(level=logging.WARN if quiet else logging.INFO)
+    logging.basicConfig(level=logging.WARNING if quiet else logging.INFO)
     ctx.ensure_object(dict)
 
     if type_hints_in_docstring != 'None':  # it means users supply this option
@@ -777,7 +777,7 @@ def _checkFile(
     if not filename.is_file():  # sometimes folder names can end with `.py`
         return []
 
-    with open(filename, encoding='utf-8', errors='replace') as fp:
+    with Path(filename).open(encoding='utf-8', errors='replace') as fp:
         # Note: errors='replace' would replace unrecognized characters with
         #       question marks. This may not be a perfect solution, but for
         #       not this may be good enough.

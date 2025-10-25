@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 import pytest
 
@@ -313,9 +313,7 @@ from tests.test_main import DATA_DIR
                     if sys.version_info >= (3, 10)
                     else 'invalid syntax'
                 )
-                + ' (<unknown>, line {num})'.format(
-                    num=1 if sys.version_info < (3, 10) else 4
-                )
+                + f' (<unknown>, line {1 if sys.version_info < (3, 10) else 4})'
             ],
         ),
         (
@@ -600,8 +598,8 @@ from tests.test_main import DATA_DIR
 )
 def testEdgeCases(
         filename: str,
-        options: Dict[str, Any],
-        expectedViolations: List[str],
+        options: dict[str, Any],
+        expectedViolations: list[str],
 ) -> None:
     fullFilename: Path = DATA_DIR / 'edge_cases' / filename
 

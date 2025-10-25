@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Type
+from typing import Any
 
 import pytest
 from click.testing import CliRunner
@@ -29,7 +29,7 @@ CONFIG_DATA_DIR: Path = THIS_DIR / 'test_data' / 'config_files'
         (['./a/b/c', './e/f/g', './a/b/e/f/g'], '.'),
     ],
 )
-def testFindCommonParentFolder(paths: List[str], expected: str) -> None:
+def testFindCommonParentFolder(paths: list[str], expected: str) -> None:
     result = findCommonParentFolder(paths, makeAbsolute=False).as_posix()
     assert result == expected
 
@@ -48,7 +48,7 @@ def testFindCommonParentFolder(paths: List[str], expected: str) -> None:
 def testParseOneTomlFile(
         filename: Path,
         enforce: bool,
-        expected: Dict[str, Any],
+        expected: dict[str, Any],
 ) -> None:
     tomlConfig = parseOneTomlFile(filename, enforcePydoclintSection=enforce)
     assert tomlConfig == expected
@@ -66,7 +66,7 @@ def testParseOneTomlFile(
 )
 def testParseOneTomlFileEnforceErrors(
         filename: Path,
-        expectedException: Type[Exception],
+        expectedException: type[Exception],
 ) -> None:
     with pytest.raises(expectedException):
         parseOneTomlFile(filename, enforcePydoclintSection=True)
@@ -88,7 +88,7 @@ def _writeSamplePythonFile(directory: Path) -> Path:
 def testCliDefaultConfigMissingFileIsAllowed() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path('.'))
+        samplePath = _writeSamplePythonFile(Path())
         result = runner.invoke(cli_main, [str(samplePath)])
         assert result.exit_code == 0
         assert 'No violations' in result.output
@@ -97,7 +97,7 @@ def testCliDefaultConfigMissingFileIsAllowed() -> None:
 def testCliConfigMissingFileRaisesError() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path('.'))
+        samplePath = _writeSamplePythonFile(Path())
         result = runner.invoke(
             cli_main,
             ['--config', 'custom.toml', str(samplePath)],
@@ -109,7 +109,7 @@ def testCliConfigMissingFileRaisesError() -> None:
 def testCliConfigMissingSectionRaisesError() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path('.'))
+        samplePath = _writeSamplePythonFile(Path())
         badConfig = Path('bad.toml')
         badConfig.write_text('[tool.other]\nflag = true\n')
         result = runner.invoke(

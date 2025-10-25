@@ -39,7 +39,7 @@ class ReturnAnnotation:
         EdgeCaseError
             When the annotation string has strange values
         """
-        if self._isTuple():  # noqa: R506
+        if self._isTuple():
             assert self.annotation is not None  # to help mypy understand type
 
             if not self.annotation.endswith(']'):
@@ -56,7 +56,7 @@ class ReturnAnnotation:
                 # because we don't know the tuple's length
                 return [self.annotation]
 
-            parsedBody0: ast.Expr = ast.parse(insideTuple).body[0]  # type:ignore[assignment]  # noqa: LN002
+            parsedBody0: ast.Expr = ast.parse(insideTuple).body[0]  # type:ignore[assignment]
             if isinstance(
                 parsedBody0.value, (ast.Attribute, ast.Name)
             ):  # such as Tuple[int]
@@ -69,13 +69,13 @@ class ReturnAnnotation:
                 return [unparseName(_) for _ in elts]  # type:ignore[misc]
 
             raise EdgeCaseError('decompose(): This should not have happened')
-        else:
-            return self.putAnnotationInList()
+
+        return self.putAnnotationInList()
 
     def _isTuple(self) -> bool:
         try:
             assert self.annotation is not None  # to help mypy understand type
-            annoHead = ast.parse(self.annotation).body[0].value.value.id  # type:ignore[attr-defined]  # noqa: LN002
+            annoHead = ast.parse(self.annotation).body[0].value.value.id  # type:ignore[attr-defined]
             return annoHead in {'tuple', 'Tuple'}
         except Exception:
             return False
