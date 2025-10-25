@@ -301,8 +301,8 @@ def testBaselineIndent(
         tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    Confirm round trip equality with a space or tab indent in the
-    baseline file.
+    Confirm round trip equality with a space or tab indent in the baseline
+    file.
 
     Parameters
     ----------

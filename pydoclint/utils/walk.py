@@ -1,19 +1,19 @@
 """
 This module is adapted from the Python AST standard library.
 
-It adds some hacks on top of the original `walk()` and `iter_child_nodes()`
+It adds some hacks on top of the original ``walk()`` and ``iter_child_nodes()``
 functions: it returns the parent of each node when recursively walk all child
 nodes.
 
-The `walk()` function in this module comes from:
-    https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L380-L391
+The ``walk()`` function in this module comes from:
+https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L380-L391
 
-The `iter_child_nodes()` function in this module comes from:
-    https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L267-L278
+The ``iter_child_nodes()`` function in this module comes from:
+https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L267-L278
 
-There is an `ast.iter_fields()` function used in `iter_child_nodes()`.
-This `ast.iter_fields()` function comes from:
-    https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L255-L264
+There is an ``ast.iter_fields()`` function used in ``iter_child_nodes()``. This
+``ast.iter_fields()`` function comes from:
+https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L255-L264
 """
 
 import ast
@@ -36,7 +36,7 @@ def walk(node: ast.AST) -> Generator[Tuple[ast.AST, ast.AST], None, None]:
 
 
 def walk_dfs(node: ast.AST) -> Generator[Tuple[ast.AST, ast.AST], None, None]:
-    """Depth-first traversal of AST. Modified from `walk()` in this file"""
+    """Depth-first traversal of AST. Modified from ``walk()`` in this file"""
     for child, parent in iter_child_nodes(node):
         yield child, parent
         yield from walk_dfs(child)

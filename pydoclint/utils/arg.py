@@ -18,8 +18,8 @@ class Arg:
     """
     A class to hold function input/return arguments.
 
-    This class also defines some essential behaviors of an argument, such
-    as comparison, equality, hashing, etc.
+    This class also defines some essential behaviors of an argument, such as
+    comparison, equality, hashing, etc.
     """
 
     def __init__(self, name: str, typeHint: str) -> None:
@@ -188,7 +188,7 @@ class Arg:
 
 class ArgList:
     """
-    A class to hold a list of `Arg` objects.
+    A class to hold a list of ``Arg`` objects.
 
     This class also defines some behaviors of an argument list, such as
     equality, length calculation, etc.
@@ -313,11 +313,11 @@ class ArgList:
             raise EdgeCaseError(msg) from ex
 
     def contains(self, arg: Arg) -> bool:
-        """Whether a given `Arg` object exists in the list"""
+        """Whether a given ``Arg`` object exists in the list"""
         return arg.name in self.lookup
 
     def get(self, argName: str) -> Arg:
-        """Retrieve an element from the list using `argName` as identifier"""
+        """Retrieve an element from the list using ``argName`` as identifier"""
         if argName not in self.lookup:
             raise KeyError(f'argName "{argName}" not in this object')
 
@@ -330,16 +330,16 @@ class ArgList:
             orderMatters: bool = True,
     ) -> bool:
         """
-        Check whether this object is equal to `other`.
+        Check whether this object is equal to ``other``.
 
         Parameters
         ----------
-        other : ArgList
+        other : 'ArgList'
             The other object
-        checkTypeHint : bool
+        checkTypeHint : bool, default=True
             If True, the two objects are only considered equal when type hints
             are also equal.
-        orderMatters : bool
+        orderMatters : bool, default=True
             If True, the two objects are only considered equal when the order
             of the arguments are identical.
 
@@ -398,7 +398,7 @@ class ArgList:
             other: 'ArgList',
             checkTypeHint: bool = True,
     ) -> set[Arg]:
-        """Find the args that are in this object but not in `other`."""
+        """Find the args that are in this object but not in ``other``."""
         if checkTypeHint:
             return set(self.infoList) - set(other.infoList)
 
@@ -419,7 +419,7 @@ class ArgList:
         """
         Check whether all args have a type hint.
 
-        Star arguments (such as `*args` or `**kwargs`) are excluded because
+        Star arguments (such as ``*args`` or ``**kwargs``) are excluded because
         they don't need to have type hints.
         """
         return all(_.hasTypeHint() for _ in self.infoList if _.notStarArg())

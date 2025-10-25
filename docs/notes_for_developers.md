@@ -1,13 +1,17 @@
 # Notes for developers
 
-**Table of Contents**
-
 <!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
 
 - [1. Entry points](#1-entry-points)
 - [2. How to quickly sanity-check a code example?](#2-how-to-quickly-sanity-check-a-code-example)
 - [3. How to quickly debug a particular style violation?](#3-how-to-quickly-debug-a-particular-style-violation)
 - [4. Why are names in _pydoclint_ in camelCase?](#4-why-are-names-in-pydoclint-in-camelcase)
+
+______________________________________________________________________
 
 <!--TOC-->
 

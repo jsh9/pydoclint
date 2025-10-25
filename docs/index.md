@@ -45,6 +45,10 @@ ______________________________________________________________________
 
 <!--TOC-->
 
+______________________________________________________________________
+
+**Table of Contents**
+
 - [1. Installation](#1-installation)
 - [2. Usage](#2-usage)
   - [2.1. As a native command line tool](#21-as-a-native-command-line-tool)
@@ -62,6 +66,8 @@ ______________________________________________________________________
 - [3. Style violation codes](#3-style-violation-codes)
 - [4. Additional notes for users](#4-additional-notes-for-users)
 - [5. Notes for developers](#5-notes-for-developers)
+
+______________________________________________________________________
 
 <!--TOC-->
 

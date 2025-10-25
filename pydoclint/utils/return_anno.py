@@ -23,8 +23,9 @@ class ReturnAnnotation:
     def decompose(self) -> list[str]:
         """
         Numpy style allows decomposing the returning tuple into individual
-        element.  For example, if the return annotation is `Tuple[int, bool]`,
-        you can put 2 return values in the return section: int, and bool.
+        element.  For example, if the return annotation is ``Tuple[int,
+        bool]``, you can put 2 return values in the return section: int, and
+        bool.
 
         This method decomposes such return annotation into individual elements.
 

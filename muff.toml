@@ -1,6 +1,6 @@
-line-length = 79
 exclude = ["tests/test_data"]
+line-length = 79
 
 [format]
-quote-style = "single"
 docstring-code-format = true
+quote-style = "single"

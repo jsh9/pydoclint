@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 def collectFuncArgs(node: FuncOrAsyncFuncDef) -> list[ast.arg]:
     """
-    Collect all arguments from a function node, and return them in
-    their original order in the function signature.
+    Collect all arguments from a function node, and return them in their
+    original order in the function signature.
     """
     allArgs: list[ast.arg] = []
     allArgs.extend(node.args.args)
@@ -67,19 +67,19 @@ def collectFuncArgs(node: FuncOrAsyncFuncDef) -> list[ast.arg]:
 
 def getFunctionId(node: FuncOrAsyncFuncDef) -> tuple[int, int, str]:
     """
-    Get unique identifier of a function def. We also need line and
-    column number because different function can have identical names.
+    Get unique identifier of a function def. We also need line and column
+    number because different function can have identical names.
 
-    Note: this function is no longer used by the actual code, but it is
-    still used in unit tests. That's why we did not remove it.
+    Note: this function is no longer used by the actual code, but it is still
+    used in unit tests. That's why we did not remove it.
     """
     return node.lineno, node.col_offset, node.name
 
 
 def detectMethodType(node: FuncOrAsyncFuncDef) -> MethodType:
     """
-    Detect whether the function def is an instance method,
-    a classmethod, or a staticmethod.
+    Detect whether the function def is an instance method, a classmethod, or a
+    staticmethod.
     """
     if len(node.decorator_list) == 0:
         return MethodType.INSTANCE_METHOD
@@ -182,11 +182,10 @@ def stringStartsWith(string: str | None, substrings: tuple[str, ...]) -> bool:
 
 def stripQuotes(string: str | None) -> str | None:
     """
-    Strip quotes (both double and single quotes) from the given string.
-    Also, strip backticks (`) or double backticks (``) from the beginning
-    and the end of the given string.  (Some people use backticks around
-    type hints so that they show up more nicely on the HTML documentation
-    page.)
+    Strip quotes (both double and single quotes) from the given string. Also,
+    strip backticks (`) or double backticks (``) from the beginning and the end
+    of the given string.  (Some people use backticks around type hints so that
+    they show up more nicely on the HTML documentation page.)
     """
     if string is None:
         return None
@@ -226,9 +225,9 @@ def appendArgsToCheckToV105(
 
 def specialEqual(str1: str, str2: str) -> bool:
     """
-    Check string equality but treat any single quotes as the same as
-    double quotes, and ignore line breaks in either strings, and also
-    ignore any in-line comments in either string.
+    Check string equality but treat any single quotes as the same as double
+    quotes, and ignore line breaks in either strings, and also ignore any
+    in-line comments in either string.
     """
     if str1 == str2:
         return True  # using shortcuts to speed up evaluation
@@ -286,8 +285,8 @@ def buildFuncArgToDefaultMapping(
         funcDef: FuncOrAsyncFuncDef,
 ) -> dict[ast.arg, ast.expr]:
     """
-    Build a mapping from AST arguments to their default values using
-    proper AST structure.
+    Build a mapping from AST arguments to their default values using proper AST
+    structure.
 
     Parameters
     ----------
@@ -365,8 +364,8 @@ def buildClassAttrToDefaultMapping(
 
 def stripCommentsFromTypeHints(typeHint: str) -> str:
     """
-    Strip comments from type hints to enable comparison between
-    docstring type hints and actual type hints.
+    Strip comments from type hints to enable comparison between docstring type
+    hints and actual type hints.
     """
     result: str
     try:

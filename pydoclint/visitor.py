@@ -436,11 +436,11 @@ class Visitor(ast.NodeVisitor):
         Parameters
         ----------
         node : FuncOrAsyncFuncDef
-            The current function node.  It can be a regular function
-            or an async function.
+            The current function node.  It can be a regular function or an
+            async function.
         parent_ : ast.AST
-            The parent of the current node, which can be another function,
-            a class, etc.
+            The parent of the current node, which can be another function, a
+            class, etc.
         doc : Doc
             The parsed docstring structure.
 
@@ -785,7 +785,7 @@ class Visitor(ast.NodeVisitor):
             doc: Doc,
     ) -> list[Violation]:
         """
-        Check violations when a function has both `return` and `yield`
+        Check violations when a function has both ``return`` and ``yield``
         statements in it.
         """
         """

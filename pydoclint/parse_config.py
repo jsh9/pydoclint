@@ -33,8 +33,8 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     param : click.Parameter
         The "click" parameter; not used in this function; just a placeholder
     value : str | None
-        The full path of the .toml file. (It needs to be named ``value``
-        so that ``click`` can correctly use it as a callback function.)
+        The full path of the .toml file. (It needs to be named ``value`` so
+        that ``click`` can correctly use it as a callback function.)
 
     Returns
     -------

@@ -11,8 +11,8 @@ def replaceTupleBracket(string: str) -> str:
     """
     Remove the comma in strings like "tuple[*Shape,]"
 
-    We need to do this at least for Python 3.11, because when we write
-    type annotations such as "tuple[*Shape]", the ast.unparse() returns
+    We need to do this at least for Python 3.11, because when we write type
+    annotations such as "tuple[*Shape]", the ast.unparse() returns
     "tuple[*Shape,]" (one more comma).
     """
     return re.sub(r'(tuple|Tuple)\[\*(.*?),\]', r'\1[*\2]', string)

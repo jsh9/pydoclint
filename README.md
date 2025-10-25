@@ -39,11 +39,12 @@ here: [https://jsh9.github.io/pydoclint](https://jsh9.github.io/pydoclint)
 The corresponding Github repository of _pydoclint_ is:
 [https://github.com/jsh9/pydoclint](https://github.com/jsh9/pydoclint)
 
+
+<!--TOC-->
+
 ______________________________________________________________________
 
 **Table of Contents**
-
-<!--TOC-->
 
 - [1. Installation](#1-installation)
 - [2. Usage](#2-usage)
@@ -62,6 +63,8 @@ ______________________________________________________________________
 - [3. Style violation codes](#3-style-violation-codes)
 - [4. Additional notes for users](#4-additional-notes-for-users)
 - [5. Notes for developers](#5-notes-for-developers)
+
+______________________________________________________________________
 
 <!--TOC-->
 

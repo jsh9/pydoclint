@@ -7,9 +7,12 @@ For how to actually implement these options in your commands, please read this
 page:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html).
 
-**Table of Contents**
 
 <!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
 
 - [1. `--quiet` (shortform: `-q`)](#1---quiet-shortform--q)
 - [2. `--exclude`](#2---exclude)
@@ -37,6 +40,8 @@ page:
 - [24. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#24---auto-regenerate-baseline-shortform--arb-default-true)
 - [25. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#25---show-filenames-in-every-violation-message-shortform--sfn-default-false)
 - [26. `--config` (default: `pyproject.toml`)](#26---config-default-pyprojecttoml)
+
+______________________________________________________________________
 
 <!--TOC-->
 

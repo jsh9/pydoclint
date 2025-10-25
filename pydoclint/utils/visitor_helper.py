@@ -148,13 +148,13 @@ def extractClassAttributesFromNode(  # noqa: C901
         Whether we should document private class attributes.  If ``True``,
         private class attributes will be included in the return value.
     treatPropertyMethodsAsClassAttrs : bool
-        Whether we'd like to treat property methods as class attributes.
-        If ``True``, property methods will be included in the return value.
+        Whether we'd like to treat property methods as class attributes. If
+        ``True``, property methods will be included in the return value.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
         If ``True``, only the attributes whose type annotations are wrapped
         within ``ClassVar`` (where ``ClassVar`` is imported from ``typing``)
-        are treated as class attributes, and all other attributes are
-        treated as instance attributes.
+        are treated as class attributes, and all other attributes are treated
+        as instance attributes.
     checkArgDefaults : bool
         If True, we should extract the arguments' default values and attach
         them to the type hints.
@@ -256,8 +256,8 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
         msgPrefix: str,
 ) -> None:
     """
-    Check the arg/attr list in the docstring against the actual arg/attr
-    list (either the function arguments or class attributes).
+    Check the arg/attr list in the docstring against the actual arg/attr list
+    (either the function arguments or class attributes).
     """
     if not docArgs.equals(
         actualArgs,
@@ -586,8 +586,8 @@ def addMismatchedRaisesExceptionViolation(
         msgPrefix: str,
 ) -> None:
     """
-    Add a violation for mismatched exception type between function
-    body and docstring
+    Add a violation for mismatched exception type between function body and
+    docstring
     """
     msgPostfix: str = (
         f'Raised exceptions in the docstring: {docRaises}.'

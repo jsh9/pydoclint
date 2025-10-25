@@ -21,7 +21,7 @@ def hasReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
 
 
 def isReturnAnnotationNone(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether the return type annotation if `None`"""
+    """Check whether the return type annotation if ``None``"""
     return _isNone(node.returns)
 
 
@@ -30,7 +30,7 @@ def _isNone(node: ast.expr | None) -> bool:
 
 
 def isReturnAnnotationNoReturn(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether the return type annotation if `NoReturn`"""
+    """Check whether the return type annotation if ``NoReturn``"""
     if node.returns is None:
         return False
 
@@ -50,7 +50,9 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
 
 
 def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether `node` has a 'Iterator' or 'Iterable' return annotation"""
+    """
+    Check whether ``node`` has a 'Iterator' or 'Iterable' return annotation
+    """
     if node.returns is None:
         return False
 
@@ -88,8 +90,8 @@ def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
 
 def hasBareReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
     """
-    Check whether the function node has bare return statements (i.e.,
-    just a "return" without anything behind it)
+    Check whether the function node has bare return statements (i.e., just a
+    "return" without anything behind it)
     """
 
     def isThisNodeABareReturnStmt(node_: ast.AST) -> bool:
@@ -269,9 +271,8 @@ def _updateFamilyTree(
         familyTree: dict[int, tuple[int, bool]],
 ) -> int:
     """
-    Structure of `familyTree`:
-        Key: line number of child node
-        Value: (line number of parent node, whether this parent is a function)
+    Structure of ``familyTree``: Key: line number of child node; Value: (line
+    number of parent node, whether this parent is a function)
     """
     childLine = _getLineNum(child)
     parentLine = _getLineNum(parent)
@@ -304,14 +305,14 @@ def _confirmThisStmtIsNotWithinNestedFunc(
         lineNumOfThisNode: int,
 ) -> bool:
     """
-    Check whether we REALLY found the expected statement (return, yield,
-    raise, or assert).
+    Check whether we REALLY found the expected statement (return, yield, raise,
+    or assert).
 
-    Returns True if this statement is not within a nested function of `node`.
+    Returns True if this statement is not within a nested function of ``node``.
     Returns False if otherwise.
 
-    We do this by checking whether the line number of the parent function
-    of the statement is the same as the line number of the node.
+    We do this by checking whether the line number of the parent function of
+    the statement is the same as the line number of the node.
     """
     if not foundStatementTemp:
         return False
@@ -328,7 +329,7 @@ def _lookupParentFunc(
     Look up the parent function of the given child node.
 
     Recursion is used in this function, because the key-val pairs in
-    `familyLine` only records immediate child-parent mapping.
+    ``familyLine`` only records immediate child-parent mapping.
     """
     if lineNumOfChildNode not in familyLine:
         return -999

@@ -1,45 +1,86 @@
 ---
 exclude: ^tests/test_data/
 repos:
-  - repo: https://github.com/pycqa/isort
-    rev: 6.0.1
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
     hooks:
-      - id: isort
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+        exclude: \.json$|\.ipynb$
+      - id: requirements-txt-fixer
+      - id: check-added-large-files
+        args: [--maxkb=1000]
+      - id: check-toml
+      - id: check-yaml
+      - id: name-tests-test
+        args: [--pytest-test-first]
+        exclude: ^tests/helpers\.py$
+      - id: check-merge-conflict
   - repo: https://github.com/jsh9/muff-pre-commit
-    rev: 0.12.11.1
+    rev: 0.13.2
     hooks:
       - id: muff-format
         args: [--config, muff.toml]
   - repo: https://github.com/lyz-code/yamlfix
-    rev: 1.17.0
+    rev: 1.18.0
     hooks:
       - id: yamlfix
+  - repo: https://github.com/pappasam/toml-sort
+    rev: v0.24.3
+    hooks:
+      - id: toml-sort-fix
+        args:
+          - --in-place
+          - --sort-table-keys
+          - --sort-inline-tables
+          - --sort-first=name,version,dependencies,requires-python,authors,maintainers
+          - --trailing-comma-inline-array
+          - --sort-inline-arrays
+  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+    rev: v2.15.0
+    hooks:
+      - id: pretty-format-ini
+        args: [--autofix]
   - repo: https://github.com/hukkin/mdformat
-    rev: 0.7.22  # Use the ref you want to point at
+    rev: 1.0.0
     hooks:
       - id: mdformat
-        args: [--wrap, '79']
-        additional_dependencies: [mdformat-tables]
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+        args: [--wrap=79, --number]
+        additional_dependencies: [mdformat-gfm]
+  - repo: https://github.com/jsh9/format-json
+    rev: 0.1.2
     hooks:
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-      - id: pretty-format-json
-        args: [--no-ensure-ascii, --indent=4, --no-sort-keys]
-  - repo: https://github.com/pre-commit/pre-commit
-    rev: v4.3.0
+      - id: format-json
+        args:
+          - --autofix
+          - --no-ensure-ascii
+          - --indent=4
+          - --no-sort-keys
+          - --no-eof-newline
+  - repo: https://github.com/jsh9/markdown-heading-numbering
+    rev: 0.1.0
     hooks:
-      - id: validate_manifest
+      - id: markdown-heading-numbering
+        exclude: ^CHANGELOG\.md$
   - repo: https://github.com/jsh9/markdown-toc-creator
-    rev: 0.0.10
+    rev: 0.1.0
     hooks:
       - id: markdown-toc-creator
+        exclude: ^AGENTS\.md$|^CHANGELOG\.md$
+  - repo: https://github.com/jsh9/format-docstring
+    rev: 0.2.3
+    hooks:
+      - id: format-docstring
+        name: Format docstrings in .py files
+        args: [--line-length=79]
+      - id: format-docstring-jupyter
+        name: Format docstrings in .ipynb files
+        args: [--line-length=79]
   - repo: https://github.com/jsh9/blank-line-after-blocks
     rev: 0.1.4
     hooks:
       - id: blank-line-after-blocks
-        args: [--exclude, r"tests/|_generated\.py$"]
+        args: [--exclude, r"tests/test_data|_generated\.py$"]
   - repo: local
     hooks:
       - id: copy_readme

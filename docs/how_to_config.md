@@ -1,5 +1,20 @@
 # How to configure _pydoclint_
 
+<!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
+
+- [1. All configuration options](#1-all-configuration-options)
+- [2. Specifying options inline](#2-specifying-options-inline)
+- [3. Specifying options in a configuration file](#3-specifying-options-in-a-configuration-file)
+- [4. Specifying options in `.pre-commit-config.yaml`](#4-specifying-options-in-pre-commit-configyaml)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This document shows you how to configure _pydoclint_.
 
 ## 1. All configuration options
