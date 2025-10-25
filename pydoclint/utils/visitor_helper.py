@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 import ast
-import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pydoclint.utils.return_anno import ReturnAnnotation
+    from pydoclint.utils.return_arg import ReturnArg
+    from pydoclint.utils.yield_arg import YieldArg
+
+from docstring_parser import ParseError
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.doc import Doc
@@ -15,12 +22,9 @@ from pydoclint.utils.generic import (
     specialEqual,
     stripQuotes,
 )
-from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.special_methods import checkIsPropertyMethod
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
-from pydoclint.utils.yield_arg import YieldArg
 
 SPHINX_MSG_POSTFIX: str = (
     ' (Please read'
@@ -70,7 +74,7 @@ def checkClassAttributesAgainstClassDocstring(
 
     try:
         doc: Doc = Doc(docstring=classDocstring, style=style)
-    except Exception as excp:
+    except ParseError as excp:
         doc = Doc(docstring='', style=style)
         violations.append(
             Violation(
@@ -184,7 +188,7 @@ def extractClassAttributesFromNode(
                 )
 
             atl.extend(ArgList.fromAstAssign(itm).infoList)
-        elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):
+        elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):  # noqa: SIM102
             if treatPropertyMethodsAsClassAttrs and checkIsPropertyMethod(itm):
                 atl.append(
                     Arg(
@@ -290,8 +294,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
                 funcArgs=actualArgs,
                 docArgs=docArgs,
             )
-            violations.append(violationForOrderMismatch)
-            violations.append(v105new)
+            violations.extend([violationForOrderMismatch, v105new])
         else:
             argsInFuncNotInDoc: set[Arg] = actualArgs.subtract(
                 docArgs,
@@ -510,8 +513,8 @@ def checkYieldTypesForViolations(
 
 def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText: str | None,
-        hasGeneratorAsReturnAnnotation: bool,
-        hasIteratorOrIterableAsReturnAnnotation: bool,
+        hasGeneratorAsReturnAnnotation: bool,  # noqa: FBT001
+        hasIteratorOrIterableAsReturnAnnotation: bool,  # noqa: FBT001
 ) -> str | None:
     """Extract yield type from Generator or Iterator annotations"""
     #
@@ -542,7 +545,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
             )
         else:
             yieldType = returnAnnoText
-    except Exception:
+    except (AttributeError, TypeError):
         yieldType = returnAnnoText
 
     return stripQuotes(yieldType)
@@ -557,15 +560,10 @@ def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
-        if sys.version_info >= (3, 9):
-            returnType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
-            )
-        else:
-            returnType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice.value.elts[-1]
-            )
-    except Exception:
+        returnType = unparseName(
+            ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
+        )
+    except (AttributeError, TypeError):
         returnType = returnAnnoText
 
     return stripQuotes(returnType)

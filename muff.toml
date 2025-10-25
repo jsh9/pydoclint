@@ -118,6 +118,9 @@ extend-ignore-names = [
   "E501", # Lines can be longer b/c many of them are violation messages.
   "FBT001", # Boolean-typed positional args are OK in tests
 ]
+"pydoclint/utils/yield_arg.py" = [
+    "N815", # Class variable in this file can be camelCase
+]
 
 [lint.pydocstyle]
 convention = "numpy"

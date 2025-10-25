@@ -14,7 +14,7 @@ https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/
 There is an ``ast.iter_fields()`` function used in ``iter_child_nodes()``. This
 ``ast.iter_fields()`` function comes from:
 https://github.com/python/cpython/blob/b87ccc38fe3ab4eca6e026b76f868db4d53c963f/Lib/ast.py#L255-L264
-"""
+"""  # noqa: D404
 
 import ast
 from collections import deque
