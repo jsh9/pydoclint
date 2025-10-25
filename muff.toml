@@ -116,6 +116,7 @@ extend-ignore-names = [
   "PLR2004", # using magic numbers is allowed in tests
   "SLF001", # accessing private functions is allowed in tests
   "E501", # Lines can be longer b/c many of them are violation messages.
+  "FBT001", # Boolean-typed positional args are OK in tests
 ]
 
 [lint.pydocstyle]
