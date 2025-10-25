@@ -4,12 +4,12 @@ from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 
 
 def checkIsAbstractMethod(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether `node` is an abstract method"""
+    """Check whether ``node`` is an abstract method"""
     return checkMethodContainsSpecifiedDecorator(node, 'abstractmethod')
 
 
 def checkIsPropertyMethod(node: FuncOrAsyncFuncDef) -> bool:
-    """Check whether `node` is a method with @property decorator"""
+    """Check whether ``node`` is a method with @property decorator"""
     return checkMethodContainsSpecifiedDecorator(node, 'property')
 
 

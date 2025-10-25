@@ -1,5 +1,4 @@
 import ast
-from typing import List, Tuple
 
 import pytest
 
@@ -53,7 +52,7 @@ class MyClass:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (
             src1,
@@ -78,8 +77,8 @@ class MyClass:
         ),
     ],
 )
-def testWalk(src: str, expected: List[Tuple[str, str]]) -> None:
-    result: List[Tuple[str, str]] = []
+def testWalk(src: str, expected: list[tuple[str, str]]) -> None:
+    result: list[tuple[str, str]] = []
     tree = ast.parse(src)
     for node, parent in walk(tree):
         if 'name' in node.__dict__:
@@ -99,7 +98,7 @@ def testWalk(src: str, expected: List[Tuple[str, str]]) -> None:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (
             src1,
@@ -124,8 +123,8 @@ def testWalk(src: str, expected: List[Tuple[str, str]]) -> None:
         ),
     ],
 )
-def testWalkDfs(src: str, expected: List[Tuple[str, str]]) -> None:
-    result: List[Tuple[str, str]] = []
+def testWalkDfs(src: str, expected: list[tuple[str, str]]) -> None:
+    result: list[tuple[str, str]] = []
     tree = ast.parse(src)
     for node, parent in walk_dfs(tree):
         if 'name' in node.__dict__:

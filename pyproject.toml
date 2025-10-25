@@ -1,56 +1,53 @@
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
 build-backend = "setuptools.build_meta"
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
 
 [project]
 name = "pydoclint"
-version = "0.7.5"
-description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
-readme = "README.md"
-license = {text = "MIT"}
-authors = [
-    {name = "jsh9"},
-]
-classifiers = [
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3 :: Only",
+version = "0.7.6"
+dependencies = [
+  "click>=8.1.0",
+  "docstring_parser_fork>=0.0.12",
+  "tomli>=2.0.1; python_version<'3.11'",
 ]
 requires-python = ">=3.10"
-dependencies = [
-    "click>=8.1.0",
-    "docstring_parser_fork>=0.0.12",
-    "tomli>=2.0.1; python_version<'3.11'",
+authors = [
+  {name = "jsh9"},
 ]
-
-[project.optional-dependencies]
-flake8 = ["flake8>=4"]
-
-[project.urls]
-Homepage = "https://github.com/jsh9/pydoclint"
-
-[project.scripts]
-pydoclint = "pydoclint.main:main"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+]
+description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
+license = {text = "MIT"}
+readme = "README.md"
 
 [project.entry-points."flake8.extension"]
 DOC = "pydoclint.flake8_entry:Plugin"
 
-[tool.setuptools.packages.find]
-exclude = ["tests*", "testing*"]
+[project.optional-dependencies]
+flake8 = ["flake8>=4"]
 
-[tool.isort]
-multi_line_output = 3
-include_trailing_comma = true
+[project.scripts]
+pydoclint = "pydoclint.main:main"
 
-[tool.pydoclint]
-style = 'numpy'
-exclude = '\.git|.?venv|\.tox|tests/test_data|build'
-require-return-section-when-returning-nothing = true
-check-class-attributes = false
+[project.urls]
+Homepage = "https://github.com/jsh9/pydoclint"
 
 [tool.mypy]
-strict = true
 exclude = "pydoclint/utils/unparser.py"
+strict = true
+
+[tool.pydoclint]
+check-arg-defaults = true
+check-class-attributes = false
+exclude = '\.git|.?venv|\.tox|tests/test_data|build'
+require-return-section-when-returning-nothing = true
+style = 'numpy'
+
+[tool.setuptools.packages.find]
+exclude = ["testing*", "tests*"]
 
 [tool.yamlfix]
 line_length = 79

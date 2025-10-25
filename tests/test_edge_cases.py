@@ -1,6 +1,8 @@
 import sys
-from pathlib import Path
-from typing import Any, Dict, List
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 import pytest
 
@@ -9,7 +11,7 @@ from tests.test_main import DATA_DIR
 
 
 @pytest.mark.parametrize(
-    'filename, options, expectedViolations',
+    ('filename', 'options', 'expectedViolations'),
     [
         ('01/case.py', {'style': 'sphinx'}, []),
         (
@@ -46,7 +48,6 @@ from tests.test_main import DATA_DIR
             ],
         ),
         ('04_backticks/google.py', {'style': 'google'}, []),
-        ('04_backticks/numpy.py', {'style': 'numpy'}, []),
         ('04_backticks/numpy.py', {'style': 'numpy'}, []),
         ('05_escape_char/google.py', {'style': 'google'}, []),
         ('05_escape_char/numpy.py', {'style': 'numpy'}, []),
@@ -313,9 +314,7 @@ from tests.test_main import DATA_DIR
                     if sys.version_info >= (3, 10)
                     else 'invalid syntax'
                 )
-                + ' (<unknown>, line {num})'.format(
-                    num=1 if sys.version_info < (3, 10) else 4
-                )
+                + f' (<unknown>, line {1 if sys.version_info < (3, 10) else 4})'
             ],
         ),
         (
@@ -600,8 +599,8 @@ from tests.test_main import DATA_DIR
 )
 def testEdgeCases(
         filename: str,
-        options: Dict[str, Any],
-        expectedViolations: List[str],
+        options: dict[str, Any],
+        expectedViolations: list[str],
 ) -> None:
     fullFilename: Path = DATA_DIR / 'edge_cases' / filename
 

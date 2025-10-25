@@ -4,7 +4,7 @@ from pydoclint.utils.return_anno import ReturnAnnotation
 
 
 @pytest.mark.parametrize(
-    'annotation, expected',
+    ('annotation', 'expected'),
     [
         (None, False),
         ('', False),

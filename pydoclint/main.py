@@ -428,18 +428,16 @@ def main(  # noqa: C901
         config: str | None,  # don't remove it b/c it's required by `click`
 ) -> None:
     """Command-line entry point of pydoclint"""
-    logging.basicConfig(level=logging.WARN if quiet else logging.INFO)
+    logging.basicConfig(level=logging.WARNING if quiet else logging.INFO)
     ctx.ensure_object(dict)
 
     if type_hints_in_docstring != 'None':  # it means users supply this option
         click.echo(
             click.style(
-                ''.join(
-                    [
-                        'The option `--type-hints-in-docstring` has been renamed;',
-                        ' please use `--arg-type-hints-in-docstring` instead',
-                    ]
-                ),
+                ''.join([
+                    'The option `--type-hints-in-docstring` has been renamed;',
+                    ' please use `--arg-type-hints-in-docstring` instead',
+                ]),
                 fg='red',
                 bold=True,
             ),
@@ -450,12 +448,10 @@ def main(  # noqa: C901
     if type_hints_in_signature != 'None':  # it means users supply this option
         click.echo(
             click.style(
-                ''.join(
-                    [
-                        'The option `--type-hints-in-signature` has been renamed;',
-                        ' please use `--arg-type-hints-in-signature` instead',
-                    ]
-                ),
+                ''.join([
+                    'The option `--type-hints-in-signature` has been renamed;',
+                    ' please use `--arg-type-hints-in-signature` instead',
+                ]),
                 fg='red',
                 bold=True,
             ),
@@ -467,13 +463,11 @@ def main(  # noqa: C901
     if require_return_section_when_returning_none != 'None':  # type:ignore[comparison-overlap]
         click.echo(
             click.style(
-                ''.join(
-                    [
-                        'The option `--require-return-section-when-returning-none`',
-                        ' has been renamed; please use',
-                        '`--require-return-section-when-returning-nothing` instead',
-                    ]
-                ),
+                ''.join([
+                    'The option `--require-return-section-when-returning-none`',
+                    ' has been renamed; please use',
+                    '`--require-return-section-when-returning-nothing` instead',
+                ]),
                 fg='red',
                 bold=True,
             ),
@@ -783,7 +777,7 @@ def _checkFile(
     if not filename.is_file():  # sometimes folder names can end with `.py`
         return []
 
-    with open(filename, encoding='utf-8', errors='replace') as fp:
+    with Path(filename).open(encoding='utf-8', errors='replace') as fp:
         # Note: errors='replace' would replace unrecognized characters with
         #       question marks. This may not be a perfect solution, but for
         #       not this may be good enough.

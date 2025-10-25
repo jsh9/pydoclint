@@ -8,9 +8,11 @@ and
 But there are some minor deviations from the standard style for practical
 reasons (such as unambiguity and speed).
 
-**Table of Contents**
-
 <!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
 
 - [1. numpy](#1-numpy)
   - [1.1. Type annotation](#11-type-annotation)
@@ -20,6 +22,8 @@ reasons (such as unambiguity and speed).
   - [2.2. Default values](#22-default-values)
 - [3. Sphinx](#3-sphinx)
   - [3.1. Yield type](#31-yield-type)
+
+______________________________________________________________________
 
 <!--TOC-->
 

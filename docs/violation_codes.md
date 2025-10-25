@@ -1,23 +1,27 @@
 # _pydoclint_ style violation codes
 
-**Table of Contents**
-
 <!--TOC-->
 
-- [0. `DOC0xx`: Docstring parsing issues](#0-doc0xx-docstring-parsing-issues)
-- [1. `DOC1xx`: Violations about input arguments](#1-doc1xx-violations-about-input-arguments)
-  - [Notes on `DOC103`](#notes-on-doc103)
-- [2. `DOC2xx`: Violations about return argument(s)](#2-doc2xx-violations-about-return-arguments)
-- [3. `DOC3xx`: Violations about class docstring and class constructor](#3-doc3xx-violations-about-class-docstring-and-class-constructor)
-- [4. `DOC4xx`: Violations about "yield" statements](#4-doc4xx-violations-about-yield-statements)
-- [5. `DOC5xx`: Violations about "raise" and "assert" statements](#5-doc5xx-violations-about-raise-and-assert-statements)
-- [6. `DOC6xx`: Violations about class attributes](#6-doc6xx-violations-about-class-attributes)
+______________________________________________________________________
+
+**Table of Contents**
+
+- [1. `DOC0xx`: Docstring parsing issues](#1-doc0xx-docstring-parsing-issues)
+- [2. `DOC1xx`: Violations about input arguments](#2-doc1xx-violations-about-input-arguments)
+  - [2.1. Notes on `DOC103`](#21-notes-on-doc103)
+- [3. `DOC2xx`: Violations about return argument(s)](#3-doc2xx-violations-about-return-arguments)
+- [4. `DOC3xx`: Violations about class docstring and class constructor](#4-doc3xx-violations-about-class-docstring-and-class-constructor)
+- [5. `DOC4xx`: Violations about "yield" statements](#5-doc4xx-violations-about-yield-statements)
+- [6. `DOC5xx`: Violations about "raise" and "assert" statements](#6-doc5xx-violations-about-raise-and-assert-statements)
+- [7. `DOC6xx`: Violations about class attributes](#7-doc6xx-violations-about-class-attributes)
+
+______________________________________________________________________
 
 <!--TOC-->
 
 ______________________________________________________________________
 
-## 0. `DOC0xx`: Docstring parsing issues
+## 1. `DOC0xx`: Docstring parsing issues
 
 | Code     | Explanation                                                                                    |
 | -------- | ---------------------------------------------------------------------------------------------- |
@@ -25,7 +29,7 @@ ______________________________________________________________________
 | `DOC002` | Syntax error in the Python file                                                                |
 | `DOC003` | Docstring style mismatch ([explanation](https://jsh9.github.io/pydoclint/style_mismatch.html)) |
 
-## 1. `DOC1xx`: Violations about input arguments
+## 2. `DOC1xx`: Violations about input arguments
 
 | Code     | Explanation                                                                                                                                                             |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -41,7 +45,7 @@ ______________________________________________________________________
 | `DOC110` | The option `--arg-type-hints-in-docstring` is `True` but not all args in the docstring arg list have type hints                                                         |
 | `DOC111` | The option `--arg-type-hints-in-docstring` is `False` but there are type hints in the docstring arg list                                                                |
 
-### Notes on `DOC103`
+### 2.1. Notes on `DOC103`
 
 Other potential causes to `DOC103` include:
 
@@ -51,7 +55,7 @@ Other potential causes to `DOC103` include:
 - In the Google style, writing an `Args:` section without the preceding summary
   will also trigger `DOC103`.
 
-## 2. `DOC2xx`: Violations about return argument(s)
+## 3. `DOC2xx`: Violations about return argument(s)
 
 | Code     | Explanation                                                                                          |
 | -------- | ---------------------------------------------------------------------------------------------------- |
@@ -62,7 +66,7 @@ Other potential causes to `DOC103` include:
 Note on `DOC201`: Methods with `@property` as its outer-most decorator (i.e.,
 on the top) do not need to have a return section.
 
-## 3. `DOC3xx`: Violations about class docstring and class constructor
+## 4. `DOC3xx`: Violations about class docstring and class constructor
 
 | Code     | Explanation                                                                                             |
 | -------- | ------------------------------------------------------------------------------------------------------- |
@@ -74,7 +78,7 @@ on the top) do not need to have a return section.
 | `DOC306` | The class docstring does not need a "Yields" section, because `__init__()` cannot yield anything        |
 | `DOC307` | The `__init__()` docstring does not need a "Yields" section, because `__init__()` cannot yield anything |
 
-## 4. `DOC4xx`: Violations about "yield" statements
+## 5. `DOC4xx`: Violations about "yield" statements
 
 | Code     | Explanation                                                                                                                                                 |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -83,7 +87,7 @@ on the top) do not need to have a return section.
 | `DOC403` | Function/method has a "Yields" section in the docstring, but there are no "yield" statements, or the return annotation is not a Generator/Iterator/Iterable |
 | `DOC404` | The types in the docstring's Yields section and the return annotation in the signature are not consistent                                                   |
 
-## 5. `DOC5xx`: Violations about "raise" and "assert" statements
+## 6. `DOC5xx`: Violations about "raise" and "assert" statements
 
 | Code     | Explanation                                                                                                                               |
 | -------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -92,7 +96,7 @@ on the top) do not need to have a return section.
 | `DOC503` | Exceptions in the "Raises" section in the docstring do not match those in the function body                                               |
 | `DOC504` | Function/method has assert statements, but the docstring does not have a "Raises" section. (Assert statements could raise "AssertError".) |
 
-## 6. `DOC6xx`: Violations about class attributes
+## 7. `DOC6xx`: Violations about class attributes
 
 | Code     | Explanation                                                                       |
 | -------- | --------------------------------------------------------------------------------- |

@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any, Dict, List, Type
+from typing import Any
 
 import pytest
 from click.testing import CliRunner
@@ -16,7 +16,7 @@ CONFIG_DATA_DIR: Path = THIS_DIR / 'test_data' / 'config_files'
 
 
 @pytest.mark.parametrize(
-    'paths, expected',
+    ('paths', 'expected'),
     [
         (['/a/b/c', '/a/b/d', '/a/b/e/f/g'], '/a/b'),
         (['a/b/c', 'a/b/d', 'a/b/e/f/g'], 'a/b'),
@@ -24,18 +24,18 @@ CONFIG_DATA_DIR: Path = THIS_DIR / 'test_data' / 'config_files'
         (['/a/b/c', '/e/f/g', '/a/b/e/f/g'], '/'),
         (['~/a/b/c', '~/e/f/g', '~/a/b/e/f/g'], '~'),
         (['a/b/c', 'e/f/g', 'a/b/e/f/g'], '.'),
-        (['a/b/c', 'a/b/d', 'a/b/e/f/g'], 'a/b'),
+        (['a/b', 'a/b/d', 'a/b/e/f/g'], 'a/b'),
         (['./a/b/c', './a/b/d', './a/b/e/f/g'], 'a/b'),
         (['./a/b/c', './e/f/g', './a/b/e/f/g'], '.'),
     ],
 )
-def testFindCommonParentFolder(paths: List[str], expected: str) -> None:
+def testFindCommonParentFolder(paths: list[str], expected: str) -> None:
     result = findCommonParentFolder(paths, makeAbsolute=False).as_posix()
     assert result == expected
 
 
 @pytest.mark.parametrize(
-    'filename, enforce, expected',
+    ('filename', 'enforce', 'expected'),
     [
         (Path('a_path_that_doesnt_exist.toml'), False, {}),
         (
@@ -48,14 +48,14 @@ def testFindCommonParentFolder(paths: List[str], expected: str) -> None:
 def testParseOneTomlFile(
         filename: Path,
         enforce: bool,
-        expected: Dict[str, Any],
+        expected: dict[str, Any],
 ) -> None:
     tomlConfig = parseOneTomlFile(filename, enforcePydoclintSection=enforce)
     assert tomlConfig == expected
 
 
 @pytest.mark.parametrize(
-    'filename, expectedException',
+    ('filename', 'expectedException'),
     [
         (Path('a_path_that_doesnt_exist.toml'), FileNotFoundError),
         (
@@ -66,7 +66,7 @@ def testParseOneTomlFile(
 )
 def testParseOneTomlFileEnforceErrors(
         filename: Path,
-        expectedException: Type[Exception],
+        expectedException: type[Exception],
 ) -> None:
     with pytest.raises(expectedException):
         parseOneTomlFile(filename, enforcePydoclintSection=True)
@@ -88,7 +88,7 @@ def _writeSamplePythonFile(directory: Path) -> Path:
 def testCliDefaultConfigMissingFileIsAllowed() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path('.'))
+        samplePath = _writeSamplePythonFile(Path())
         result = runner.invoke(cli_main, [str(samplePath)])
         assert result.exit_code == 0
         assert 'No violations' in result.output
@@ -97,7 +97,7 @@ def testCliDefaultConfigMissingFileIsAllowed() -> None:
 def testCliConfigMissingFileRaisesError() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path('.'))
+        samplePath = _writeSamplePythonFile(Path())
         result = runner.invoke(
             cli_main,
             ['--config', 'custom.toml', str(samplePath)],
@@ -109,9 +109,9 @@ def testCliConfigMissingFileRaisesError() -> None:
 def testCliConfigMissingSectionRaisesError() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path('.'))
+        samplePath = _writeSamplePythonFile(Path())
         badConfig = Path('bad.toml')
-        badConfig.write_text('[tool.other]\nflag = true\n')
+        badConfig.write_text('[tool.other]\nflag = true\n', encoding='utf-8')
         result = runner.invoke(
             cli_main,
             ['--config', str(badConfig), str(samplePath)],

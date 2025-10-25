@@ -48,17 +48,17 @@ def reEvaluateBaseline(
         actualViolationsInAllFiles: dict[str, list[Violation]],
 ) -> tuple[bool, dict[str, list[str]], dict[str, list[Violation]]]:
     """
-    Re-evaluate baseline violations, dropping those that are already fixed
-    by the users, and calculating those that still need to be fixed.
+    Re-evaluate baseline violations, dropping those that are already fixed by
+    the users, and calculating those that still need to be fixed.
 
     Parameters
     ----------
     baseline : dict[str, list[str]]
         The baseline violations, parsed from the baseline file
     actualViolationsInAllFiles : dict[str, list[Violation]]
-        The actual violations that pydoclint finds, which may contain
-        baseline violations. The keys of the dictionary are the file names
-        in the repo that pydoclint looks at
+        The actual violations that pydoclint finds, which may contain baseline
+        violations. The keys of the dictionary are the file names in the repo
+        that pydoclint looks at
 
     Returns
     -------
@@ -67,8 +67,7 @@ def reEvaluateBaseline(
     unfixedBaselineViolationsInAllFiles : dict[str, list[str]]
         The unfixed baseline violations in all the Python files of the repo
         that pydoclint looks at. The keys are file names, and the values
-        (``list[str]``) are lists of violation messages (``str``) in
-        each file
+        (``list[str]``) are lists of violation messages (``str``) in each file
     remainingViolationsInAllFiles : dict[str, list[Violation]]
         The remaining violations that users still need to fix. The keys are
         file names, and the values (``list[Violation]``) are lists of
@@ -111,9 +110,9 @@ def calcUnfixedBaselineViolationsAndRemainingViolations(
         actualViolations: list[Violation],
 ) -> tuple[list[str], list[Violation]]:
     """
-    Based on the baseline violations and the actual violations, calculate
-    which baseline violations have not been fixed, and which violations are
-    new (not part of the baseline) and need to be fixed.
+    Based on the baseline violations and the actual violations, calculate which
+    baseline violations have not been fixed, and which violations are new (not
+    part of the baseline) and need to be fixed.
     """
     unfixedBaselineViolations: list[str] = []
     remainingViolations: list[Violation] = []

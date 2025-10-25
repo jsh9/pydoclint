@@ -1,8 +1,10 @@
 # Notes for users
 
-**Table of Contents**
-
 <!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
 
 - [1. Why is _pydoclint_ so much faster than _darglint_, hhe](#1-why-is-pydoclint-so-much-faster-than-darglint-hhe)
 - [2. Cases that _pydoclint_ is not designed to handle](#2-cases-that-pydoclint-is-not-designed-to-handle)
@@ -12,6 +14,8 @@
 - [6. How to adopt _pydoclint_ more easily in legacy projects](#6-how-to-adopt-pydoclint-more-easily-in-legacy-projects)
 - [7. How to integrate _pydoclint_ with different editors or IDEs](#7-how-to-integrate-pydoclint-with-different-editors-or-ides)
   - [7.1. Integrate _pydoclint_ with Neovim using null-ls](#71-integrate-pydoclint-with-neovim-using-null-ls)
+
+______________________________________________________________________
 
 <!--TOC-->
 
