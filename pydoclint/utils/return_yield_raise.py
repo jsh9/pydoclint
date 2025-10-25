@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import ast
-from collections.abc import Callable, Generator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Generator
 
 from pydoclint.utils import walk
 from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
@@ -120,7 +123,7 @@ def hasAssertStatements(node: FuncOrAsyncFuncDef) -> bool:
 
 def getRaisedExceptions(
         node: FuncOrAsyncFuncDef,
-        shouldDeclareAssertError: bool = False,
+        shouldDeclareAssertError: bool = False,  # noqa: FBT001, FBT002
 ) -> list[str]:
     """Get the raised exceptions in a function node as a sorted list"""
     return sorted(set(_getRaisedExceptions(node, shouldDeclareAssertError)))
@@ -128,7 +131,7 @@ def getRaisedExceptions(
 
 def _getRaisedExceptions(
         node: FuncOrAsyncFuncDef,
-        shouldDeclareAssertError: bool = False,
+        shouldDeclareAssertError: bool = False,  # noqa: FBT001, FBT002
 ) -> Generator[str, None, None]:
     """Yield the raised exceptions or asserts in a function node"""
     childLineNum: int = -999
@@ -276,7 +279,7 @@ def _updateFamilyTree(
     """
     childLine = _getLineNum(child)
     parentLine = _getLineNum(parent)
-    if childLine != -1 and parentLine != -1 and childLine != parentLine:
+    if childLine != -1 and parentLine != -1 and childLine != parentLine:  # noqa: PLR1714
         isFunction = isinstance(parent, FuncOrAsyncFunc)
         familyTree[childLine] = (parentLine, isFunction)
 
@@ -299,7 +302,7 @@ def _getLineNum(node: ast.AST) -> int:
 
 
 def _confirmThisStmtIsNotWithinNestedFunc(
-        foundStatementTemp: bool,
+        foundStatementTemp: bool,  # noqa: FBT001
         familyTree: dict[int, tuple[int, bool]],
         lineNumOfStatement: int,
         lineNumOfThisNode: int,
