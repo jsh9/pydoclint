@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import ast
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
+    from pydoclint.utils.return_arg import ReturnArg
+    from pydoclint.utils.yield_arg import YieldArg
 
 from docstring_parser import ParseError
 
 from pydoclint.utils.arg import Arg, ArgList
-from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
@@ -23,7 +28,6 @@ from pydoclint.utils.parse_docstring import (
     parseDocstringInGivenStyle,
 )
 from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
     hasAssertStatements,
@@ -53,7 +57,6 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
 )
-from pydoclint.utils.yield_arg import YieldArg
 
 
 class Visitor(ast.NodeVisitor):
@@ -61,6 +64,7 @@ class Visitor(ast.NodeVisitor):
 
     def __init__(
             self,
+            *,
             style: str = 'numpy',
             argTypeHintsInSignature: bool = True,
             argTypeHintsInDocstring: bool = True,
@@ -160,7 +164,7 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = currentParent  # restore
 
-    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102, PLR0915
         parent_: ast.ClassDef | FuncOrAsyncFuncDef = self.parent  # type:ignore[assignment]
         self.parent = node
 
@@ -344,7 +348,7 @@ class Visitor(ast.NodeVisitor):
         # Below: __init__() is allowed to have a separate docstring
         try:
             classDoc = Doc(docstring=classDocstring, style=self.style)
-        except Exception as excp:
+        except ParseError as excp:
             classDoc = Doc(docstring='', style=self.style)
             self.violations.append(
                 Violation(
@@ -357,7 +361,7 @@ class Visitor(ast.NodeVisitor):
 
         try:
             initDoc = Doc(docstring=initDocstring, style=self.style)
-        except Exception as excp:
+        except ParseError as excp:
             initDoc = Doc(docstring='', style=self.style)
             self.violations.append(
                 Violation(
@@ -424,7 +428,7 @@ class Visitor(ast.NodeVisitor):
 
         return initDocstring
 
-    def checkArguments(  # noqa: C901
+    def checkArguments(  # noqa: C901, PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
@@ -606,7 +610,7 @@ class Visitor(ast.NodeVisitor):
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
         violations: list[Violation] = []
-        if not docstringHasReturnSection and not isPropertyMethod:
+        if not docstringHasReturnSection and not isPropertyMethod:  # noqa: SIM102
             if (
                 # fmt: off
                 not (onlyHasYieldStmt and hasIterAsRetAnno)
@@ -749,8 +753,8 @@ class Visitor(ast.NodeVisitor):
                 else:
                     violations.append(v402)
 
-        if docstringHasYieldsSection:
-            if not hasYieldStmt or noGenNorIterAsRetAnno:
+        if docstringHasYieldsSection:  # noqa: SIM102
+            if not hasYieldStmt or noGenNorIterAsRetAnno:  # noqa: SIM102
                 if not self.isAbstractMethod:
                     violations.append(v403)
 
@@ -774,7 +778,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkReturnAndYield(
+    def checkReturnAndYield(  # noqa: PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
@@ -957,7 +961,7 @@ class Visitor(ast.NodeVisitor):
         ):
             violations.append(v502)
 
-        if self.shouldDeclareAssertErrorIfAssertStatementExists:
+        if self.shouldDeclareAssertErrorIfAssertStatementExists:  # noqa: SIM102
             if hasAssertStmt and not docstringHasRaisesSection:
                 violations.append(v504)
 
