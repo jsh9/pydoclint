@@ -11,7 +11,7 @@ THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
 
 
-def pythonVersionBelow310():
+def pythonVersionBelow310() -> bool:
     return sys.version_info < (3, 10)
 
 

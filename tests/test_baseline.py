@@ -1,5 +1,4 @@
 import shutil
-import sys
 from pathlib import Path
 
 import pytest
@@ -46,12 +45,7 @@ def testBaselineCreation(baselineFile: Path, style: str) -> None:
         len(violations) == 0
         for filename, violations in remainingViolationsInAllFiles.items()
     )
-    # In the future, this assertion could break if we add new files
-    # to DATA_DIR. But it's good that this could act as a sanity check.
-    if sys.version_info < (3, 10):
-        assert len(unfixedBaselineViolationsInAllFiles) == 27
-    else:
-        assert len(unfixedBaselineViolationsInAllFiles) == 33
+    assert len(unfixedBaselineViolationsInAllFiles) == 33
 
 
 badDocstringFunction = '''
@@ -451,22 +445,6 @@ def testBaselineIndent(
             [
                 'DOC203: return type(s) in docstring not consistent with the return annotation.',
             ],
-            [
-                Violation(line=0, code=501, msgPrefix='', msgPostfix=''),
-                Violation(line=0, code=502, msgPrefix='', msgPostfix=''),
-            ],
-        ),
-        (  # Everything in baseline is fixed, and new violations found
-            [
-                'DOC201: does not have a return section in docstring',
-                'DOC202: has a return section in docstring, but there are no return statements or annotations',
-                'DOC203: return type(s) in docstring not consistent with the return annotation.',
-            ],
-            [
-                Violation(line=0, code=501, msgPrefix='', msgPostfix=''),
-                Violation(line=0, code=502, msgPrefix='', msgPostfix=''),
-            ],
-            [],
             [
                 Violation(line=0, code=501, msgPrefix='', msgPostfix=''),
                 Violation(line=0, code=502, msgPrefix='', msgPostfix=''),

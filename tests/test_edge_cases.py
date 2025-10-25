@@ -1,6 +1,8 @@
 import sys
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 import pytest
 
@@ -46,7 +48,6 @@ from tests.test_main import DATA_DIR
             ],
         ),
         ('04_backticks/google.py', {'style': 'google'}, []),
-        ('04_backticks/numpy.py', {'style': 'numpy'}, []),
         ('04_backticks/numpy.py', {'style': 'numpy'}, []),
         ('05_escape_char/google.py', {'style': 'google'}, []),
         ('05_escape_char/numpy.py', {'style': 'numpy'}, []),

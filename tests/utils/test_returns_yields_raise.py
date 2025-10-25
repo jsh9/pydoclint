@@ -166,7 +166,7 @@ def testHasReturnStatements_inClass() -> None:
 class HelperVisitor(ast.NodeVisitor):
     """A helper class to check each return statements in nested functions"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.returnStatements: dict[tuple[int, int, str], bool] = {}
         self.yieldStatements: dict[tuple[int, int, str], bool] = {}
         self.raiseStatements: dict[tuple[int, int, str], bool] = {}
@@ -174,7 +174,7 @@ class HelperVisitor(ast.NodeVisitor):
         self.returnAnnotations: dict[tuple[int, int, str], bool] = {}
         self.generatorAnnotations: dict[tuple[int, int, str], bool] = {}
 
-    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:
         functionId: tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = hasReturnStatements(node)
         self.yieldStatements[functionId] = hasYieldStatements(node)
@@ -186,7 +186,7 @@ class HelperVisitor(ast.NodeVisitor):
         )
         self.generic_visit(node)
 
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         # Treat async functions similarly to regular ones
         self.visit_FunctionDef(node)
 
