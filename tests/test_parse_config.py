@@ -16,7 +16,7 @@ CONFIG_DATA_DIR: Path = THIS_DIR / 'test_data' / 'config_files'
 
 
 @pytest.mark.parametrize(
-    'paths, expected',
+    ('paths', 'expected'),
     [
         (['/a/b/c', '/a/b/d', '/a/b/e/f/g'], '/a/b'),
         (['a/b/c', 'a/b/d', 'a/b/e/f/g'], 'a/b'),
@@ -35,7 +35,7 @@ def testFindCommonParentFolder(paths: list[str], expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'filename, enforce, expected',
+    ('filename', 'enforce', 'expected'),
     [
         (Path('a_path_that_doesnt_exist.toml'), False, {}),
         (
@@ -55,7 +55,7 @@ def testParseOneTomlFile(
 
 
 @pytest.mark.parametrize(
-    'filename, expectedException',
+    ('filename', 'expectedException'),
     [
         (Path('a_path_that_doesnt_exist.toml'), FileNotFoundError),
         (

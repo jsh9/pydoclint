@@ -55,7 +55,7 @@ expected6 = ['arg1', 'arg2']
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (src1, expected1),
         (src2, expected2),
@@ -72,7 +72,7 @@ def testCollectFuncArgs(src: str, expected: list[str]) -> None:
 
 
 @pytest.mark.parametrize(
-    'string, expected',
+    ('string', 'expected'),
     [
         ('"Hello" \'world\'!', 'Hello world!'),
         (
@@ -93,7 +93,7 @@ def testStripQuotes(string: str, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'str1, str2, expected',
+    ('str1', 'str2', 'expected'),
     [
         ('', '', True),  # truly equal
         ('"', '"', True),  # truly equal

@@ -339,7 +339,7 @@ def testBaselineIndent(
 
 
 @pytest.mark.parametrize(
-    'baselineViolations, actualViolations, expectedUnfixed, expectedRemaining',
+    ('baselineViolations', 'actualViolations', 'expectedUnfixed', 'expectedRemaining'),
     [
         (
             [],

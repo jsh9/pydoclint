@@ -11,7 +11,7 @@ def testArg_initializationCheck():
 
 
 @pytest.mark.parametrize(
-    'arg, string_repr',
+    ('arg', 'string_repr'),
     [
         (Arg(name='1', typeHint='2'), '1: 2'),
         (Arg(name='arg1', typeHint='str'), 'arg1: str'),
@@ -26,7 +26,7 @@ def testArg_str(arg: Arg, string_repr: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'arg1, arg2',
+    ('arg1', 'arg2'),
     [
         (Arg(name='1', typeHint='2'), Arg(name='1', typeHint='2')),
         (Arg(name='abc', typeHint='12345'), Arg(name='abc', typeHint='12345')),
@@ -46,7 +46,7 @@ def testArg_equal(arg1: Arg, arg2: Arg) -> None:
 
 
 @pytest.mark.parametrize(
-    'obj1, obj2',
+    ('obj1', 'obj2'),
     [
         (Arg(name='1', typeHint='3'), 2),
         (Arg(name='1', typeHint='3'), 'thing'),
@@ -61,7 +61,7 @@ def testArg_notEqual(obj1: Any, obj2: Any) -> None:
 
 
 @pytest.mark.parametrize(
-    'arg1, arg2',
+    ('arg1', 'arg2'),
     [
         (Arg(name='abc', typeHint=''), Arg(name='abcd', typeHint='')),
         (Arg(name='abc', typeHint='12345'), Arg(name='abcd', typeHint='')),
@@ -73,7 +73,7 @@ def testArg_lessThan(arg1: Arg, arg2: Arg) -> None:
 
 
 @pytest.mark.parametrize(
-    'arg1, arg2',
+    ('arg1', 'arg2'),
     [
         (Arg(name='abc', typeHint=''), Arg(name='abcd', typeHint='')),
         (Arg(name='abc', typeHint='12345'), Arg(name='abcd', typeHint='')),
@@ -87,7 +87,7 @@ def testArg_lessThanOrEqualTo(arg1: Arg, arg2: Arg) -> None:
 
 
 @pytest.mark.parametrize(
-    'arg1, arg2',
+    ('arg1', 'arg2'),
     [
         (Arg(name='abc', typeHint=''), Arg(name='abcd', typeHint='')),
         (Arg(name='abc', typeHint='12345'), Arg(name='abcd', typeHint='')),
@@ -99,7 +99,7 @@ def testArg_greaterThan(arg1: Arg, arg2: Arg) -> None:
 
 
 @pytest.mark.parametrize(
-    'arg1, arg2',
+    ('arg1', 'arg2'),
     [
         (Arg(name='abc', typeHint=''), Arg(name='abcd', typeHint='')),
         (Arg(name='abc', typeHint='12345'), Arg(name='abcd', typeHint='')),
@@ -113,7 +113,7 @@ def testArg_greaterThanOrEqualTo(arg1: Arg, arg2: Arg) -> None:
 
 
 @pytest.mark.parametrize(
-    'original, after',
+    ('original', 'after'),
     [
         (
             {Arg('xyz', 'a'), Arg('opq', 'b'), Arg('abc', 'c')},
@@ -134,7 +134,7 @@ def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
 
 
 @pytest.mark.parametrize(
-    'str1, str2, expected',
+    ('str1', 'str2', 'expected'),
     [
         ('int', 'int', True),
         ('int', 'float', False),
@@ -149,7 +149,7 @@ def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    'input_, expected',
+    ('input_', 'expected'),
     [
         (ArgList([]), '[]'),
         (
@@ -178,7 +178,7 @@ def testArgList_str(input_: ArgList, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'input_, expected',
+    ('input_', 'expected'),
     [
         (ArgList([]), 0),
         (ArgList([Arg('1', '2'), Arg('2', '3')]), 2),
@@ -189,7 +189,7 @@ def testArgList_length(input_: ArgList, expected: int) -> None:
 
 
 @pytest.mark.parametrize(
-    'list1, list2',
+    ('list1', 'list2'),
     [
         (ArgList([]), ArgList([])),
         (
@@ -215,7 +215,7 @@ def testArgList_equality(list1: ArgList, list2: ArgList) -> None:
 
 
 @pytest.mark.parametrize(
-    'list1, list2',
+    ('list1', 'list2'),
     [
         (
             ArgList([]),
@@ -240,7 +240,7 @@ def testArgList_inequality(list1: ArgList, list2: ArgList) -> None:
 
 
 @pytest.mark.parametrize(
-    'argInfo, argInfoList, expected',
+    ('argInfo', 'argInfoList', 'expected'),
     [
         (
             Arg('a', 'b'),
@@ -271,7 +271,7 @@ def testArgList_contains(
 
 
 @pytest.mark.parametrize(
-    'obj1, obj2, expected',
+    ('obj1', 'obj2', 'expected'),
     [
         (
             ArgList([

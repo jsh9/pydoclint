@@ -104,7 +104,7 @@ expectedViolationsLookup: dict[bool, list[str]] = {
 
 
 @pytest.mark.parametrize(
-    'style, filename, checkArgOrder',
+    ('style', 'filename', 'checkArgOrder'),
     list(
         itertools.product(
             ['google', 'numpy', 'sphinx'],
@@ -134,7 +134,7 @@ def testArguments(
 
 
 @pytest.mark.parametrize(
-    'style, checkClassAttr',
+    ('style', 'checkClassAttr'),
     list(
         itertools.product(
             ['google', 'numpy', 'sphinx'],
@@ -289,7 +289,7 @@ def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, filename',
+    ('style', 'filename'),
     list(
         itertools.product(
             ['google', 'numpy', 'sphinx'],
@@ -374,7 +374,7 @@ def testReturns(style: str, filename: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, filename',
+    ('style', 'filename'),
     list(
         itertools.product(
             ['google', 'numpy', 'sphinx'],
@@ -409,7 +409,7 @@ def testReturnsPy310plus(style: str, filename: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, require',
+    ('style', 'require'),
     list(
         itertools.product(
             ['google', 'numpy', 'sphinx'],
@@ -438,7 +438,7 @@ def testReturns_returningNone(style: str, require: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, require',
+    ('style', 'require'),
     list(
         itertools.product(
             ['google', 'numpy', 'sphinx'],
@@ -532,7 +532,7 @@ expected_skipCheckingShortDocstrings_False = [
 
 
 @pytest.mark.parametrize(
-    'style, skipCheckingShortDocstrings, expected',
+    ('style', 'skipCheckingShortDocstrings', 'expected'),
     [
         ('numpy', True, expected_skipCheckingShortDocstrings_True),
         ('numpy', False, expected_skipCheckingShortDocstrings_False),
@@ -788,7 +788,7 @@ def testReturnAndYield(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, skipRaisesCheck, shouldDeclareAssertErr',
+    ('style', 'skipRaisesCheck', 'shouldDeclareAssertErr'),
     itertools.product(
         ['google', 'numpy', 'sphinx'],
         [False, True],
@@ -874,7 +874,7 @@ def testRaises(
 
 
 @pytest.mark.parametrize(
-    'style, skipRaisesCheck',
+    ('style', 'skipRaisesCheck'),
     itertools.product(
         ['google', 'numpy', 'sphinx'],
         [False, True],
@@ -1021,7 +1021,7 @@ def testParsingErrors_numpy() -> None:
 
 
 @pytest.mark.parametrize(
-    'expectedStyle, expectedViolations',
+    ('expectedStyle', 'expectedViolations'),
     [
         (
             'google',
@@ -1101,7 +1101,7 @@ def testDocstringStyleMismatch(
 
 
 @pytest.mark.parametrize(
-    'style, rrs',
+    ('style', 'rrs'),
     itertools.product(
         ['google', 'numpy', 'sphinx'],
         [False, True],
@@ -1141,7 +1141,7 @@ def testNoReturnSection(
 
 
 @pytest.mark.parametrize(
-    'style, rys',
+    ('style', 'rys'),
     itertools.product(
         ['google', 'numpy', 'sphinx'],
         [False, True],
@@ -1197,7 +1197,7 @@ def testPropertyMethod(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, checkReturnTypes',
+    ('style', 'checkReturnTypes'),
     itertools.product(
         ['google', 'numpy', 'sphinx'],
         [False, True],
@@ -1254,7 +1254,7 @@ def testNoReturnSectionInPropertyMethod(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'style, argTypeHintsInDocstring, argTypeHintsInSignature',
+    ('style', 'argTypeHintsInDocstring', 'argTypeHintsInSignature'),
     itertools.product(
         ['google', 'numpy', 'sphinx'],
         [False, True],
@@ -1398,7 +1398,7 @@ def testNonAscii() -> None:
 
 
 @pytest.mark.parametrize(
-    'style, checkArgDefaults',
+    ('style', 'checkArgDefaults'),
     list(
         itertools.product(
             ['google', 'numpy'],  # no Sphinx style for now

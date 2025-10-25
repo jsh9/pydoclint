@@ -11,7 +11,7 @@ from pydoclint.utils.visitor_helper import (
 
 
 @pytest.mark.parametrize(
-    'returnAnnoText, hasGen, hasIter, expected',
+    ('returnAnnoText', 'hasGen', 'hasIter', 'expected'),
     [
         ('Generator', True, False, 'Generator'),
         ('AsyncGenerator', True, False, 'AsyncGenerator'),
@@ -96,7 +96,7 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
 
 
 @pytest.mark.parametrize(
-    'returnAnnoText, expected',
+    ('returnAnnoText', 'expected'),
     [
         ('Generator[int, None, str]', 'str'),
         ('AsyncGenerator[int, None, str]', 'str'),
@@ -129,7 +129,7 @@ def testExtractReturnTypeFromGenerator(
 
 
 @pytest.mark.parametrize(
-    'docPriv, treatProp, expected',
+    ('docPriv', 'treatProp', 'expected'),
     [
         (
             True,
@@ -290,7 +290,7 @@ class MyClass:
 
 
 @pytest.mark.parametrize(
-    'onlyAttrsWithClassVarAreTreatedAsClassAttrs, expected',
+    ('onlyAttrsWithClassVarAreTreatedAsClassAttrs', 'expected'),
     [
         (
             True,

@@ -9,7 +9,7 @@ from tests.test_main import DATA_DIR
 
 
 @pytest.mark.parametrize(
-    'filename, options, expectedViolations',
+    ('filename', 'options', 'expectedViolations'),
     [
         ('01/case.py', {'style': 'sphinx'}, []),
         (

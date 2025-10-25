@@ -11,7 +11,7 @@ from pydoclint.utils.generic import (
 
 
 @pytest.mark.parametrize(
-    'inputStr, expected',
+    ('inputStr', 'expected'),
     [
         (None, None),
         ('something', 'something'),
@@ -36,7 +36,7 @@ def testStripQuotes(inputStr: str, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'list1, list2, expected',
+    ('list1', 'list2', 'expected'),
     [
         ([], [], True),
         (
@@ -71,7 +71,7 @@ def testDoList1ItemsStartWithList2Items(
 
 
 @pytest.mark.parametrize(
-    'funcCode, expectedMappings',
+    ('funcCode', 'expectedMappings'),
     [
         # Case 1: No defaults
         ('def func1(a, b, c): pass', {}),
@@ -119,7 +119,7 @@ def testBuildFuncArgToDefaultMapping(
 
 
 @pytest.mark.parametrize(
-    'classCode, expectedMappings',
+    ('classCode', 'expectedMappings'),
     [
         # Case 1: No attributes with defaults
         (

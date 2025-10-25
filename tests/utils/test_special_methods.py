@@ -45,7 +45,7 @@ class A:
 
 
 @pytest.mark.parametrize(
-    'src, decorator, expected',
+    ('src', 'decorator', 'expected'),
     [
         (src1, 'something', False),
         (src2, 'property', True),

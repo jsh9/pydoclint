@@ -127,7 +127,7 @@ def _getArgTypeHints(node: ast.FunctionDef) -> dict[str, str]:
 
 
 @pytest.mark.parametrize(
-    'src, expectedAnnotation',
+    ('src', 'expectedAnnotation'),
     [
         ('def func():\n    pass', None),
         ('def func(arg1, arg2):\n    pass', None),

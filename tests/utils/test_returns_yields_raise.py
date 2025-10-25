@@ -111,7 +111,7 @@ def func10():
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (src1, True),
         (src2, False),
@@ -132,7 +132,7 @@ def testHasReturnStatements(src: str, expected: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (src1, False),
         (src2, False),
@@ -237,7 +237,7 @@ def testHasReturnStatements_nestedFunction() -> None:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         ('def func1():\n  return 1', False),
         ('def func1() -> int:\n  print(123)', True),

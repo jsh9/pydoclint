@@ -52,7 +52,7 @@ class MyClass:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (
             src1,
@@ -98,7 +98,7 @@ def testWalk(src: str, expected: list[tuple[str, str]]) -> None:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (
             src1,
