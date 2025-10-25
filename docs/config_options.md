@@ -7,7 +7,6 @@ For how to actually implement these options in your commands, please read this
 page:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html).
 
-
 <!--TOC-->
 
 ______________________________________________________________________

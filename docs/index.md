@@ -39,10 +39,6 @@ here: [https://jsh9.github.io/pydoclint](https://jsh9.github.io/pydoclint)
 The corresponding Github repository of _pydoclint_ is:
 [https://github.com/jsh9/pydoclint](https://github.com/jsh9/pydoclint)
 
-______________________________________________________________________
-
-**Table of Contents**
-
 <!--TOC-->
 
 ______________________________________________________________________

@@ -63,7 +63,7 @@ repos:
       - id: markdown-heading-numbering
         exclude: ^CHANGELOG\.md$
   - repo: https://github.com/jsh9/markdown-toc-creator
-    rev: 0.1.0
+    rev: 0.1.1
     hooks:
       - id: markdown-toc-creator
         exclude: ^AGENTS\.md$|^CHANGELOG\.md$
