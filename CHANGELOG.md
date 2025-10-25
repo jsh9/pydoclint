@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.7.5] - 2025-10-25
+
+- Fixed
+  - Fixed the logic to statically detect whether a method is a property or an
+    abstract method
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.4...0.7.5
+
 ## [0.7.4] - 2025-10-24
 
 - Added

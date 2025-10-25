@@ -21,12 +21,6 @@ def checkMethodContainsSpecifiedDecorator(
     return (
         isinstance(node.decorator_list, list)
         and len(node.decorator_list) > 0
-        and any(
-            (  # noqa: PAR001
-                isinstance(_, ast.Name)
-                and hasattr(node.decorator_list[-1], 'id')
-                and _.id == decorator
-            )
-            for _ in node.decorator_list
-        )
+        # Only the outermost (0th element) decorator counts
+        and ast.unparse(node.decorator_list[0]) == decorator
     )

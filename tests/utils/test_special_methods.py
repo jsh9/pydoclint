@@ -39,6 +39,7 @@ hello_world = property
 
 class A:
     @hello_world
+    @morning
     def method1(self):
         pass
 """
@@ -49,8 +50,9 @@ class A:
     [
         (src1, 'something', False),
         (src2, 'property', True),
-        (src3, 'property', True),
+        (src3, 'property', False),  # because `@property` is not outermost
         (src4, 'hello_world', True),
+        (src4, 'morning', False),  # because `@morning` isn't outermost
         (src4, 'property', False),
     ],
 )
