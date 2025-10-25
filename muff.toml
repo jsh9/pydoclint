@@ -121,6 +121,9 @@ extend-ignore-names = [
 "pydoclint/utils/yield_arg.py" = [
     "N815", # Class variable in this file can be camelCase
 ]
+"pydoclint/utils/return_arg.py" = [
+    "N815", # Class variable in this file can be camelCase
+]
 
 [lint.pydocstyle]
 convention = "numpy"

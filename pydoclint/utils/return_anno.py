@@ -8,6 +8,9 @@ from pydoclint.utils.generic import stripQuotes
 from pydoclint.utils.unparser_custom import unparseName
 
 
+MIN_TUPLE_ANNOTATION_LENGTH = len('tuple[]')  # shortest valid tuple annotation
+
+
 class ReturnAnnotation:
     """A class to hold the return annotation in a function's signature"""
 
@@ -45,7 +48,7 @@ class ReturnAnnotation:
             if not self.annotation.endswith(']'):
                 raise EdgeCaseError('Return annotation not ending with `]`')
 
-            if len(self.annotation) < 7:
+            if len(self.annotation) < MIN_TUPLE_ANNOTATION_LENGTH:
                 raise EdgeCaseError(f'Impossible annotation {self.annotation}')
 
             if self.annotation.lower() == 'tuple[]':
@@ -76,9 +79,10 @@ class ReturnAnnotation:
         try:
             assert self.annotation is not None  # to help mypy understand type
             annoHead = ast.parse(self.annotation).body[0].value.value.id  # type:ignore[attr-defined]
-            return annoHead in {'tuple', 'Tuple'}
-        except Exception:
+        except (TypeError, AttributeError, IndexError, AssertionError):
             return False
+        else:
+            return annoHead in {'tuple', 'Tuple'}
 
     def putAnnotationInList(self) -> list[str]:
         """Put annotation string in a list"""

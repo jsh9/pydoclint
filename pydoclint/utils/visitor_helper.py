@@ -545,7 +545,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
             )
         else:
             yieldType = returnAnnoText
-    except (AttributeError, TypeError):
+    except (AttributeError, TypeError, IndexError):
         yieldType = returnAnnoText
 
     return stripQuotes(yieldType)
@@ -563,7 +563,7 @@ def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
         returnType = unparseName(
             ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
         )
-    except (AttributeError, TypeError):
+    except (AttributeError, TypeError, IndexError):
         returnType = returnAnnoText
 
     return stripQuotes(returnType)
