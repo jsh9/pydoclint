@@ -35,10 +35,6 @@ pydoclint = "pydoclint.main:main"
 [project.urls]
 Homepage = "https://github.com/jsh9/pydoclint"
 
-[tool.isort]
-include_trailing_comma = true
-multi_line_output = 3
-
 [tool.mypy]
 exclude = "pydoclint/utils/unparser.py"
 strict = true
