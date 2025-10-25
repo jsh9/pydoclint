@@ -24,7 +24,7 @@ CONFIG_DATA_DIR: Path = THIS_DIR / 'test_data' / 'config_files'
         (['/a/b/c', '/e/f/g', '/a/b/e/f/g'], '/'),
         (['~/a/b/c', '~/e/f/g', '~/a/b/e/f/g'], '~'),
         (['a/b/c', 'e/f/g', 'a/b/e/f/g'], '.'),
-        (['a/b/c', 'a/b/d', 'a/b/e/f/g'], 'a/b'),
+        (['a/b', 'a/b/d', 'a/b/e/f/g'], 'a/b'),
         (['./a/b/c', './a/b/d', './a/b/e/f/g'], 'a/b'),
         (['./a/b/c', './e/f/g', './a/b/e/f/g'], '.'),
     ],
@@ -111,7 +111,7 @@ def testCliConfigMissingSectionRaisesError() -> None:
     with runner.isolated_filesystem():
         samplePath = _writeSamplePythonFile(Path())
         badConfig = Path('bad.toml')
-        badConfig.write_text('[tool.other]\nflag = true\n')
+        badConfig.write_text('[tool.other]\nflag = true\n', encoding='utf-8')
         result = runner.invoke(
             cli_main,
             ['--config', str(badConfig), str(samplePath)],
