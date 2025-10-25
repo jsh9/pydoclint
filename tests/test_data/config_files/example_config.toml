@@ -4,4 +4,4 @@ option2 = 'hello'
 
 [tool.pydoclint]
 style = 'google'
-some-custom-option = true
+check-arg-order = false

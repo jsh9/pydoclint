@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pydoclint"
-version = "0.7.3"
+version = "0.7.4"
 description = "A Python docstring linter that checks arguments, returns, yields, and raises sections"
 readme = "README.md"
 license = {text = "MIT"}
@@ -16,7 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "click>=8.1.0",
     "docstring_parser_fork>=0.0.12",
@@ -44,7 +44,7 @@ include_trailing_comma = true
 
 [tool.pydoclint]
 style = 'numpy'
-exclude = '\.git|.?venv|\.tox|tests/data|build'
+exclude = '\.git|.?venv|\.tox|tests/test_data|build'
 require-return-section-when-returning-nothing = true
 check-class-attributes = false
 
