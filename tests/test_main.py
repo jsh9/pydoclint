@@ -1241,7 +1241,19 @@ def testNoReturnSectionInPropertyMethod(style: str) -> None:
         skipCheckingShortDocstrings=False,
         checkClassAttributes=False,
     )
-    assert len(violations) == 0
+    expected = [
+        'DOC201: Method `MyOtherClass.method_2` does not have a return section in '
+        'docstring',
+        'DOC203: Method `MyOtherClass.method_2` return type(s) in docstring not '
+        'consistent with the return annotation. Return annotation has 1 type(s); '
+        'docstring return section has 0 type(s).',
+        'DOC201: Method `MyOtherClass.method_3` does not have a return section in '
+        'docstring',
+        'DOC203: Method `MyOtherClass.method_3` return type(s) in docstring not '
+        'consistent with the return annotation. Return annotation has 1 type(s); '
+        'docstring return section has 0 type(s).',
+    ]
+    assert list(map(str, violations)) == expected
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,3 @@
-import abc
-
-
 class MyClass:
     data: float = 2.1
 
@@ -14,15 +11,42 @@ class MyClass:
         """
         return self.data
 
-class AbstractClass(abc.ABC):
+class MyOtherClass:
     def __init__(self):
         pass
 
     @property
-    @abc.abstractmethod
-    def something(self) -> float:
+    @something
+    @something_else
+    @well
+    def method_1(self) -> float:
         """
         Some abstract property.
 
-        This is also OK; @property does not have to be the inner decorator.
+        This is also OK. When @property is the outer-most decorator (i.e., at
+        the top), the method is still considered a "property method" and thus 
+        does not need a return section.
         """
+        pass
+
+    @something
+    @property
+    @something_else
+    @well
+    def method_2(self) -> float:
+        """
+        This is NOT a property method, because @property is not the outer-most
+        decorator. Therefore, this method should have a return section.
+        """
+        pass
+
+    @something
+    @something_else
+    @well
+    @property
+    def method_3(self) -> float:
+        """
+        This is NOT a property method, because @property is not the outer-most
+        decorator. Therefore, this method should have a return section.
+        """
+        pass

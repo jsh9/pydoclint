@@ -6,6 +6,8 @@ class AbstractClass(ABC):
     """Example abstract class."""
 
     @abstractmethod
+    @something
+    @something_else
     def abstract_method(self, var1: str) -> Generator[str, None, None]:
         """Abstract method.
 
@@ -22,6 +24,8 @@ class AbstractClass(ABC):
         """
 
     @abstractmethod
+    @hello
+    @world
     def another_abstract_method(self, var1: str) -> Iterator[str]:
         """Another abstract method.
 
@@ -41,6 +45,8 @@ class AbstractClass(ABC):
         """
 
     @abstractmethod
+    @good
+    @morning
     def third_abstract_method(self, var1: str) -> str:
         """The 3rd abstract method.
 
