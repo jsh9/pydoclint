@@ -39,10 +39,10 @@ def testArg_str(arg: Arg, string_repr: str) -> None:
 )
 def testArg_equal(arg1: Arg, arg2: Arg) -> None:
     assert arg1 == arg2
-    assert arg1 in {arg1}
-    assert arg1 in {arg2}
-    assert arg2 in {arg1}
-    assert arg2 in {arg2}
+    assert arg1 in {arg1}  # noqa: FURB171
+    assert arg1 in {arg2}  # noqa: FURB171
+    assert arg2 in {arg1}  # noqa: FURB171
+    assert arg2 in {arg2}  # noqa: FURB171
 
 
 @pytest.mark.parametrize(
@@ -56,8 +56,8 @@ def testArg_equal(arg1: Arg, arg2: Arg) -> None:
 )
 def testArg_notEqual(obj1: Any, obj2: Any) -> None:
     assert obj1 != obj2
-    assert obj1 not in {obj2}
-    assert obj2 not in {obj1}
+    assert obj1 not in {obj2}  # noqa: FURB171
+    assert obj2 not in {obj1}  # noqa: FURB171
 
 
 @pytest.mark.parametrize(
