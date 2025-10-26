@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from itertools import groupby
-from pathlib import Path
+from typing import TYPE_CHECKING
 
-from pydoclint.utils.violation import Violation
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from pydoclint.utils.violation import Violation
 
 SEPARATOR = '--------------------\n'  # 20 dashes
 LEN_INDENT = 4
