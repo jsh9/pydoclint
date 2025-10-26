@@ -2,7 +2,7 @@ import ast
 
 import pytest
 
-from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
+from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,

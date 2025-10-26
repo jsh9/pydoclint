@@ -1,6 +1,6 @@
 import ast
 
-from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
+from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
 
 
 def checkIsAbstractMethod(node: FuncOrAsyncFuncDef) -> bool:

@@ -7,7 +7,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Generator
 
 from pydoclint.utils import walk
-from pydoclint.utils.astTypes import BlockType, FuncOrAsyncFuncDef
+from pydoclint.utils.ast_types import BlockType, FuncOrAsyncFuncDef
 from pydoclint.utils.generic import stringStartsWith
 from pydoclint.utils.unparser_custom import unparseName
 

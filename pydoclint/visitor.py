@@ -4,7 +4,7 @@ import ast
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
+    from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
     from pydoclint.utils.return_arg import ReturnArg
     from pydoclint.utils.yield_arg import YieldArg
 

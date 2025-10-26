@@ -6,7 +6,7 @@ import re
 from re import Match
 from typing import TYPE_CHECKING
 
-from pydoclint.utils.astTypes import ClassOrFunctionDef, FuncOrAsyncFuncDef
+from pydoclint.utils.ast_types import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
