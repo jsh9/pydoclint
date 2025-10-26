@@ -4,8 +4,6 @@ import ast
 import re
 import sys
 
-from pydoclint.utils.edge_case_error import EdgeCaseError
-
 
 def replaceTupleBracket(string: str) -> str:
     """
@@ -29,10 +27,8 @@ if sys.version_info >= (3, 11):
         return replaceTupleBracket(ast.unparse(astObj))
 
     unparse = py311unparse
-elif sys.version_info >= (3, 10):
+else:  # Python 3.10 only, because this project doesn't support Python 3.9
     unparse = ast.unparse
-else:
-    raise EdgeCaseError(f'Unexpected Python version: {sys.version_info}')
 
 
 def unparseName(
