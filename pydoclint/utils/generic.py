@@ -6,13 +6,16 @@ import re
 from re import Match
 from typing import TYPE_CHECKING
 
-from pydoclint.utils.ast_types import ClassOrFunctionDef, FuncOrAsyncFuncDef
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.unparser_custom import unparseName
-from pydoclint.utils.violation import Violation
 
 if TYPE_CHECKING:
     from pydoclint.utils.arg import Arg, ArgList
+    from pydoclint.utils.ast_types import (
+        ClassOrFunctionDef,
+        FuncOrAsyncFuncDef,
+    )
+    from pydoclint.utils.violation import Violation
 
 
 def collectFuncArgs(node: FuncOrAsyncFuncDef) -> list[ast.arg]:
@@ -106,7 +109,7 @@ def getDocstring(node: ClassOrFunctionDef) -> str:
     return '' if docstring_ is None else docstring_
 
 
-def generateClassMsgPrefix(node: ast.ClassDef, appendColon: bool) -> str:
+def generateClassMsgPrefix(node: ast.ClassDef, *, appendColon: bool) -> str:
     """
     Generate violation message prefix for classes.
 
@@ -130,6 +133,7 @@ def generateClassMsgPrefix(node: ast.ClassDef, appendColon: bool) -> str:
 def generateFuncMsgPrefix(
         node: FuncOrAsyncFuncDef,
         parent: ast.AST,
+        *,
         appendColon: bool,
 ) -> str:
     """
@@ -174,11 +178,7 @@ def stringStartsWith(string: str | None, substrings: tuple[str, ...]) -> bool:
     if string is None:
         return False
 
-    for substring in substrings:
-        if string.startswith(substring):
-            return True
-
-    return False
+    return any(string.startswith(substring) for substring in substrings)
 
 
 def stripQuotes(string: str | None) -> str | None:
@@ -191,9 +191,12 @@ def stripQuotes(string: str | None) -> str | None:
     if string is None:
         return None
 
-    if string.startswith('``') and string.endswith('``') and len(string) > 4:
+    min_length_of_4_backticks: int = 4
+    min_length_of_2_backticks: int = 2
+
+    if string.startswith('``') and string.endswith('``') and len(string) >= min_length_of_4_backticks:
         string = string[2:-2]
-    elif string.startswith('`') and string.endswith('`') and len(string) > 3:
+    elif string.startswith('`') and string.endswith('`') and len(string) >= min_length_of_2_backticks:
         string = string[1:-1]
 
     return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)

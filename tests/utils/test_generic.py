@@ -86,6 +86,10 @@ def testCollectFuncArgs(src: str, expected: list[str]) -> None:
         ),
         ('Optional["MyClass"]', 'Optional[MyClass]'),
         ('Optional[MyClass]', 'Optional[MyClass]'),
+        ('````', ''),
+        ('``1``', '1'),
+        ('``', ''),
+        ('`2`', '2'),
     ],
 )
 def testStripQuotes(string: str, expected: str) -> None:
