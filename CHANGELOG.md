@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.7.6] - 2025-10-26
+
+- Changed
+  - Updated linter and auto-formatter configurations
+  - Made a lot of changes to fix code style; some logic was also updated per
+    the suggestions of linters
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.5...0.7.6
+
 ## [0.7.5] - 2025-10-25
 
 - Fixed
