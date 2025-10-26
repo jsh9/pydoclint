@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import ast
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from docstring_parser.common import DocstringAttr, DocstringParam
+if TYPE_CHECKING:
+    from docstring_parser.common import DocstringAttr, DocstringParam
 
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
@@ -127,10 +128,8 @@ class Arg:
         if arg.name in argToDefaultMapping:
             # This means there IS a default value, even if it's None
             defaultValue = argToDefaultMapping[arg.name]
-            return Arg(
-                name=arg.name,
-                typeHint=f'{arg.typeHint}, default={unparseName(defaultValue)}',
-            )
+            typeHint = f'{arg.typeHint}, default={unparseName(defaultValue)}'
+            return Arg(name=arg.name, typeHint=typeHint)
 
         # This means there is no default value, not even a "None"
         return arg
@@ -212,6 +211,10 @@ class ArgList:
             return False
 
         return self.infoList == other.infoList
+
+    def __hash__(self) -> int:
+        # Use tuple to ensure a stable hash mirroring equality semantics.
+        return hash(tuple(self.infoList))
 
     def __len__(self) -> int:
         return len(self.infoList)
@@ -307,7 +310,10 @@ class ArgList:
             msg2: str = (
                 f' astAssign.targets[{i}] is of type {type(target)}.'
                 if j is None
-                else f' astAssign.targets[{i}].elts[{j}] is of type {type(target)}.'
+                else (
+                    f' astAssign.targets[{i}].elts[{j}] is'
+                    f' of type {type(target)}.'
+                )
             )
             msg: str = msg1 + msg2
             raise EdgeCaseError(msg) from ex
@@ -326,6 +332,7 @@ class ArgList:
     def equals(
             self,
             other: ArgList,
+            *,
             checkTypeHint: bool = True,
             orderMatters: bool = True,
     ) -> bool:
@@ -396,6 +403,7 @@ class ArgList:
     def subtract(
             self,
             other: ArgList,
+            *,
             checkTypeHint: bool = True,
     ) -> set[Arg]:
         """Find the args that are in this object but not in ``other``."""
