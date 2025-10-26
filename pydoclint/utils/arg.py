@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import ast
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from docstring_parser.common import DocstringAttr, DocstringParam
+if TYPE_CHECKING:
+    from docstring_parser.common import DocstringAttr, DocstringParam
 
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
@@ -18,8 +19,8 @@ class Arg:
     """
     A class to hold function input/return arguments.
 
-    This class also defines some essential behaviors of an argument, such
-    as comparison, equality, hashing, etc.
+    This class also defines some essential behaviors of an argument, such as
+    comparison, equality, hashing, etc.
     """
 
     def __init__(self, name: str, typeHint: str) -> None:
@@ -43,7 +44,7 @@ class Arg:
         typeHintsEqual: bool = self._typeHintsEq(self.typeHint, other.typeHint)
         return argNamesEqual and typeHintsEqual
 
-    def __lt__(self, other: 'Arg') -> bool:
+    def __lt__(self, other: Arg) -> bool:
         if not isinstance(other, Arg):
             raise TypeError('Cannot compare; `other` is not of "Arg" type')
 
@@ -55,13 +56,13 @@ class Arg:
 
         return self.typeHint < other.typeHint
 
-    def __le__(self, other: 'Arg') -> bool:
+    def __le__(self, other: Arg) -> bool:
         return self < other or self == other
 
     def __hash__(self) -> int:
         return hash((self.name, stripQuotes(self.typeHint)))
 
-    def nameEquals(self, other: 'Arg') -> bool:
+    def nameEquals(self, other: Arg) -> bool:
         """More lenient equality: only compare names"""
         return self.name == other.name
 
@@ -78,17 +79,17 @@ class Arg:
         return not self.isStarArg()
 
     @classmethod
-    def fromDocstringParam(cls, param: DocstringParam) -> 'Arg':
+    def fromDocstringParam(cls, param: DocstringParam) -> Arg:
         """Construct an Arg object from a DocstringParam object"""
         return Arg(name=param.arg_name, typeHint=cls._str(param.type_name))
 
     @classmethod
-    def fromDocstringAttr(cls, attr: DocstringAttr) -> 'Arg':
+    def fromDocstringAttr(cls, attr: DocstringAttr) -> Arg:
         """Construct an Arg object from a DocstringAttr object"""
         return Arg(name=attr.arg_name, typeHint=cls._str(attr.type_name))
 
     @classmethod
-    def fromAstArg(cls, astArg: ast.arg) -> 'Arg':
+    def fromAstArg(cls, astArg: ast.arg) -> Arg:
         """Construct an Arg object from a Python AST argument object"""
         anno: ast.expr | None = astArg.annotation
         typeHint: str | None = '' if anno is None else unparseName(anno)
@@ -100,7 +101,7 @@ class Arg:
             cls,
             astArg: ast.arg,
             argToDefaultMapping: dict[ast.arg, ast.expr],
-    ) -> 'Arg':
+    ) -> Arg:
         """Construct an Arg object from AST argument with its default value"""
         anno: ast.expr | None = astArg.annotation
         typeHint: str | None = '' if anno is None else unparseName(anno)
@@ -120,23 +121,21 @@ class Arg:
     @classmethod
     def fromArgWithMapping(
             cls,
-            arg: 'Arg',
+            arg: Arg,
             argToDefaultMapping: dict[str, ast.expr],
-    ) -> 'Arg':
+    ) -> Arg:
         """Construct an Arg object from another Arg with its default value"""
         if arg.name in argToDefaultMapping:
             # This means there IS a default value, even if it's None
             defaultValue = argToDefaultMapping[arg.name]
-            return Arg(
-                name=arg.name,
-                typeHint=f'{arg.typeHint}, default={unparseName(defaultValue)}',
-            )
+            typeHint = f'{arg.typeHint}, default={unparseName(defaultValue)}'
+            return Arg(name=arg.name, typeHint=typeHint)
 
         # This means there is no default value, not even a "None"
         return arg
 
     @classmethod
-    def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> 'Arg':
+    def fromAstAnnAssign(cls, astAnnAssign: ast.AnnAssign) -> Arg:
         """Construct an Arg object from a Python ast.AnnAssign object"""
         unparsedArgName = unparseName(astAnnAssign.target)
         unparsedTypeHint = unparseName(astAnnAssign.annotation)
@@ -164,12 +163,12 @@ class Arg:
         # >>>     "ghi",
         # >>> ]
         try:
-            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))  # type:ignore[arg-type,assignment]  # noqa: LN002
+            hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))  # type:ignore[arg-type,assignment]
         except SyntaxError:
             hint1_ = hint1
 
         try:
-            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))  # type:ignore[arg-type,assignment]  # noqa: LN002
+            hint2_: str = unparseName(ast.parse(stripQuotes(hint2)))  # type:ignore[arg-type,assignment]
         except SyntaxError:
             hint2_ = hint2
 
@@ -188,7 +187,7 @@ class Arg:
 
 class ArgList:
     """
-    A class to hold a list of `Arg` objects.
+    A class to hold a list of ``Arg`` objects.
 
     This class also defines some behaviors of an argument list, such as
     equality, length calculation, etc.
@@ -213,6 +212,10 @@ class ArgList:
 
         return self.infoList == other.infoList
 
+    def __hash__(self) -> int:
+        # Use tuple to ensure a stable hash mirroring equality semantics.
+        return hash(tuple(self.infoList))
+
     def __len__(self) -> int:
         return len(self.infoList)
 
@@ -232,7 +235,7 @@ class ArgList:
         return len(self.infoList)
 
     @classmethod
-    def fromDocstringParam(cls, params: list[DocstringParam]) -> 'ArgList':
+    def fromDocstringParam(cls, params: list[DocstringParam]) -> ArgList:
         """Construct an ArgList from a list of DocstringParam objects"""
         infoList = [
             Arg.fromDocstringParam(_)
@@ -245,7 +248,7 @@ class ArgList:
     def fromDocstringAttr(
             cls,
             params: list[DocstringAttr],
-    ) -> 'ArgList':
+    ) -> ArgList:
         """Construct an ArgList from a list of DocstringAttr objects"""
         infoList = [
             Arg.fromDocstringAttr(_)
@@ -256,7 +259,7 @@ class ArgList:
         return ArgList(infoList=infoList)
 
     @classmethod
-    def fromAstAssign(cls, astAssign: ast.Assign) -> 'ArgList':
+    def fromAstAssign(cls, astAssign: ast.Assign) -> ArgList:
         """Construct an ArgList from variable declaration/assignment"""
         infoList: list[Arg] = []
         for i, target in enumerate(astAssign.targets):
@@ -307,17 +310,20 @@ class ArgList:
             msg2: str = (
                 f' astAssign.targets[{i}] is of type {type(target)}.'
                 if j is None
-                else f' astAssign.targets[{i}].elts[{j}] is of type {type(target)}.'  # noqa: LN001
+                else (
+                    f' astAssign.targets[{i}].elts[{j}] is'
+                    f' of type {type(target)}.'
+                )
             )
             msg: str = msg1 + msg2
             raise EdgeCaseError(msg) from ex
 
     def contains(self, arg: Arg) -> bool:
-        """Whether a given `Arg` object exists in the list"""
+        """Whether a given ``Arg`` object exists in the list"""
         return arg.name in self.lookup
 
     def get(self, argName: str) -> Arg:
-        """Retrieve an element from the list using `argName` as identifier"""
+        """Retrieve an element from the list using ``argName`` as identifier"""
         if argName not in self.lookup:
             raise KeyError(f'argName "{argName}" not in this object')
 
@@ -325,21 +331,22 @@ class ArgList:
 
     def equals(
             self,
-            other: 'ArgList',
+            other: ArgList,
+            *,
             checkTypeHint: bool = True,
             orderMatters: bool = True,
     ) -> bool:
         """
-        Check whether this object is equal to `other`.
+        Check whether this object is equal to ``other``.
 
         Parameters
         ----------
         other : ArgList
             The other object
-        checkTypeHint : bool
+        checkTypeHint : bool, default=True
             If True, the two objects are only considered equal when type hints
             are also equal.
-        orderMatters : bool
+        orderMatters : bool, default=True
             If True, the two objects are only considered equal when the order
             of the arguments are identical.
 
@@ -369,9 +376,9 @@ class ArgList:
             else:
                 verdict = set(self_names) == set(other_names)
 
-        return verdict  # noqa: R504
+        return verdict
 
-    def findArgsWithDifferentTypeHints(self, other: 'ArgList') -> list[Arg]:
+    def findArgsWithDifferentTypeHints(self, other: ArgList) -> list[Arg]:
         """Find args with unmatched type hints."""
         if not self.equals(other, checkTypeHint=False, orderMatters=False):
             msg = 'These 2 arg lists do not have the same arg names'
@@ -395,10 +402,11 @@ class ArgList:
 
     def subtract(
             self,
-            other: 'ArgList',
+            other: ArgList,
+            *,
             checkTypeHint: bool = True,
     ) -> set[Arg]:
-        """Find the args that are in this object but not in `other`."""
+        """Find the args that are in this object but not in ``other``."""
         if checkTypeHint:
             return set(self.infoList) - set(other.infoList)
 
@@ -419,7 +427,7 @@ class ArgList:
         """
         Check whether all args have a type hint.
 
-        Star arguments (such as `*args` or `**kwargs`) are excluded because
+        Star arguments (such as ``*args`` or ``**kwargs``) are excluded because
         they don't need to have type hints.
         """
         return all(_.hasTypeHint() for _ in self.infoList if _.notStarArg())

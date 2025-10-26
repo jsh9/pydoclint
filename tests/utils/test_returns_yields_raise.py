@@ -1,9 +1,8 @@
 import ast
-from typing import Dict, List, Tuple
 
 import pytest
 
-from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
+from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
@@ -112,7 +111,7 @@ def func10():
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (src1, True),
         (src2, False),
@@ -133,7 +132,7 @@ def testHasReturnStatements(src: str, expected: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (src1, False),
         (src2, False),
@@ -160,23 +159,23 @@ def testHasReturnStatements_inClass() -> None:
     assert len(tree.body[0].body) == 3
 
     expected_list = [False, True, False]
-    for node, expected in zip(tree.body[0].body, expected_list):
+    for node, expected in zip(tree.body[0].body, expected_list, strict=False):
         assert hasReturnStatements(node) == expected
 
 
 class HelperVisitor(ast.NodeVisitor):
     """A helper class to check each return statements in nested functions"""
 
-    def __init__(self):
-        self.returnStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.yieldStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.raiseStatements: Dict[Tuple[int, int, str], bool] = {}
-        self.raisedExceptions: Dict[Tuple[int, int, str], List[str]] = {}
-        self.returnAnnotations: Dict[Tuple[int, int, str], bool] = {}
-        self.generatorAnnotations: Dict[Tuple[int, int, str], bool] = {}
+    def __init__(self) -> None:
+        self.returnStatements: dict[tuple[int, int, str], bool] = {}
+        self.yieldStatements: dict[tuple[int, int, str], bool] = {}
+        self.raiseStatements: dict[tuple[int, int, str], bool] = {}
+        self.raisedExceptions: dict[tuple[int, int, str], list[str]] = {}
+        self.returnAnnotations: dict[tuple[int, int, str], bool] = {}
+        self.generatorAnnotations: dict[tuple[int, int, str], bool] = {}
 
-    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef):
-        functionId: Tuple[int, int, str] = getFunctionId(node)
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:
+        functionId: tuple[int, int, str] = getFunctionId(node)
         self.returnStatements[functionId] = hasReturnStatements(node)
         self.yieldStatements[functionId] = hasYieldStatements(node)
         self.raiseStatements[functionId] = hasRaiseStatements(node)
@@ -187,7 +186,7 @@ class HelperVisitor(ast.NodeVisitor):
         )
         self.generic_visit(node)
 
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         # Treat async functions similarly to regular ones
         self.visit_FunctionDef(node)
 
@@ -238,7 +237,7 @@ def testHasReturnStatements_nestedFunction() -> None:
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         ('def func1():\n  return 1', False),
         ('def func1() -> int:\n  print(123)', True),

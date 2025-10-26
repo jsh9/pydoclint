@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.7.6] - 2025-10-26
+
+- Changed
+  - Updated linter and auto-formatter configurations
+  - Made a lot of changes to fix code style; some logic was also updated per
+    the suggestions of linters
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.5...0.7.6
+
 ## [0.7.5] - 2025-10-25
 
 - Fixed
@@ -467,7 +476,7 @@
   - Added baseline file integration and 2 options:
     1. `--generate-baseline True` Generate baseline content, and write it to a
        file specified from `--baseline` option path.
-    1. `--baseline <PATH>` Specify path to file with baseline content.
+    2. `--baseline <PATH>` Specify path to file with baseline content.
 - Changed
   - For the `--config` option, the default value is now `pyproject.toml`.
 - Full diff

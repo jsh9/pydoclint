@@ -3,10 +3,15 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Sequence
+from typing import TYPE_CHECKING, Any
 
 import click
 from click.core import ParameterSource
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+logger = logging.getLogger(__name__)
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -33,8 +38,8 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     param : click.Parameter
         The "click" parameter; not used in this function; just a placeholder
     value : str | None
-        The full path of the .toml file. (It needs to be named ``value``
-        so that ``click`` can correctly use it as a callback function.)
+        The full path of the .toml file. (It needs to be named ``value`` so
+        that ``click`` can correctly use it as a callback function.)
 
     Returns
     -------
@@ -49,7 +54,7 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     if not value:
         return None
 
-    logging.info(f'Loading config from user-specified .toml file: {value}')
+    logger.info('Loading config from user-specified .toml file: %s', value)
 
     # Only enforce when users explicitly specify a config file
     assert param.name is not None  # so that mypy is happy
@@ -78,8 +83,8 @@ def parseToml(paths: Sequence[str] | None) -> dict[str, Any]:
 
     commonParent: Path = findCommonParentFolder(paths)
     tomlFilename = commonParent / Path('pyproject.toml')
-    logging.info(
-        f'Loading config from inferred .toml file path: {tomlFilename}'
+    logger.info(
+        'Loading config from inferred .toml file path: %s', tomlFilename
     )
     return parseOneTomlFile(tomlFilename)
 
@@ -92,19 +97,18 @@ def parseOneTomlFile(
     """Parse a .toml file"""
     if not tomlFilename.exists():
         message = f'Config file "{tomlFilename}" does not exist.'
-        logging.info(f'{message} Nothing to load.')
+        logger.info('%s Nothing to load.', message)
         if enforcePydoclintSection:
             raise FileNotFoundError(message)
 
         return {}
 
     try:
-        with open(tomlFilename, 'rb') as fp:
+        with Path(tomlFilename).open('rb') as fp:
             rawConfig = tomllib.load(fp)
     except Exception as exc:
-        logging.info(
-            f'Failed to load "{tomlFilename}": {exc}; ignoring this'
-            ' config file.'
+        logger.info(
+            'Failed to load "%s": %s; ignoring this', tomlFilename, exc
         )
         if enforcePydoclintSection:
             raise
@@ -117,7 +121,7 @@ def parseOneTomlFile(
             f'Config file "{tomlFilename}" does not have'
             ' a [tool.pydoclint] section.'
         )
-        logging.info(message)
+        logger.info(message)
         if enforcePydoclintSection:
             raise MissingPydoclintSectionError(message)
 
@@ -129,30 +133,36 @@ def parseOneTomlFile(
         }
 
     if len(finalConfig) > 0:
-        logging.info(f'Found options defined in {tomlFilename}:')
-        logging.info(finalConfig)
+        logger.info('Found options defined in %s:', tomlFilename)
+        logger.info(finalConfig)
     else:
-        logging.info(f'No config found in {tomlFilename}.')
+        logger.info('No config found in %s.', tomlFilename)
 
     return finalConfig
 
 
 def findCommonParentFolder(
         paths: Sequence[str],
+        *,
         makeAbsolute: bool = True,  # allow makeAbsolute=False just for testing
 ) -> Path:
     """Find the common parent folder of the given ``paths``"""
     paths_: Sequence[Path] = [Path(path) for path in paths]
 
     common_parent = paths_[0]
-    for path in paths_[1:]:
-        if len(common_parent.parts) > len(path.parts):
-            common_parent, path = path, common_parent
+    for candidate_path in paths_[1:]:
+        reference = common_parent
+        comparison = candidate_path
+        if len(reference.parts) > len(comparison.parts):
+            reference, comparison = comparison, reference
 
-        for i, part in enumerate(common_parent.parts):
-            if part != path.parts[i]:
-                common_parent = Path(*common_parent.parts[:i])
+        new_common = reference
+        for i, part in enumerate(reference.parts):
+            if part != comparison.parts[i]:
+                new_common = Path(*reference.parts[:i])
                 break
+
+        common_parent = new_common
 
     if makeAbsolute:
         return common_parent.absolute()

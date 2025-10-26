@@ -4,16 +4,20 @@ import ast
 import re
 import sys
 
-from pydoclint.utils.edge_case_error import EdgeCaseError
-
 
 def replaceTupleBracket(string: str) -> str:
     """
     Remove the comma in strings like "tuple[*Shape,]"
 
-    We need to do this at least for Python 3.11, because when we write
-    type annotations such as "tuple[*Shape]", the ast.unparse() returns
+    We need to do this for Python 3.11 or newer, because when we write type
+    annotations such as "tuple[*Shape]", the ast.unparse() returns
     "tuple[*Shape,]" (one more comma).
+
+    For example, ``ast.unparse(ast.parse("tuple[*Shape]"))`` would return
+    ``tuple[*Shape,]`` in Python 3.11+.
+
+    For Python 3.10, ``tuple[*Shape]`` isn't a valid syntax, so we don't need
+    to do this replacement.
     """
     return re.sub(r'(tuple|Tuple)\[\*(.*?),\]', r'\1[*\2]', string)
 
@@ -25,10 +29,8 @@ if sys.version_info >= (3, 11):
         return replaceTupleBracket(ast.unparse(astObj))
 
     unparse = py311unparse
-elif sys.version_info >= (3, 9):
+else:  # Python 3.10 only, because this project doesn't support Python 3.9
     unparse = ast.unparse
-else:  # python 3.8
-    raise EdgeCaseError('pydoclint does not support Python 3.8 any more')
 
 
 def unparseName(

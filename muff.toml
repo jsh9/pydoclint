@@ -1,6 +1,139 @@
-line-length = 79
+# Docs: https://docs.astral.sh/ruff/configuration
+
 exclude = ["tests/test_data"]
+line-length = 79
+output-format = "grouped"
+target-version = "py310"
 
 [format]
-quote-style = "single"
 docstring-code-format = true
+preview = true
+quote-style = "single"
+
+[lint]
+# Explanations: https://docs.astral.sh/ruff/rules
+extend-select = [
+  "A", # flake8-builtins
+  "ANN", # flake8-annotations
+  "ARG", # flake8-unused-arguments
+  "ASYNC", # flake8-async
+  "B", # flake8-bugbear
+  "BLE", # flake8-blind-except
+  "C4", # flake8-comprehensions
+  "C4", # flake8-comprehensions
+  "C901", # mccabe
+  "D", # pydocstyle
+  "DTZ", # flake8-datetimez
+  "E", # pycodestyle: error
+  "ERA", # flake8-eradicate
+  "EXE", # flake8-executable
+  "F", # Pyflakes
+  "FA", # flake8-future-annotations
+  "FBT", # flake8-boolean-trap
+  "FLY", # flake8-flynt
+  "FURB", # refurb
+  "G", # flake8-logging-format
+  "I", # isort
+  "ICN", # flake8-import-conventions
+  "INP", # flake8-no-pep420
+  "ISC", # flake8-implicit-str-concat
+  "ISC", # flake8-implicit-str-concat
+  "LOG", # flake8-logging
+  "N", # pep8-naming
+  "NPY", # numpy-specific rules
+  "PD", # pandas-vet
+  "PERF", # Perflint
+  "PGH", # pygrep-hooks
+  "PIE", # flake8-pie
+  "PL", # Pylint
+  "PT", # flake8-pytest-style
+  "PTH", # flake8-use-pathlib
+  "PYI", # flake8-pyi
+  "Q", # flake8-quotes
+  "RET", # flake8-return
+  "RUF", # Ruff-specific rules
+  "S", # flake8-bandit
+  "SIM", # flake8-simplify
+  "SLF", # flake8-self
+  "SLOT", # flake8-slots
+  "T10", # flake8-debugger
+  "T10", # flake8-debugger
+  "TC", # flake8-type-checking
+  "TD", # flake8-todos
+  "TID", # flake8-tidy-imports
+  "TRY", # tryceratops
+  "UP", # pyupgrade
+  "W", # pycodestyle: warning
+]
+ignore = [
+  "ANN401", # no need to ban the `Any` type
+  "D100",
+  "D104",
+  "D105",
+  "D107",
+  "D200",
+  "D205",
+  "D400",
+  "FURB152", # don't replace "3.14" with math.pi
+  "N802", # This project uses camelCase.
+  "N803", # See docs/notes_for_developers.md for reasons.
+  "N806",
+  "N812",
+  "N816",
+  "PLC1901", # it's fine to compare with empty string
+  "S101", # it's fine to use assert
+  "S110", # it's fine to use "try-except-pass"
+  "TD002", # no need to add author name in TODO comments
+  "TRY003", # we can allow on-the-fly exception messages
+]
+preview = true
+
+[lint.flake8-import-conventions.banned-aliases]
+typing = ["ty", "typ"]
+
+[lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+
+[lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[lint.mccabe]
+max-complexity = 14
+
+[lint.pep8-naming]
+extend-ignore-names = [
+  # glob patterns, not regex
+  "*LLM_*",
+  "*_LLM*",
+]
+
+[lint.per-file-ignores]
+"pydoclint/utils/return_arg.py" = [
+  "N815", # Class variable in this file can be camelCase
+]
+"pydoclint/utils/yield_arg.py" = [
+  "N815", # Class variable in this file can be camelCase
+]
+"tests/*" = [
+  "D101", # no need for docstrings in tests
+  "D102",
+  "D103",
+  "E501", # Lines can be longer b/c many of them are violation messages.
+  "FBT001", # Boolean-typed positional args are OK in tests
+  "PLC2701", # importing private functions is allowed in tests
+  "PLR2004", # using magic numbers is allowed in tests
+  "SLF001", # accessing private functions is allowed in tests
+]
+
+[lint.pydocstyle]
+convention = "numpy"
+
+[lint.pylint]
+max-args = 1000
+max-bool-expr = 10
+max-branches = 100
+max-locals = 1000
+max-nested-blocks = 10
+max-returns = 30
+max-statements = 50

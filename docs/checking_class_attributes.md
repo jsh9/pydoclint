@@ -1,5 +1,19 @@
 # Checking class attributes
 
+<!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
+
+- [1. Numpy style](#1-numpy-style)
+- [2. Google style](#2-google-style)
+- [3. Sphinx style](#3-sphinx-style)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 Class attributes are similar to function arguments. They look like this:
 
 ```python
@@ -66,7 +80,7 @@ From this example, we can see a few things:
 
 1. The class attributes should be put in a different docstring section than the
    argument passed into the class constructor (`__init__()`)
-1. Both the class attributes and the input arguments to `__init__()` are in the
+2. Both the class attributes and the input arguments to `__init__()` are in the
    same docstring. (This is assuming the _pydoclint_ option
    `--allow-init-docstring` is `False`)
 

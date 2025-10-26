@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import ast
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
+    from pydoclint.utils.return_arg import ReturnArg
+    from pydoclint.utils.yield_arg import YieldArg
 
 from docstring_parser import ParseError
 
 from pydoclint.utils.arg import Arg, ArgList
-from pydoclint.utils.astTypes import FuncOrAsyncFuncDef
 from pydoclint.utils.doc import Doc
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
@@ -23,7 +28,6 @@ from pydoclint.utils.parse_docstring import (
     parseDocstringInGivenStyle,
 )
 from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
     hasAssertStatements,
@@ -53,7 +57,6 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
 )
-from pydoclint.utils.yield_arg import YieldArg
 
 
 class Visitor(ast.NodeVisitor):
@@ -61,6 +64,7 @@ class Visitor(ast.NodeVisitor):
 
     def __init__(
             self,
+            *,
             style: str = 'numpy',
             argTypeHintsInSignature: bool = True,
             argTypeHintsInDocstring: bool = True,
@@ -160,7 +164,7 @@ class Visitor(ast.NodeVisitor):
 
         self.parent = currentParent  # restore
 
-    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102, C901
+    def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102, PLR0915
         parent_: ast.ClassDef | FuncOrAsyncFuncDef = self.parent  # type:ignore[assignment]
         self.parent = node
 
@@ -299,7 +303,7 @@ class Visitor(ast.NodeVisitor):
     def visit_Raise(self, node: ast.Raise) -> None:  # noqa: D102
         self.generic_visit(node)
 
-    def _checkClassDocstringAndConstructorDocstrings(  # noqa: C901
+    def _checkClassDocstringAndConstructorDocstrings(
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.ClassDef,
@@ -344,7 +348,7 @@ class Visitor(ast.NodeVisitor):
         # Below: __init__() is allowed to have a separate docstring
         try:
             classDoc = Doc(docstring=classDocstring, style=self.style)
-        except Exception as excp:
+        except ParseError as excp:
             classDoc = Doc(docstring='', style=self.style)
             self.violations.append(
                 Violation(
@@ -357,7 +361,7 @@ class Visitor(ast.NodeVisitor):
 
         try:
             initDoc = Doc(docstring=initDocstring, style=self.style)
-        except Exception as excp:
+        except ParseError as excp:
             initDoc = Doc(docstring='', style=self.style)
             self.violations.append(
                 Violation(
@@ -424,7 +428,7 @@ class Visitor(ast.NodeVisitor):
 
         return initDocstring
 
-    def checkArguments(  # noqa: C901
+    def checkArguments(  # noqa: C901, PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
@@ -436,11 +440,11 @@ class Visitor(ast.NodeVisitor):
         Parameters
         ----------
         node : FuncOrAsyncFuncDef
-            The current function node.  It can be a regular function
-            or an async function.
+            The current function node.  It can be a regular function or an
+            async function.
         parent_ : ast.AST
-            The parent of the current node, which can be another function,
-            a class, etc.
+            The parent of the current node, which can be another function, a
+            class, etc.
         doc : Doc
             The parsed docstring structure.
 
@@ -492,12 +496,10 @@ class Visitor(ast.NodeVisitor):
         docArgs: ArgList = doc.argList
 
         if self.checkArgDefaults:
-            funcArgs = ArgList(
-                [
-                    Arg.fromAstArgWithMapping(_, argToDefaultMapping)
-                    for _ in astArgList
-                ]
-            )
+            funcArgs = ArgList([
+                Arg.fromAstArgWithMapping(_, argToDefaultMapping)
+                for _ in astArgList
+            ])
         else:
             funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
@@ -506,28 +508,26 @@ class Visitor(ast.NodeVisitor):
             # This is because these arguments are only placeholders and do not
             # need to be explained in the docstring.  (This is often used in
             # functions that must accept a certain number of input arguments.)
-            funcArgs = ArgList(
-                [_ for _ in funcArgs.infoList if set(_.name) != {'_'}]
-            )
+            funcArgs = ArgList([
+                _ for _ in funcArgs.infoList if set(_.name) != {'_'}
+            ])
 
         if self.ignorePrivateArgs:
             # "Private arguments" are those whose names have leading
             # underscores, but whose names are not purely _, __, ___, etc.
-            funcArgs = ArgList(
-                [
-                    _
-                    for _ in funcArgs.infoList
-                    if not _.name.startswith('_') or set(_.name) == {'_'}
-                ]
-            )
+            funcArgs = ArgList([
+                _
+                for _ in funcArgs.infoList
+                if not _.name.startswith('_') or set(_.name) == {'_'}
+            ])
 
         if not self.shouldDocumentStarArguments:
             # This is "should not" rather than "need not", which means that
             # if this config option is set to False, there CANNOT be
             # documentation of star arguments in the docstring
-            funcArgs = ArgList(
-                [_ for _ in funcArgs.infoList if not _.name.startswith('*')]
-            )
+            funcArgs = ArgList([
+                _ for _ in funcArgs.infoList if not _.name.startswith('*')
+            ])
 
         if docArgs.length == 0 and funcArgs.length == 0:
             return []
@@ -585,7 +585,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkReturns(  # noqa: C901
+    def checkReturns(
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
@@ -610,7 +610,7 @@ class Visitor(ast.NodeVisitor):
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
         violations: list[Violation] = []
-        if not docstringHasReturnSection and not isPropertyMethod:
+        if not docstringHasReturnSection and not isPropertyMethod:  # noqa: SIM102
             if (
                 # fmt: off
                 not (onlyHasYieldStmt and hasIterAsRetAnno)
@@ -704,7 +704,7 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkYields(  # noqa: C901
+    def checkYields(
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
@@ -753,8 +753,8 @@ class Visitor(ast.NodeVisitor):
                 else:
                     violations.append(v402)
 
-        if docstringHasYieldsSection:
-            if not hasYieldStmt or noGenNorIterAsRetAnno:
+        if docstringHasYieldsSection:  # noqa: SIM102
+            if not hasYieldStmt or noGenNorIterAsRetAnno:  # noqa: SIM102
                 if not self.isAbstractMethod:
                     violations.append(v403)
 
@@ -778,14 +778,14 @@ class Visitor(ast.NodeVisitor):
 
         return violations
 
-    def checkReturnAndYield(  # noqa: C901
+    def checkReturnAndYield(  # noqa: PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
     ) -> list[Violation]:
         """
-        Check violations when a function has both `return` and `yield`
+        Check violations when a function has both ``return`` and ``yield``
         statements in it.
         """
         """
@@ -849,87 +849,80 @@ class Visitor(ast.NodeVisitor):
         if not docstringHasReturnSection:
             if doc.isShortDocstring and self.skipCheckingShortDocstrings:
                 pass
-            else:
+            elif (
+                # fmt: off
+                not (onlyHasYieldStmt and hasIterAsRetAnno)
+                and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
+                # If the return statement in the function body is a bare
+                # return, we don't throw DOC201 or DOC405. See more at:
+                # https://github.com/jsh9/pydoclint/issues/126#issuecomment-2136497913
+                and not hasBareReturnStmt
+                # fmt: on
+            ):
+                retTypeInGenerator = extractReturnTypeFromGenerator(
+                    returnAnnoText=returnAnno.annotation,
+                )
+                # If "Generator[...]" is put in the return type annotation,
+                # we don't need a "Returns" section in the docstring.
+                # Instead, we need a "Yields" section.
                 if (
-                    # fmt: off
-                    not (onlyHasYieldStmt and hasIterAsRetAnno)
-                    and (
-                        hasReturnStmt
-                        or (hasReturnAnno and not hasGenAsRetAnno)
-                    )
-                    # If the return statement in the function body is a bare
-                    # return, we don't throw DOC201 or DOC405. See more at:
-                    # https://github.com/jsh9/pydoclint/issues/126#issuecomment-2136497913
-                    and not hasBareReturnStmt
-                    # fmt: on
+                    self.requireReturnSectionWhenReturningNothing
+                    or retTypeInGenerator not in {'None', 'NoReturn'}
                 ):
-                    retTypeInGenerator = extractReturnTypeFromGenerator(
-                        returnAnnoText=returnAnno.annotation,
-                    )
-                    # If "Generator[...]" is put in the return type annotation,
-                    # we don't need a "Returns" section in the docstring.
-                    # Instead, we need a "Yields" section.
-                    if self.requireReturnSectionWhenReturningNothing:
-                        violations.append(v201)
-                    elif retTypeInGenerator not in {'None', 'NoReturn'}:
-                        violations.append(v201)
-        else:
-            if self.checkReturnTypes:
-                if hasGenAsRetAnno:
-                    retTypeInGenerator = extractReturnTypeFromGenerator(
-                        returnAnnoText=returnAnno.annotation,
-                    )
-                    checkReturnTypesForViolations(
-                        style=self.style,
-                        returnAnnotation=ReturnAnnotation(retTypeInGenerator),
-                        violationList=violations,
-                        returnSection=returnSec,
-                        violation=v203,
-                    )
-                else:
-                    violations.append(v405)
+                    violations.append(v201)
+        elif self.checkReturnTypes:
+            if hasGenAsRetAnno:
+                retTypeInGenerator = extractReturnTypeFromGenerator(
+                    returnAnnoText=returnAnno.annotation,
+                )
+                checkReturnTypesForViolations(
+                    style=self.style,
+                    returnAnnotation=ReturnAnnotation(retTypeInGenerator),
+                    violationList=violations,
+                    returnSection=returnSec,
+                    violation=v203,
+                )
             else:
-                if not hasGenAsRetAnno:
-                    violations.append(v405)
+                violations.append(v405)
+        elif not hasGenAsRetAnno:
+            violations.append(v405)
 
         # Check the yield section in the docstring
         if not docstringHasYieldsSection:
             if not self.skipCheckingShortDocstrings:
                 violations.append(v402)
-        else:
-            if self.checkYieldTypes:
-                returnAnno = ReturnAnnotation(unparseName(node.returns))
-                yieldSec: list[YieldArg] = doc.yieldSection
+        elif self.checkYieldTypes:
+            returnAnno = ReturnAnnotation(unparseName(node.returns))
+            yieldSec: list[YieldArg] = doc.yieldSection
 
-                if hasGenAsRetAnno or hasIterAsRetAnno:
-                    extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-                    yieldType: str | None = extract(
-                        returnAnnoText=returnAnno.annotation,
-                        hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
-                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,  # noqa: LN001
-                    )
-                    checkYieldTypesForViolations(
-                        returnAnnotation=ReturnAnnotation(yieldType),
-                        violationList=violations,
-                        yieldSection=yieldSec,
-                        violation=v404,
-                        hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
-                        hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,  # noqa: LN001
-                        requireYieldSectionWhenYieldingNothing=(
-                            self.requireYieldSectionWhenYieldingNothing
-                        ),
-                    )
-                else:
-                    violations.append(v405)
+            if hasGenAsRetAnno or hasIterAsRetAnno:
+                extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
+                yieldType: str | None = extract(
+                    returnAnnoText=returnAnno.annotation,
+                    hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                    hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                )
+                checkYieldTypesForViolations(
+                    returnAnnotation=ReturnAnnotation(yieldType),
+                    violationList=violations,
+                    yieldSection=yieldSec,
+                    violation=v404,
+                    hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                    hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                    requireYieldSectionWhenYieldingNothing=(
+                        self.requireYieldSectionWhenYieldingNothing
+                    ),
+                )
             else:
-                if (
-                    not hasGenAsRetAnno or not hasIterAsRetAnno
-                ) and not hasBareReturnStmt:
-                    violations.append(v405)
+                violations.append(v405)
+        elif (
+            not hasGenAsRetAnno or not hasIterAsRetAnno
+        ) and not hasBareReturnStmt:
+            violations.append(v405)
 
         return violations
 
-    def checkRaises(  # noqa: C901
+    def checkRaises(
             self,
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
@@ -961,15 +954,14 @@ class Visitor(ast.NodeVisitor):
                 and not self.isAbstractMethod
             ):
                 violations.append(v502)
-        else:
-            if (
-                not hasRaiseStmt
-                and docstringHasRaisesSection
-                and not self.isAbstractMethod
-            ):
-                violations.append(v502)
+        elif (
+            not hasRaiseStmt
+            and docstringHasRaisesSection
+            and not self.isAbstractMethod
+        ):
+            violations.append(v502)
 
-        if self.shouldDeclareAssertErrorIfAssertStatementExists:
+        if self.shouldDeclareAssertErrorIfAssertStatementExists:  # noqa: SIM102
             if hasAssertStmt and not docstringHasRaisesSection:
                 violations.append(v504)
 

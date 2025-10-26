@@ -7,6 +7,8 @@ from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import stripQuotes
 from pydoclint.utils.unparser_custom import unparseName
 
+MIN_TUPLE_ANNOTATION_LENGTH = len('tuple[]')  # shortest valid tuple annotation
+
 
 class ReturnAnnotation:
     """A class to hold the return annotation in a function's signature"""
@@ -23,8 +25,9 @@ class ReturnAnnotation:
     def decompose(self) -> list[str]:
         """
         Numpy style allows decomposing the returning tuple into individual
-        element.  For example, if the return annotation is `Tuple[int, bool]`,
-        you can put 2 return values in the return section: int, and bool.
+        element.  For example, if the return annotation is ``Tuple[int,
+        bool]``, you can put 2 return values in the return section: int, and
+        bool.
 
         This method decomposes such return annotation into individual elements.
 
@@ -38,13 +41,13 @@ class ReturnAnnotation:
         EdgeCaseError
             When the annotation string has strange values
         """
-        if self._isTuple():  # noqa: R506
+        if self._isTuple():
             assert self.annotation is not None  # to help mypy understand type
 
             if not self.annotation.endswith(']'):
                 raise EdgeCaseError('Return annotation not ending with `]`')
 
-            if len(self.annotation) < 7:
+            if len(self.annotation) < MIN_TUPLE_ANNOTATION_LENGTH:
                 raise EdgeCaseError(f'Impossible annotation {self.annotation}')
 
             if self.annotation.lower() == 'tuple[]':
@@ -55,7 +58,7 @@ class ReturnAnnotation:
                 # because we don't know the tuple's length
                 return [self.annotation]
 
-            parsedBody0: ast.Expr = ast.parse(insideTuple).body[0]  # type:ignore[assignment]  # noqa: LN002
+            parsedBody0: ast.Expr = ast.parse(insideTuple).body[0]  # type:ignore[assignment]
             if isinstance(
                 parsedBody0.value, (ast.Attribute, ast.Name)
             ):  # such as Tuple[int]
@@ -68,16 +71,17 @@ class ReturnAnnotation:
                 return [unparseName(_) for _ in elts]  # type:ignore[misc]
 
             raise EdgeCaseError('decompose(): This should not have happened')
-        else:
-            return self.putAnnotationInList()
+
+        return self.putAnnotationInList()
 
     def _isTuple(self) -> bool:
         try:
             assert self.annotation is not None  # to help mypy understand type
-            annoHead = ast.parse(self.annotation).body[0].value.value.id  # type:ignore[attr-defined]  # noqa: LN002
-            return annoHead in {'tuple', 'Tuple'}
-        except Exception:
+            annoHead = ast.parse(self.annotation).body[0].value.value.id  # type:ignore[attr-defined]
+        except (TypeError, AttributeError, IndexError, AssertionError):
             return False
+        else:
+            return annoHead in {'tuple', 'Tuple'}
 
     def putAnnotationInList(self) -> list[str]:
         """Put annotation string in a list"""

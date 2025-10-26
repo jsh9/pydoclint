@@ -3,32 +3,32 @@
 This file provides guidance to AI coding assistants when working with code in
 this repository.
 
-## pydoclint Project Conventions
+## 1. pydoclint Project Conventions
 
-### Code Style
+### 1.1. Code Style
 
 - Use camelCase for function and variable names (not snake_case)
 
-### Branch Naming
+### 1.2. Branch Naming
 
 - Format: `yyyy-mm-dd-What-this-branch-does`
 
-### Commit Messages & PR Titles
+### 1.3. Commit Messages & PR Titles
 
 - Use action verbs (imperative mood), not past tense
 - Good: "Add feature", "Fix bug"
 - Bad: "Added feature", "Fixed bug"
 
-## Development Commands
+## 2. Development Commands
 
-### Testing
+### 2.1. Testing
 
 - `pytest --tb=long .` - Run all tests with detailed traceback
 - `tox` - Run full test suite across multiple Python versions
 - `tox -e py311` - Run tests on specific Python version (py39, py310, py311,
   py312, py313)
 
-### Code Quality
+### 2.2. Code Quality
 
 - `mypy pydoclint/` - Type checking
 - `muff format --diff --config=muff.toml pydoclint tests` - Format checking
@@ -37,7 +37,7 @@ this repository.
 - `pydoclint --config=pyproject.toml .` - Self-check using pydoclint
 - `pre-commit run -a` - Run all pre-commit hooks
 
-### Specialized Tox Commands
+### 2.3. Specialized Tox Commands
 
 - `tox -e mypy` - Type checking only
 - `tox -e muff` - Format checking only
@@ -47,7 +47,7 @@ this repository.
 - `tox -e flake8-docstrings` - Docstring style checks
 - `tox -e pre-commit` - Pre-commit hooks (skips muff formatter)
 
-### Running a Single Test
+### 2.4. Running a Single Test
 
 Use pytest with specific test file or test function:
 
@@ -56,12 +56,12 @@ pytest tests/test_main.py
 pytest tests/test_main.py::test_function_name
 ```
 
-## Architecture Overview
+## 3. Architecture Overview
 
 Pydoclint is a Python docstring linter that checks docstring sections against
 function signatures. The core architecture consists of:
 
-### Main Components
+### 3.1. Main Components
 
 - **main.py**: CLI entry point using Click, handles command-line options and
   orchestrates linting
@@ -72,7 +72,7 @@ function signatures. The core architecture consists of:
   sources
 - **baseline.py**: Baseline functionality for gradual adoption
 
-### Utils Package Structure
+### 3.2. Utils Package Structure
 
 - **arg.py/argList.py**: Function argument representation and handling
 - **doc.py**: Docstring parsing and representation
@@ -86,13 +86,13 @@ function signatures. The core architecture consists of:
   function bodies
 - **visitor_helper.py**: Helper functions for the main visitor
 
-### Supported Docstring Styles
+### 3.3. Supported Docstring Styles
 
 - **Numpy**: numpydoc format
 - **Google**: Google-style docstrings
 - **Sphinx**: Sphinx/reStructuredText format
 
-### Key Features
+### 3.4. Key Features
 
 - Fast AST-based analysis (thousands of times faster than darglint)
 - Supports type hint checking against docstring parameter types
@@ -100,7 +100,7 @@ function signatures. The core architecture consists of:
 - Baseline mode for gradual adoption in existing codebases
 - Both standalone CLI and flake8 plugin modes
 
-### Test Structure
+### 3.5. Test Structure
 
 - `tests/data/` contains test cases organized by docstring style (google,
   numpy, sphinx, edge_cases)

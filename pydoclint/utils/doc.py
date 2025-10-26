@@ -35,7 +35,7 @@ class Doc:
         elif style == 'sphinx':
             self.parsed = parseSphinx(docstring)
         else:
-            self._raiseException()
+            raise self._createUnknownStyleError()
 
         self.docstringSize = self.parsed.size
 
@@ -43,7 +43,7 @@ class Doc:
         return pprint.pformat(self.__dict__, indent=2)
 
     @property
-    def isShortDocstring(self) -> bool:  # type:ignore[return]
+    def isShortDocstring(self) -> bool:
         """Is the docstring a short one (containing only a summary)"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             # API documentation:
@@ -64,66 +64,63 @@ class Doc:
                 and self.parsed.deprecation is None
             )
 
-        self._raiseException()  # noqa: R503
+        raise self._createUnknownStyleError()
 
     @property
-    def argList(self) -> ArgList:  # type:ignore[return]
+    def argList(self) -> ArgList:
         """The argument info in the docstring, presented as an ArgList"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringParam(self.parsed.params)
 
-        self._raiseException()  # noqa: R503
+        raise self._createUnknownStyleError()
 
     @property
-    def attrList(self) -> ArgList:  # type:ignore[return]
+    def attrList(self) -> ArgList:
         """The attributes info in the docstring, presented as an ArgList"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringAttr(self.parsed.attrs)
 
-        self._raiseException()  # noqa: R503
+        raise self._createUnknownStyleError()
 
     @property
-    def hasReturnsSection(self) -> bool:  # type:ignore[return]
+    def hasReturnsSection(self) -> bool:
         """Whether the docstring has a 'Returns' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             retSection: DocstringReturns | None = self.parsed.returns
             return retSection is not None and not retSection.is_generator
 
-        self._raiseException()  # noqa: R503
+        raise self._createUnknownStyleError()
 
     @property
-    def hasYieldsSection(self) -> bool:  # type:ignore[return]
+    def hasYieldsSection(self) -> bool:
         """Whether the docstring has a 'Yields' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             yieldSection: DocstringYields = self.parsed.yields
             return yieldSection is not None
 
-        self._raiseException()  # noqa: R503
+        raise self._createUnknownStyleError()
 
     @property
-    def hasRaisesSection(self) -> bool:  # type:ignore[return]
+    def hasRaisesSection(self) -> bool:
         """Whether the docstring has a 'Raises' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return len(self.parsed.raises) > 0
 
-        self._raiseException()  # noqa: R503
+        raise self._createUnknownStyleError()
 
     @property
     def returnSection(self) -> list[ReturnArg]:
         """Get the return section of the docstring"""
         if isinstance(self.parsed, Docstring):  # Google, numpy, Sphinx styles
             returnSection: list[DocstringReturns] = self.parsed.many_returns
-            result: list[ReturnArg] = []
-            for element in returnSection:
-                result.append(
-                    ReturnArg(
-                        argName=self._str(element.return_name),
-                        argType=self._str(element.type_name),
-                        argDescr=self._str(element.description),
-                    )
+            return [
+                ReturnArg(
+                    argName=self._str(element.return_name),
+                    argType=self._str(element.type_name),
+                    argDescr=self._str(element.description),
                 )
-
-            return result
+                for element in returnSection
+            ]
 
         return []
 
@@ -132,23 +129,20 @@ class Doc:
         """Get the yield section of the docstring"""
         if isinstance(self.parsed, Docstring):  # Google, numpy, Sphinx styles
             yieldSection: list[DocstringYields] = self.parsed.many_yields
-            result: list[YieldArg] = []
-            for element in yieldSection:
-                result.append(
-                    YieldArg(
-                        argName=self._str(element.yield_name),
-                        argType=self._str(element.type_name),
-                        argDescr=self._str(element.description),
-                    )
+            return [
+                YieldArg(
+                    argName=self._str(element.yield_name),
+                    argType=self._str(element.type_name),
+                    argDescr=self._str(element.description),
                 )
-
-            return result
+                for element in yieldSection
+            ]
 
         return []
 
-    def _raiseException(self) -> None:
+    def _createUnknownStyleError(self) -> EdgeCaseError:
         msg = f'Unknown style "{self.style}"; please contact the authors'
-        raise EdgeCaseError(msg)
+        return EdgeCaseError(msg)
 
     @classmethod
     def _str(cls, something: Any) -> str:

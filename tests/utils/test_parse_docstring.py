@@ -4,7 +4,7 @@ from pydoclint.utils.parse_docstring import _containsNumpyStylePattern
 
 
 @pytest.mark.parametrize(
-    'docstring, expected',
+    ('docstring', 'expected'),
     [
         # Test cases that should detect numpy style patterns
         (

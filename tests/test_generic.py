@@ -1,4 +1,5 @@
 import ast
+from typing import Any
 
 import pytest
 
@@ -11,7 +12,7 @@ from pydoclint.utils.generic import (
 
 
 @pytest.mark.parametrize(
-    'inputStr, expected',
+    ('inputStr', 'expected'),
     [
         (None, None),
         ('something', 'something'),
@@ -36,7 +37,7 @@ def testStripQuotes(inputStr: str, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'list1, list2, expected',
+    ('list1', 'list2', 'expected'),
     [
         ([], [], True),
         (
@@ -71,7 +72,7 @@ def testDoList1ItemsStartWithList2Items(
 
 
 @pytest.mark.parametrize(
-    'funcCode, expectedMappings',
+    ('funcCode', 'expectedMappings'),
     [
         # Case 1: No defaults
         ('def func1(a, b, c): pass', {}),
@@ -96,7 +97,7 @@ def testDoList1ItemsStartWithList2Items(
 )
 def testBuildFuncArgToDefaultMapping(
         funcCode: str,
-        expectedMappings: dict[str, any],
+        expectedMappings: dict[str, Any],
 ) -> None:
     tree = ast.parse(funcCode)
     funcDef = tree.body[0]
@@ -119,7 +120,7 @@ def testBuildFuncArgToDefaultMapping(
 
 
 @pytest.mark.parametrize(
-    'classCode, expectedMappings',
+    ('classCode', 'expectedMappings'),
     [
         # Case 1: No attributes with defaults
         (
@@ -183,7 +184,7 @@ class Test6:
 )
 def testBuildClassAttrToDefaultMapping(
         classCode: str,
-        expectedMappings: dict[str, any],
+        expectedMappings: dict[str, Any],
 ) -> None:
     tree = ast.parse(classCode)
     classDef = tree.body[0]

@@ -3,7 +3,14 @@
 from __future__ import annotations
 
 import ast
-import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pydoclint.utils.return_anno import ReturnAnnotation
+    from pydoclint.utils.return_arg import ReturnArg
+    from pydoclint.utils.yield_arg import YieldArg
+
+from docstring_parser import ParseError
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.doc import Doc
@@ -15,12 +22,9 @@ from pydoclint.utils.generic import (
     specialEqual,
     stripQuotes,
 )
-from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_arg import ReturnArg
 from pydoclint.utils.special_methods import checkIsPropertyMethod
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
-from pydoclint.utils.yield_arg import YieldArg
 
 SPHINX_MSG_POSTFIX: str = (
     ' (Please read'
@@ -70,7 +74,7 @@ def checkClassAttributesAgainstClassDocstring(
 
     try:
         doc: Doc = Doc(docstring=classDocstring, style=style)
-    except Exception as excp:
+    except ParseError as excp:
         doc = Doc(docstring='', style=style)
         violations.append(
             Violation(
@@ -129,7 +133,7 @@ def checkClassAttributesAgainstClassDocstring(
     )
 
 
-def extractClassAttributesFromNode(  # noqa: C901
+def extractClassAttributesFromNode(
         *,
         node: ast.ClassDef,
         shouldDocumentPrivateClassAttributes: bool,
@@ -148,13 +152,13 @@ def extractClassAttributesFromNode(  # noqa: C901
         Whether we should document private class attributes.  If ``True``,
         private class attributes will be included in the return value.
     treatPropertyMethodsAsClassAttrs : bool
-        Whether we'd like to treat property methods as class attributes.
-        If ``True``, property methods will be included in the return value.
+        Whether we'd like to treat property methods as class attributes. If
+        ``True``, property methods will be included in the return value.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
         If ``True``, only the attributes whose type annotations are wrapped
         within ``ClassVar`` (where ``ClassVar`` is imported from ``typing``)
-        are treated as class attributes, and all other attributes are
-        treated as instance attributes.
+        are treated as class attributes, and all other attributes are treated
+        as instance attributes.
     checkArgDefaults : bool
         If True, we should extract the arguments' default values and attach
         them to the type hints.
@@ -184,7 +188,7 @@ def extractClassAttributesFromNode(  # noqa: C901
                 )
 
             atl.extend(ArgList.fromAstAssign(itm).infoList)
-        elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):
+        elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):  # noqa: SIM102
             if treatPropertyMethodsAsClassAttrs and checkIsPropertyMethod(itm):
                 atl.append(
                     Arg(
@@ -217,12 +221,10 @@ def extractClassAttributesFromNode(  # noqa: C901
         node,
     )
 
-    return ArgList(
-        [
-            Arg.fromArgWithMapping(_, argToDefaultMapping)
-            for _ in astArgList.infoList
-        ]
-    )
+    return ArgList([
+        Arg.fromArgWithMapping(_, argToDefaultMapping)
+        for _ in astArgList.infoList
+    ])
 
 
 def checkDocArgsLengthAgainstActualArgs(
@@ -256,8 +258,8 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
         msgPrefix: str,
 ) -> None:
     """
-    Check the arg/attr list in the docstring against the actual arg/attr
-    list (either the function arguments or class attributes).
+    Check the arg/attr list in the docstring against the actual arg/attr list
+    (either the function arguments or class attributes).
     """
     if not docArgs.equals(
         actualArgs,
@@ -292,8 +294,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
                 funcArgs=actualArgs,
                 docArgs=docArgs,
             )
-            violations.append(violationForOrderMismatch)
-            violations.append(v105new)
+            violations.extend([violationForOrderMismatch, v105new])
         else:
             argsInFuncNotInDoc: set[Arg] = actualArgs.subtract(
                 docArgs,
@@ -400,7 +401,7 @@ def checkReturnTypesForNumpyStyle(
     returnAnnoItems: list[str] = returnAnnotation.decompose()
     returnAnnoInList: list[str] = returnAnnotation.putAnnotationInList()
 
-    returnSecTypes: list[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]  # noqa: LN002
+    returnSecTypes: list[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]
 
     if returnAnnoInList != returnSecTypes:
         if len(returnAnnoItems) != len(returnSection):
@@ -408,14 +409,14 @@ def checkReturnTypesForNumpyStyle(
             msg += ' type(s); docstring return section has'
             msg += f' {len(returnSection)} type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
-        else:
-            if not all(
-                specialEqual(x, y)
-                for x, y in zip(returnSecTypes, returnAnnoItems)
-            ):
-                msg1 = f'Return annotation types: {returnAnnoItems}; '
-                msg2 = f'docstring return section types: {returnSecTypes}'
-                violationList.append(violation.appendMoreMsg(msg1 + msg2))
+        elif not all(
+            # Equivalent to:
+            # >>> specialEqual(x, y) for x, y in zip(..., ...)
+            map(specialEqual, returnSecTypes, returnAnnoItems)
+        ):
+            msg1 = f'Return annotation types: {returnAnnoItems}; '
+            msg2 = f'docstring return section types: {returnSecTypes}'
+            violationList.append(violation.appendMoreMsg(msg1 + msg2))
 
 
 def checkReturnTypesForGoogleOrSphinxStyle(
@@ -445,11 +446,10 @@ def checkReturnTypesForGoogleOrSphinxStyle(
             msg += 'docstring return section types: '
             msg += str([retArgType])
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
-    else:
-        if bool(returnAnnotation.annotation):  # not empty str or not None
-            msg = 'Return annotation has 1 type(s); docstring'
-            msg += ' return section has 0 type(s).'
-            violationList.append(violation.appendMoreMsg(moreMsg=msg))
+    elif bool(returnAnnotation.annotation):  # not empty str or not None
+        msg = 'Return annotation has 1 type(s); docstring'
+        msg += ' return section has 0 type(s).'
+        violationList.append(violation.appendMoreMsg(moreMsg=msg))
 
 
 def checkYieldTypesForViolations(
@@ -485,38 +485,36 @@ def checkYieldTypesForViolations(
             msg += ' Generator[...]/Iterator[...]/Iterable[...],'
             msg += ' but docstring "yields" section has 1 type(s).'
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
-        else:
-            if yieldSection[0].argType != yieldType:
-                msg = (
-                    'The yield type (the 0th arg in Generator[...]'
-                    '/Iterator[...]): '
-                )
-                msg += str(yieldType) + '; '
-                msg += 'docstring "yields" section types: '
-                msg += str(yieldSection[0].argType)
-                violationList.append(violation.appendMoreMsg(moreMsg=msg))
-    else:
-        if (
-            (
-                hasGeneratorAsReturnAnnotation
-                or hasIteratorOrIterableAsReturnAnnotation
+        elif yieldSection[0].argType != yieldType:
+            msg = (
+                'The yield type (the 0th arg in Generator[...]'
+                '/Iterator[...]): '
             )
-            and yieldType == 'None'
-            and not requireYieldSectionWhenYieldingNothing
-        ):
-            # This means that we don't need to have a "Yields" section in the
-            # docstring if the yield type is None.
-            pass
-        elif returnAnnoText != '':
-            msg = 'Return annotation exists, but docstring'
-            msg += ' "yields" section does not exist or has 0 type(s).'
+            msg += str(yieldType) + '; '
+            msg += 'docstring "yields" section types: '
+            msg += str(yieldSection[0].argType)
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
+    elif (
+        (
+            hasGeneratorAsReturnAnnotation
+            or hasIteratorOrIterableAsReturnAnnotation
+        )
+        and yieldType == 'None'
+        and not requireYieldSectionWhenYieldingNothing
+    ):
+        # This means that we don't need to have a "Yields" section in the
+        # docstring if the yield type is None.
+        pass
+    elif returnAnnoText != '':
+        msg = 'Return annotation exists, but docstring'
+        msg += ' "yields" section does not exist or has 0 type(s).'
+        violationList.append(violation.appendMoreMsg(moreMsg=msg))
 
 
 def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText: str | None,
-        hasGeneratorAsReturnAnnotation: bool,
-        hasIteratorOrIterableAsReturnAnnotation: bool,
+        hasGeneratorAsReturnAnnotation: bool,  # noqa: FBT001
+        hasIteratorOrIterableAsReturnAnnotation: bool,  # noqa: FBT001
 ) -> str | None:
     """Extract yield type from Generator or Iterator annotations"""
     #
@@ -539,7 +537,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
                 )
             else:
                 yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]  # noqa: LN002
+                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]
                 )
         elif hasIteratorOrIterableAsReturnAnnotation:
             yieldType = unparseName(
@@ -547,7 +545,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
             )
         else:
             yieldType = returnAnnoText
-    except Exception:
+    except (AttributeError, TypeError, IndexError):
         yieldType = returnAnnoText
 
     return stripQuotes(yieldType)
@@ -562,15 +560,10 @@ def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
-        if sys.version_info >= (3, 9):
-            returnType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]  # noqa: LN002
-            )
-        else:
-            returnType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice.value.elts[-1]
-            )
-    except Exception:
+        returnType = unparseName(
+            ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
+        )
+    except (AttributeError, TypeError, IndexError):
         returnType = returnAnnoText
 
     return stripQuotes(returnType)
@@ -586,8 +579,8 @@ def addMismatchedRaisesExceptionViolation(
         msgPrefix: str,
 ) -> None:
     """
-    Add a violation for mismatched exception type between function
-    body and docstring
+    Add a violation for mismatched exception type between function body and
+    docstring
     """
     msgPostfix: str = (
         f'Raised exceptions in the docstring: {docRaises}.'

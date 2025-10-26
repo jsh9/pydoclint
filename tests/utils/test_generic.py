@@ -1,5 +1,4 @@
 import ast
-from typing import List
 
 import pytest
 
@@ -56,7 +55,7 @@ expected6 = ['arg1', 'arg2']
 
 
 @pytest.mark.parametrize(
-    'src, expected',
+    ('src', 'expected'),
     [
         (src1, expected1),
         (src2, expected2),
@@ -66,14 +65,14 @@ expected6 = ['arg1', 'arg2']
         (src6, expected6),
     ],
 )
-def testCollectFuncArgs(src: str, expected: List[str]) -> None:
+def testCollectFuncArgs(src: str, expected: list[str]) -> None:
     tree = ast.parse(src)
     out = collectFuncArgs(tree.body[0])
     assert [_.arg for _ in out] == expected
 
 
 @pytest.mark.parametrize(
-    'string, expected',
+    ('string', 'expected'),
     [
         ('"Hello" \'world\'!', 'Hello world!'),
         (
@@ -87,6 +86,10 @@ def testCollectFuncArgs(src: str, expected: List[str]) -> None:
         ),
         ('Optional["MyClass"]', 'Optional[MyClass]'),
         ('Optional[MyClass]', 'Optional[MyClass]'),
+        ('````', ''),
+        ('``1``', '1'),
+        ('``', ''),
+        ('`2`', '2'),
     ],
 )
 def testStripQuotes(string: str, expected: str) -> None:
@@ -94,7 +97,7 @@ def testStripQuotes(string: str, expected: str) -> None:
 
 
 @pytest.mark.parametrize(
-    'str1, str2, expected',
+    ('str1', 'str2', 'expected'),
     [
         ('', '', True),  # truly equal
         ('"', '"', True),  # truly equal

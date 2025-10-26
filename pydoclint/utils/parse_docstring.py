@@ -36,8 +36,8 @@ def parseDocstring(
         userSpecifiedStyle: str,
 ) -> tuple[Doc, ParseError | None, bool]:
     """
-    Parse docstring in all 3 docstring styles and return the one that
-    is parsed with the most likely style.
+    Parse docstring in all 3 docstring styles and return the one that is parsed
+    with the most likely style.
     """
     # Check if docstring contains numpy-style section headers with dashes
     if _containsNumpyStylePattern(docstring):

@@ -1,5 +1,24 @@
 # More about docstring style mismatch (`DOC003`)
 
+<!--TOC-->
+
+______________________________________________________________________
+
+**Table of Contents**
+
+- [1. How does _pydoclint_ detect the style of a docstring?](#1-how-does-pydoclint-detect-the-style-of-a-docstring)
+  - [1.1. Numpy-style pattern detection (enhanced detection)](#11-numpy-style-pattern-detection-enhanced-detection)
+  - [1.2. Fallback to size-based detection](#12-fallback-to-size-based-detection)
+- [2. How accurate is this detection heuristic?](#2-how-accurate-is-this-detection-heuristic)
+- [3. Can I turn this off?](#3-can-i-turn-this-off)
+- [4. Is it much slower to parse a docstring in all 3 styles?](#4-is-it-much-slower-to-parse-a-docstring-in-all-3-styles)
+- [5. What violation code is associated with style mismatch?](#5-what-violation-code-is-associated-with-style-mismatch)
+- [6. How to fix this violation code?](#6-how-to-fix-this-violation-code)
+
+______________________________________________________________________
+
+<!--TOC-->
+
 This violation code warns you when _pydoclint_ thinks that the docstring is
 written in a different style than the style you specified via the `--style`
 config option.
@@ -65,7 +84,7 @@ Actually, this style mismatch detection feature is by default _off_.
 You can turn this feature on by setting `--check-style-mismatch` (or `-csm`) to
 `True` (or `--check-style-mismatch=True`).
 
-## 3. Is it much slower to parse a docstring in all 3 styles?
+## 4. Is it much slower to parse a docstring in all 3 styles?
 
 It is not. The authors of _pydoclint_ benchmarked some very large code bases,
 and here are the results (as of 2025/01/12):
