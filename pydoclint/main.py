@@ -16,7 +16,7 @@ from pydoclint.baseline import (
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
-from pydoclint.utils.invisibleChars import replaceInvisibleChars
+from pydoclint.utils.invisible_chars import replaceInvisibleChars
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 

@@ -7,7 +7,6 @@ from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import stripQuotes
 from pydoclint.utils.unparser_custom import unparseName
 
-
 MIN_TUPLE_ANNOTATION_LENGTH = len('tuple[]')  # shortest valid tuple annotation
 
 
