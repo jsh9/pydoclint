@@ -43,7 +43,7 @@ class Doc:
         return pprint.pformat(self.__dict__, indent=2)
 
     @property
-    def isShortDocstring(self) -> bool:  # type:ignore[return]
+    def isShortDocstring(self) -> bool:
         """Is the docstring a short one (containing only a summary)"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             # API documentation:
@@ -67,7 +67,7 @@ class Doc:
         raise self._createUnknownStyleError()
 
     @property
-    def argList(self) -> ArgList:  # type:ignore[return]
+    def argList(self) -> ArgList:
         """The argument info in the docstring, presented as an ArgList"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringParam(self.parsed.params)
@@ -75,7 +75,7 @@ class Doc:
         raise self._createUnknownStyleError()
 
     @property
-    def attrList(self) -> ArgList:  # type:ignore[return]
+    def attrList(self) -> ArgList:
         """The attributes info in the docstring, presented as an ArgList"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return ArgList.fromDocstringAttr(self.parsed.attrs)
@@ -83,7 +83,7 @@ class Doc:
         raise self._createUnknownStyleError()
 
     @property
-    def hasReturnsSection(self) -> bool:  # type:ignore[return]
+    def hasReturnsSection(self) -> bool:
         """Whether the docstring has a 'Returns' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             retSection: DocstringReturns | None = self.parsed.returns
@@ -92,7 +92,7 @@ class Doc:
         raise self._createUnknownStyleError()
 
     @property
-    def hasYieldsSection(self) -> bool:  # type:ignore[return]
+    def hasYieldsSection(self) -> bool:
         """Whether the docstring has a 'Yields' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             yieldSection: DocstringYields = self.parsed.yields
@@ -101,7 +101,7 @@ class Doc:
         raise self._createUnknownStyleError()
 
     @property
-    def hasRaisesSection(self) -> bool:  # type:ignore[return]
+    def hasRaisesSection(self) -> bool:
         """Whether the docstring has a 'Raises' section"""
         if self.style in {'google', 'numpy', 'sphinx'}:
             return len(self.parsed.raises) > 0
