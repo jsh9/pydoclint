@@ -10,7 +10,7 @@ from docstring_parser.common import (
 )
 from docstring_parser.google import GoogleParser
 from docstring_parser.numpydoc import NumpydocParser
-from docstring_parser.rest import parse as parseSphinx  # noqa: N812
+from docstring_parser.rest import parse as parseSphinx
 
 from pydoclint.utils.arg import ArgList
 from pydoclint.utils.edge_case_error import EdgeCaseError

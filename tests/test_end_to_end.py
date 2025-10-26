@@ -1,22 +1,23 @@
-import subprocess
-import sys
-from pathlib import Path
+import re
+
+from click.testing import CliRunner
+
+from pydoclint.main import main as cliMain
+
+EXCLUDE_PATTERN = r'\.git|.?venv|\.tox|build'
+EXCLUDE_REGEX = re.compile(EXCLUDE_PATTERN)
 
 
 def testMain() -> None:
-    """Essentially an integration test"""
-    mainScriptPath: Path = Path.cwd().parent / 'pydoclint/main.py'
-    result = subprocess.run(
-        [
-            sys.executable,
-            mainScriptPath,
-            r'--exclude="\.git|.?venv|\.tox|build"',  # overrides pyproject.toml
-            '.',
-        ],
-        check=False,
-        text=True,
-        capture_output=True,
+    """
+    Run the Click CLI end-to-end and ensure it reports violations cleanly.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        cliMain,
+        [f'--exclude={EXCLUDE_PATTERN}', '.'],
+        catch_exceptions=False,
     )
 
-    assert result.returncode != 0  # we expect DOC violations to happen
-    assert 'Error: ' not in result.stderr  # but we don't expect it to crash
+    assert result.exit_code != 0  # we expect DOC violations to happen
+    assert 'Error: ' not in result.output

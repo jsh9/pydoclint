@@ -78,6 +78,7 @@ ignore = [
   "N802", # This project uses camelCase.
   "N803", # See docs/notes_for_developers.md for reasons.
   "N806",
+  "N812",
   "N816",
   "PLC1901", # it's fine to compare with empty string
   "S101", # it's fine to use assert
