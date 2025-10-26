@@ -194,9 +194,17 @@ def stripQuotes(string: str | None) -> str | None:
     min_length_of_4_backticks: int = 4
     min_length_of_2_backticks: int = 2
 
-    if string.startswith('``') and string.endswith('``') and len(string) >= min_length_of_4_backticks:
+    if (
+        string.startswith('``')
+        and string.endswith('``')
+        and len(string) >= min_length_of_4_backticks
+    ):
         string = string[2:-2]
-    elif string.startswith('`') and string.endswith('`') and len(string) >= min_length_of_2_backticks:
+    elif (
+        string.startswith('`')
+        and string.endswith('`')
+        and len(string) >= min_length_of_2_backticks
+    ):
         string = string[1:-1]
 
     return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)

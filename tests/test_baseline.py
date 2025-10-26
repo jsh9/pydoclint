@@ -294,7 +294,9 @@ def testSomeViolationsAreFixedButNewViolationsOccur(
     ]
 
     assert len(remainingViolationsInAllFiles.keys()) == 1
-    assert next(iter(remainingViolationsInAllFiles.keys())) == tmpFile.as_posix()
+    assert (
+        next(iter(remainingViolationsInAllFiles.keys())) == tmpFile.as_posix()
+    )
     assert [
         str(_) for _ in remainingViolationsInAllFiles[tmpFile.as_posix()]
     ] == additionalViolations
@@ -342,7 +344,12 @@ def testBaselineIndent(
 
 
 @pytest.mark.parametrize(
-    ('baselineViolations', 'actualViolations', 'expectedUnfixed', 'expectedRemaining'),
+    (
+        'baselineViolations',
+        'actualViolations',
+        'expectedUnfixed',
+        'expectedRemaining',
+    ),
     [
         (
             [],

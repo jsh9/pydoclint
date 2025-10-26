@@ -13,9 +13,11 @@ def replaceTupleBracket(string: str) -> str:
     annotations such as "tuple[*Shape]", the ast.unparse() returns
     "tuple[*Shape,]" (one more comma).
 
-    For example, `ast.unparse(ast.parse("tuple[*Shape]"))` would return `tuple[*Shape,]` in Python 3.11+.
+    For example, ``ast.unparse(ast.parse("tuple[*Shape]"))`` would return
+    ``tuple[*Shape,]`` in Python 3.11+.
 
-    For Python 3.10, ``tuple[*Shape]`` isn't a valid syntax, so we don't need to do this replacement.
+    For Python 3.10, ``tuple[*Shape]`` isn't a valid syntax, so we don't need
+    to do this replacement.
     """
     return re.sub(r'(tuple|Tuple)\[\*(.*?),\]', r'\1[*\2]', string)
 
