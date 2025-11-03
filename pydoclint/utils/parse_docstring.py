@@ -6,6 +6,25 @@ from docstring_parser import ParseError
 
 from pydoclint.utils.doc import Doc
 
+_SPHINX_KEYWORDS = (
+    ':param ',
+    ':type ',
+    ':raises ',
+    ':return:',
+    ':rtype:',
+    ':yield:',
+    ':ytype:',
+)
+
+_GOOGLE_KEYWORDS = (
+    'Args:',
+    'Returns:',
+    'Yields:',
+    'Raises:',
+    'Examples:',
+    'Notes:',
+)
+
 
 def _containsNumpyStylePattern(docstring: str) -> bool:
     # Check if docstring contains numpy-style section headers with dashes.
@@ -31,6 +50,72 @@ def _containsNumpyStylePattern(docstring: str) -> bool:
     return bool(re.search(pattern, docstring, re.MULTILINE | re.IGNORECASE))
 
 
+def _containsSphinxStylePattern(docstring: str) -> bool:
+    """
+    Check if docstring contains Sphinx-style field lists at base indentation.
+
+    Only lines that have the same leading indentation as the docstring
+    definition (i.e., the opening triple quotes) count as valid Sphinx
+    directives. Lines with more or fewer leading spaces are ignored.
+    """
+    leadingIndent = _detectDocstringIndent(docstring)
+    for line in docstring.splitlines():
+        stripped = line.lstrip()
+        if stripped == '':
+            continue
+
+        currentIndent = len(line) - len(stripped)
+        if currentIndent != leadingIndent:
+            continue
+
+        for keyword in _SPHINX_KEYWORDS:
+            if stripped.startswith(keyword):
+                return True
+
+    return False
+
+
+def _containsGoogleStylePattern(docstring: str) -> bool:
+    """
+    Check if docstring contains Google-style section headers at base indent.
+    """
+    leadingIndent = _detectDocstringIndent(docstring)
+    for line in docstring.splitlines():
+        stripped = line.lstrip()
+        if stripped == '':
+            continue
+
+        currentIndent = len(line) - len(stripped)
+        if currentIndent != leadingIndent:
+            continue
+
+        for keyword in _GOOGLE_KEYWORDS:
+            if stripped.startswith(keyword):
+                return True
+
+    return False
+
+
+def _detectDocstringIndent(docstring: str) -> int:
+    """
+    Detect the leading indentation level of a docstring.
+
+    This approximates the column where the opening triple quotes are placed by
+    measuring the smallest indentation across non-empty lines.
+    """
+    indent: int | None = None
+    for line in docstring.splitlines():
+        stripped = line.lstrip()
+        if stripped == '':
+            continue
+
+        currentIndent = len(line) - len(stripped)
+        if indent is None or currentIndent < indent:
+            indent = currentIndent
+
+    return 0 if indent is None else indent
+
+
 def parseDocstring(
         docstring: str,
         userSpecifiedStyle: str,
@@ -39,40 +124,51 @@ def parseDocstring(
     Parse docstring in all 3 docstring styles and return the one that is parsed
     with the most likely style.
     """
-    # Check if docstring contains numpy-style section headers with dashes
-    if _containsNumpyStylePattern(docstring):
-        # Force numpy style parsing when numpy pattern is detected
-        docNumpy, excNumpy = parseDocstringInGivenStyle(docstring, 'numpy')
-        return docNumpy, excNumpy, userSpecifiedStyle != 'numpy'
+    isLikelyNumpy: bool = _containsNumpyStylePattern(docstring)
+    isLikelyGoogle: bool = _containsGoogleStylePattern(docstring)
+    isLikelySphinx: bool = _containsSphinxStylePattern(docstring)
 
-    docNumpy, excNumpy = parseDocstringInGivenStyle(docstring, 'numpy')
-    docGoogle, excGoogle = parseDocstringInGivenStyle(docstring, 'google')
-    docSphinx, excSphinx = parseDocstringInGivenStyle(docstring, 'sphinx')
+    if isLikelyNumpy:
+        # Numpy-style headers with dashes are strong indicators; ignore other
+        # potential matches when they appear alongside them.
+        isLikelyGoogle = False
+        isLikelySphinx = False
 
-    docstrings: dict[str, Doc] = {
-        'numpy': docNumpy,
-        'google': docGoogle,
-        'sphinx': docSphinx,
+    likelyStyles = {
+        'numpy': isLikelyNumpy,
+        'google': isLikelyGoogle,
+        'sphinx': isLikelySphinx,
     }
-    docstringSizes: dict[str, int] = {
-        'numpy': docNumpy.docstringSize,
-        'google': docGoogle.docstringSize,
-        'sphinx': docSphinx.docstringSize,
-    }
-    parsingExceptions: dict[str, ParseError | None] = {
-        'numpy': excNumpy,
-        'google': excGoogle,
-        'sphinx': excSphinx,
-    }
-    # Whichever style has the largest docstring size, we think that it is
-    # the actual style that the docstring is written in.
-    maxDocstringSize = max(docstringSizes.values())
-    styleMismatch: bool = docstringSizes[userSpecifiedStyle] < maxDocstringSize
-    return (
-        docstrings[userSpecifiedStyle],
-        parsingExceptions[userSpecifiedStyle],
-        styleMismatch,
-    )
+    matchedStyles = [
+        style for style, matched in likelyStyles.items() if matched
+    ]
+
+    styleMismatch: bool
+
+    if len(matchedStyles) == 1:
+        detectedStyle = matchedStyles[0]
+        if detectedStyle == userSpecifiedStyle:
+            doc, exc = parseDocstringInGivenStyle(docstring, detectedStyle)
+            # The Google parser raises hard errors when sections are malformed,
+            # which is a strong signal the docstring is effectively written in
+            # a different style. Numpy/Sphinx parsers are more permissive, so
+            # we surface only the parsing error (DOC001) without flagging a
+            # style mismatch in those cases.
+            styleMismatch = exc is not None and detectedStyle == 'google'
+            return doc, exc, styleMismatch
+
+        doc, exc = parseDocstringInGivenStyle(docstring, detectedStyle)
+        styleMismatch = True
+        return doc, exc, styleMismatch
+
+    if len(matchedStyles) == 0:
+        doc, exc = parseDocstringInGivenStyle(docstring, userSpecifiedStyle)
+        styleMismatch = False
+        return doc, exc, styleMismatch
+
+    doc, exc = parseDocstringInGivenStyle(docstring, userSpecifiedStyle)
+    styleMismatch = True
+    return doc, exc, styleMismatch
 
 
 def parseDocstringInGivenStyle(

@@ -5,6 +5,10 @@
 - Added
   - New functionality: _pydoclint_ native mode can parse "noqa" comments and
     thus users can suppress violations in the native mode.
+- Changed
+  - The logic to detect docstring style mismatches, fixing a false positive
+    case where non-Sphinx style docstrings are detected as Sphinx style
+    (because there are some rST keywords in them)
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.7.6...0.8.0
 
