@@ -889,14 +889,12 @@ def _checkFile(
         location=nativeModeNoqaLocation,
     )
 
-    filteredViolations = [
+    return [  # filter violations
         violation
         for violation in visitor.violations
         if violation.fullErrorCode
         not in suppressionByDefinitionLine.get(violation.line, set())
     ]
-
-    return filteredViolations
 
 
 if __name__ == '__main__':

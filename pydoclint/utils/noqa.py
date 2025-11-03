@@ -3,8 +3,11 @@ from __future__ import annotations
 import ast
 import re
 import tokenize
-from collections.abc import Iterable
 from io import StringIO
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 ALLOWED_NOQA_LOCATIONS = {'definition', 'docstring'}
 DOC_CODE_PATTERN = re.compile(r'DOC\d{3}', flags=re.IGNORECASE)
@@ -38,11 +41,10 @@ def parseNoqaComment(comment: str) -> set[str]:
         return set()
 
     remainder = remainder[1:]
-    codes = {
+    return {
         match.group(0).upper()
         for match in DOC_CODE_PATTERN.finditer(remainder)
     }
-    return codes
 
 
 def collectNoqaCodesByLine(src: str) -> dict[int, set[str]]:
@@ -102,7 +104,7 @@ def collectNativeNoqaSuppression(
     """
     if location not in ALLOWED_NOQA_LOCATIONS:
         raise ValueError(
-            'Invalid native NOQA location; must be "definition" or "docstring".'
+            'Invalid native NOQA location; must be "definition" or "docstring"'
         )
 
     definitionLineToCodes: dict[int, set[str]] = {}
