@@ -3,8 +3,8 @@ from __future__ import annotations
 import ast
 import re
 import tokenize
+from collections.abc import Iterable
 from io import StringIO
-from typing import Iterable
 
 ALLOWED_NOQA_LOCATIONS = {'definition', 'docstring'}
 DOC_CODE_PATTERN = re.compile(r'DOC\d{3}', flags=re.IGNORECASE)
@@ -149,7 +149,7 @@ def _getDocstringEndLine(node: ast.AST) -> int | None:
     if isinstance(value, ast.Constant) and isinstance(value.value, str):
         return getattr(firstStmt, 'end_lineno', firstStmt.lineno)
 
-    if hasattr(value, 's') and isinstance(getattr(value, 's'), str):
+    if hasattr(value, 's') and isinstance(value.s, str):
         return getattr(firstStmt, 'end_lineno', firstStmt.lineno)
 
     return None

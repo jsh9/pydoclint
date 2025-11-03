@@ -4,8 +4,8 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from pydoclint.main import _checkFile, main as cliMain
-
+from pydoclint.main import _checkFile
+from pydoclint.main import main as cliMain
 
 DATA_DIR = Path(__file__).parent / 'test_data' / 'noqa'
 STYLES = ('google', 'numpy', 'sphinx')
