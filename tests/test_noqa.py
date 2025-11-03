@@ -43,12 +43,12 @@ def testParseNoqaComment(comment: str, expected: set[str]) -> None:
     [
         (
             dedent(
-                '''
+                """
                 def funcOne():
                     pass  # noqa: DOC101
                 def funcTwo():
                     pass  # comment noqa: doc202 extra
-                '''
+                """
             ).strip(),
             {
                 2: {'DOC101'},
@@ -57,12 +57,12 @@ def testParseNoqaComment(comment: str, expected: set[str]) -> None:
         ),
         (
             dedent(
-                '''
+                """
                 def funcOne():  # NOQA: DOC101, DOC102
                     pass
                 def funcTwo():
                     pass  # random text NOQA: DOC201 doc202 trailing
-                '''
+                """
             ).strip(),
             {
                 1: {'DOC101', 'DOC102'},
@@ -71,5 +71,7 @@ def testParseNoqaComment(comment: str, expected: set[str]) -> None:
         ),
     ],
 )
-def testCollectNoqaCodesByLine(src: str, expected: dict[int, set[str]]) -> None:
+def testCollectNoqaCodesByLine(
+        src: str, expected: dict[int, set[str]]
+) -> None:
     assert collectNoqaCodesByLine(src) == expected

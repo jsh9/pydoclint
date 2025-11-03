@@ -32,7 +32,7 @@ def parseNoqaComment(comment: str) -> set[str]:
     if noqaMatch is None:
         return set()
 
-    remainder = commentBody[noqaMatch.end():]
+    remainder = commentBody[noqaMatch.end() :]
     remainder = remainder.lstrip()
     if not remainder.startswith(':'):
         return set()
@@ -97,8 +97,8 @@ def collectNativeNoqaSuppression(
     Returns
     -------
     dict[int, set[str]]
-        Mapping from definition line numbers (``node.lineno``) to the set
-        of DOC codes suppressed for that definition.
+        Mapping from definition line numbers (``node.lineno``) to the set of
+        DOC codes suppressed for that definition.
     """
     if location not in ALLOWED_NOQA_LOCATIONS:
         raise ValueError(
@@ -109,7 +109,9 @@ def collectNativeNoqaSuppression(
 
     for node in _iterDocstringOwners(tree):
         suppressionLine = (
-            node.lineno if location == 'definition' else _getDocstringEndLine(node)
+            node.lineno
+            if location == 'definition'
+            else _getDocstringEndLine(node)
         )
         if suppressionLine is None:
             continue
@@ -126,7 +128,9 @@ def collectNativeNoqaSuppression(
 def _iterDocstringOwners(tree: ast.AST) -> Iterable[ast.AST]:
     """Yield all AST nodes that can own docstrings."""
     for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+        if isinstance(
+            node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)
+        ):
             yield node
 
 
