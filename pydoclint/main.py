@@ -384,6 +384,7 @@ def validateNativeModeNoqaLocation(
     help='If True, show file names in the front of every violation message.',
 )
 @click.option(
+    '-nmnl',
     '--native-mode-noqa-location',
     type=str,
     show_default=True,

@@ -38,7 +38,7 @@ ______________________________________________________________________
 - [23. `--generate-baseline` (default: `False`)](#23---generate-baseline-default-false)
 - [24. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#24---auto-regenerate-baseline-shortform--arb-default-true)
 - [25. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#25---show-filenames-in-every-violation-message-shortform--sfn-default-false)
-- [26. `--native-mode-noqa-location` (default: `docstring`)](#26---native-mode-noqa-location-default-docstring)
+- [26. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)](#26---native-mode-noqa-location-shortform--nmnl-default-docstring)
 - [27. `--config` (default: `pyproject.toml`)](#27---config-default-pyprojecttoml)
 
 ______________________________________________________________________
@@ -315,7 +315,7 @@ This can be convenient if you would like to click on each violation message and
 go to the corresponding line in your IDE. (Note: not all terminal app offers
 this functionality.)
 
-## 26. `--native-mode-noqa-location` (default: `docstring`)
+## 26. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)
 
 This option controls where _pydoclint_ looks for inline `# noqa: DOCxxx`
 comments when running in native mode (i.e., outside of Flake8). Two values are
