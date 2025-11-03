@@ -99,10 +99,21 @@ function signatures. The core architecture consists of:
 - Class attribute documentation checking
 - Baseline mode for gradual adoption in existing codebases
 - Both standalone CLI and flake8 plugin modes
+- Native CLI supports inline suppression via `# noqa: DOCxxx` (see
+  `--native-mode-noqa-location` for placement options)
 
 ### 3.5. Test Structure
 
 - `tests/data/` contains test cases organized by docstring style (google,
   numpy, sphinx, edge_cases)
+- `tests/test_data/noqa/` contains end-to-end fixtures by style for native
+  suppression behaviour
 - Tests use real Python files with expected violations rather than string-based
   tests
+
+## 4. Coding style
+
+1. When writing tests, use pytest.parametrized. Use "flat" test functions
+   instead of using classes.
+2. Use camelCase in this repo
+3. Add type hints wherever possible

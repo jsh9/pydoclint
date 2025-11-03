@@ -1,5 +1,13 @@
 # Change Log
 
+## [0.8.0] - 2025-11-03
+
+- Added
+  - New functionality: _pydoclint_ native mode can parse "noqa" comments and
+    thus users can suppress violations in the native mode.
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.7.6...0.8.0
+
 ## [0.7.6] - 2025-10-26
 
 - Changed

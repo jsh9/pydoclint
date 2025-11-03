@@ -38,7 +38,8 @@ ______________________________________________________________________
 - [23. `--generate-baseline` (default: `False`)](#23---generate-baseline-default-false)
 - [24. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#24---auto-regenerate-baseline-shortform--arb-default-true)
 - [25. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#25---show-filenames-in-every-violation-message-shortform--sfn-default-false)
-- [26. `--config` (default: `pyproject.toml`)](#26---config-default-pyprojecttoml)
+- [26. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)](#26---native-mode-noqa-location-shortform--nmnl-default-docstring)
+- [27. `--config` (default: `pyproject.toml`)](#27---config-default-pyprojecttoml)
 
 ______________________________________________________________________
 
@@ -314,7 +315,22 @@ This can be convenient if you would like to click on each violation message and
 go to the corresponding line in your IDE. (Note: not all terminal app offers
 this functionality.)
 
-## 26. `--config` (default: `pyproject.toml`)
+## 26. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)
+
+This option controls where _pydoclint_ looks for inline `# noqa: DOCxxx`
+comments when running in native mode (i.e., outside of Flake8). Two values are
+accepted:
+
+- `docstring` (default): expects the `# noqa: DOCxxx` comment on the same line
+  as the closing triple quotes of the docstring.
+- `definition`: expects the `# noqa: DOCxxx` comment on the line containing the
+  function/method/class definition.
+
+Only DOC-prefixed violation codes are honored; other codes are ignored by the
+native parser. This setting has no effect in Flake8 mode, which is controlled
+by Flake8's own `noqa` handling.
+
+## 27. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this

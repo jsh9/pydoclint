@@ -17,6 +17,10 @@ from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
 from pydoclint.utils.invisible_chars import replaceInvisibleChars
+from pydoclint.utils.noqa import (
+    collectNativeNoqaSuppression,
+    collectNoqaCodesByLine,
+)
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
 
@@ -36,6 +40,21 @@ def validateStyleValue(
     if value not in {'numpy', 'google', 'sphinx'}:
         raise click.BadParameter(
             '"--style" must be "numpy", "google", or "sphinx"'
+        )
+
+    return value
+
+
+def validateNativeModeNoqaLocation(
+        context: click.Context,  # noqa: ARG001
+        param: click.Parameter,  # noqa: ARG001
+        value: str,
+) -> str:
+    """Validate the value of the native NOQA location option"""
+    allowed = {'definition', 'docstring'}
+    if value not in allowed:
+        raise click.BadParameter(
+            '"--native-noqa-location" must be "definition" or "docstring"'
         )
 
     return value
@@ -364,6 +383,19 @@ def validateStyleValue(
     default=False,
     help='If True, show file names in the front of every violation message.',
 )
+@click.option(
+    '-nmnl',
+    '--native-mode-noqa-location',
+    type=str,
+    show_default=True,
+    default='docstring',
+    callback=validateNativeModeNoqaLocation,
+    help=(
+        'Where to read DOC NOQA comments in native mode:'
+        ' "definition" for the function/method/class definition line,'
+        ' or "docstring" for the line containing the closing docstring.'
+    ),
+)
 @click.argument(
     'paths',
     nargs=-1,
@@ -431,6 +463,7 @@ def main(  # noqa: C901, PLR0915
         auto_regenerate_baseline: bool,
         baseline: str,
         show_filenames_in_every_violation_message: bool,
+        native_mode_noqa_location: str,
         config: str | None,  # noqa: ARG001, (don't remove `config` b/c it's required by `click`)
 ) -> None:
     """Command-line entry point of pydoclint"""
@@ -544,6 +577,7 @@ def main(  # noqa: C901, PLR0915
         ),
         checkStyleMismatch=check_style_mismatch,
         checkArgDefaults=check_arg_defaults,
+        nativeModeNoqaLocation=native_mode_noqa_location,
     )
 
     if generate_baseline:
@@ -686,6 +720,7 @@ def _checkPaths(
         shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
         checkArgDefaults: bool = False,
+        nativeModeNoqaLocation: str = 'docstring',
         quiet: bool = False,
         exclude: str = '',
 ) -> dict[str, list[Violation]]:
@@ -752,6 +787,7 @@ def _checkPaths(
             ),
             checkStyleMismatch=checkStyleMismatch,
             checkArgDefaults=checkArgDefaults,
+            nativeModeNoqaLocation=nativeModeNoqaLocation,
         )
         allViolations[filename.as_posix()] = violationsInThisFile
 
@@ -782,6 +818,7 @@ def _checkFile(
         shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
         checkArgDefaults: bool = False,
+        nativeModeNoqaLocation: str = 'docstring',
 ) -> list[Violation]:
     if not filename.is_file():  # sometimes folder names can end with `.py`
         return []
@@ -845,7 +882,20 @@ def _checkFile(
         checkArgDefaults=checkArgDefaults,
     )
     visitor.visit(tree)
-    return visitor.violations
+
+    codesByLine = collectNoqaCodesByLine(src)
+    suppressionByDefinitionLine = collectNativeNoqaSuppression(
+        tree=tree,
+        codesByLine=codesByLine,
+        location=nativeModeNoqaLocation,
+    )
+
+    return [  # filter violations
+        violation
+        for violation in visitor.violations
+        if violation.fullErrorCode
+        not in suppressionByDefinitionLine.get(violation.line, set())
+    ]
 
 
 if __name__ == '__main__':
