@@ -1,9 +1,12 @@
 # Docs: https://docs.astral.sh/ruff/configuration
 
 exclude = ["tests/test_data"]
+fix = true
 line-length = 79
 output-format = "grouped"
+show-fixes = true
 target-version = "py310"
+unsafe-fixes = true
 
 [format]
 docstring-code-format = true

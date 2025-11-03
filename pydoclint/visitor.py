@@ -252,26 +252,31 @@ class Visitor(ast.NodeVisitor):
                 yieldViolations = []
                 raiseViolations = []
             else:
-                argViolations = self.checkArguments(node, parent_, doc)
-                if docstring == '':
+                argViolations = self.checkArguments(
+                    node,
+                    parent_,
+                    doc,
+                    styleMismatch=styleMismatch,
+                )
+                if docstring == '' or styleMismatch:
                     returnViolations = []
                     yieldViolations = []
                     raiseViolations = []
-                else:
-                    if hasYieldStatements(node) and hasReturnStatements(node):
-                        returnViolations = self.checkReturnAndYield(
-                            node, parent_, doc
-                        )
-                        # It doesn't matter what violations fall into which
-                        # list, so we put everything in `returnViolations`
-                        # and then keep `yieldViolations` empty.
-                        yieldViolations = []
+                elif hasYieldStatements(node) and hasReturnStatements(node):
+                    returnViolations = self.checkReturnAndYield(
+                        node, parent_, doc
+                    )
+                    # It doesn't matter what violations fall into which
+                    # list, so we put everything in `returnViolations`
+                    # and then keep `yieldViolations` empty.
+                    yieldViolations = []
+                    if not self.skipCheckingRaises:
+                        raiseViolations = self.checkRaises(node, parent_, doc)
                     else:
-                        returnViolations = self.checkReturns(
-                            node, parent_, doc
-                        )
-                        yieldViolations = self.checkYields(node, parent_, doc)
-
+                        raiseViolations = []
+                else:
+                    returnViolations = self.checkReturns(node, parent_, doc)
+                    yieldViolations = self.checkYields(node, parent_, doc)
                     if not self.skipCheckingRaises:
                         raiseViolations = self.checkRaises(node, parent_, doc)
                     else:
@@ -433,6 +438,8 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
             doc: Doc,
+            *,
+            styleMismatch: bool,
     ) -> list[Violation]:
         """
         Check input arguments of the function.
@@ -447,6 +454,10 @@ class Visitor(ast.NodeVisitor):
             class, etc.
         doc : Doc
             The parsed docstring structure.
+        styleMismatch : bool
+            Whether the docstring is suspected to be written in a different
+            style than the configured one. When True, type-hint related checks
+            are suppressed to avoid cascading mismatches.
 
         Returns
         -------
@@ -462,6 +473,13 @@ class Visitor(ast.NodeVisitor):
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)
         msgPrefix: str = generateFuncMsgPrefix(node, parent_, appendColon=True)
+
+        considerArgTypeHintsInSignature = (
+            self.argTypeHintsInSignature and not styleMismatch
+        )
+        considerArgTypeHintsInDocstring = (
+            self.argTypeHintsInDocstring and not styleMismatch
+        )
 
         if isMethod:
             mType: MethodType = detectMethodType(node)
@@ -542,19 +560,23 @@ class Visitor(ast.NodeVisitor):
             violationForDocArgsLengthLonger=v102,
         )
 
-        if self.argTypeHintsInSignature and funcArgs.noTypeHints():
+        if considerArgTypeHintsInSignature and funcArgs.noTypeHints():
             violations.append(v106)
 
         if (
-            self.argTypeHintsInSignature
+            considerArgTypeHintsInSignature
             and not funcArgs.hasTypeHintInAllArgs()
         ):
             violations.append(v107)
 
-        if not self.argTypeHintsInSignature and funcArgs.hasTypeHintInAnyArg():
+        if (
+            not self.argTypeHintsInSignature
+            and not styleMismatch
+            and funcArgs.hasTypeHintInAnyArg()
+        ):
             violations.append(v108)
 
-        if self.argTypeHintsInDocstring and (
+        if considerArgTypeHintsInDocstring and (
             # A non-empty arg list is the pre-requisite for reporting DOC109.
             # Otherwise, the error message of DOC109 would not make sense.
             # ("The option `--arg-type-hints-in-docstring` is `True` but
@@ -563,10 +585,17 @@ class Visitor(ast.NodeVisitor):
         ):
             violations.append(v109)
 
-        if self.argTypeHintsInDocstring and not docArgs.hasTypeHintInAllArgs():
+        if (
+            considerArgTypeHintsInDocstring
+            and not docArgs.hasTypeHintInAllArgs()
+        ):
             violations.append(v110)
 
-        if not self.argTypeHintsInDocstring and docArgs.hasTypeHintInAnyArg():
+        if (
+            not self.argTypeHintsInDocstring
+            and not styleMismatch
+            and docArgs.hasTypeHintInAnyArg()
+        ):
             violations.append(v111)
 
         checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
@@ -577,8 +606,8 @@ class Visitor(ast.NodeVisitor):
             violationForOrderMismatch=v104,
             violationForTypeHintMismatch=v105,
             shouldCheckArgOrder=self.checkArgOrder,
-            argTypeHintsInSignature=self.argTypeHintsInSignature,
-            argTypeHintsInDocstring=self.argTypeHintsInDocstring,
+            argTypeHintsInSignature=considerArgTypeHintsInSignature,
+            argTypeHintsInDocstring=considerArgTypeHintsInDocstring,
             lineNum=lineNum,
             msgPrefix=msgPrefix,
         )

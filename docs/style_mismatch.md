@@ -7,11 +7,12 @@ ______________________________________________________________________
 **Table of Contents**
 
 - [1. How does _pydoclint_ detect the style of a docstring?](#1-how-does-pydoclint-detect-the-style-of-a-docstring)
-  - [1.1. Numpy-style pattern detection (enhanced detection)](#11-numpy-style-pattern-detection-enhanced-detection)
-  - [1.2. Fallback to size-based detection](#12-fallback-to-size-based-detection)
+  - [1.1. Keyword heuristics for each style](#11-keyword-heuristics-for-each-style)
+  - [1.2. Handling ambiguous or missing matches](#12-handling-ambiguous-or-missing-matches)
+  - [1.3. What happens after a mismatch is detected?](#13-what-happens-after-a-mismatch-is-detected)
 - [2. How accurate is this detection heuristic?](#2-how-accurate-is-this-detection-heuristic)
 - [3. Can I turn this off?](#3-can-i-turn-this-off)
-- [4. Is it much slower to parse a docstring in all 3 styles?](#4-is-it-much-slower-to-parse-a-docstring-in-all-3-styles)
+- [4. Is it much slower to parse a docstring with the heuristics?](#4-is-it-much-slower-to-parse-a-docstring-with-the-heuristics)
 - [5. What violation code is associated with style mismatch?](#5-what-violation-code-is-associated-with-style-mismatch)
 - [6. How to fix this violation code?](#6-how-to-fix-this-violation-code)
 
@@ -27,40 +28,40 @@ config option.
 
 _pydoclint_ detects the style of a docstring with this procedure:
 
-### 1.1. Numpy-style pattern detection (enhanced detection)
+### 1.1. Keyword heuristics for each style
 
-As of recent updates, _pydoclint_ first checks if the docstring contains
-numpy-style section headers with dashes. If it detects patterns like:
+We now rely on lightweight heuristics that look for style-specific keywords at
+the indentation level where the docstring begins:
 
-```
-Returns
--------
+- **NumPy**: section headers followed by dashed underlines (for example,
+  `Returns` + `-------`), using a curated list of keywords.
+- **Google**: top-level section headers such as `Args:`, `Returns:`, `Yields:`,
+  `Raises:`, `Examples:`, or `Notes:` with matching indentation.
+- **Sphinx/reST**: top-level field lists such as `:param`, `:type`, `:raises`,
+  `:return:`, `:rtype:`, `:yield:`, or `:ytype:`.
 
-Parameters
-----------
+Each helper only considers keywords that start at the same indentation level as
+the opening triple quotes to avoid counting inline roles or nested blocks.
 
-Examples
---------
-```
+### 1.2. Handling ambiguous or missing matches
 
-It immediately identifies the docstring as numpy-style and parses it
-accordingly, even if it may not be fully parsable as numpy style. This
-pattern-based detection looks for common section headers (Args, Arguments,
-Parameters, Returns, Yields, Raises, Examples, Notes, See Also, References)
-followed by 3 or more dashes on the next line.
+- **Exactly one match** We parse the docstring using the detected style. If it
+  differs from the configured style, DOC003 is emitted. Google parse failures
+  are also treated as style mismatches because malformed Google sections almost
+  always indicate another style.
+- **No matches** We assume the docstring uses the configured style and skip
+  style mismatch warnings entirely.
+- **Multiple matches** The docstring appears to mix styles (for example, Google
+  `Args:` plus Sphinx `:param` directives), so we emit DOC003 for every
+  configured style.
 
-### 1.2. Fallback to size-based detection
+### 1.3. What happens after a mismatch is detected?
 
-If no numpy-style patterns are detected, _pydoclint_ falls back to the original
-size-based detection:
-
-- It attempts to parse the docstring in all 3 styles: numpy, Google, and Sphinx
-- It then compares the "size" of the parsed docstring objects
-  - The "size" is a human-made metric to measure how "fully parsed" a docstring
-    object is. For example, a docstring object without the return section is
-    larger in "size" than that with the return section (all others being equal)
-- The style that yields the largest "size" is considered the style of the
-  docstring
+When DOC003 is triggered we still return the docstring parsed in the configured
+style, but we suppress many follow-up checks that would otherwise generate
+cascading false positives (argument type-hint expectations, return/yield/raise
+consistency, etc.). This keeps the feedback focused on resolving the style
+mismatch first.
 
 ## 2. How accurate is this detection heuristic?
 
@@ -84,10 +85,12 @@ Actually, this style mismatch detection feature is by default _off_.
 You can turn this feature on by setting `--check-style-mismatch` (or `-csm`) to
 `True` (or `--check-style-mismatch=True`).
 
-## 4. Is it much slower to parse a docstring in all 3 styles?
+## 4. Is it much slower to parse a docstring with the heuristics?
 
-It is not. The authors of _pydoclint_ benchmarked some very large code bases,
-and here are the results (as of 2025/01/12):
+No. The new detection flow usually parses at most one style per docstring, but
+even when we fall back to the configured style the cost is still negligible.
+For reference, benchmarking large code bases (as of 2025/01/12) shows the
+overhead of style detection is only a few percent:
 
 |                              | numpy | scikit-learn | Bokeh | Airflow |
 | ---------------------------- | ----- | ------------ | ----- | ------- |

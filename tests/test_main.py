@@ -1101,6 +1101,49 @@ def testDocstringStyleMismatch(
 
 
 @pytest.mark.parametrize(
+    'style',
+    ['google', 'numpy', 'sphinx'],
+)
+def testStyleMismatchIgnoresInlineSphinxKeywords(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'style_mismatch/this_can_be_any_style.py',
+        style=style,
+        checkStyleMismatch=True,
+    )
+    assert list(map(str, violations)) == []
+
+
+@pytest.mark.parametrize(
+    ('style', 'relative_path'),
+    [
+        ('numpy', 'numpy_pure.py'),
+        ('google', 'google_pure.py'),
+        ('sphinx', 'sphinx_pure.py'),
+    ],
+)
+def testStyleMismatchAcceptsPureStyles(
+        style: str,
+        relative_path: str,
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'style_mismatch' / relative_path,
+        style=style,
+        checkStyleMismatch=True,
+    )
+    assert not any('DOC003' in str(violation) for violation in violations)
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+def testStyleMismatchFlagsMixedStyles(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / 'style_mismatch/mixed_styles.py',
+        style=style,
+        checkStyleMismatch=True,
+    )
+    assert any('DOC003' in str(violation) for violation in violations)
+
+
+@pytest.mark.parametrize(
     ('style', 'rrs'),
     itertools.product(
         ['google', 'numpy', 'sphinx'],

@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.8.1] - 2025-11-03
+
+- Changed
+  - The logic to detect docstring style mismatches, fixing a false positive
+    case where non-Sphinx style docstrings are detected as Sphinx style
+    (because there are some rST keywords in them)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.8.0...0.8.1
+
 ## [0.8.0] - 2025-11-03
 
 - Added
