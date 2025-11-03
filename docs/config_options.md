@@ -237,8 +237,11 @@ not appear in the docstring.
 ## 20. `--check-style-mismatch` (shortform: `-csm`, default: `False`)
 
 If True, check that style specified in --style matches the detected style of
-the docstring. If there is a mismatch, DOC003 will be reported. Setting this to
-False will silence all DOC003 violations.
+the docstring. If there is a mismatch, `DOC003` will be reported. Setting this
+to False will silence all `DOC003` violations.
+
+Read more about this config option and `DOC003` at
+https://jsh9.github.io/pydoclint/style_mismatch.html
 
 ## 21. `--check-arg-defaults` (shortform: `-cad`, default: `False`)
 
