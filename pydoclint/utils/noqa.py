@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from pydoclint.utils.ast_types import ClassOrFunctionDef
+
 ALLOWED_NOQA_LOCATIONS = {'definition', 'docstring'}
 DOC_CODE_PATTERN = re.compile(r'DOC\d{3}', flags=re.IGNORECASE)
 
@@ -101,6 +103,11 @@ def collectNativeNoqaSuppression(
     dict[int, set[str]]
         Mapping from definition line numbers (``node.lineno``) to the set of
         DOC codes suppressed for that definition.
+
+    Raises
+    ------
+    ValueError
+        If ``location`` is not one of ``{"definition", "docstring"}``.
     """
     if location not in ALLOWED_NOQA_LOCATIONS:
         raise ValueError(
@@ -127,7 +134,7 @@ def collectNativeNoqaSuppression(
     return definitionLineToCodes
 
 
-def _iterDocstringOwners(tree: ast.AST) -> Iterable[ast.AST]:
+def _iterDocstringOwners(tree: ast.AST) -> Iterable[ClassOrFunctionDef]:
     """Yield all AST nodes that can own docstrings."""
     for node in ast.walk(tree):
         if isinstance(
