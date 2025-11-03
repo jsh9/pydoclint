@@ -106,3 +106,11 @@ function signatures. The core architecture consists of:
   numpy, sphinx, edge_cases)
 - Tests use real Python files with expected violations rather than string-based
   tests
+
+
+## 4. Coding style
+
+1. When writing tests, use pytest.parametrized. Use "flat" test functions 
+   instead of using classes.
+2. Use camelCase in this repo
+3. Add type hints wherever possible
