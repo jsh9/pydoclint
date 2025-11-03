@@ -112,15 +112,21 @@ other built-in _flake8_ linters on your code.
 Should you use _pydoclint_ as a native command line tool or a _flake8_ plugin?
 Here's comparison:
 
-|                 | Pros                                      | Cons                                                          |
-| --------------- | ----------------------------------------- | ------------------------------------------------------------- |
-| Native tool     | Slightly faster; supports "baseline" [\*] | No inline or project-wide omission support right now [\*\*]   |
-| _flake8_ plugin | Supports inline or project-wide omission  | Slightly slower because other flake8 plugins are run together |
+|                 | Pros                                                                | Cons                                                          |
+| --------------- | ------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Native tool     | Slightly faster; supports "baseline" [\*]; supports inline `# noqa` | Project-wide omission support coming soon [\*\*]              |
+| _flake8_ plugin | Supports inline or project-wide omission                            | Slightly slower because other flake8 plugins are run together |
 
 \*) "Baseline" allows you to log the current violation state of your existing
 project, making adoption of _pydoclint_ much easier.
 
-\*\*) This feature may be added in the near future
+\*\*) Configuration-file / CLI-based suppression controls are planned for a
+future release.
+
+> **Tip:** In native mode you can suppress DOC violations inline with
+> `# noqa: DOCxxx`. Use the `--native-mode-noqa-location` option (valid values:
+> "docstring" or "definition") to decide whether the comment lives on the
+> definition line or at the end of the docstring (after the triple quotes).
 
 ### 2.4. As a pre-commit hook
 
@@ -157,6 +163,8 @@ https://github.com/jsh9/pydoclint/releases)
 _pydoclint_ offers many
 [configuration options](https://jsh9.github.io/pydoclint/config_options.html)
 for you to tune it according to your team's style convention and preference.
+Inline suppression is already available; broader suppression toggles via config
+files and CLI flags will arrive shortly.
 
 Please read this page for instructions on configuring _pydoclint_:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html)
