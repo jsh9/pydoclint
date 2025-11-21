@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unpublished]
+
+- Added
+  - Ability to partially match violation codes in inline `noqa` in the native
+    mode (which _flake8_ already supports)
+
 ## [0.8.1] - 2025-11-03
 
 - Changed

@@ -16,9 +16,28 @@ ______________________________________________________________________
 
 ## 1. As a native tool
 
-Currently, pydoclint does not support ignoring certain violations as a native
-tool. Please use it as a _flake8_ plugin to achieve that, or feel free to
-contribute this feature.
+You can suppress `DOC` violations inline with the same `# noqa:` syntax that
+_flake8_ and Ruff understand. When running the native CLI, set where those
+comments live with `--native-mode-noqa-location` (`docstring` by default, also
+accepts `definition`):
+
+- `docstring`: put the `# noqa:` comment after the closing triple quotes of the
+  docstring.
+- `definition`: put the comment on the line that defines the function/class.
+
+```python
+def funcDocstringComment(arg1: int, arg2: int) -> None:
+    """Docstring text.
+    """  # noqa: DOC101, DOC103
+
+
+def funcDefinitionComment(arg1: int, arg2: int) -> None:  # noqa: DOC103
+    """Docstring text."""
+```
+
+Multiple DOC codes can be listed, and partial prefixes work as well. For
+example, `# noqa: DOC1` suppresses every violation whose code starts with
+`DOC1` (e.g., `DOC101`, `DOC103`).
 
 ## 2. As a _flake8_ plugin
 

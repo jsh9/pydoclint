@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from pydoclint.utils.ast_types import ClassOrFunctionDef
 
 ALLOWED_NOQA_LOCATIONS = {'definition', 'docstring'}
-DOC_CODE_PATTERN = re.compile(r'DOC\d{3}', flags=re.IGNORECASE)
+DOC_CODE_PATTERN = re.compile(r'DOC\d{1,3}', flags=re.IGNORECASE)
 
 
 def parseNoqaComment(comment: str) -> set[str]:
@@ -132,6 +132,13 @@ def collectNativeNoqaSuppression(
         definitionLineToCodes.setdefault(node.lineno, set()).update(codes)
 
     return definitionLineToCodes
+
+
+def codeIsSuppressed(code: str, suppressedCodes: set[str]) -> bool:
+    """
+    Return True if ``code`` is suppressed by the provided ``suppressedCodes``.
+    """
+    return any(code.startswith(suppressed) for suppressed in suppressedCodes)
 
 
 def _iterDocstringOwners(tree: ast.AST) -> Iterable[ClassOrFunctionDef]:

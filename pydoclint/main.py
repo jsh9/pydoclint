@@ -18,6 +18,7 @@ from pydoclint.parse_config import (
 )
 from pydoclint.utils.invisible_chars import replaceInvisibleChars
 from pydoclint.utils.noqa import (
+    codeIsSuppressed,
     collectNativeNoqaSuppression,
     collectNoqaCodesByLine,
 )
@@ -893,8 +894,10 @@ def _checkFile(
     return [  # filter violations
         violation
         for violation in visitor.violations
-        if violation.fullErrorCode
-        not in suppressionByDefinitionLine.get(violation.line, set())
+        if not codeIsSuppressed(
+            violation.fullErrorCode,
+            suppressionByDefinitionLine.get(violation.line, set()),
+        )
     ]
 
 
