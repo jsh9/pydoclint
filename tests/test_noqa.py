@@ -2,7 +2,11 @@ from textwrap import dedent
 
 import pytest
 
-from pydoclint.utils.noqa import collectNoqaCodesByLine, parseNoqaComment
+from pydoclint.utils.noqa import (
+    codeIsSuppressed,
+    collectNoqaCodesByLine,
+    parseNoqaComment,
+)
 
 
 @pytest.mark.parametrize(
@@ -17,8 +21,20 @@ from pydoclint.utils.noqa import collectNoqaCodesByLine, parseNoqaComment
             {'DOC105'},
         ),
         (
+            '# noqa: DOC1',
+            {'DOC1'},
+        ),
+        (
+            '# noqa: DOC10',
+            {'DOC10'},
+        ),
+        (
             '# comment before NOQA : DOC301 extra DOC302',
             {'DOC301', 'DOC302'},
+        ),
+        (
+            '# comment before NOQA : DOC301 extra DOC302, and DOC5',
+            {'DOC301', 'DOC302', 'DOC5'},
         ),
         (
             '# noqa: F401, W503',
@@ -75,3 +91,21 @@ def testCollectNoqaCodesByLine(
         src: str, expected: dict[int, set[str]]
 ) -> None:
     assert collectNoqaCodesByLine(src) == expected
+
+
+@pytest.mark.parametrize(
+    ('suppressedCodes', 'code', 'expected'),
+    [
+        (set(), 'DOC101', False),
+        ({'DOC101'}, 'DOC101', True),
+        ({'DOC1'}, 'DOC101', True),
+        ({'DOC10'}, 'DOC107', True),
+        ({'DOC10'}, 'DOC107535789513587abcde', True),
+        ({'DOC102'}, 'DOC101', False),
+        ({'DOC2'}, 'DOC101', False),
+    ],
+)
+def testCodeIsSuppressed(
+        suppressedCodes: set[str], code: str, expected: bool
+) -> None:
+    assert codeIsSuppressed(code, suppressedCodes) is expected

@@ -54,7 +54,7 @@ ______________________________________________________________________
     - [2.4.1. Native mode](#241-native-mode)
     - [2.4.2. As a _flake8_ plugin](#242-as-a-flake8-plugin)
   - [2.5. How to configure _pydoclint_](#25-how-to-configure-pydoclint)
-  - [2.6. How to ignore certain violations in _flake8_ mode](#26-how-to-ignore-certain-violations-in-flake8-mode)
+  - [2.6. How to ignore certain violations](#26-how-to-ignore-certain-violations)
   - [2.7. Additional tips, tricks, and pitfalls](#27-additional-tips-tricks-and-pitfalls)
     - [2.7.1. How to _not_ document certain functions?](#271-how-to-not-document-certain-functions)
     - [2.7.2. How to gradually adopt _pydoclint_?](#272-how-to-gradually-adopt-pydoclint)
@@ -169,7 +169,7 @@ files and CLI flags will arrive shortly.
 Please read this page for instructions on configuring _pydoclint_:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html)
 
-### 2.6. How to ignore certain violations in _flake8_ mode
+### 2.6. How to ignore certain violations
 
 Please read this page:
 [How to ignore certain violations](https://jsh9.github.io/pydoclint/how_to_ignore.html)
