@@ -109,6 +109,36 @@ def getDocstring(node: ClassOrFunctionDef) -> str:
     return '' if docstring_ is None else docstring_
 
 
+def isLastConstructor(
+        node: FuncOrAsyncFuncDef,
+        parentClass: ast.ClassDef,
+) -> bool:
+    """
+    Return True if the given __init__() is the last constructor in the class.
+
+    Overload stubs typically appear before the real implementation; by
+    detecting whether another constructor follows, we can ignore those stubs so
+    only the final body gets linted.
+    """
+    hasSeenNode = False
+    for child in parentClass.body:
+        if child is node:
+            hasSeenNode = True
+            continue
+
+        if not hasSeenNode:
+            continue
+
+        isConstructor = (
+            isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and child.name == '__init__'
+        )
+        if isConstructor:
+            return False
+
+    return True
+
+
 def generateClassMsgPrefix(node: ast.ClassDef, *, appendColon: bool) -> str:
     """
     Generate violation message prefix for classes.

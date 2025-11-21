@@ -1,10 +1,16 @@
 # Change Log
 
-## [Unpublished]
+## [0.8.2] - 2025-11-21
 
 - Added
   - Ability to partially match violation codes in inline `noqa` in the native
     mode (which _flake8_ already supports)
+- Fixed
+  - A bug: when there are more than one `__init__()` in a class (overloaded),
+    the first `__init__()` is incorrectly recognized as the "right" one. (The
+    last `__init__()` should be considered the right one.)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.8.1...0.8.2
 
 ## [0.8.1] - 2025-11-03
 
