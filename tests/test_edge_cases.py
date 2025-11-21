@@ -595,6 +595,36 @@ from tests.test_main import DATA_DIR
             },
             [],
         ),
+        (
+            '32_multiple_init/allow_init_docstring/google.py',
+            {'style': 'google', 'allowInitDocstring': True},
+            [],
+        ),
+        (
+            '32_multiple_init/allow_init_docstring/numpy.py',
+            {'style': 'numpy', 'allowInitDocstring': True},
+            [],
+        ),
+        (
+            '32_multiple_init/allow_init_docstring/sphinx.py',
+            {'style': 'sphinx', 'allowInitDocstring': True},
+            [],
+        ),
+        (
+            '32_multiple_init/doesnt_allow_init_docstring/google.py',
+            {'style': 'google'},
+            [],
+        ),
+        (
+            '32_multiple_init/doesnt_allow_init_docstring/numpy.py',
+            {'style': 'numpy'},
+            [],
+        ),
+        (
+            '32_multiple_init/doesnt_allow_init_docstring/sphinx.py',
+            {'style': 'sphinx'},
+            [],
+        ),
     ],
 )
 def testEdgeCases(

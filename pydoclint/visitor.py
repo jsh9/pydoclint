@@ -21,6 +21,7 @@ from pydoclint.utils.generic import (
     generateClassMsgPrefix,
     generateFuncMsgPrefix,
     getDocstring,
+    isLastConstructor,
 )
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.parse_docstring import (
@@ -171,6 +172,18 @@ class Visitor(ast.NodeVisitor):
         isClassConstructor: bool = node.name == '__init__' and isinstance(
             parent_, ast.ClassDef
         )
+
+        if (
+            isClassConstructor
+            and isinstance(parent_, ast.ClassDef)
+            and not isLastConstructor(node=node, parentClass=parent_)
+        ):
+            # Multiple __init__ definitions can exist when using overload stubs
+            # but only the last implementation represents the real constructor
+            # body, so earlier ones are skipped to avoid reporting bogus
+            # violations.
+            self.parent = parent_  # restore
+            return
 
         docstring: str = getDocstring(node)
 

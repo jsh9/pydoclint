@@ -1,4 +1,5 @@
 import ast
+from textwrap import dedent
 from typing import Any
 
 import pytest
@@ -7,6 +8,7 @@ from pydoclint.utils.generic import (
     buildClassAttrToDefaultMapping,
     buildFuncArgToDefaultMapping,
     doList1ItemsStartWithList2Items,
+    isLastConstructor,
     stripQuotes,
 )
 
@@ -124,47 +126,57 @@ def testBuildFuncArgToDefaultMapping(
     [
         # Case 1: No attributes with defaults
         (
-            """
-class Test1:
-    pass
-""",
+            dedent(
+                """
+                class Test1:
+                    pass
+                """
+            ),
             {},
         ),
         # Case 2: Only typed attributes with defaults
         (
-            """
-class Test2:
-    attr1: int = 42
-    attr2: str = "hello"
-""",
+            dedent(
+                """
+                class Test2:
+                    attr1: int = 42
+                    attr2: str = "hello"
+                """
+            ),
             {'attr1': 42, 'attr2': 'hello'},
         ),
         # Case 3: Only untyped attributes
         (
-            """
-class Test3:
-    attr1 = 42
-    attr2 = "world"
-""",
+            dedent(
+                """
+                class Test3:
+                    attr1 = 42
+                    attr2 = "world"
+                """
+            ),
             {'attr1': 42, 'attr2': 'world'},
         ),
         # Case 4: Mixed typed and untyped attributes
         (
-            """
-class Test4:
-    typed_attr: bool = True
-    untyped_attr = 3.14
-""",
+            dedent(
+                """
+                class Test4:
+                    typed_attr: bool = True
+                    untyped_attr = 3.14
+                """
+            ),
             {'typed_attr': True, 'untyped_attr': 3.14},
         ),
         # Case 5: Complex defaults with various types
         (
-            """
-class Test5:
-    set_attr: set = {1, 2, 3, 4, 5, 6}
-    dict_attr = {"key": "value123"}
-    none_attr: str = None
-""",
+            dedent(
+                """
+                class Test5:
+                    set_attr: set = {1, 2, 3, 4, 5, 6}
+                    dict_attr = {"key": "value123"}
+                    none_attr: str = None
+                """
+            ),
             {
                 'set_attr': '{1, 2, 3, 4, 5, 6}',
                 'dict_attr': "{'key': 'value123'}",
@@ -173,11 +185,13 @@ class Test5:
         ),
         # Case 6: Typed attribute without default (should not be included)
         (
-            """
-class Test6:
-    attr1: int
-    attr2: str = "hello"
-""",
+            dedent(
+                """
+                class Test6:
+                    attr1: int
+                    attr2: str = "hello"
+                """
+            ),
             {'attr2': 'hello'},
         ),
     ],
@@ -203,3 +217,70 @@ def testBuildClassAttrToDefaultMapping(
         actualMappings[attrName] = defaultValue
 
     assert actualMappings == expectedMappings
+
+
+@pytest.mark.parametrize(
+    ('classCode', 'constructorIndex', 'expected'),
+    [
+        (
+            dedent(
+                """
+                class Sample:
+                    def __init__(self):
+                        pass
+                """
+            ),
+            0,
+            True,
+        ),
+        (
+            dedent(
+                """
+                class WithOverloads:
+                    def __init__(self):
+                        pass
+
+                    def helper(self):
+                        pass
+
+                    def __init__(self, value):
+                        pass
+                """
+            ),
+            0,
+            False,
+        ),
+        (
+            dedent(
+                """
+                class WithOverloads:
+                    def __init__(self):
+                        pass
+
+                    def helper(self):
+                        pass
+
+                    def __init__(self, value):
+                        pass
+                """
+            ),
+            1,
+            True,
+        ),
+    ],
+)
+def testIsLastConstructor(
+        classCode: str,
+        constructorIndex: int,
+        expected: bool,
+) -> None:
+    tree = ast.parse(classCode)
+    classDef = tree.body[0]
+    constructors = [
+        node
+        for node in classDef.body
+        if isinstance(node, ast.FunctionDef) and node.name == '__init__'
+    ]
+    targetConstructor = constructors[constructorIndex]
+    output = isLastConstructor(node=targetConstructor, parentClass=classDef)
+    assert output == expected
