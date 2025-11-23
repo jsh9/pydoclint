@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unpublished]
+
+- Fixed
+  - A bug where `--auto-regenerate-baseline` removes entries of files that have
+    not yet been fixed (https://github.com/jsh9/pydoclint/issues/274)
+
 ## [0.8.2] - 2025-11-21
 
 - Added

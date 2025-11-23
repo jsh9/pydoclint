@@ -1,15 +1,20 @@
 import shutil
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
+from click.testing import CliRunner
 
 from pydoclint.baseline import (
+    INDENT,
+    SEPARATOR,
     calcUnfixedBaselineViolationsAndRemainingViolations,
     generateBaseline,
     parseBaseline,
     reEvaluateBaseline,
+    updateBaselineWithUnfixedViolations,
 )
-from pydoclint.main import _checkPaths
+from pydoclint.main import _checkPaths, main
 from pydoclint.utils.violation import Violation
 from tests.test_main import DATA_DIR, pythonVersionBelow310
 
@@ -201,6 +206,126 @@ def testBaselineNewViolations(
         for violation in next(iter(remainingViolationsInAllFiles.values()))
     ]
     assert strViolations == expectedNewViolations
+
+
+def testMergeBaselineKeepsUntouchedEntries() -> None:
+    """Ensure untouched baseline entries remain when regenerating."""
+    baseline = {
+        '/tmp/file_a.py': ['DOC101: a'],
+        '/tmp/file_b.py': ['DOC102: b'],
+        '/tmp/file_c.py': ['DOC103: c'],
+    }
+    unfixed = {
+        '/tmp/file_a.py': [],
+        '/tmp/file_b.py': ['DOC999: updated'],
+    }
+    merged = updateBaselineWithUnfixedViolations(
+        baseline=baseline,
+        unfixedBaselineViolations=unfixed,
+    )
+    assert list(merged.keys()) == ['/tmp/file_b.py', '/tmp/file_c.py']
+    assert merged['/tmp/file_b.py'] == ['DOC999: updated']
+    assert merged['/tmp/file_c.py'] == ['DOC103: c']
+
+
+def testAutoRegenerateBaselineOnlyUpdatesSpecifiedFiles(
+        tmp_path: Path,
+) -> None:
+    runner = CliRunner()
+    projectRoot = tmp_path / 'proj'
+    projectRoot.mkdir()
+    baselinePath = projectRoot / 'baseline.txt'
+    fileMap = {
+        'a.py': projectRoot / 'a.py',
+        'b.py': projectRoot / 'b.py',
+        'c.py': projectRoot / 'subdir1' / 'c.py',
+        'd.py': projectRoot / 'subdir1' / 'subdir2' / 'd.py',
+    }
+
+    def writeBadDocstring(path: Path) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(badDocstringFunction, encoding='utf-8')
+
+    for path in fileMap.values():
+        writeBadDocstring(path)
+
+    result = runner.invoke(
+        main,
+        [
+            '--baseline',
+            baselinePath.as_posix(),
+            '--generate-baseline=True',
+            projectRoot.as_posix(),
+        ],
+    )
+    assert result.exit_code == 0, result.output
+
+    expectedBaselineAfterFirstRun = (
+        f'{fileMap["a.py"].as_posix()}\n'
+        f'{INDENT}{expectedNewViolations[0]}\n'
+        f'{INDENT}{expectedNewViolations[1]}\n'
+        f'{SEPARATOR}'
+        f'{fileMap["b.py"].as_posix()}\n'
+        f'{INDENT}{expectedNewViolations[0]}\n'
+        f'{INDENT}{expectedNewViolations[1]}\n'
+        f'{SEPARATOR}'
+        f'{fileMap["c.py"].as_posix()}\n'
+        f'{INDENT}{expectedNewViolations[0]}\n'
+        f'{INDENT}{expectedNewViolations[1]}\n'
+        f'{SEPARATOR}'
+        f'{fileMap["d.py"].as_posix()}\n'
+        f'{INDENT}{expectedNewViolations[0]}\n'
+        f'{INDENT}{expectedNewViolations[1]}\n'
+        f'{SEPARATOR}'
+    )
+    assert baselinePath.read_text() == expectedBaselineAfterFirstRun
+
+    fixedDocstring = dedent(
+        '''
+        def bad_docstring_func(arg1: str, arg2: list[int]) -> bool:
+            """Docstring
+
+            Parameters
+            ----------
+            arg1 : str
+                Arg 1
+            arg2 : list[int]
+                Arg 2
+
+            Returns
+            -------
+            bool
+                The return value
+            """
+            return True
+        '''
+    )
+    fileMap['b.py'].write_text(fixedDocstring, encoding='utf-8')
+    fileMap['d.py'].write_text(fixedDocstring, encoding='utf-8')
+
+    rerun = runner.invoke(
+        main,
+        [
+            '--baseline',
+            baselinePath.as_posix(),
+            '--auto-regenerate-baseline=True',
+            fileMap['b.py'].as_posix(),
+            fileMap['d.py'].as_posix(),
+        ],
+    )
+    assert rerun.exit_code == 0, rerun.output
+
+    expectedBaselineAfterSecondRun = (
+        f'{fileMap["a.py"].as_posix()}\n'
+        f'{INDENT}{expectedNewViolations[0]}\n'
+        f'{INDENT}{expectedNewViolations[1]}\n'
+        f'{SEPARATOR}'
+        f'{fileMap["c.py"].as_posix()}\n'
+        f'{INDENT}{expectedNewViolations[0]}\n'
+        f'{INDENT}{expectedNewViolations[1]}\n'
+        f'{SEPARATOR}'
+    )
+    assert baselinePath.read_text() == expectedBaselineAfterSecondRun
 
 
 @pytest.fixture

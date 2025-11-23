@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import OrderedDict
 from itertools import groupby
 from typing import TYPE_CHECKING
 
@@ -44,6 +45,26 @@ def parseBaseline(path: Path) -> dict[str, list[str]]:
             parsed[file[0].strip()] = [func.strip() for func in file[1:]]
 
         return parsed
+
+
+def updateBaselineWithUnfixedViolations(
+        *,
+        baseline: dict[str, list[str]],
+        unfixedBaselineViolations: dict[str, list[str]],
+) -> dict[str, list[str]]:
+    """
+    Merge unfixed violations with the parsed baseline while preserving order.
+    """
+    updatedBaseline: OrderedDict[str, list[str]] = OrderedDict()
+    for file, violations in baseline.items():
+        if file in unfixedBaselineViolations:
+            remainingViolations = unfixedBaselineViolations[file]
+            if remainingViolations:
+                updatedBaseline[file] = remainingViolations
+        else:
+            updatedBaseline[file] = violations
+
+    return updatedBaseline
 
 
 def reEvaluateBaseline(
