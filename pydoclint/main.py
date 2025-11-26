@@ -12,6 +12,7 @@ from pydoclint.baseline import (
     generateBaseline,
     parseBaseline,
     reEvaluateBaseline,
+    updateBaselineWithUnfixedViolations,
 )
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
@@ -614,8 +615,14 @@ def main(  # noqa: C901, PLR0915
         ) = reEvaluateBaseline(parsedBaseline, violationsInAllFiles)
         if baselineRegenerationNeeded:
             if auto_regenerate_baseline:
+                updatedBaseline = updateBaselineWithUnfixedViolations(
+                    baseline=parsedBaseline,
+                    unfixedBaselineViolations=(
+                        unfixedBaselineViolationsInAllFiles
+                    ),
+                )
                 generateBaseline(
-                    violationsAllFiles=unfixedBaselineViolationsInAllFiles,
+                    violationsAllFiles=updatedBaseline,
                     path=baselinePath,
                 )
                 click.echo(

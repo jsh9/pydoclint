@@ -126,6 +126,7 @@ extend-ignore-names = [
   "FBT001", # Boolean-typed positional args are OK in tests
   "PLC2701", # importing private functions is allowed in tests
   "PLR2004", # using magic numbers is allowed in tests
+  "S108", # it's OK to use temp files in tests
   "SLF001", # accessing private functions is allowed in tests
 ]
 
