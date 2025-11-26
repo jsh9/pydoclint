@@ -262,6 +262,18 @@ class Plugin:
             ),
         )
         parser.add_option(
+            '-oswdv',
+            '--omit-stars-when-documenting-varargs',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, docstrings may omit the leading * when'
+                ' documenting *args/**kwargs, and pydoclint will still'
+                ' match them against the function signature.'
+            ),
+        )
+        parser.add_option(
             '-sdae',
             '--should-declare-assert-error-if-assert-statement-exists',
             action='store',
@@ -337,6 +349,9 @@ class Plugin:
         )
         cls.should_document_star_arguments = (
             options.should_document_star_arguments
+        )
+        cls.omit_stars_when_documenting_varargs = (
+            options.omit_stars_when_documenting_varargs
         )
         cls.check_style_mismatch = options.check_style_mismatch
         cls.check_arg_defaults = options.check_arg_defaults
@@ -429,6 +444,10 @@ class Plugin:
             '--should-document-star-arguments',
             self.should_document_star_arguments,
         )
+        omitStarsWhenDocumentingVarargs = self._bool(
+            '--omit-stars-when-documenting-varargs',
+            self.omit_stars_when_documenting_varargs,
+        )
         checkStyleMismatch = self._bool(
             '--check-style-mismatch',
             self.check_style_mismatch,
@@ -472,6 +491,7 @@ class Plugin:
                 onlyAttrsWithClassVarAreTreatedAsClassAttrs
             ),
             shouldDocumentStarArguments=shouldDocumentStarArguments,
+            omitStarsWhenDocumentingVarargs=omitStarsWhenDocumentingVarargs,
             checkStyleMismatch=checkStyleMismatch,
             checkArgDefaults=checkArgDefaults,
             style=self.style,

@@ -4,6 +4,7 @@ import pytest
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.visitor_helper import (
+    addStarsToDocstringArgsWhenApplicable,
     extractClassAttributesFromNode,
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
@@ -126,6 +127,152 @@ def testExtractReturnTypeFromGenerator(
 ) -> None:
     extracted = extractReturnTypeFromGenerator(returnAnnoText)
     assert extracted == expected
+
+
+@pytest.mark.parametrize(
+    ('funcArgs', 'docArgs', 'expected'),
+    [
+        # No args anywhere, so we expect the helper to return an empty ArgList
+        # unchanged.
+        pytest.param(
+            ArgList([]),
+            ArgList([]),
+            ArgList([]),
+            id='both-lists-empty',
+        ),
+        # Signature has *args but docstring omits it, so there is nothing to
+        # convert and we still expect [].
+        pytest.param(
+            ArgList([Arg(name='*args', typeHint='')]),
+            ArgList([]),
+            ArgList([]),
+            id='signature-has-star-docstring-omits-it',
+        ),
+        # Docstring documents a non-star arg not present in signature, so we
+        # expect it to remain as-is.
+        pytest.param(
+            ArgList([]),
+            ArgList([Arg(name='args', typeHint='int')]),
+            ArgList([Arg(name='args', typeHint='int')]),
+            id='docstring-only-entries-non-starred',
+        ),
+        # Docstring already uses **args while signature only has *args, so
+        # `expected` keeps the doc entries untouched.
+        pytest.param(
+            ArgList([Arg(name='*args', typeHint='int')]),
+            ArgList([Arg(name='**args', typeHint='int')]),
+            ArgList([Arg(name='**args', typeHint='int')]),
+            id='docstring-uses-more-stars-than-signature-int',
+        ),
+        # Same mismatched stars as above but with tuple hints; `expected` again
+        # preserves the doc entries.
+        pytest.param(
+            ArgList([Arg(name='*args', typeHint='tuple[int, ...]')]),
+            ArgList([Arg(name='**args', typeHint='tuple[int, ...]')]),
+            ArgList([Arg(name='**args', typeHint='tuple[int, ...]')]),
+            id='docstring-uses-more-stars-than-signature-tuple',
+        ),
+        # Docstring has args/kwargs without leading stars, so `expected` shows
+        # them rewritten to *args/**kwargs.
+        pytest.param(
+            ArgList([
+                Arg(name='*args', typeHint='Tuple[int, ...]'),
+                Arg(name='**kwargs', typeHint='dict[str, str]'),
+                Arg(name='param', typeHint='float'),
+            ]),
+            ArgList([
+                Arg(name='args', typeHint='Tuple[int, ...]'),
+                Arg(name='kwargs', typeHint='dict[str, str]'),
+                Arg(name='param', typeHint='float'),
+            ]),
+            ArgList([
+                Arg(name='*args', typeHint='Tuple[int, ...]'),
+                Arg(name='**kwargs', typeHint='dict[str, str]'),
+                Arg(name='param', typeHint='float'),
+            ]),
+            id='docstring-missing-stars-for-both-args-and-kwargs',
+        ),
+        # Normal positional parameters do not involve varargs, so `expected`
+        # mirrors the doc inputs exactly.
+        pytest.param(
+            ArgList([
+                Arg(name='param', typeHint='int'),
+                Arg(name='param2', typeHint='str'),
+            ]),
+            ArgList([
+                Arg(name='param', typeHint='int'),
+                Arg(name='param2', typeHint='str'),
+            ]),
+            ArgList([
+                Arg(name='param', typeHint='int'),
+                Arg(name='param2', typeHint='str'),
+            ]),
+            id='no-varargs-anywhere',
+        ),
+        # Docstring already uses the correct starred names, so `expected` stays
+        # identical.
+        pytest.param(
+            ArgList([
+                Arg(name='*args', typeHint=''),
+                Arg(name='**kwargs', typeHint=''),
+            ]),
+            ArgList([
+                Arg(name='*args', typeHint='Any'),
+                Arg(name='**kwargs', typeHint='Any'),
+            ]),
+            ArgList([
+                Arg(name='*args', typeHint='Any'),
+                Arg(name='**kwargs', typeHint='Any'),
+            ]),
+            id='docstring-already-has-correct-stars',
+        ),
+        # Signature itself has oddly prefixed kwargs, and we expect the helper
+        # to leave doc entries unchanged.
+        pytest.param(
+            ArgList([
+                Arg(name='*args', typeHint=''),
+                Arg(name='***********kwargs', typeHint=''),
+            ]),
+            ArgList([
+                Arg(name='*args', typeHint='Any'),
+                Arg(name='**kwargs', typeHint='Any'),
+            ]),
+            ArgList([
+                Arg(name='*args', typeHint='Any'),
+                Arg(name='**kwargs', typeHint='Any'),
+            ]),
+            id='signature-varargs-already-overstarred',
+        ),
+        # Signature has extra stars while docstring provides non-starred names,
+        # so `expected` mirrors signature (overstarred), even if this is odd.
+        pytest.param(
+            ArgList([
+                Arg(name='*****args', typeHint=''),
+                Arg(name='***********kwargs', typeHint=''),
+            ]),
+            ArgList([
+                Arg(name='args', typeHint='Any'),
+                Arg(name='kwargs', typeHint='Any'),
+            ]),
+            ArgList([
+                Arg(name='*****args', typeHint='Any'),
+                Arg(name='***********kwargs', typeHint='Any'),
+            ]),
+            id='docstring-missing-stars-but-signature-overstarred',
+        ),
+    ],
+)
+def testAddStarsToDocstringArgsWhenApplicable(
+        funcArgs: ArgList,
+        docArgs: ArgList,
+        expected: ArgList,
+) -> None:
+    normalized = addStarsToDocstringArgsWhenApplicable(
+        docArgs=docArgs,
+        funcArgs=funcArgs,
+    )
+
+    assert normalized.infoList == expected.infoList
 
 
 @pytest.mark.parametrize(

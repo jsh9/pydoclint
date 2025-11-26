@@ -303,6 +303,18 @@ def validateNativeModeNoqaLocation(
     ),
 )
 @click.option(
+    '-oswdv',
+    '--omit-stars-when-documenting-varargs',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, docstrings may omit the leading * when documenting *args'
+        ' and **kwargs, and pydoclint will still match them against the'
+        ' function signature.'
+    ),
+)
+@click.option(
     '-sdae',
     '--should-declare-assert-error-if-assert-statement-exists',
     type=bool,
@@ -458,6 +470,7 @@ def main(  # noqa: C901, PLR0915
         require_yield_section_when_yielding_nothing: bool,
         only_attrs_with_classvar_are_treated_as_class_attrs: bool,
         should_document_star_arguments: bool,
+        omit_stars_when_documenting_varargs: bool,
         should_declare_assert_error_if_assert_statement_exists: bool,
         check_style_mismatch: bool,
         check_arg_defaults: bool,
@@ -574,6 +587,7 @@ def main(  # noqa: C901, PLR0915
             require_yield_section_when_yielding_nothing
         ),
         shouldDocumentStarArguments=should_document_star_arguments,
+        omitStarsWhenDocumentingVarargs=omit_stars_when_documenting_varargs,
         shouldDeclareAssertErrorIfAssertStatementExists=(
             should_declare_assert_error_if_assert_statement_exists
         ),
@@ -725,6 +739,7 @@ def _checkPaths(
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
+        omitStarsWhenDocumentingVarargs: bool = False,
         shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
         checkArgDefaults: bool = False,
@@ -790,6 +805,7 @@ def _checkPaths(
                 requireYieldSectionWhenYieldingNothing
             ),
             shouldDocumentStarArguments=shouldDocumentStarArguments,
+            omitStarsWhenDocumentingVarargs=omitStarsWhenDocumentingVarargs,
             shouldDeclareAssertErrorIfAssertStatementExists=(
                 shouldDeclareAssertErrorIfAssertStatementExists
             ),
@@ -823,6 +839,7 @@ def _checkFile(
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
+        omitStarsWhenDocumentingVarargs: bool = False,
         shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
         checkStyleMismatch: bool = False,
         checkArgDefaults: bool = False,
@@ -883,6 +900,7 @@ def _checkFile(
             requireYieldSectionWhenYieldingNothing
         ),
         shouldDocumentStarArguments=shouldDocumentStarArguments,
+        omitStarsWhenDocumentingVarargs=omitStarsWhenDocumentingVarargs,
         shouldDeclareAssertErrorIfAssertStatementExists=(
             shouldDeclareAssertErrorIfAssertStatementExists
         ),

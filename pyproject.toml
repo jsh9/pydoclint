@@ -4,7 +4,7 @@ requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2", "wheel"]
 
 [project]
 name = "pydoclint"
-version = "0.8.2"
+version = "0.8.3"
 dependencies = [
   "click>=8.1.0",
   "docstring_parser_fork>=0.0.12",

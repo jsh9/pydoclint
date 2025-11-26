@@ -1,10 +1,16 @@
 # Change Log
 
-## [Unpublished]
+## [0.8.3] - 2025-11-26
 
+- Added
+  - A new config option `--omit-stars-when-documenting-varargs` (shortform:
+    `-oswdv`) so docstrings may describe varargs without the leading `*`
+    characters (https://github.com/jsh9/pydoclint/issues/268)
 - Fixed
   - A bug where `--auto-regenerate-baseline` removes entries of files that have
     not yet been fixed (https://github.com/jsh9/pydoclint/issues/274)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.8.2...0.8.3
 
 ## [0.8.2] - 2025-11-21
 

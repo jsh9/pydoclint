@@ -50,6 +50,7 @@ from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
 from pydoclint.utils.visitor_helper import (
     addMismatchedRaisesExceptionViolation,
+    addStarsToDocstringArgsWhenApplicable,
     checkClassAttributesAgainstClassDocstring,
     checkDocArgsLengthAgainstActualArgs,
     checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs,
@@ -84,6 +85,7 @@ class Visitor(ast.NodeVisitor):
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
             shouldDocumentStarArguments: bool = True,
+            omitStarsWhenDocumentingVarargs: bool = False,
             shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
             checkStyleMismatch: bool = False,
             checkArgDefaults: bool = False,
@@ -116,6 +118,9 @@ class Visitor(ast.NodeVisitor):
             requireYieldSectionWhenYieldingNothing
         )
         self.shouldDocumentStarArguments: bool = shouldDocumentStarArguments
+        self.omitStarsWhenDocumentingVarargs: bool = (
+            omitStarsWhenDocumentingVarargs
+        )
         self.shouldDeclareAssertErrorIfAssertStatementExists: bool = (
             shouldDeclareAssertErrorIfAssertStatementExists
         )
@@ -559,6 +564,11 @@ class Visitor(ast.NodeVisitor):
             funcArgs = ArgList([
                 _ for _ in funcArgs.infoList if not _.name.startswith('*')
             ])
+        elif self.omitStarsWhenDocumentingVarargs:
+            docArgs = addStarsToDocstringArgsWhenApplicable(
+                docArgs=docArgs,
+                funcArgs=funcArgs,
+            )
 
         if docArgs.length == 0 and funcArgs.length == 0:
             return []

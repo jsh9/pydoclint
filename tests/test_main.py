@@ -956,6 +956,24 @@ def testStarsInArgumentList2(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
+@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+def testStarsInArgumentList3(style: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/star_args/cases3.py',
+        style=style,
+        omitStarsWhenDocumentingVarargs=True,
+    )
+    expected = [
+        'DOC103: Function `func9`: Docstring arguments are different from function'
+        ' arguments. (Or could be other formatting issues:'
+        ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
+        ' Arguments in the function signature but not in the'
+        ' docstring: [*args: int]. Arguments in the docstring but not in the function'
+        ' signature: [**args: int].',
+    ]
+    assert list(map(str, violations)) == expected
+
+
 def testParsingErrors_google() -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'google/parsing_errors/cases.py',
