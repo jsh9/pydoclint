@@ -346,6 +346,74 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
             )
 
 
+def addStarsToDocstringArgsWhenApplicable(
+        *,
+        docArgs: ArgList,
+        funcArgs: ArgList,
+) -> ArgList:
+    """
+    Align docstring vararg names with the signature's ``*args``/``**kwargs``.
+
+    Parameters
+    ----------
+    docArgs : ArgList
+        Arguments parsed from the docstring. These may omit the leading ``*``
+        characters when documenting ``*args``/``**kwargs``.
+    funcArgs : ArgList
+        Arguments collected from the function signature. These provide the
+        authoritative star-argument names we map onto.
+
+    Returns
+    -------
+    ArgList
+        A possibly new ``ArgList`` where docstring entries that describe
+        varargs adopt the exact names (including leading ``*``) from the
+        signature. Non-vararg entries are left untouched.
+
+    Examples
+    --------
+    >>> funcArgs = ArgList([
+    ...     Arg(name='*args', typeHint=''),
+    ...     Arg(name='param', typeHint='int'),
+    ... ])
+    >>> docArgs = ArgList([
+    ...     Arg(name='args', typeHint=''),
+    ...     Arg(name='param', typeHint='int'),
+    ... ])
+    >>> normalized = addStarsToDocstringArgsWhenApplicable(
+    ...     docArgs=docArgs, funcArgs=funcArgs
+    ... )
+    >>> [arg.name for arg in normalized.infoList]
+    ['*args', 'param']
+    """
+    starArgs = [arg for arg in funcArgs.infoList if arg.isStarArg()]
+    if len(starArgs) == 0:
+        return docArgs
+
+    strippedNameToStarName = {
+        arg.name.lstrip('*'): arg.name for arg in starArgs
+    }
+
+    normalizedDocArgs: list[Arg] = []
+    for docArg in docArgs.infoList:
+        if docArg.isStarArg():
+            normalizedDocArgs.append(docArg)
+            continue
+
+        strippedDocName = docArg.name.lstrip('*')
+        if strippedDocName in strippedNameToStarName:
+            normalizedDocArgs.append(
+                Arg(
+                    name=strippedNameToStarName[strippedDocName],
+                    typeHint=docArg.typeHint,
+                )
+            )
+        else:
+            normalizedDocArgs.append(docArg)
+
+    return ArgList(normalizedDocArgs)
+
+
 def checkReturnTypesForViolations(
         *,
         style: str,
