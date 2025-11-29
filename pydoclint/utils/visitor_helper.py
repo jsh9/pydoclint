@@ -47,6 +47,7 @@ def checkClassAttributesAgainstClassDocstring(
         shouldDocumentPrivateClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
+        allowInlineClassVarDocs: bool,
         checkArgDefaults: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
@@ -89,6 +90,51 @@ def checkClassAttributesAgainstClassDocstring(
         return
 
     docArgs: ArgList = doc.attrList
+
+    if allowInlineClassVarDocs:
+        # PEP-257 supports inline documentation for class variables.
+        # We check for constant string literals after assignments
+        prev = None
+        idx = -1
+
+        for element in node.body:
+            # keep track of assignment index
+            if isinstance(element, (ast.AnnAssign, ast.Assign)):
+                idx += 1
+                isExprConstantAfterAssign = False
+            else:
+                isExprConstantAfterAssign = (
+                    isinstance(element, ast.Expr)
+                    and isinstance(element.value, ast.Constant)
+                    and isinstance(prev, (ast.AnnAssign, ast.Assign))
+                )
+
+            if isExprConstantAfterAssign:
+                name = None
+
+                if isinstance(prev, ast.AnnAssign) and isinstance(
+                    prev.target, ast.Name
+                ):
+                    name = prev.target.id
+                elif isinstance(prev, ast.Assign) and (
+                    prev.targets
+                    and prev.targets
+                    and isinstance(prev.targets[0], ast.Name)
+                ):
+                    name = prev.targets[0].id
+
+                if name is not None and not name.startswith('_'):
+                    # do not put a type hint for inline docs
+                    arg = Arg(name=name, typeHint='')
+                    # only add if the var is in the actualArgs and
+                    # not already in docArgs
+                    # i.e. do not override vars that are explicitly documented
+                    # in the class header
+                    if actualArgs.contains(arg) and not docArgs.contains(arg):
+                        # insert the documented argument at the correct index
+                        docArgs.infoList.insert(idx, arg)
+
+            prev = element
 
     checkDocArgsLengthAgainstActualArgs(
         docArgs=docArgs,
