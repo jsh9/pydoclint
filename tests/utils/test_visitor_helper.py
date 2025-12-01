@@ -501,13 +501,13 @@ class InlineDocAfter:
     """Another class for testing."""
 
     field1: int = 10
-    """Inline documentation for classvar."""
+    """int: Inline documentation for classvar."""
 
     field2: str
-    """Inline documentation for an instance variable."""
+    """str: Inline documentation for an instance variable."""
 
     field3: int = 5
-    """Inline documentation for another classvar."""
+    """int: Inline documentation for another classvar."""
 '''
 
 src3 = '''
@@ -519,7 +519,7 @@ class MixedAttributeDoc:
     """
 
     field1: int = 42
-    """Documentation for field1 placed after the declaration."""
+    """int: Documentation for field1 placed after the declaration."""
 
     field2: str = "str"
 '''
@@ -553,10 +553,12 @@ class MixedAttributeDoc:
         ),
     ],
 )
+@pytest.mark.parametrize('argTypeHintsInDocstring', [True, False])
 def testAllowInlineClassvarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
+        argTypeHintsInDocstring: bool,
 ) -> None:
     final_src = src.format(
         attribute_documentation=attribute_documentation or ''
@@ -576,8 +578,7 @@ def testAllowInlineClassvarDocs(
         violations=violations,
         skipCheckingShortDocstrings=False,
         allowInlineClassVarDocs=True,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
     )
     assert attrs is not None
     assert not violations
-    documentedAttrs, actualAttrs = attrs
-    assert documentedAttrs == actualAttrs

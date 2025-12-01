@@ -239,7 +239,7 @@ class MyClass:
     """My class."""
 
     field1: int = 5
-    """Field 1 documentation."""
+    """int: Field 1 documentation."""
 ```
 
 If False, pydoclint will not parse inline class attribute docstrings.
@@ -247,11 +247,8 @@ If False, pydoclint will not parse inline class attribute docstrings.
 Inline documentation will not supersede class-level documentation, meaning that
 if you declare an attribute at the class level **and** an inline docstring,
 pydoclint will take the class-level documentation and not the inline docstring.
-It is not possible to specify attribute types in inline documentation strings,
-so inline docstrings will inherit docstrings from the type hint, if any.
-
-Settings `arg-type-hints-in-docstring` to True and omitting the type hint will
-cause a DOC
+Inline docstrings may specify the attribute type as the first token in the
+docstring followed by a `:`.
 
 ## 20. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)
 
