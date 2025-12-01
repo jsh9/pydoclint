@@ -51,90 +51,24 @@ def checkClassAttributesAgainstClassDocstring(
         checkArgDefaults: bool,
 ) -> None:
     """Check class attribute list against the attribute list in docstring"""
-    actualArgs: ArgList = extractClassAttributesFromNode(
+    result = getDocumentedAndActualClassArgLists(
         node=node,
-        shouldDocumentPrivateClassAttributes=(
-            shouldDocumentPrivateClassAttributes
-        ),
-        treatPropertyMethodsAsClassAttrs=treatPropertyMethodsAsClassAttributes,
+        style=style,
+        shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
+        treatPropertyMethodsAsClassAttributes=treatPropertyMethodsAsClassAttributes,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
         ),
         checkArgDefaults=checkArgDefaults,
+        violations=violations,
+        skipCheckingShortDocstrings=skipCheckingShortDocstrings,
+        allowInlineClassVarDocs=allowInlineClassVarDocs,
     )
 
-    classDocstring: str = getDocstring(node)
-
-    if classDocstring == '':
-        # We don't check classes without any docstrings.
-        # We defer to
-        # flake8-docstrings (https://github.com/PyCQA/flake8-docstrings)
-        # or pydocstyle (https://www.pydocstyle.org/en/stable/)
-        # to determine whether a class needs a docstring.
+    if result is None:
         return
 
-    try:
-        doc: Doc = Doc(docstring=classDocstring, style=style)
-    except ParseError as excp:
-        doc = Doc(docstring='', style=style)
-        violations.append(
-            Violation(
-                code=1,
-                line=lineNum,
-                msgPrefix=f'Class `{node.name}`:',
-                msgPostfix=str(excp).replace('\n', ' '),
-            )
-        )
-
-    if skipCheckingShortDocstrings and doc.isShortDocstring:
-        return
-
-    docArgs: ArgList = doc.attrList
-
-    if allowInlineClassVarDocs:
-        # PEP-257 supports inline documentation for class variables.
-        # We check for constant string literals after assignments
-        prev = None
-        idx = -1
-
-        for element in node.body:
-            # keep track of assignment index
-            if isinstance(element, (ast.AnnAssign, ast.Assign)):
-                idx += 1
-                isExprConstantAfterAssign = False
-            else:
-                isExprConstantAfterAssign = (
-                    isinstance(element, ast.Expr)
-                    and isinstance(element.value, ast.Constant)
-                    and isinstance(prev, (ast.AnnAssign, ast.Assign))
-                )
-
-            if isExprConstantAfterAssign:
-                name = None
-
-                if isinstance(prev, ast.AnnAssign) and isinstance(
-                    prev.target, ast.Name
-                ):
-                    name = prev.target.id
-                elif isinstance(prev, ast.Assign) and (
-                    prev.targets
-                    and prev.targets
-                    and isinstance(prev.targets[0], ast.Name)
-                ):
-                    name = prev.targets[0].id
-
-                if name is not None and not name.startswith('_'):
-                    # do not put a type hint for inline docs
-                    arg = Arg(name=name, typeHint='')
-                    # only add if the var is in the actualArgs and
-                    # not already in docArgs
-                    # i.e. do not override vars that are explicitly documented
-                    # in the class header
-                    if actualArgs.contains(arg) and not docArgs.contains(arg):
-                        # insert the documented argument at the correct index
-                        docArgs.infoList.insert(idx, arg)
-
-            prev = element
+    docArgs, actualArgs = result
 
     checkDocArgsLengthAgainstActualArgs(
         docArgs=docArgs,
@@ -177,6 +111,148 @@ def checkClassAttributesAgainstClassDocstring(
         lineNum=lineNum,
         msgPrefix=msgPrefix,
     )
+
+
+def getDocumentedAndActualClassArgLists(
+        *,
+        node: ast.ClassDef,
+        style: str,
+        shouldDocumentPrivateClassAttributes: bool,
+        treatPropertyMethodsAsClassAttributes: bool,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
+        checkArgDefaults: bool,
+        violations: list[Violation],
+        skipCheckingShortDocstrings: bool,
+        allowInlineClassVarDocs: bool,
+) -> tuple[ArgList, ArgList] | None:
+    """Get documented and actual class attribute lists"""
+    actualArgs: ArgList = extractClassAttributesFromNode(
+        node=node,
+        shouldDocumentPrivateClassAttributes=(
+            shouldDocumentPrivateClassAttributes
+        ),
+        treatPropertyMethodsAsClassAttrs=treatPropertyMethodsAsClassAttributes,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
+            onlyAttrsWithClassVarAreTreatedAsClassAttrs
+        ),
+        checkArgDefaults=checkArgDefaults,
+    )
+
+    classDocstring: str = getDocstring(node)
+
+    if classDocstring == '':
+        # We don't check classes without any docstrings.
+        # We defer to
+        # flake8-docstrings (https://github.com/PyCQA/flake8-docstrings)
+        # or pydocstyle (https://www.pydocstyle.org/en/stable/)
+        # to determine whether a class needs a docstring.
+        return None
+
+    try:
+        doc: Doc = Doc(docstring=classDocstring, style=style)
+    except ParseError as excp:
+        doc = Doc(docstring='', style=style)
+        violations.append(
+            Violation(
+                code=1,
+                line=node.lineno,
+                msgPrefix=f'Class `{node.name}`:',
+                msgPostfix=str(excp).replace('\n', ' '),
+            )
+        )
+
+    if skipCheckingShortDocstrings and doc.isShortDocstring:
+        return None
+
+    docArgs: ArgList = doc.attrList
+
+    if allowInlineClassVarDocs:
+        updateDocumentedArgListWithInlineDocstrings(
+            node=node,
+            docArgs=docArgs,
+            actualArgs=actualArgs,
+            shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
+        )
+
+    return docArgs, actualArgs
+
+
+def updateDocumentedArgListWithInlineDocstrings(
+        *,
+        node: ast.ClassDef,
+        docArgs: ArgList,
+        actualArgs: ArgList,
+        shouldDocumentPrivateClassAttributes: bool,
+) -> None:
+    """
+    Check for inline class attribute docstrings and add them to the documented
+    argument list.
+
+
+    PEP-257 supports inline documentation for class variables, so we check for
+    constant string literals after assignments in the class body.
+
+    Parameters
+    ----------
+    node : ast.ClassDef
+        The class definition node.
+    docArgs : ArgList
+        The argument list parsed from the class docstring.
+    actualArgs : ArgList
+        The actual class attributes extracted from the class definition.
+    shouldDocumentPrivateClassAttributes : bool
+        Whether we should document private class attributes. If ``True``,
+        private class attributes will be included.
+
+    Returns
+    -------
+    None
+        This function modifies ``docArgs`` in place.
+    """
+    prev = None
+    idx = -1
+
+    for element in node.body:
+        # keep track of assignment index
+        if isinstance(element, (ast.AnnAssign, ast.Assign)):
+            idx += 1
+            isExprConstantAfterAssign = False
+        else:
+            isExprConstantAfterAssign = (
+                isinstance(element, ast.Expr)
+                and isinstance(element.value, ast.Constant)
+                and isinstance(prev, (ast.AnnAssign, ast.Assign))
+            )
+
+        if isExprConstantAfterAssign:
+            arg = None
+
+            if isinstance(prev, ast.AnnAssign):
+                arg = Arg.fromAstAnnAssign(prev)
+            elif isinstance(prev, ast.Assign):
+                # technically, ast.Assign supports a list of _multiple_
+                # targets, but for class attributes, multiple targets are
+                # invalid. take the first target as the attribute name.
+                args = ArgList.fromAstAssign(prev)
+                if len(args.infoList) == 1:
+                    arg = args.infoList[0]
+
+            if (
+                arg is not None
+                and (
+                    shouldDocumentPrivateClassAttributes
+                    or not arg.name.startswith('_')
+                )
+                and actualArgs.contains(arg)
+                and not docArgs.contains(arg)
+            ):
+                # only add if the var is in the actualArgs and
+                # not already in docArgs
+                # i.e. do not override vars that are explicitly documented
+                # in the class header.
+                docArgs.insertAt(idx, arg)
+
+        prev = element
 
 
 def extractClassAttributesFromNode(

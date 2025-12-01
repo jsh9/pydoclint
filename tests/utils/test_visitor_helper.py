@@ -6,10 +6,10 @@ import pytest
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.visitor_helper import (
     addStarsToDocstringArgsWhenApplicable,
-    checkClassAttributesAgainstClassDocstring,
     extractClassAttributesFromNode,
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
+    getDocumentedAndActualClassArgLists,
 )
 
 if TYPE_CHECKING:
@@ -492,7 +492,7 @@ src1 = '''
 class SimpleInlineDoc:
     """A class for testing and experimenting with code snippets."""
 
-    field1: int = 5
+    field1 = 5
     """Inline documentation for classvar."""
 '''
 
@@ -537,45 +537,47 @@ class MixedAttributeDoc:
         (
             src3,
             'sphinx',
-            '.. attribute :: field2\n   ',
+            '.. attribute :: field2\n   \n:type: str\n',
         ),
         (
             src3,
             'google',
-            'Attributes:\n\tfield2: ',
+            'Attributes:\n\tfield2 (str): ',
         ),
         (
             src3,
             'numpy',
             # the Parameters section is required in numpy style for attribute docs
             # even if it is empty
-            'Parameters\n----------\n\nAttributes\n----------\nfield2\n\t',
+            'Parameters\n----------\n\nAttributes\n----------\nfield2 : str\n\t',
         ),
     ],
 )
 def testAllowInlineClassvarDocs(
-        src: str, style: str, attribute_documentation: str | None
+        src: str,
+        style: str,
+        attribute_documentation: str | None,
 ) -> None:
     final_src = src.format(
         attribute_documentation=attribute_documentation or ''
     )
     parsed = ast.parse(final_src)
     node = parsed.body[0]
+    assert isinstance(node, ast.ClassDef)
+
     violations: list[Violation] = []
-    checkClassAttributesAgainstClassDocstring(
+    attrs = getDocumentedAndActualClassArgLists(
         node=node,
         style=style,
-        violations=violations,
-        lineNum=node.lineno,
-        msgPrefix='',
-        shouldCheckArgOrder=True,
-        argTypeHintsInSignature=True,
-        argTypeHintsInDocstring=False,
-        skipCheckingShortDocstrings=False,
         shouldDocumentPrivateClassAttributes=False,
-        treatPropertyMethodsAsClassAttributes=True,
+        treatPropertyMethodsAsClassAttributes=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
-        allowInlineClassVarDocs=True,
         checkArgDefaults=False,
+        violations=violations,
+        skipCheckingShortDocstrings=False,
+        allowInlineClassVarDocs=True,
     )
+    assert attrs is not None
     assert not violations
+    documentedAttrs, actualAttrs = attrs
+    assert documentedAttrs == actualAttrs

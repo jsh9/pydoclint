@@ -232,7 +232,7 @@ attributes, and all other attributes are treated as instance attributes.
 
 ## 19. `--allow-inline-classvar-docs` (shortform: `-aicvd`, default: `False`)
 
-If true, allow class attributes to have inline documentation. For example:
+If True, allow class attributes to have inline documentation. For example:
 
 ```python
 class MyClass:
@@ -242,9 +242,16 @@ class MyClass:
     """Field 1 documentation."""
 ```
 
-Inline documentation will not supersede class-level documentation. It is not
-possible to specify attribute types in inline documentation strings, so it
-should be used with `arg-type-hints-in-docstring` set to false.
+If False, pydoclint will not parse inline class attribute docstrings.
+
+Inline documentation will not supersede class-level documentation, meaning that
+if you declare an attribute at the class level **and** an inline docstring,
+pydoclint will take the class-level documentation and not the inline docstring.
+It is not possible to specify attribute types in inline documentation strings,
+so inline docstrings will inherit docstrings from the type hint, if any.
+
+Settings `arg-type-hints-in-docstring` to True and omitting the type hint will
+cause a DOC
 
 ## 20. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)
 
