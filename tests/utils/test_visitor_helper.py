@@ -1,4 +1,5 @@
 import ast
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -8,7 +9,11 @@ from pydoclint.utils.visitor_helper import (
     extractClassAttributesFromNode,
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
+    getDocumentedAndActualClassArgLists,
 )
+
+if TYPE_CHECKING:
+    from pydoclint.utils.violation import Violation
 
 
 @pytest.mark.parametrize(
@@ -481,3 +486,99 @@ class MyClass:
         checkArgDefaults=False,
     )
     assert extracted == expected
+
+
+src1 = '''
+class SimpleInlineDoc:
+    """A class for testing and experimenting with code snippets."""
+
+    field1 = 5
+    """Inline documentation for classvar."""
+'''
+
+src2 = '''
+class InlineDocAfter:
+    """Another class for testing."""
+
+    field1: int = 10
+    """int: Inline documentation for classvar."""
+
+    field2: str
+    """str: Inline documentation for an instance variable."""
+
+    field3: int = 5
+    """int: Inline documentation for another classvar."""
+'''
+
+src3 = '''
+class MixedAttributeDoc:
+    """
+    A class with mixed attribute documentation styles.
+
+    {attribute_documentation}Documentation for field2 using the attribute directive.
+    """
+
+    field1: int = 42
+    """int: Documentation for field1 placed after the declaration."""
+
+    field2: str = "str"
+'''
+
+
+@pytest.mark.parametrize(
+    ('src', 'style', 'attribute_documentation'),
+    [
+        (src1, 'sphinx', None),
+        (src1, 'google', None),
+        (src1, 'numpy', None),
+        (src2, 'sphinx', None),
+        (src2, 'google', None),
+        (src2, 'numpy', None),
+        (
+            src3,
+            'sphinx',
+            '.. attribute :: field2\n   \n:type: str\n',
+        ),
+        (
+            src3,
+            'google',
+            'Attributes:\n\tfield2 (str): ',
+        ),
+        (
+            src3,
+            'numpy',
+            # the Parameters section is required in numpy style for attribute docs
+            # even if it is empty
+            'Parameters\n----------\n\nAttributes\n----------\nfield2 : str\n\t',
+        ),
+    ],
+)
+@pytest.mark.parametrize('argTypeHintsInDocstring', [True, False])
+def testAllowInlineClassvarDocs(
+        src: str,
+        style: str,
+        attribute_documentation: str | None,
+        argTypeHintsInDocstring: bool,
+) -> None:
+    final_src = src.format(
+        attribute_documentation=attribute_documentation or ''
+    )
+    parsed = ast.parse(final_src)
+    node = parsed.body[0]
+    assert isinstance(node, ast.ClassDef)
+
+    violations: list[Violation] = []
+    attrs = getDocumentedAndActualClassArgLists(
+        node=node,
+        style=style,
+        shouldDocumentPrivateClassAttributes=False,
+        treatPropertyMethodsAsClassAttributes=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=False,
+        violations=violations,
+        skipCheckingShortDocstrings=False,
+        allowInlineClassVarDocs=True,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+    )
+    assert attrs is not None
+    assert not violations

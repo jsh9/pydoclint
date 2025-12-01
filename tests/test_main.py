@@ -1544,3 +1544,144 @@ def testArgDefaults(
         list(map(str, violations))
         == expectedViolationsLookup[checkArgDefaults]
     )
+
+
+@pytest.mark.parametrize(
+    ('style', 'allowInlineClassVarDocs', 'argTypeHintsInDocstring'),
+    list(
+        itertools.product(
+            ['google', 'numpy', 'sphinx'], [False, True], [False, True]
+        )
+    ),
+)
+def testInlineFunctionDocs(
+        style: str,
+        allowInlineClassVarDocs: bool,
+        argTypeHintsInDocstring: bool,
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / style / 'class_attributes/inline_docstring.py',
+        style=style,
+        allowInlineClassVarDocs=allowInlineClassVarDocs,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        skipCheckingShortDocstrings=False,
+    )
+
+    # (allowInlineClassVarDocs, argTypeHintsInDocstring) -> expected violations
+    expectedViolationsLookup: dict[tuple[bool, bool], list[str]] = {
+        (False, False): [
+            'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass1`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[field1: int, field2: str, field3: list[int]]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass2`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[documented_field: float, undocumented_field: bool]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass3`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[field2: str, field3: int, field4: bool]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+        ],
+        (False, True): [
+            'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass1`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[field1: int, field2: str, field3: list[int]]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass2`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[documented_field: float, undocumented_field: bool]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass3`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[field2: str, field3: int, field4: bool]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC605: Class `MyClass4`: Attribute names match, but type hints in these '
+            'attributes do not match: field1  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+        ],
+        (True, False): [
+            'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass2`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[undocumented_field: bool]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+        ],
+        (True, True): [
+            'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
+            'than actual class attributes.  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC603: Class `MyClass2`: Class docstring attributes are different from '
+            'actual class attributes. (Or could be other formatting issues: '
+            'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+            'Attributes in the class definition but not in the docstring: '
+            '[undocumented_field: bool]. (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC605: Class `MyClass3`: Attribute names match, but type hints in these '
+            'attributes do not match: field4, field5  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC605: Class `MyClass4`: Attribute names match, but type hints in these '
+            'attributes do not match: field1  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+        ],
+    }
+
+    assert (
+        list(map(str, violations))
+        == expectedViolationsLookup[
+            allowInlineClassVarDocs, argTypeHintsInDocstring
+        ]
+    )

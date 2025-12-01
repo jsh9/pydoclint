@@ -431,3 +431,12 @@ class ArgList:
         they don't need to have type hints.
         """
         return all(_.hasTypeHint() for _ in self.infoList if _.notStarArg())
+
+    def insertAt(
+            self,
+            index: int,
+            arg: Arg,
+    ) -> None:
+        """Insert an Arg at a specific index."""
+        self.infoList.insert(index, arg)
+        self.lookup[arg.name] = arg.typeHint
