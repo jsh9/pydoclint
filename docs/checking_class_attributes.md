@@ -194,3 +194,14 @@ PEP-257 indicates that string literals located directly after an assign
 statement may be treated as attribute documentation. As such, we also
 optionally support inline docstrings for class attributes with the
 `allow-inline-classvar-docs` option set to True (it is False by default).
+
+Attribute type documentation may be specified as the first thing in the
+docstring followed by a colon. For example:
+
+```python
+class MyClass:
+    """My class that does things."""
+
+    field1 = 5
+    """int: My first field"""
+```

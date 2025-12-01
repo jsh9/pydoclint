@@ -1669,7 +1669,7 @@ def testInlineFunctionDocs(
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
             'DOC605: Class `MyClass3`: Attribute names match, but type hints in these '
-            'attributes do not match: field5  (Please read '
+            'attributes do not match: field4, field5  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
             'DOC605: Class `MyClass4`: Attribute names match, but type hints in these '

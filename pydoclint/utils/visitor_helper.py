@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import ast
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from pydoclint.utils.return_anno import ReturnAnnotation
@@ -63,6 +63,7 @@ def checkClassAttributesAgainstClassDocstring(
         violations=violations,
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
         allowInlineClassVarDocs=allowInlineClassVarDocs,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
     )
 
     if result is None:
@@ -124,6 +125,7 @@ def getDocumentedAndActualClassArgLists(
         violations: list[Violation],
         skipCheckingShortDocstrings: bool,
         allowInlineClassVarDocs: bool,
+        argTypeHintsInDocstring: bool,
 ) -> tuple[ArgList, ArgList] | None:
     """Get documented and actual class attribute lists"""
     actualArgs: ArgList = extractClassAttributesFromNode(
@@ -172,6 +174,7 @@ def getDocumentedAndActualClassArgLists(
             docArgs=docArgs,
             actualArgs=actualArgs,
             shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
+            argTypeHintsInDocstring=argTypeHintsInDocstring,
         )
 
     return docArgs, actualArgs
@@ -183,6 +186,7 @@ def updateDocumentedArgListWithInlineDocstrings(
         docArgs: ArgList,
         actualArgs: ArgList,
         shouldDocumentPrivateClassAttributes: bool,
+        argTypeHintsInDocstring: bool,
 ) -> None:
     """
     Check for inline class attribute docstrings and add them to the documented
@@ -203,6 +207,8 @@ def updateDocumentedArgListWithInlineDocstrings(
     shouldDocumentPrivateClassAttributes : bool
         Whether we should document private class attributes. If ``True``,
         private class attributes will be included.
+    argTypeHintsInDocstring : bool
+        Whether argument type hints are expected to be in the docstring.
 
     Returns
     -------
@@ -237,6 +243,10 @@ def updateDocumentedArgListWithInlineDocstrings(
                 if len(args.infoList) == 1:
                     arg = args.infoList[0]
 
+            # only add if the var is in the actualArgs and
+            # not already in docArgs
+            # i.e. do not override vars that are explicitly documented
+            # in the class header.
             if (
                 arg is not None
                 and (
@@ -246,10 +256,15 @@ def updateDocumentedArgListWithInlineDocstrings(
                 and actualArgs.contains(arg)
                 and not docArgs.contains(arg)
             ):
-                # only add if the var is in the actualArgs and
-                # not already in docArgs
-                # i.e. do not override vars that are explicitly documented
-                # in the class header.
+                # pull the type from the doc comment
+                arg.typeHint = ''
+                if argTypeHintsInDocstring:
+                    docComment = cast('str', element.value.value)
+                    if ':' in docComment:
+                        maybeTypeHint = docComment.split(':')[0].strip()
+                        if ' ' not in maybeTypeHint:
+                            arg.typeHint = maybeTypeHint
+
                 docArgs.insertAt(idx, arg)
 
         prev = element
