@@ -98,13 +98,15 @@ on the top) do not need to have a return section.
 
 ## 7. `DOC6xx`: Violations about class attributes
 
-| Code     | Explanation                                                                       |
-| -------- | --------------------------------------------------------------------------------- |
-| `DOC601` | Class docstring contains fewer class attributes than actual class attributes.     |
-| `DOC602` | Class docstring contains more class attributes than in actual class attributes.   |
-| `DOC603` | Class docstring attributes are different from actual class attributes.            |
-| `DOC604` | Attributes are the same in docstring and class def, but are in a different order. |
-| `DOC605` | Attribute names match, but type hints in these attributes do not match            |
+| Code     | Explanation                                                                                        |
+| -------- | -------------------------------------------------------------------------------------------------- |
+| `DOC601` | Class docstring contains fewer class attributes than actual class attributes.                      |
+| `DOC602` | Class docstring contains more class attributes than in actual class attributes.                    |
+| `DOC603` | Class docstring attributes are different from actual class attributes.                             |
+| `DOC604` | Attributes are the same in docstring and class def, but are in a different order.                  |
+| `DOC605` | Attribute names match, but type hints in these attributes do not match                             |
+| `DOC606` | Attribute should not have an inline docstring; please combine it with the docstring of the class   |
+| `DOC607` | The class docstring should not have an "Attributes" section; please document all attributes inline |
 
 More about checking class attributes:
 https://jsh9.github.io/pydoclint/checking_class_attributes.html

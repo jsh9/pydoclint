@@ -634,6 +634,7 @@ class Visitor(ast.NodeVisitor):
             shouldCheckArgOrder=self.checkArgOrder,
             argTypeHintsInSignature=considerArgTypeHintsInSignature,
             argTypeHintsInDocstring=considerArgTypeHintsInDocstring,
+            allowInlineClassVarDocs=self.allowInlineClassVarDocs,
             lineNum=lineNum,
             msgPrefix=msgPrefix,
         )

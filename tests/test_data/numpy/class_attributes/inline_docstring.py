@@ -24,6 +24,8 @@ class MyClass3:
     """
     Mix of inline and block docstrings for attributes.
 
+    This should cause violation DOC606 or DOC607, depending on the setting for inline docstrings.
+
     Properties
     ----------
 
@@ -51,17 +53,7 @@ class MyClass3:
 
 
 class MyClass4:
-    """
-    Differing attribute and inline docstring types.
-
-    Properties
-    ----------
-
-    Attributes
-    ----------
-    field1 : int
-        An integer field.
-    """
+    """Differing type hint and inline docstring types."""
 
     field1: str = "not an int"
-    """str: This field is actually a string, not an int."""
+    """int: This field is actually a string, not an int."""

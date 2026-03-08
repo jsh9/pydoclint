@@ -190,10 +190,11 @@ class MyPet:
 
 ## 4. Inline docstrings
 
-PEP-257 indicates that string literals located directly after an assign
-statement may be treated as attribute documentation. As such, we also
-optionally support inline docstrings for class attributes with the
-`allow-inline-classvar-docs` option set to True (it is False by default).
+[PEP-257](https://peps.python.org/pep-0257/) indicates that string literals
+located directly after an assign statement may be treated as attribute
+documentation. As such, we also optionally support inline docstrings for class
+attributes with the `allow-inline-class-var-docs` option set to True (it is
+False by default).
 
 Attribute type documentation may be specified as the first thing in the
 docstring followed by a colon. For example:

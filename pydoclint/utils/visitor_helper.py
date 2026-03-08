@@ -50,8 +50,45 @@ def checkClassAttributesAgainstClassDocstring(
         allowInlineClassVarDocs: bool,
         checkArgDefaults: bool,
 ) -> None:
-    """Check class attribute list against the attribute list in docstring"""
-    result = getDocumentedAndActualClassArgLists(
+    """
+    Check class attribute list against the attribute list in docstring.
+
+    Parameters
+    ----------
+    node : ast.ClassDef
+        The class definition node.
+    style : str
+        The docstring style.
+    violations : list[Violation]
+        The list of violations.
+    lineNum : int
+        The line number for reporting violations.
+    msgPrefix : str
+        The message prefix for violations.
+    shouldCheckArgOrder : bool
+        Whether to check the order of arguments.
+    argTypeHintsInSignature : bool
+        Whether type hints are in the function signature.
+    argTypeHintsInDocstring : bool
+        Whether to include type hints in docstring.
+    skipCheckingShortDocstrings : bool
+        Whether to skip checking short docstrings.
+    shouldDocumentPrivateClassAttributes : bool
+        Whether to document private class attributes.
+    treatPropertyMethodsAsClassAttributes : bool
+        Whether to treat property methods as class attributes.
+    onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
+        Whether only attributes with ClassVar are treated as class attributes.
+    allowInlineClassVarDocs : bool
+        Whether to allow inline ClassVar docs.
+    checkArgDefaults : bool
+        Whether to check argument defaults.
+
+    Returns
+    -------
+    None
+    """
+    docuemntedAndClassArgs = getDocumentedAndActualClassArgLists(
         node=node,
         style=style,
         shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
@@ -66,10 +103,10 @@ def checkClassAttributesAgainstClassDocstring(
         argTypeHintsInDocstring=argTypeHintsInDocstring,
     )
 
-    if result is None:
+    if docuemntedAndClassArgs is None:
         return
 
-    docArgs, actualArgs = result
+    docArgs, actualArgs = docuemntedAndClassArgs
 
     checkDocArgsLengthAgainstActualArgs(
         docArgs=docArgs,
@@ -109,6 +146,7 @@ def checkClassAttributesAgainstClassDocstring(
         shouldCheckArgOrder=shouldCheckArgOrder,
         argTypeHintsInSignature=argTypeHintsInSignature,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
+        allowInlineClassVarDocs=allowInlineClassVarDocs,
         lineNum=lineNum,
         msgPrefix=msgPrefix,
     )
@@ -127,7 +165,38 @@ def getDocumentedAndActualClassArgLists(
         allowInlineClassVarDocs: bool,
         argTypeHintsInDocstring: bool,
 ) -> tuple[ArgList, ArgList] | None:
-    """Get documented and actual class attribute lists"""
+    """
+    Get documented and actual class attribute lists.
+
+    Parameters
+    ----------
+    node : ast.ClassDef
+        The class definition node.
+    style : str
+        The docstring style.
+    shouldDocumentPrivateClassAttributes : bool
+        Whether to document private class attributes.
+    treatPropertyMethodsAsClassAttributes : bool
+        Whether to treat property methods as class attributes.
+    onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
+        Whether only attributes with ClassVar are treated as class attributes.
+    checkArgDefaults : bool
+        Whether to check argument defaults.
+    violations : list[Violation]
+        The list of violations.
+    skipCheckingShortDocstrings : bool
+        Whether to skip checking short docstrings.
+    allowInlineClassVarDocs : bool
+        Whether to allow inline ClassVar docs.
+    argTypeHintsInDocstring : bool
+        Whether to include type hints in docstring.
+
+    Returns
+    -------
+    tuple[ArgList, ArgList] | None
+        A tuple containing the documented and actual class attribute lists, or
+        None if the class has no docstring or should be skipped.
+    """
     actualArgs: ArgList = extractClassAttributesFromNode(
         node=node,
         shouldDocumentPrivateClassAttributes=(
@@ -168,14 +237,26 @@ def getDocumentedAndActualClassArgLists(
 
     docArgs: ArgList = doc.attrList
 
-    if allowInlineClassVarDocs:
-        updateDocumentedArgListWithInlineDocstrings(
-            node=node,
-            docArgs=docArgs,
-            actualArgs=actualArgs,
-            shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
-            argTypeHintsInDocstring=argTypeHintsInDocstring,
+    if allowInlineClassVarDocs and not docArgs.isEmpty:
+        violations.append(
+            Violation(
+                code=607,
+                line=node.lineno,
+                msgPrefix=f'Class `{node.name}`:',
+            )
         )
+        # wipe out the args so we can catch any missing ones from inline docs
+        docArgs = ArgList([])
+
+    updateDocumentedArgListWithInlineDocstrings(
+        node=node,
+        docArgs=docArgs,
+        actualArgs=actualArgs,
+        shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        allowInlineClassVarDocs=allowInlineClassVarDocs,
+        violations=violations,
+    )
 
     return docArgs, actualArgs
 
@@ -187,11 +268,12 @@ def updateDocumentedArgListWithInlineDocstrings(
         actualArgs: ArgList,
         shouldDocumentPrivateClassAttributes: bool,
         argTypeHintsInDocstring: bool,
+        allowInlineClassVarDocs: bool,
+        violations: list[Violation],
 ) -> None:
     """
     Check for inline class attribute docstrings and add them to the documented
     argument list.
-
 
     PEP-257 supports inline documentation for class variables, so we check for
     constant string literals after assignments in the class body.
@@ -209,6 +291,10 @@ def updateDocumentedArgListWithInlineDocstrings(
         private class attributes will be included.
     argTypeHintsInDocstring : bool
         Whether argument type hints are expected to be in the docstring.
+    allowInlineClassVarDocs : bool
+        Whether to allow inline ClassVar docs.
+    violations : list[Violation]
+        The list of violations to append to.
 
     Returns
     -------
@@ -244,9 +330,7 @@ def updateDocumentedArgListWithInlineDocstrings(
                     arg = args.infoList[0]
 
             # only add if the var is in the actualArgs and
-            # not already in docArgs
-            # i.e. do not override vars that are explicitly documented
-            # in the class header.
+            # not already in docArgs, otherwise, it is a violation
             if (
                 arg is not None
                 and (
@@ -254,18 +338,30 @@ def updateDocumentedArgListWithInlineDocstrings(
                     or not arg.name.startswith('_')
                 )
                 and actualArgs.contains(arg)
-                and not docArgs.contains(arg)
             ):
-                # pull the type from the doc comment
-                arg.typeHint = ''
-                if argTypeHintsInDocstring:
-                    docComment = cast('str', element.value.value)
-                    if ':' in docComment:
-                        maybeTypeHint = docComment.split(':')[0].strip()
-                        if ' ' not in maybeTypeHint:
-                            arg.typeHint = maybeTypeHint
+                if not allowInlineClassVarDocs:
+                    violations.append(
+                        Violation(
+                            line=element.lineno,
+                            code=606,
+                            msgPrefix=(
+                                f'Class `{node.name}`, Attribute `{arg.name}`:'
+                            ),
+                        )
+                    )
+                else:
+                    # pull the type from the doc comment
+                    arg.typeHint = ''
+                    if argTypeHintsInDocstring:
+                        docComment = cast('str', element.value.value)
+                        if ':' in docComment:
+                            # type hint is before the first colon
+                            # on the first line
+                            arg.typeHint = (
+                                docComment.split('\n')[0].split(':')[0].strip()
+                            )
 
-                docArgs.insertAt(idx, arg)
+                    docArgs.insertAt(idx, arg)
 
         prev = element
 
@@ -391,6 +487,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
         shouldCheckArgOrder: bool,
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
+        allowInlineClassVarDocs: bool,
         lineNum: int,
         msgPrefix: str,
 ) -> None:
@@ -445,14 +542,19 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
             msgPostfixParts: list[str] = []
 
             string0 = (
-                'Attributes in the class definition but not in the'
+                'Attributes in the class definition but not '
                 if actualArgsAreClassAttributes
-                else 'Arguments in the function signature but not in the'
+                else 'Arguments in the function signature but not '
             )
 
             if argsInFuncNotInDoc:
+                if allowInlineClassVarDocs and actualArgsAreClassAttributes:
+                    string0 += 'documented inline:'
+                else:
+                    string0 += 'in the docstring:'
+
                 msgPostfixParts.append(
-                    string0 + f' docstring: {sorted(argsInFuncNotInDoc)}.'
+                    string0 + f' {sorted(argsInFuncNotInDoc)}.'
                 )
 
             string1 = (
