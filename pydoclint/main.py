@@ -291,7 +291,7 @@ def validateNativeModeNoqaLocation(
 )
 @click.option(
     '-aicvd',
-    '--allow-inline-classvar-docs',
+    '--allow-inline-class-var-docs',
     type=bool,
     show_default=True,
     default=False,

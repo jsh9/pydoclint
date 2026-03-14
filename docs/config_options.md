@@ -31,7 +31,7 @@ ______________________________________________________________________
 - [16. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)](#16---should-document-private-class-attributes-shortform--sdpca-default-false)
 - [17. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#17---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
 - [18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)](#18---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
-- [19. `--allow-inline-classvar-docs` (shortform: `-aicvd`, default: `False`)](#19---allow-inline-classvar-docs-shortform--aicvd-default-false)
+- [19. `--allow-inline-class-var-docs` (shortform: `-aicvd`, default: `False`)](#19---allow-inline-class-var-docs-shortform--aicvd-default-false)
 - [20. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#20---should-document-star-arguments-shortform--sdsa-default-true)
 - [21. `--omit-stars-when-documenting-varargs` (shortform: `-oswdv`, default: `False`)](#21---omit-stars-when-documenting-varargs-shortform--oswdv-default-false)
 - [22. `--check-style-mismatch` (shortform: `-csm`, default: `False`)](#22---check-style-mismatch-shortform--csm-default-false)
@@ -230,7 +230,7 @@ If True, only the attributes whose type annotations are wrapped within
 `ClassVar` (where `ClassVar` is imported from `typing`) are treated as class
 attributes, and all other attributes are treated as instance attributes.
 
-## 19. `--allow-inline-classvar-docs` (shortform: `-aicvd`, default: `False`)
+## 19. `--allow-inline-class-var-docs` (shortform: `-aicvd`, default: `False`)
 
 If True, require class attributes to have inline documentation. For example:
 
