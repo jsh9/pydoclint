@@ -439,7 +439,11 @@ class ArgList:
     ) -> None:
         """Insert an Arg at a specific index."""
         if arg.name in self.lookup:
-            raise ValueError(f'Arg with name "{arg.name}" already exists.')
+            raise ValueError(
+                f'Edge case: Arg with name "{arg.name}" already exists in'
+                ' argList. Please open an Issue on GitHub with a reproducible'
+                ' example.'
+            )
 
         self.infoList.insert(index, arg)
         self.lookup[arg.name] = arg.typeHint
