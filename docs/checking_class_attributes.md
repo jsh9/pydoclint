@@ -9,7 +9,7 @@ ______________________________________________________________________
 - [1. Numpy style](#1-numpy-style)
 - [2. Google style](#2-google-style)
 - [3. Sphinx style](#3-sphinx-style)
-- [4. Inline docstrings](#4-inline-docstrings)
+- [4. Special note: inline docstrings](#4-special-note-inline-docstrings)
 
 ______________________________________________________________________
 
@@ -188,12 +188,12 @@ class MyPet:
         self.airtag_id = airtag_id
 ```
 
-## 4. Inline docstrings
+## 4. Special note: inline docstrings
 
 [PEP-257](https://peps.python.org/pep-0257/) indicates that string literals
 located directly after an assign statement may be treated as attribute
 documentation. As such, we also optionally support inline docstrings for class
-attributes with the `allow-inline-class-var-docs` option set to True (it is
+attributes with the `--allow-inline-class-var-docs` option set to True (it is
 False by default).
 
 Attribute type documentation may be specified as the first thing in the
@@ -206,3 +206,5 @@ class MyClass:
     field1 = 5
     """int: My first field"""
 ```
+
+This applies for all 3 styles (numpy, Google, and Sphinx).
