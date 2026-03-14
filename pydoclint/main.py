@@ -477,7 +477,7 @@ def main(  # noqa: C901, PLR0915
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
         only_attrs_with_classvar_are_treated_as_class_attrs: bool,
-        allow_inline_classvar_docs: bool,
+        allow_inline_class_var_docs: bool,
         should_document_star_arguments: bool,
         omit_stars_when_documenting_varargs: bool,
         should_declare_assert_error_if_assert_statement_exists: bool,
@@ -589,7 +589,7 @@ def main(  # noqa: C901, PLR0915
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             only_attrs_with_classvar_are_treated_as_class_attrs
         ),
-        allowInlineClassVarDocs=allow_inline_classvar_docs,
+        allowInlineClassVarDocs=allow_inline_class_var_docs,
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
         ),
