@@ -92,12 +92,13 @@ even when we fall back to the configured style the cost is still negligible.
 For reference, benchmarking large code bases (as of 2025/01/12) shows the
 overhead of style detection is only a few percent:
 
-| | numpy | scikit-learn | Bokeh | Airflow | | ---------------------------- |
------ | ------------ | ----- | ------- | | Number of .py files | 581 | 929 |
-1196 | 5004 | | Run time with 1 style [sec] | 1.84 | 2.68 | 0.77 | 5.50 | | Run
-time with 3 styles [sec] | 1.91 | 2.79 | 0.78 | 5.77 | | Additional run time
-[sec] | 0.07 | 0.11 | 0.01 | 0.07 | | Relative additional run time | 4% | 4% |
-1% | 5% |
+|                              | numpy | scikit-learn | Bokeh | Airflow |
+| ---------------------------- | ----- | ------------ | ----- | ------- |
+| Number of .py files          | 581   | 929          | 1196  | 5004    |
+| Run time with 1 style [sec]  | 1.84  | 2.68         | 0.77  | 5.50    |
+| Run time with 3 styles [sec] | 1.91  | 2.79         | 0.78  | 5.77    |
+| Additional run time [sec]    | 0.07  | 0.11         | 0.01  | 0.07    |
+| Relative additional run time | 4%    | 4%           | 1%    | 5%      |
 
 ## 5. What violation code is associated with style mismatch?
 
