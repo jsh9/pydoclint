@@ -1,4 +1,5 @@
 import ast
+from typing import TYPE_CHECKING
 
 import pytest
 
@@ -8,7 +9,12 @@ from pydoclint.utils.visitor_helper import (
     extractClassAttributesFromNode,
     extractReturnTypeFromGenerator,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
+    getDocumentedAndActualClassArgLists,
+    updateDocumentedArgListWithInlineDocstrings,
 )
+
+if TYPE_CHECKING:
+    from pydoclint.utils.violation import Violation
 
 
 @pytest.mark.parametrize(
@@ -481,3 +487,534 @@ class MyClass:
         checkArgDefaults=False,
     )
     assert extracted == expected
+
+
+src1 = '''
+class SimpleInlineDoc:
+    """A class for testing and experimenting with code snippets."""
+
+    field1 = 5
+    """Inline documentation for classvar."""
+'''
+
+src2 = '''
+class InlineDocAfter:
+    """Another class for testing."""
+
+    field1: int = 10
+    """int: Inline documentation for classvar."""
+
+    field2: str
+    """str: Inline documentation for an instance variable."""
+
+    field3: int = 5
+    """int: Inline documentation for another classvar."""
+'''
+
+src3 = '''
+class MixedAttributeDoc:
+    """
+    A class with mixed attribute documentation styles.
+
+    {attribute_documentation}Documentation for field2 using the attribute directive.
+    """
+
+    field1: int = 42
+    """int: Documentation for field1 placed after the declaration."""
+
+    field2: str = "str"
+'''
+
+sphinx_attr_doc = '.. attribute :: field2\n   \n:type: str\n'
+google_attr_doc = 'Attributes:\n\tfield2 (str): '
+# the Parameters section is required in numpy style for attribute docs
+# even if it is empty
+numpy_attr_doc = (
+    'Parameters\n----------\n\nAttributes\n----------\nfield2 : str\n\t'
+)
+
+
+@pytest.mark.parametrize(
+    ('src', 'style', 'attribute_documentation', 'expected_violations'),
+    [
+        (src1, 'sphinx', None, []),
+        (src1, 'google', None, []),
+        (src1, 'numpy', None, []),
+        (src2, 'sphinx', None, []),
+        (src2, 'google', None, []),
+        (src2, 'numpy', None, []),
+        (
+            src3,
+            'sphinx',
+            sphinx_attr_doc,
+            [607],
+        ),
+        (
+            src3,
+            'google',
+            google_attr_doc,
+            [607],
+        ),
+        (
+            src3,
+            'numpy',
+            numpy_attr_doc,
+            [607],
+        ),
+    ],
+)
+@pytest.mark.parametrize('argTypeHintsInDocstring', [True, False])
+def testRequireInlineClassvarDocs(
+        src: str,
+        style: str,
+        attribute_documentation: str | None,
+        argTypeHintsInDocstring: bool,
+        expected_violations: list[int],
+) -> None:
+    final_src = src.format(
+        attribute_documentation=attribute_documentation or ''
+    )
+    parsed = ast.parse(final_src)
+    node = parsed.body[0]
+    assert isinstance(node, ast.ClassDef)
+
+    violations: list[Violation] = []
+    attrs = getDocumentedAndActualClassArgLists(
+        node=node,
+        style=style,
+        shouldDocumentPrivateClassAttributes=False,
+        treatPropertyMethodsAsClassAttributes=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=False,
+        violations=violations,
+        skipCheckingShortDocstrings=False,
+        requireInlineClassVarDocs=True,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+    )
+    assert attrs is not None
+    assert [v.code for v in violations] == expected_violations
+
+
+expected_src1 = [Arg(name='field1', typeHint='')]
+expected_src2 = [
+    Arg(name='field1', typeHint='int'),
+    Arg(name='field2', typeHint='str'),
+    Arg(name='field3', typeHint='int'),
+]
+expected_doc_src3 = [Arg(name='field1', typeHint='int')]
+expected_actual_src3 = [
+    Arg(name='field1', typeHint='int'),
+    Arg(name='field2', typeHint='str'),
+]
+
+src4 = '''
+class DocstringMismatch:
+    """A class where some of the inline docstrings are missing."""
+
+    field1: int = 42
+
+    field2: str = "str"
+    """Documentation for field2"""
+'''
+
+src5 = '''
+class DocstringTypeMismatch:
+    """A class where the inline docstring types do not match the annotation."""
+
+    field1: int = 42
+    """str: This field is actually a string, not an int."""
+'''
+
+src4_expected_doc = [Arg(name='field2', typeHint='')]
+src4_expected_actual = [
+    Arg(name='field1', typeHint='int'),
+    Arg(name='field2', typeHint='str'),
+]
+src5_expected_doc = [Arg(name='field1', typeHint='str')]
+src5_expected_actual = [Arg(name='field1', typeHint='int')]
+
+
+@pytest.mark.parametrize(
+    (
+        'src',
+        'style',
+        'attribute_documentation',
+        'expected_docargs',
+        'expected_actualargs',
+        'expected_violations',
+    ),
+    [
+        (
+            src1,
+            'sphinx',
+            None,
+            expected_src1,
+            expected_src1,
+            [],
+        ),
+        (
+            src1,
+            'google',
+            None,
+            expected_src1,
+            expected_src1,
+            [],
+        ),
+        (
+            src1,
+            'numpy',
+            None,
+            expected_src1,
+            expected_src1,
+            [],
+        ),
+        (src2, 'sphinx', None, expected_src2, expected_src2, []),
+        (src2, 'google', None, expected_src2, expected_src2, []),
+        (src2, 'numpy', None, expected_src2, expected_src2, []),
+        (
+            src3,
+            'sphinx',
+            sphinx_attr_doc,
+            expected_doc_src3,
+            expected_actual_src3,
+            # expect DOC607 because inline docs are required in this mode
+            [607],
+        ),
+        (
+            src3,
+            'google',
+            google_attr_doc,
+            expected_doc_src3,
+            expected_actual_src3,
+            [607],
+        ),
+        (
+            src3,
+            'numpy',
+            numpy_attr_doc,
+            expected_doc_src3,
+            expected_actual_src3,
+            [607],
+        ),
+        (
+            src4,
+            'sphinx',
+            None,
+            src4_expected_doc,
+            src4_expected_actual,
+            [],
+        ),
+        (
+            src4,
+            'google',
+            None,
+            src4_expected_doc,
+            src4_expected_actual,
+            [],
+        ),
+        (
+            src4,
+            'numpy',
+            None,
+            src4_expected_doc,
+            src4_expected_actual,
+            [],
+        ),
+        (
+            src5,
+            'sphinx',
+            None,
+            src5_expected_doc,
+            src5_expected_actual,
+            # a violation is not thrown at this level for mismatched types
+            [],
+        ),
+        (
+            src5,
+            'google',
+            None,
+            src5_expected_doc,
+            src5_expected_actual,
+            # a violation is not thrown at this level for mismatched types
+            [],
+        ),
+        (
+            src5,
+            'numpy',
+            None,
+            src5_expected_doc,
+            src5_expected_actual,
+            # a violation is not thrown at this level for mismatched types
+            [],
+        ),
+    ],
+)
+def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
+        src: str,
+        style: str,
+        attribute_documentation: str | None,
+        expected_docargs: list[Arg],
+        expected_actualargs: list[Arg],
+        expected_violations: list[int],
+) -> None:
+    final_src = src.format(
+        attribute_documentation=attribute_documentation or ''
+    )
+    parsed = ast.parse(final_src)
+    node = parsed.body[0]
+    assert isinstance(node, ast.ClassDef)
+
+    violations: list[Violation] = []
+    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+        node=node,
+        style=style,
+        shouldDocumentPrivateClassAttributes=False,
+        treatPropertyMethodsAsClassAttributes=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=False,
+        violations=violations,
+        skipCheckingShortDocstrings=False,
+        requireInlineClassVarDocs=True,
+        argTypeHintsInDocstring=True,
+    ) or (None, None)
+
+    assert [v.code for v in violations] == expected_violations
+    assert docArgs == ArgList(expected_docargs)
+    assert actualArgs == ArgList(expected_actualargs)
+
+
+expected_doc_src3_no_inline = [Arg(name='field2', typeHint='str')]
+expected_actual_src3_no_inline = [
+    Arg(name='field1', typeHint='int'),
+    Arg(name='field2', typeHint='str'),
+]
+
+
+@pytest.mark.parametrize(
+    (
+        'src',
+        'style',
+        'attribute_documentation',
+        'expected_docargs',
+        'expected_actualargs',
+        'expected_violations',
+    ),
+    [
+        (
+            src3,
+            'sphinx',
+            sphinx_attr_doc,
+            expected_doc_src3_no_inline,
+            expected_actual_src3_no_inline,
+            # Expect DOC606 because inline docstrings are not accepted here
+            [606],
+        ),
+        (
+            src3,
+            'google',
+            google_attr_doc,
+            expected_doc_src3_no_inline,
+            expected_actual_src3_no_inline,
+            # Expect DOC606 because inline docstrings are not accepted here
+            [606],
+        ),
+        (
+            src3,
+            'numpy',
+            numpy_attr_doc,
+            expected_doc_src3_no_inline,
+            expected_actual_src3_no_inline,
+            # Expect DOC606 because inline docstrings are not accepted here
+            [606],
+        ),
+    ],
+)
+def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
+        src: str,
+        style: str,
+        attribute_documentation: str | None,
+        expected_docargs: list[Arg],
+        expected_actualargs: list[Arg],
+        expected_violations: list[int],
+) -> None:
+    final_src = src.format(
+        attribute_documentation=attribute_documentation or ''
+    )
+    parsed = ast.parse(final_src)
+    node = parsed.body[0]
+    assert isinstance(node, ast.ClassDef)
+
+    violations: list[Violation] = []
+    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+        node=node,
+        style=style,
+        shouldDocumentPrivateClassAttributes=False,
+        treatPropertyMethodsAsClassAttributes=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=False,
+        violations=violations,
+        skipCheckingShortDocstrings=False,
+        requireInlineClassVarDocs=False,
+        argTypeHintsInDocstring=True,
+    ) or (None, None)
+
+    assert [v.code for v in violations] == expected_violations
+    assert docArgs == ArgList(expected_docargs)
+    assert actualArgs == ArgList(expected_actualargs)
+
+
+@pytest.mark.parametrize(
+    (
+        'src',
+        'initial_docArgs',
+        'requireInlineClassVarDocs',
+        'shouldDocumentPrivateClassAttributes',
+        'argTypeHintsInDocstring',
+        'expected_docargs',
+        'expected_violations',
+    ),
+    [
+        # src1: Simple inline doc without type hints
+        (
+            src1,
+            ArgList([]),
+            True,
+            False,
+            True,
+            [Arg(name='field1', typeHint='')],
+            [],
+        ),
+        (
+            src1,
+            ArgList([]),
+            True,
+            False,
+            False,
+            [Arg(name='field1', typeHint='')],
+            [],
+        ),
+        (
+            src1,
+            ArgList([]),
+            False,
+            False,
+            True,
+            [],
+            [606],
+        ),
+        # src2: Multiple inline docs with type hints
+        (
+            src2,
+            ArgList([]),
+            True,
+            False,
+            True,
+            [
+                Arg(name='field1', typeHint='int'),
+                Arg(name='field2', typeHint='str'),
+                Arg(name='field3', typeHint='int'),
+            ],
+            [],
+        ),
+        (
+            src2,
+            ArgList([]),
+            True,
+            False,
+            False,
+            [
+                Arg(name='field1', typeHint=''),
+                Arg(name='field2', typeHint=''),
+                Arg(name='field3', typeHint=''),
+            ],
+            [],
+        ),
+        (
+            src2,
+            ArgList([]),
+            False,
+            False,
+            True,
+            [],
+            [606, 606, 606],
+        ),
+        # src4: Partial inline docs (field1 has no doc, field2 has doc)
+        (
+            src4,
+            ArgList([]),
+            True,
+            False,
+            True,
+            [Arg(name='field2', typeHint='')],
+            [],
+        ),
+        (
+            src4,
+            ArgList([]),
+            False,
+            False,
+            True,
+            [],
+            [606],
+        ),
+        # src5: Type mismatch between annotation and inline doc
+        (
+            src5,
+            ArgList([]),
+            True,
+            False,
+            True,
+            [Arg(name='field1', typeHint='str')],
+            [],
+        ),
+        (
+            src5,
+            ArgList([]),
+            True,
+            False,
+            False,
+            [Arg(name='field1', typeHint='')],
+            [],
+        ),
+    ],
+)
+def testUpdateDocumentedArgListWithInlineDocstrings(
+        src: str,
+        initial_docArgs: ArgList,
+        requireInlineClassVarDocs: bool,
+        shouldDocumentPrivateClassAttributes: bool,
+        argTypeHintsInDocstring: bool,
+        expected_docargs: list[Arg],
+        expected_violations: list[int],
+) -> None:
+    parsed = ast.parse(src)
+    node = parsed.body[0]
+    assert isinstance(node, ast.ClassDef)
+
+    # Extract actual args from the class
+    actualArgs = extractClassAttributesFromNode(
+        node=node,
+        shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
+        treatPropertyMethodsAsClassAttrs=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=False,
+    )
+
+    # Start with initial docArgs
+    docArgs = ArgList(list(initial_docArgs.infoList))
+    violations: list[Violation] = []
+
+    # Call the function to test
+    updateDocumentedArgListWithInlineDocstrings(
+        node=node,
+        docArgs=docArgs,
+        actualArgs=actualArgs,
+        shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        requireInlineClassVarDocs=requireInlineClassVarDocs,
+        violations=violations,
+    )
+
+    # Verify results
+    assert [v.code for v in violations] == expected_violations
+    assert docArgs == ArgList(expected_docargs)

@@ -249,6 +249,18 @@ class Plugin:
             ),
         )
         parser.add_option(
+            '-ricvd',
+            '--require-inline-class-var-docs',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, require inline documentation for class'
+                ' attributes. If False, require them to be documented'
+                ' in the class docstring instead.'
+            ),
+        )
+        parser.add_option(
             '-sdsa',
             '--should-document-star-arguments',
             action='store',
@@ -347,6 +359,9 @@ class Plugin:
         cls.only_attrs_with_ClassVar_are_treated_as_class_attrs = (
             options.only_attrs_with_ClassVar_are_treated_as_class_attrs
         )
+        cls.require_inline_class_var_docs = (
+            options.require_inline_class_var_docs
+        )
         cls.should_document_star_arguments = (
             options.should_document_star_arguments
         )
@@ -440,6 +455,10 @@ class Plugin:
             '--only-attrs-with-ClassVar-are-treated-as-class-attrs',
             self.only_attrs_with_ClassVar_are_treated_as_class_attrs,
         )
+        requireInlineClassVarDocs = self._bool(
+            '--require-inline-class-var-docs',
+            self.require_inline_class_var_docs,
+        )
         shouldDocumentStarArguments = self._bool(
             '--should-document-star-arguments',
             self.should_document_star_arguments,
@@ -490,6 +509,7 @@ class Plugin:
             onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
                 onlyAttrsWithClassVarAreTreatedAsClassAttrs
             ),
+            requireInlineClassVarDocs=requireInlineClassVarDocs,
             shouldDocumentStarArguments=shouldDocumentStarArguments,
             omitStarsWhenDocumentingVarargs=omitStarsWhenDocumentingVarargs,
             checkStyleMismatch=checkStyleMismatch,

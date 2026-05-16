@@ -346,3 +346,75 @@ def testArgList_subtract(
         expected: set[Arg],
 ) -> None:
     assert obj1.subtract(obj2) == expected
+
+
+@pytest.mark.parametrize(
+    ('initialArgList', 'index', 'argToInsert', 'expected'),
+    [
+        (
+            ArgList([Arg('a', '1'), Arg('c', '3')]),
+            1,
+            Arg('b', '2'),
+            ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
+        ),
+        (
+            ArgList([Arg('b', '2'), Arg('c', '3')]),
+            0,
+            Arg('a', '1'),
+            ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
+        ),
+        (
+            ArgList([Arg('a', '1'), Arg('b', '2')]),
+            2,
+            Arg('c', '3'),
+            ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
+        ),
+        (
+            ArgList([Arg('a', '1'), Arg('c', '3')]),
+            -1,  # this means "second to last position"
+            Arg('b', '2'),
+            ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
+        ),
+        (
+            ArgList([Arg('a', '1'), Arg('c', '3')]),
+            -2,  # this means "third to last position"
+            Arg('b', '2'),
+            ArgList([Arg('b', '2'), Arg('a', '1'), Arg('c', '3')]),
+        ),
+        (
+            ArgList([Arg('a', '1'), Arg('c', '3')]),
+            -123456,
+            Arg('b', '2'),
+            ArgList([Arg('b', '2'), Arg('a', '1'), Arg('c', '3')]),
+        ),
+        (
+            ArgList([Arg('a', '1'), Arg('b', '2')]),
+            999,
+            Arg('c', '3'),
+            ArgList([Arg('a', '1'), Arg('b', '2'), Arg('c', '3')]),
+        ),
+    ],
+)
+def testArgList_insertAt(
+        initialArgList: ArgList,
+        index: int,
+        argToInsert: Arg,
+        expected: ArgList,
+) -> None:
+    initialArgList.insertAt(index, argToInsert)
+    assert initialArgList == expected
+
+
+@pytest.mark.parametrize('index', [1.5, -1.2])
+def testArgList_insertAt_nonIntegerIndex(index: float) -> None:
+    argList = ArgList([Arg('a', '1'), Arg('b', '2')])
+
+    with pytest.raises(TypeError, match='integer'):
+        argList.insertAt(index, Arg('c', '3'))  # type: ignore[arg-type]
+
+
+def testArgList_insertAt_duplicateNameRaisesError() -> None:
+    argList = ArgList([Arg('a', '1'), Arg('b', '2')])
+
+    with pytest.raises(ValueError, match='Arg with name "a" already exists'):
+        argList.insertAt(1, Arg('a', '999'))

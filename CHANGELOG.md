@@ -1,5 +1,11 @@
 # Change Log
 
+## [Unreleased]
+
+- Added
+  - Support inline class-attribute docstrings, add `DOC606` and `DOC607`, and
+    introduce `--require-inline-class-var-docs` in native and flake8 modes
+
 ## [0.8.3] - 2025-11-26
 
 - Added

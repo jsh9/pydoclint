@@ -290,6 +290,18 @@ def validateNativeModeNoqaLocation(
     ),
 )
 @click.option(
+    '-ricvd',
+    '--require-inline-class-var-docs',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, require inline documentation of class attributes.'
+        ' If False, require them to be documented in the class docstring'
+        ' instead.'
+    ),
+)
+@click.option(
     '-sdsa',
     '--should-document-star-arguments',
     type=bool,
@@ -469,6 +481,7 @@ def main(  # noqa: C901, PLR0915
         require_return_section_when_returning_nothing: bool,
         require_yield_section_when_yielding_nothing: bool,
         only_attrs_with_classvar_are_treated_as_class_attrs: bool,
+        require_inline_class_var_docs: bool,
         should_document_star_arguments: bool,
         omit_stars_when_documenting_varargs: bool,
         should_declare_assert_error_if_assert_statement_exists: bool,
@@ -580,6 +593,7 @@ def main(  # noqa: C901, PLR0915
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             only_attrs_with_classvar_are_treated_as_class_attrs
         ),
+        requireInlineClassVarDocs=require_inline_class_var_docs,
         requireReturnSectionWhenReturningNothing=(
             require_return_section_when_returning_nothing
         ),
@@ -736,6 +750,7 @@ def _checkPaths(
         shouldDocumentPrivateClassAttributes: bool = False,
         treatPropertyMethodsAsClassAttributes: bool = False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
+        requireInlineClassVarDocs: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
@@ -798,6 +813,7 @@ def _checkPaths(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
                 onlyAttrsWithClassVarAreTreatedAsClassAttrs
             ),
+            requireInlineClassVarDocs=requireInlineClassVarDocs,
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing
             ),
@@ -836,6 +852,7 @@ def _checkFile(
         shouldDocumentPrivateClassAttributes: bool = False,
         treatPropertyMethodsAsClassAttributes: bool = False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
+        requireInlineClassVarDocs: bool = False,
         requireReturnSectionWhenReturningNothing: bool = False,
         requireYieldSectionWhenYieldingNothing: bool = False,
         shouldDocumentStarArguments: bool = True,
@@ -893,6 +910,7 @@ def _checkFile(
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
         ),
+        requireInlineClassVarDocs=requireInlineClassVarDocs,
         requireReturnSectionWhenReturningNothing=(
             requireReturnSectionWhenReturningNothing
         ),

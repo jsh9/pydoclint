@@ -431,3 +431,19 @@ class ArgList:
         they don't need to have type hints.
         """
         return all(_.hasTypeHint() for _ in self.infoList if _.notStarArg())
+
+    def insertAt(
+            self,
+            index: int,
+            arg: Arg,
+    ) -> None:
+        """Insert an Arg at a specific index."""
+        if arg.name in self.lookup:
+            raise ValueError(
+                f'Edge case: Arg with name "{arg.name}" already exists in'
+                ' argList. Please open an Issue on GitHub with a reproducible'
+                ' example.'
+            )
+
+        self.infoList.insert(index, arg)
+        self.lookup[arg.name] = arg.typeHint
