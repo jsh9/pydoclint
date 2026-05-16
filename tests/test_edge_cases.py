@@ -633,28 +633,18 @@ from tests.test_main import DATA_DIR
                 'skipCheckingShortDocstrings': False,
             },
             [
-                (
-                    'DOC203: Function `_test_private_function` return type(s) in docstring not '
-                    "consistent with the return annotation. Return annotation types: ['int']; "
-                    "docstring return section types: ['bool']"
-                ),
-                (
-                    'DOC301: Class `TestClass`: __init__() should not have a docstring; '
-                    'please combine it with the docstring of the class'
-                ),
-                (
-                    'DOC105: Method `TestClass._private_method`: Argument names match, but type '
-                    'hints in these args do not match: i'
-                ),
-                (
-                    'DOC203: Function `inner_method` return type(s) in docstring not consistent '
-                    "with the return annotation. Return annotation types: ['bool']; docstring "
-                    "return section types: ['int']"
-                ),
-                (
-                    'DOC105: Method `TestClass.__private_name_mangled_method`: Argument names '
-                    'match, but type hints in these args do not match: i'
-                ),
+                'DOC203: Function `_test_private_function` return type(s) in docstring not '
+                "consistent with the return annotation. Return annotation types: ['int']; "
+                "docstring return section types: ['bool']",
+                'DOC301: Class `TestClass`: __init__() should not have a docstring; '
+                'please combine it with the docstring of the class',
+                'DOC105: Method `TestClass._private_method`: Argument names match, but type '
+                'hints in these args do not match: i',
+                'DOC203: Function `inner_method` return type(s) in docstring not consistent '
+                "with the return annotation. Return annotation types: ['bool']; docstring "
+                "return section types: ['int']",
+                'DOC105: Method `TestClass.__private_name_mangled_method`: Argument names '
+                'match, but type hints in these args do not match: i',
             ],
         ),
         (
@@ -665,10 +655,8 @@ from tests.test_main import DATA_DIR
                 'skipCheckingShortDocstrings': False,
             },
             [
-                (
-                    'DOC301: Class `TestClass`: __init__() should not have a docstring; '
-                    'please combine it with the docstring of the class'
-                )
+                'DOC301: Class `TestClass`: __init__() should not have a docstring; '
+                'please combine it with the docstring of the class'
             ],
         ),
     ],
