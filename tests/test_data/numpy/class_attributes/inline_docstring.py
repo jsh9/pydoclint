@@ -24,7 +24,8 @@ class MyClass3:
     """
     Mix of inline and block docstrings for attributes.
 
-    This should cause violation DOC606 or DOC607, depending on the setting for inline docstrings.
+    This should cause DOC606 or DOC607 depending on whether inline
+    docs are required.
 
     Properties
     ----------

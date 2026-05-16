@@ -47,7 +47,7 @@ def checkClassAttributesAgainstClassDocstring(
         shouldDocumentPrivateClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
-        allowInlineClassVarDocs: bool,
+        requireInlineClassVarDocs: bool,
         checkArgDefaults: bool,
 ) -> None:
     """
@@ -79,8 +79,8 @@ def checkClassAttributesAgainstClassDocstring(
         Whether to treat property methods as class attributes.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
         Whether only attributes with ClassVar are treated as class attributes.
-    allowInlineClassVarDocs : bool
-        Whether to allow inline ClassVar docs.
+    requireInlineClassVarDocs : bool
+        Whether to require inline class attribute docs.
     checkArgDefaults : bool
         Whether to check argument defaults.
 
@@ -99,7 +99,7 @@ def checkClassAttributesAgainstClassDocstring(
         checkArgDefaults=checkArgDefaults,
         violations=violations,
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
-        allowInlineClassVarDocs=allowInlineClassVarDocs,
+        requireInlineClassVarDocs=requireInlineClassVarDocs,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
     )
 
@@ -146,7 +146,7 @@ def checkClassAttributesAgainstClassDocstring(
         shouldCheckArgOrder=shouldCheckArgOrder,
         argTypeHintsInSignature=argTypeHintsInSignature,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
-        allowInlineClassVarDocs=allowInlineClassVarDocs,
+        requireInlineClassVarDocs=requireInlineClassVarDocs,
         lineNum=lineNum,
         msgPrefix=msgPrefix,
     )
@@ -162,7 +162,7 @@ def getDocumentedAndActualClassArgLists(
         checkArgDefaults: bool,
         violations: list[Violation],
         skipCheckingShortDocstrings: bool,
-        allowInlineClassVarDocs: bool,
+        requireInlineClassVarDocs: bool,
         argTypeHintsInDocstring: bool,
 ) -> tuple[ArgList, ArgList] | None:
     """
@@ -186,8 +186,8 @@ def getDocumentedAndActualClassArgLists(
         The list of violations.
     skipCheckingShortDocstrings : bool
         Whether to skip checking short docstrings.
-    allowInlineClassVarDocs : bool
-        Whether to allow inline ClassVar docs.
+    requireInlineClassVarDocs : bool
+        Whether to require inline class attribute docs.
     argTypeHintsInDocstring : bool
         Whether to include type hints in docstring.
 
@@ -237,7 +237,7 @@ def getDocumentedAndActualClassArgLists(
 
     docArgs: ArgList = doc.attrList
 
-    if allowInlineClassVarDocs and not docArgs.isEmpty:
+    if requireInlineClassVarDocs and not docArgs.isEmpty:
         violations.append(
             Violation(
                 code=607,
@@ -254,7 +254,7 @@ def getDocumentedAndActualClassArgLists(
         actualArgs=actualArgs,
         shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
-        allowInlineClassVarDocs=allowInlineClassVarDocs,
+        requireInlineClassVarDocs=requireInlineClassVarDocs,
         violations=violations,
     )
 
@@ -268,7 +268,7 @@ def updateDocumentedArgListWithInlineDocstrings(
         actualArgs: ArgList,
         shouldDocumentPrivateClassAttributes: bool,
         argTypeHintsInDocstring: bool,
-        allowInlineClassVarDocs: bool,
+        requireInlineClassVarDocs: bool,
         violations: list[Violation],
 ) -> None:
     """
@@ -291,8 +291,8 @@ def updateDocumentedArgListWithInlineDocstrings(
         private class attributes will be included.
     argTypeHintsInDocstring : bool
         Whether argument type hints are expected to be in the docstring.
-    allowInlineClassVarDocs : bool
-        Whether to allow inline ClassVar docs.
+    requireInlineClassVarDocs : bool
+        Whether to require inline class attribute docs.
     violations : list[Violation]
         The list of violations to append to.
 
@@ -339,7 +339,7 @@ def updateDocumentedArgListWithInlineDocstrings(
                 )
                 and actualArgs.contains(arg)
             ):
-                if not allowInlineClassVarDocs:
+                if not requireInlineClassVarDocs:
                     violations.append(
                         Violation(
                             line=element.lineno,
@@ -487,7 +487,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
         shouldCheckArgOrder: bool,
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
-        allowInlineClassVarDocs: bool,
+        requireInlineClassVarDocs: bool,
         lineNum: int,
         msgPrefix: str,
 ) -> None:
@@ -548,7 +548,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
             )
 
             if argsInFuncNotInDoc:
-                if allowInlineClassVarDocs and actualArgsAreClassAttributes:
+                if requireInlineClassVarDocs and actualArgsAreClassAttributes:
                     string0 += 'documented inline:'
                 else:
                     string0 += 'in the docstring:'

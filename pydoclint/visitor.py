@@ -82,7 +82,7 @@ class Visitor(ast.NodeVisitor):
             shouldDocumentPrivateClassAttributes: bool = False,
             treatPropertyMethodsAsClassAttributes: bool = False,
             onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
-            allowInlineClassVarDocs: bool = True,
+            requireInlineClassVarDocs: bool = False,
             requireReturnSectionWhenReturningNothing: bool = False,
             requireYieldSectionWhenYieldingNothing: bool = False,
             shouldDocumentStarArguments: bool = True,
@@ -112,7 +112,7 @@ class Visitor(ast.NodeVisitor):
         self.onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = (
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
         )
-        self.allowInlineClassVarDocs: bool = allowInlineClassVarDocs
+        self.requireInlineClassVarDocs: bool = requireInlineClassVarDocs
         self.requireReturnSectionWhenReturningNothing: bool = (
             requireReturnSectionWhenReturningNothing
         )
@@ -165,7 +165,7 @@ class Visitor(ast.NodeVisitor):
                 onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
                     self.onlyAttrsWithClassVarAreTreatedAsClassAttrs
                 ),
-                allowInlineClassVarDocs=self.allowInlineClassVarDocs,
+                requireInlineClassVarDocs=self.requireInlineClassVarDocs,
                 checkArgDefaults=self.checkArgDefaults,
             )
 
@@ -634,7 +634,7 @@ class Visitor(ast.NodeVisitor):
             shouldCheckArgOrder=self.checkArgOrder,
             argTypeHintsInSignature=considerArgTypeHintsInSignature,
             argTypeHintsInDocstring=considerArgTypeHintsInDocstring,
-            allowInlineClassVarDocs=self.allowInlineClassVarDocs,
+            requireInlineClassVarDocs=self.requireInlineClassVarDocs,
             lineNum=lineNum,
             msgPrefix=msgPrefix,
         )

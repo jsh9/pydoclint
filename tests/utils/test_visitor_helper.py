@@ -564,7 +564,7 @@ numpy_attr_doc = (
     ],
 )
 @pytest.mark.parametrize('argTypeHintsInDocstring', [True, False])
-def testAllowInlineClassvarDocs(
+def testRequireInlineClassvarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
@@ -588,7 +588,7 @@ def testAllowInlineClassvarDocs(
         checkArgDefaults=False,
         violations=violations,
         skipCheckingShortDocstrings=False,
-        allowInlineClassVarDocs=True,
+        requireInlineClassVarDocs=True,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
     )
     assert attrs is not None
@@ -677,7 +677,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             sphinx_attr_doc,
             expected_doc_src3,
             expected_actual_src3,
-            # expect that DOC607 is expected, because we should be enforcing all inline docstrings
+            # expect DOC607 because inline docs are required in this mode
             [607],
         ),
         (
@@ -774,7 +774,7 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
         checkArgDefaults=False,
         violations=violations,
         skipCheckingShortDocstrings=False,
-        allowInlineClassVarDocs=True,
+        requireInlineClassVarDocs=True,
         argTypeHintsInDocstring=True,
     ) or (None, None)
 
@@ -806,7 +806,7 @@ expected_actual_src3_no_inline = [
             sphinx_attr_doc,
             expected_doc_src3_no_inline,
             expected_actual_src3_no_inline,
-            # Expect DOC606, since we do not allow inline docstrings
+            # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
         (
@@ -815,7 +815,7 @@ expected_actual_src3_no_inline = [
             google_attr_doc,
             expected_doc_src3_no_inline,
             expected_actual_src3_no_inline,
-            # Expect DOC606, since we do not allow inline docstrings
+            # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
         (
@@ -824,7 +824,7 @@ expected_actual_src3_no_inline = [
             numpy_attr_doc,
             expected_doc_src3_no_inline,
             expected_actual_src3_no_inline,
-            # Expect DOC606, since we do not allow inline docstrings
+            # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
     ],
@@ -854,7 +854,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
         checkArgDefaults=False,
         violations=violations,
         skipCheckingShortDocstrings=False,
-        allowInlineClassVarDocs=False,
+        requireInlineClassVarDocs=False,
         argTypeHintsInDocstring=True,
     ) or (None, None)
 
@@ -867,7 +867,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
     (
         'src',
         'initial_docArgs',
-        'allowInlineClassVarDocs',
+        'requireInlineClassVarDocs',
         'shouldDocumentPrivateClassAttributes',
         'argTypeHintsInDocstring',
         'expected_docargs',
@@ -981,7 +981,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
 def testUpdateDocumentedArgListWithInlineDocstrings(
         src: str,
         initial_docArgs: ArgList,
-        allowInlineClassVarDocs: bool,
+        requireInlineClassVarDocs: bool,
         shouldDocumentPrivateClassAttributes: bool,
         argTypeHintsInDocstring: bool,
         expected_docargs: list[Arg],
@@ -1011,7 +1011,7 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
         actualArgs=actualArgs,
         shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
-        allowInlineClassVarDocs=allowInlineClassVarDocs,
+        requireInlineClassVarDocs=requireInlineClassVarDocs,
         violations=violations,
     )
 

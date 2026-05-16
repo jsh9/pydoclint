@@ -193,8 +193,10 @@ class MyPet:
 [PEP-257](https://peps.python.org/pep-0257/) indicates that string literals
 located directly after an assign statement may be treated as attribute
 documentation. As such, we also optionally support inline docstrings for class
-attributes with the `--allow-inline-class-var-docs` option set to True (it is
-False by default).
+attributes with the `--require-inline-class-var-docs` option set to True (it is
+False by default). When this option is enabled, class attributes must be
+documented inline, and the class docstring should not include an "Attributes"
+section.
 
 Attribute type documentation may be specified as the first thing in the
 docstring followed by a colon. For example:

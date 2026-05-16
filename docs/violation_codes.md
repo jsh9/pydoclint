@@ -105,7 +105,7 @@ on the top) do not need to have a return section.
 | `DOC603` | Class docstring attributes are different from actual class attributes.                             |
 | `DOC604` | Attributes are the same in docstring and class def, but are in a different order.                  |
 | `DOC605` | Attribute names match, but type hints in these attributes do not match                             |
-| `DOC606` | Attribute should not have an inline docstring; please combine it with the class docstring          |
+| `DOC606` | This attribute is documented inline, but it should be documented in the class docstring instead    |
 | `DOC607` | The class docstring should not have an "Attributes" section; please document all attributes inline |
 
 More about checking class attributes:

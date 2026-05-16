@@ -1547,7 +1547,7 @@ def testArgDefaults(
 
 
 @pytest.mark.parametrize(
-    ('style', 'allowInlineClassVarDocs', 'argTypeHintsInDocstring'),
+    ('style', 'requireInlineClassVarDocs', 'argTypeHintsInDocstring'),
     list(
         itertools.product(
             ['google', 'numpy', 'sphinx'], [False, True], [False, True]
@@ -1556,26 +1556,26 @@ def testArgDefaults(
 )
 def testInlineClassAttributeDocs(
         style: str,
-        allowInlineClassVarDocs: bool,
+        requireInlineClassVarDocs: bool,
         argTypeHintsInDocstring: bool,
 ) -> None:
     violations = _checkFile(
         filename=DATA_DIR / style / 'class_attributes/inline_docstring.py',
         style=style,
-        allowInlineClassVarDocs=allowInlineClassVarDocs,
+        requireInlineClassVarDocs=requireInlineClassVarDocs,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         skipCheckingShortDocstrings=False,
     )
 
-    # (allowInlineClassVarDocs, argTypeHintsInDocstring) -> expected violations
+    # (requireInlineClassVarDocs, argTypeHintsInDocstring) -> expected violations
     expectedViolationsLookup: dict[tuple[bool, bool], list[str]] = {
         (False, False): [
-            'DOC606: Class `MyClass1`, Attribute `field1`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass1`, Attribute `field2`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass1`, Attribute `field3`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass1`, Attribute `field1`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass1`, Attribute `field2`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass1`, Attribute `field3`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
             'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1587,8 +1587,9 @@ def testInlineClassAttributeDocs(
             '[field1: int, field2: str, field3: list[int]]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
-            'DOC606: Class `MyClass2`, Attribute `documented_field`: Attribute has an '
-            'inline docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass2`, Attribute `documented_field`: This attribute is '
+            'documented inline, but it should be documented in the class docstring '
+            'instead.',
             'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1600,14 +1601,14 @@ def testInlineClassAttributeDocs(
             '[documented_field: float, undocumented_field: bool]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
-            'DOC606: Class `MyClass3`, Attribute `field2`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass3`, Attribute `field3`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass3`, Attribute `field4`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass3`, Attribute `field5`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field2`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field3`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field4`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field5`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
             'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1619,8 +1620,8 @@ def testInlineClassAttributeDocs(
             '[field2: str, field3: int, field4: bool]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
-            'DOC606: Class `MyClass4`, Attribute `field1`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass4`, Attribute `field1`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
             'DOC601: Class `MyClass4`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1634,12 +1635,12 @@ def testInlineClassAttributeDocs(
             'correctly document class attributes.)',
         ],
         (False, True): [
-            'DOC606: Class `MyClass1`, Attribute `field1`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass1`, Attribute `field2`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass1`, Attribute `field3`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass1`, Attribute `field1`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass1`, Attribute `field2`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass1`, Attribute `field3`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
             'DOC601: Class `MyClass1`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1651,8 +1652,9 @@ def testInlineClassAttributeDocs(
             '[field1: int, field2: str, field3: list[int]]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
-            'DOC606: Class `MyClass2`, Attribute `documented_field`: Attribute has an '
-            'inline docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass2`, Attribute `documented_field`: This attribute is '
+            'documented inline, but it should be documented in the class docstring '
+            'instead.',
             'DOC601: Class `MyClass2`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1664,14 +1666,14 @@ def testInlineClassAttributeDocs(
             '[documented_field: float, undocumented_field: bool]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
-            'DOC606: Class `MyClass3`, Attribute `field2`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass3`, Attribute `field3`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass3`, Attribute `field4`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
-            'DOC606: Class `MyClass3`, Attribute `field5`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field2`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field3`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field4`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass3`, Attribute `field5`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
             'DOC601: Class `MyClass3`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1683,8 +1685,8 @@ def testInlineClassAttributeDocs(
             '[field2: str, field3: int, field4: bool]. (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
             'correctly document class attributes.)',
-            'DOC606: Class `MyClass4`, Attribute `field1`: Attribute has an inline '
-            'docstring, but should be documented in the class docstring instead.',
+            'DOC606: Class `MyClass4`, Attribute `field1`: This attribute is documented '
+            'inline, but it should be documented in the class docstring instead.',
             'DOC601: Class `MyClass4`: Class docstring contains fewer class attributes '
             'than actual class attributes.  (Please read '
             'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
@@ -1758,6 +1760,6 @@ def testInlineClassAttributeDocs(
     assert (
         list(map(str, violations))
         == expectedViolationsLookup[
-            allowInlineClassVarDocs, argTypeHintsInDocstring
+            requireInlineClassVarDocs, argTypeHintsInDocstring
         ]
     )

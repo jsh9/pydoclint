@@ -148,8 +148,8 @@ VIOLATION_CODES = types.MappingProxyType({
         ' attributes do not match:'
     ),
     606: (
-        'Attribute has an inline docstring, but should be documented in'
-        ' the class docstring instead.'
+        'This attribute is documented inline, but it should be documented'
+        ' in the class docstring instead.'
     ),
     607: (
         'The class docstring does not need an "Attributes" section,'

@@ -31,7 +31,7 @@ ______________________________________________________________________
 - [16. `--should-document-private-class-attributes` (shortform: `-sdpca`, default: `False`)](#16---should-document-private-class-attributes-shortform--sdpca-default-false)
 - [17. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#17---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
 - [18. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)](#18---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
-- [19. `--allow-inline-class-var-docs` (shortform: `-aicvd`, default: `False`)](#19---allow-inline-class-var-docs-shortform--aicvd-default-false)
+- [19. `--require-inline-class-var-docs` (shortform: `-ricvd`, default: `False`)](#19---require-inline-class-var-docs-shortform--ricvd-default-false)
 - [20. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#20---should-document-star-arguments-shortform--sdsa-default-true)
 - [21. `--omit-stars-when-documenting-varargs` (shortform: `-oswdv`, default: `False`)](#21---omit-stars-when-documenting-varargs-shortform--oswdv-default-false)
 - [22. `--check-style-mismatch` (shortform: `-csm`, default: `False`)](#22---check-style-mismatch-shortform--csm-default-false)
@@ -230,11 +230,11 @@ If True, only the attributes whose type annotations are wrapped within
 `ClassVar` (where `ClassVar` is imported from `typing`) are treated as class
 attributes, and all other attributes are treated as instance attributes.
 
-## 19. `--allow-inline-class-var-docs` (shortform: `-aicvd`, default: `False`)
+## 19. `--require-inline-class-var-docs` (shortform: `-ricvd`, default: `False`)
 
 If True, class attributes (a.k.a.,
 [`ClassVar`](https://typing.python.org/en/latest/spec/class-compat.html#classvar))
-need to have inline documentation. For example:
+must be documented inline. For example:
 
 ```python
 class MyClass:
@@ -244,9 +244,11 @@ class MyClass:
     """int: Field 1 documentation."""
 ```
 
-If False, inline documentation are allowed. Similarly, class-level
-documentation of class attributes will not be allowed if this option is set to
-True.
+If False, class attributes should be documented in the class docstring instead,
+and inline attribute docstrings will trigger `DOC606`.
+
+If True, class-level documentation of class attributes will not be allowed, and
+an "Attributes" section in the class docstring will trigger `DOC607`.
 
 Inline docstrings may specify the attribute type as the first token in the
 docstring followed by a `:`.

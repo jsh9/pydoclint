@@ -1,5 +1,15 @@
 # Change Log
 
+## [Unreleased]
+
+- Changed
+  - Rename `--allow-inline-class-var-docs` to `--require-inline-class-var-docs`
+    (shortform: `-ricvd`) so the option name matches its inline-only behavior
+  - Preserve the default behavior by making inline class-attribute docs not
+    required unless `--require-inline-class-var-docs=True`
+- Fixed
+  - Improve the wording of `DOC606`
+
 ## [0.8.3] - 2025-11-26
 
 - Added
