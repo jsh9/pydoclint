@@ -104,6 +104,14 @@ class Plugin:
             ),
         )
         parser.add_option(
+            '-scpf',
+            '--skip-checking-private-functions',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help='If True, skip checking docstrings of private functions.',
+        )
+        parser.add_option(
             '-aid',
             '--allow-init-docstring',
             action='store',
@@ -335,6 +343,9 @@ class Plugin:
             options.skip_checking_short_docstrings
         )
         cls.skip_checking_raises = options.skip_checking_raises
+        cls.skip_checking_private_functions = (
+            options.skip_checking_private_functions
+        )
         cls.allow_init_docstring = options.allow_init_docstring
         cls.require_return_section_when_returning_none = (
             options.require_return_section_when_returning_none
@@ -410,6 +421,10 @@ class Plugin:
         skipCheckingRaises = self._bool(
             '--skip-checking-raises',
             self.skip_checking_raises,
+        )
+        skipCheckingPrivateFunctions = self._bool(
+            '--skip-checking-private-functions',
+            self.skip_checking_private_functions,
         )
         allowInitDocstring = self._bool(
             '--allow-init-docstring',
@@ -488,6 +503,7 @@ class Plugin:
             checkArgOrder=checkArgOrder,
             skipCheckingShortDocstrings=skipCheckingShortDocstrings,
             skipCheckingRaises=skipCheckingRaises,
+            skipCheckingPrivateFunctions=skipCheckingPrivateFunctions,
             allowInitDocstring=allowInitDocstring,
             requireReturnSectionWhenReturningNothing=(
                 requireReturnSectionWhenReturningNothing

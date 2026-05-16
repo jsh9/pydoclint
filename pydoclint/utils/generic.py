@@ -417,3 +417,25 @@ def stripCommentsFromTypeHints(typeHint: str) -> str:
         result = typeHint
 
     return result
+
+
+def isPrivateName(name: str) -> bool:
+    """
+    Return True if ``name`` is considered private.
+
+    A variable is considered private if its name starts with an underscore
+    ('`_`') but does not start and end with '`__`'.
+
+    Parameters
+    ----------
+    name : str
+        A variable name
+
+    Returns
+    -------
+    bool
+        True if ``name`` is private, else False.
+    """
+    return name.startswith('_') and not (
+        name.startswith('__') and name.endswith('__')
+    )

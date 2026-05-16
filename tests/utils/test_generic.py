@@ -2,7 +2,12 @@ import ast
 
 import pytest
 
-from pydoclint.utils.generic import collectFuncArgs, specialEqual, stripQuotes
+from pydoclint.utils.generic import (
+    collectFuncArgs,
+    isPrivateName,
+    specialEqual,
+    stripQuotes,
+)
 
 src1 = """
 def func1(
@@ -112,3 +117,24 @@ def testStripQuotes(string: str, expected: str) -> None:
 )
 def testSpecialEqual(str1: str, str2: str, expected: bool) -> None:
     assert specialEqual(str1, str2) == expected
+
+
+@pytest.mark.parametrize(
+    ('name', 'private'),
+    [
+        ('__init__', False),
+        ('__init_', True),
+        ('__contains__', False),
+        ('__contains_', True),
+        ('__dunder____', False),
+        ('public_____name__', False),
+        ('_private_____name_____', True),
+        ('var', False),
+        ('_var', True),
+        ('__var', True),
+        ('__var_', True),
+        ('__var__', False),
+    ],
+)
+def testIsPrivateName(name: str, private: bool) -> None:
+    assert isPrivateName(name) == private
