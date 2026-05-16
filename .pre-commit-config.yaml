@@ -17,16 +17,16 @@ repos:
         exclude: ^tests/helpers\.py$
       - id: check-merge-conflict
   - repo: https://github.com/jsh9/muff-pre-commit
-    rev: 0.14.5
+    rev: 0.14.11
     hooks:
       - id: muff-format
         args: [--config, muff.toml]
   - repo: https://github.com/lyz-code/yamlfix
-    rev: 1.19.0
+    rev: 1.19.1
     hooks:
       - id: yamlfix
   - repo: https://github.com/pappasam/toml-sort
-    rev: v0.24.3
+    rev: v0.24.4
     hooks:
       - id: toml-sort-fix
         args:
@@ -37,7 +37,7 @@ repos:
           - --trailing-comma-inline-array
           - --sort-inline-arrays
   - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.15.0
+    rev: v2.16.0
     hooks:
       - id: pretty-format-ini
         args: [--autofix]
@@ -58,7 +58,7 @@ repos:
           - --no-sort-keys
           - --no-eof-newline
   - repo: https://github.com/jsh9/markdown-heading-numbering
-    rev: 0.1.0
+    rev: 0.1.1
     hooks:
       - id: markdown-heading-numbering
         exclude: ^CHANGELOG\.md$
@@ -68,7 +68,7 @@ repos:
       - id: markdown-toc-creator
         exclude: ^AGENTS\.md$|^CHANGELOG\.md$
   - repo: https://github.com/jsh9/format-docstring
-    rev: 0.2.5
+    rev: 0.2.7
     hooks:
       - id: format-docstring
         name: Format docstrings in .py files
