@@ -2,13 +2,9 @@
 
 ## [Unreleased]
 
-- Changed
-  - Rename `--allow-inline-class-var-docs` to `--require-inline-class-var-docs`
-    (shortform: `-ricvd`) so the option name matches its inline-only behavior
-  - Preserve the default behavior by making inline class-attribute docs not
-    required unless `--require-inline-class-var-docs=True`
-- Fixed
-  - Improve the wording of `DOC606`
+- Added
+  - Support inline class-attribute docstrings, add `DOC606` and `DOC607`, and
+    introduce `--require-inline-class-var-docs` in native and flake8 modes
 
 ## [0.8.3] - 2025-11-26
 
