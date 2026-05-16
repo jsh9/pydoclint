@@ -419,7 +419,7 @@ def stripCommentsFromTypeHints(typeHint: str) -> str:
     return result
 
 
-def isPrivateVariable(name: str) -> bool:
+def isPrivateName(name: str) -> bool:
     """
     Return True if ``name`` is considered private.
 

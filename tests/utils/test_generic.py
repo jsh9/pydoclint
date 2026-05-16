@@ -4,7 +4,7 @@ import pytest
 
 from pydoclint.utils.generic import (
     collectFuncArgs,
-    isPrivateVariable,
+    isPrivateName,
     specialEqual,
     stripQuotes,
 )
@@ -136,5 +136,5 @@ def testSpecialEqual(str1: str, str2: str, expected: bool) -> None:
         ('__var__', False),
     ],
 )
-def testIsPrivateVariable(name: str, private: bool) -> None:
-    assert isPrivateVariable(name) == private
+def testIsPrivateName(name: str, private: bool) -> None:
+    assert isPrivateName(name) == private
