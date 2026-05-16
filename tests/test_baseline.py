@@ -158,11 +158,9 @@ def func2(arg1: str, arg2: list[int]) -> int:
 
 expectedNewViolations = [
     'DOC101: Function `bad_docstring_func`: Docstring contains fewer arguments than in function signature.',
-    (
-        'DOC103: Function `bad_docstring_func`: Docstring arguments are different from function arguments. '
-        '(Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-        'Arguments in the function signature but not in the docstring: [arg1: str, arg2: list[int]].'
-    ),
+    'DOC103: Function `bad_docstring_func`: Docstring arguments are different from function arguments. '
+    '(Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+    'Arguments in the function signature but not in the docstring: [arg1: str, arg2: list[int]].',
 ]
 
 
@@ -385,12 +383,10 @@ def testSomeViolationsAreFixedButNewViolationsOccur(
         tmpFile.as_posix(): [
             *expectedNewViolations,
             'DOC101: Function `func2`: Docstring contains fewer arguments than in function signature.',
-            (
-                'DOC103: Function `func2`: Docstring arguments are different'
-                ' from function arguments. (Or could be other formatting'
-                ' issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
-                ' Arguments in the function signature but not in the docstring: [arg2: list[int]].'
-            ),
+            'DOC103: Function `func2`: Docstring arguments are different'
+            ' from function arguments. (Or could be other formatting'
+            ' issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
+            ' Arguments in the function signature but not in the docstring: [arg2: list[int]].',
         ]
     }
 
@@ -414,16 +410,12 @@ def testSomeViolationsAreFixedButNewViolationsOccur(
     }
 
     additionalViolations = [
-        (
-            'DOC501: Function `bad_docstring_func` has raise statements, but'
-            ' the docstring does not have a "Raises" section'
-        ),
-        (
-            'DOC503: Function `bad_docstring_func` exceptions in the "Raises"'
-            ' section in the docstring do not match those in the function body.'
-            ' Raised exceptions in the docstring: []. Raised'
-            " exceptions in the body: ['ValueError']."
-        ),
+        'DOC501: Function `bad_docstring_func` has raise statements, but'
+        ' the docstring does not have a "Raises" section',
+        'DOC503: Function `bad_docstring_func` exceptions in the "Raises"'
+        ' section in the docstring do not match those in the function body.'
+        ' Raised exceptions in the docstring: []. Raised'
+        " exceptions in the body: ['ValueError'].",
     ]
 
     assert len(remainingViolationsInAllFiles.keys()) == 1
