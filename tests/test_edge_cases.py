@@ -18,53 +18,33 @@ from tests.test_main import DATA_DIR
             '02/syntax_error_in_type_hints.py',
             {'style': 'numpy'},
             [
-                (
-                    'DOC106: Function `func1`: The option `--arg-type-hints-in-signature` is '
-                    '`True` but there are no argument type hints in the signature'
-                ),
-                (
-                    'DOC107: Function `func1`: The option `--arg-type-hints-in-signature` is '
-                    '`True` but not all args in the signature have type hints'
-                ),
-                (
-                    'DOC105: Function `func1`: Argument names match, but type hints in these args '
-                    'do not match: a'
-                ),
-                (
-                    'DOC106: Function `func2`: The option `--arg-type-hints-in-signature` is '
-                    '`True` but there are no argument type hints in the signature'
-                ),
-                (
-                    'DOC107: Function `func2`: The option `--arg-type-hints-in-signature` is '
-                    '`True` but not all args in the signature have type hints'
-                ),
-                (
-                    'DOC105: Function `func2`: Argument names match, but type hints in these args '
-                    'do not match: a'
-                ),
-                (
-                    'DOC106: Function `func3`: The option `--arg-type-hints-in-signature` is '
-                    '`True` but there are no argument type hints in the signature'
-                ),
-                (
-                    'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is '
-                    '`True` but not all args in the signature have type hints'
-                ),
-                (
-                    'DOC105: Function `func3`: Argument names match, but type hints in these args '
-                    'do not match: a'
-                ),
+                'DOC106: Function `func1`: The option `--arg-type-hints-in-signature` is '
+                '`True` but there are no argument type hints in the signature',
+                'DOC107: Function `func1`: The option `--arg-type-hints-in-signature` is '
+                '`True` but not all args in the signature have type hints',
+                'DOC105: Function `func1`: Argument names match, but type hints in these args '
+                'do not match: a',
+                'DOC106: Function `func2`: The option `--arg-type-hints-in-signature` is '
+                '`True` but there are no argument type hints in the signature',
+                'DOC107: Function `func2`: The option `--arg-type-hints-in-signature` is '
+                '`True` but not all args in the signature have type hints',
+                'DOC105: Function `func2`: Argument names match, but type hints in these args '
+                'do not match: a',
+                'DOC106: Function `func3`: The option `--arg-type-hints-in-signature` is '
+                '`True` but there are no argument type hints in the signature',
+                'DOC107: Function `func3`: The option `--arg-type-hints-in-signature` is '
+                '`True` but not all args in the signature have type hints',
+                'DOC105: Function `func3`: Argument names match, but type hints in these args '
+                'do not match: a',
             ],
         ),
         (
             '03/union_return_type.py',
             {'style': 'google'},
             [
-                (
-                    'DOC203: Function `myFunc` return type(s) in docstring not consistent with '
-                    "the return annotation. Return annotation types: ['str | bool | None']; "
-                    "docstring return section types: ['str | bool | float']"
-                )
+                'DOC203: Function `myFunc` return type(s) in docstring not consistent with '
+                "the return annotation. Return annotation types: ['str | bool | None']; "
+                "docstring return section types: ['str | bool | float']"
             ],
         ),
         ('04_backticks/google.py', {'style': 'google'}, []),
@@ -76,16 +56,12 @@ from tests.test_main import DATA_DIR
             '06_no_type_hints_in_doc/numpy.py',
             {'style': 'numpy', 'argTypeHintsInDocstring': False},
             [
-                (
-                    'DOC101: Function `f`: Docstring contains fewer arguments than in function '
-                    'signature.'
-                ),
-                (
-                    'DOC103: Function `f`: Docstring arguments are different from function '
-                    'arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [x: int].'
-                ),
+                'DOC101: Function `f`: Docstring contains fewer arguments than in function '
+                'signature.',
+                'DOC103: Function `f`: Docstring arguments are different from function '
+                'arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [x: int].',
             ],
         ),
         ('07_underscore_args/google.py', {'style': 'google'}, []),
@@ -95,16 +71,12 @@ from tests.test_main import DATA_DIR
             '07_underscore_args/google_with_violations.py',
             {'style': 'google'},
             [
-                (
-                    'DOC101: Function `foo`: Docstring contains fewer arguments than in function '
-                    'signature.'
-                ),
-                (
-                    'DOC103: Function `foo`: Docstring arguments are different from function '
-                    'arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [c: list].'
-                ),
+                'DOC101: Function `foo`: Docstring contains fewer arguments than in function '
+                'signature.',
+                'DOC103: Function `foo`: Docstring arguments are different from function '
+                'arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [c: list].',
             ],
         ),
         ('08_return_section_parsing/google.py', {'style': 'google'}, []),
@@ -114,18 +86,14 @@ from tests.test_main import DATA_DIR
             '10_absent_return_anno/numpy.py',
             {'style': 'numpy'},
             [
-                (
-                    'DOC403: Function `f1` has a "Yields" section in the docstring, but there are '
-                    'no "yield" statements, or the return annotation is not a '
-                    'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
-                    'return annotation.)'
-                ),
-                (
-                    'DOC404: Function `f1` yield type(s) in docstring not consistent with the '
-                    'return annotation. Return annotation does not exist or is not '
-                    'Generator[...]/Iterator[...]/Iterable[...], but docstring "yields" section '
-                    'has 1 type(s).'
-                ),
+                'DOC403: Function `f1` has a "Yields" section in the docstring, but there are '
+                'no "yield" statements, or the return annotation is not a '
+                'Generator/Iterator/Iterable. (Or it could be because the function lacks a '
+                'return annotation.)',
+                'DOC404: Function `f1` yield type(s) in docstring not consistent with the '
+                'return annotation. Return annotation does not exist or is not '
+                'Generator[...]/Iterator[...]/Iterable[...], but docstring "yields" section '
+                'has 1 type(s).',
             ],
         ),
         (
@@ -137,21 +105,17 @@ from tests.test_main import DATA_DIR
             '11_private_class_attr/google.py',
             {'style': 'google', 'shouldDocumentPrivateClassAttributes': True},
             [
-                (
-                    'DOC601: Class `MyClass`: Class docstring contains fewer class attributes '
-                    'than actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `MyClass`: Class docstring attributes are different from '
-                    'actual class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Attributes in the class definition but not in the docstring: [_hidden_attr: '
-                    'bool]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
+                'DOC601: Class `MyClass`: Class docstring contains fewer class attributes '
+                'than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `MyClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [_hidden_attr: '
+                'bool]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
             ],
         ),
         (
@@ -173,21 +137,17 @@ from tests.test_main import DATA_DIR
                 'shouldDocumentPrivateClassAttributes': False,
             },
             [
-                (
-                    'DOC602: Class `House`: Class docstring contains more class attributes than '
-                    'in actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `House`: Class docstring attributes are different from actual '
-                    'class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the docstring but not in the actual class attributes: '
-                    '[_privateProperty: str]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
+                'DOC602: Class `House`: Class docstring contains more class attributes than '
+                'in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `House`: Class docstring attributes are different from actual '
+                'class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: '
+                '[_privateProperty: str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
             ],
         ),
         (
@@ -199,21 +159,17 @@ from tests.test_main import DATA_DIR
                 'shouldDocumentPrivateClassAttributes': True,
             },
             [
-                (
-                    'DOC602: Class `House`: Class docstring contains more class attributes than '
-                    'in actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `House`: Class docstring attributes are different from actual '
-                    'class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the docstring but not in the actual class attributes: '
-                    '[_privateProperty: str, price: float]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
+                'DOC602: Class `House`: Class docstring contains more class attributes than '
+                'in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `House`: Class docstring attributes are different from actual '
+                'class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: '
+                '[_privateProperty: str, price: float]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
             ],
         ),
         (
@@ -225,21 +181,17 @@ from tests.test_main import DATA_DIR
                 'shouldDocumentPrivateClassAttributes': False,
             },
             [
-                (
-                    'DOC602: Class `House`: Class docstring contains more class attributes than '
-                    'in actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `House`: Class docstring attributes are different from actual '
-                    'class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the docstring but not in the actual class attributes: '
-                    '[_privateProperty: str, price: float]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
+                'DOC602: Class `House`: Class docstring contains more class attributes than '
+                'in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `House`: Class docstring attributes are different from actual '
+                'class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: '
+                '[_privateProperty: str, price: float]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
             ],
         ),
         (
@@ -261,10 +213,8 @@ from tests.test_main import DATA_DIR
             '14_folders_ending_in_py.py/google.py',
             {'style': 'google'},
             [
-                (
-                    'DOC105: Function `function1`: Argument names match, but type hints in these '
-                    'args do not match: arg1'
-                )
+                'DOC105: Function `function1`: Argument names match, but type hints in these '
+                'args do not match: arg1'
             ],
         ),
         ('15_very_long_annotations/sphinx.py', {'style': 'sphinx'}, []),
@@ -281,51 +231,39 @@ from tests.test_main import DATA_DIR
                 'onlyAttrsWithClassVarAreTreatedAsClassAttrs': False,
             },
             [
-                (
-                    'DOC601: Class `AttrsClass`: Class docstring contains fewer class attributes '
-                    'than actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `AttrsClass`: Class docstring attributes are different from '
-                    'actual class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Attributes in the class definition but not in the docstring: [b: int, d: '
-                    'str]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC601: Class `DataClass`: Class docstring contains fewer class attributes '
-                    'than actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `DataClass`: Class docstring attributes are different from '
-                    'actual class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Attributes in the class definition but not in the docstring: [f: int, g: '
-                    'float, h: str]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC601: Class `PydanticClass`: Class docstring contains fewer class '
-                    'attributes than actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `PydanticClass`: Class docstring attributes are different from '
-                    'actual class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Attributes in the class definition but not in the docstring: [j: int, k: '
-                    'float, l: str]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
+                'DOC601: Class `AttrsClass`: Class docstring contains fewer class attributes '
+                'than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `AttrsClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [b: int, d: '
+                'str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC601: Class `DataClass`: Class docstring contains fewer class attributes '
+                'than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `DataClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [f: int, g: '
+                'float, h: str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC601: Class `PydanticClass`: Class docstring contains fewer class '
+                'attributes than actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `PydanticClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Attributes in the class definition but not in the docstring: [j: int, k: '
+                'float, l: str]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
             ],
         ),
         (
@@ -336,27 +274,21 @@ from tests.test_main import DATA_DIR
                 'onlyAttrsWithClassVarAreTreatedAsClassAttrs': True,
             },
             [
-                (
-                    'DOC602: Class `AttrsClass`: Class docstring contains more class attributes '
-                    'than in actual class attributes.  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC603: Class `AttrsClass`: Class docstring attributes are different from '
-                    'actual class attributes. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the docstring but not in the actual class attributes: [c: '
-                    'float]. (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
-                (
-                    'DOC605: Class `DataClass`: Attribute names match, but type hints in these '
-                    'attributes do not match: e  (Please read '
-                    'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
-                    'correctly document class attributes.)'
-                ),
+                'DOC602: Class `AttrsClass`: Class docstring contains more class attributes '
+                'than in actual class attributes.  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC603: Class `AttrsClass`: Class docstring attributes are different from '
+                'actual class attributes. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the actual class attributes: [c: '
+                'float]. (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
+                'DOC605: Class `DataClass`: Attribute names match, but type hints in these '
+                'attributes do not match: e  (Please read '
+                'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+                'correctly document class attributes.)',
             ],
         ),
         ('18_assign_to_subscript/case.py', {}, []),
@@ -425,11 +357,9 @@ from tests.test_main import DATA_DIR
                 'checkReturnTypes': True,
             },
             [
-                (
-                    'DOC203: Function `my_func_2` return type(s) in docstring not consistent with '
-                    "the return annotation. Return annotation types: ['None']; docstring return "
-                    "section types: ['']"
-                )
+                'DOC203: Function `my_func_2` return type(s) in docstring not consistent with '
+                "the return annotation. Return annotation types: ['None']; docstring return "
+                "section types: ['']"
             ],
         ),
         (
@@ -451,16 +381,12 @@ from tests.test_main import DATA_DIR
                 'checkReturnTypes': True,
             },
             [
-                (
-                    'DOC404: Function `my_func_1` yield type(s) in docstring not consistent with '
-                    'the return annotation. The yield type (the 0th arg in '
-                    'Generator[...]/Iterator[...]): int; docstring "yields" section types:'
-                ),
-                (
-                    'DOC203: Function `my_func_2` return type(s) in docstring not consistent with '
-                    "the return annotation. Return annotation types: ['None']; docstring return "
-                    "section types: ['']"
-                ),
+                'DOC404: Function `my_func_1` yield type(s) in docstring not consistent with '
+                'the return annotation. The yield type (the 0th arg in '
+                'Generator[...]/Iterator[...]): int; docstring "yields" section types:',
+                'DOC203: Function `my_func_2` return type(s) in docstring not consistent with '
+                "the return annotation. Return annotation types: ['None']; docstring return "
+                "section types: ['']",
             ],
         ),
         (
@@ -472,65 +398,47 @@ from tests.test_main import DATA_DIR
                 'checkReturnTypes': False,
             },
             [
-                (
-                    'DOC404: Function `my_func_1` yield type(s) in docstring not consistent with '
-                    'the return annotation. The yield type (the 0th arg in '
-                    'Generator[...]/Iterator[...]): int; docstring "yields" section types:'
-                ),
+                'DOC404: Function `my_func_1` yield type(s) in docstring not consistent with '
+                'the return annotation. The yield type (the 0th arg in '
+                'Generator[...]/Iterator[...]): int; docstring "yields" section types:',
             ],
         ),
         (
             '24_star_arguments/numpy.py',
             {'style': 'numpy', 'shouldDocumentStarArguments': True},
             [
-                (
-                    'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                    'function signature.'
-                ),
-                (
-                    'DOC103: Function `function_1`: Docstring arguments are different from '
-                    'function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [**kwargs: '
-                    'Any, *args: Any].'
-                ),
-                (
-                    'DOC101: Function `function_3`: Docstring contains fewer arguments than in '
-                    'function signature.'
-                ),
-                (
-                    'DOC103: Function `function_3`: Docstring arguments are different from '
-                    'function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [*args: Any].'
-                ),
+                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
+                'function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [**kwargs: '
+                'Any, *args: Any].',
+                'DOC101: Function `function_3`: Docstring contains fewer arguments than in '
+                'function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [*args: Any].',
             ],
         ),
         (
             '24_star_arguments/numpy.py',
             {'style': 'numpy', 'shouldDocumentStarArguments': False},
             [
-                (
-                    'DOC102: Function `function_2`: Docstring contains more arguments than in '
-                    'function signature.'
-                ),
-                (
-                    'DOC103: Function `function_2`: Docstring arguments are different from '
-                    'function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the docstring but not in the function signature: [**kwargs: '
-                    'Any, *args: Any].'
-                ),
-                (
-                    'DOC102: Function `function_3`: Docstring contains more arguments than in '
-                    'function signature.'
-                ),
-                (
-                    'DOC103: Function `function_3`: Docstring arguments are different from '
-                    'function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the docstring but not in the function signature: [**kwargs: Any].'
-                ),
+                'DOC102: Function `function_2`: Docstring contains more arguments than in '
+                'function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the function signature: [**kwargs: '
+                'Any, *args: Any].',
+                'DOC102: Function `function_3`: Docstring contains more arguments than in '
+                'function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the docstring but not in the function signature: [**kwargs: Any].',
             ],
         ),
         (
@@ -541,17 +449,13 @@ from tests.test_main import DATA_DIR
                 'argTypeHintsInDocstring': False,
             },
             [
-                (
-                    'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                    'function signature.'
-                ),
-                (
-                    'DOC103: Function `function_1`: Docstring arguments are different from '
-                    'function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [_: float, __: '
-                    'bool, __d: list, _c: dict].'
-                ),
+                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
+                'function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [_: float, __: '
+                'bool, __d: list, _c: dict].',
             ],
         ),
         (
@@ -563,17 +467,13 @@ from tests.test_main import DATA_DIR
                 'argTypeHintsInDocstring': False,
             },
             [
-                (
-                    'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                    'function signature.'
-                ),
-                (
-                    'DOC103: Function `function_1`: Docstring arguments are different from '
-                    'function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [_: float, __: '
-                    'bool].'
-                ),
+                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
+                'function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [_: float, __: '
+                'bool].',
             ],
         ),
         (
@@ -583,17 +483,13 @@ from tests.test_main import DATA_DIR
                 'argTypeHintsInDocstring': False,
             },
             [
-                (
-                    'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                    'function signature.'
-                ),
-                (
-                    'DOC103: Function `function_1`: Docstring arguments are different from '
-                    'function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [__d: list, '
-                    '_c: dict].'
-                ),
+                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
+                'function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are different from '
+                'function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [__d: list, '
+                '_c: dict].',
             ],
         ),
         (
@@ -614,22 +510,16 @@ from tests.test_main import DATA_DIR
                 'checkStyleMismatch': True,
             },
             [
-                (
-                    'DOC101: Function `funcWithReturnsSection`: Docstring contains fewer '
-                    'arguments than in function signature.'
-                ),
-                (
-                    'DOC103: Function `funcWithReturnsSection`: Docstring arguments are different '
-                    'from function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [arg1: str].'
-                ),
-                (
-                    'DOC003: Function/method `funcWithoutNumpyDashes`: Docstring style mismatch. '
-                    '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
-                    'You specified "numpy" style, but the docstring is likely not written in this '
-                    'style.'
-                ),
+                'DOC101: Function `funcWithReturnsSection`: Docstring contains fewer '
+                'arguments than in function signature.',
+                'DOC103: Function `funcWithReturnsSection`: Docstring arguments are different '
+                'from function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [arg1: str].',
+                'DOC003: Function/method `funcWithoutNumpyDashes`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "numpy" style, but the docstring is likely not written in this '
+                'style.',
             ],
         ),
         (
@@ -639,52 +529,36 @@ from tests.test_main import DATA_DIR
                 'checkStyleMismatch': True,
             },
             [
-                (
-                    'DOC003: Function/method `add1`: Docstring style mismatch. '
-                    '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
-                    'You specified "google" style, but the docstring is likely not written in '
-                    'this style.'
-                ),
-                (
-                    'DOC003: Function/method `add2`: Docstring style mismatch. '
-                    '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
-                    'You specified "google" style, but the docstring is likely not written in '
-                    'this style.'
-                ),
-                (
-                    'DOC003: Function/method `funcWithReturnsSection`: Docstring style mismatch. '
-                    '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
-                    'You specified "google" style, but the docstring is likely not written in '
-                    'this style.'
-                ),
-                (
-                    'DOC101: Function `funcWithReturnsSection`: Docstring contains fewer '
-                    'arguments than in function signature.'
-                ),
-                (
-                    'DOC103: Function `funcWithReturnsSection`: Docstring arguments are different '
-                    'from function arguments. (Or could be other formatting issues: '
-                    'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                    'Arguments in the function signature but not in the docstring: [arg1: str].'
-                ),
-                (
-                    'DOC003: Function/method `funcWithArgsSection`: Docstring style mismatch. '
-                    '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
-                    'You specified "google" style, but the docstring is likely not written in '
-                    'this style.'
-                ),
-                (
-                    'DOC003: Function/method `funcWithExamplesSection`: Docstring style mismatch. '
-                    '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
-                    'You specified "google" style, but the docstring is likely not written in '
-                    'this style.'
-                ),
-                (
-                    'DOC003: Function/method `funcWithNumpyStyleDashes`: Docstring style '
-                    'mismatch. (Please read more at '
-                    'https://jsh9.github.io/pydoclint/style_mismatch.html ). You specified '
-                    '"google" style, but the docstring is likely not written in this style.'
-                ),
+                'DOC003: Function/method `add1`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `add2`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `funcWithReturnsSection`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC101: Function `funcWithReturnsSection`: Docstring contains fewer '
+                'arguments than in function signature.',
+                'DOC103: Function `funcWithReturnsSection`: Docstring arguments are different '
+                'from function arguments. (Or could be other formatting issues: '
+                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
+                'Arguments in the function signature but not in the docstring: [arg1: str].',
+                'DOC003: Function/method `funcWithArgsSection`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `funcWithExamplesSection`: Docstring style mismatch. '
+                '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html ). '
+                'You specified "google" style, but the docstring is likely not written in '
+                'this style.',
+                'DOC003: Function/method `funcWithNumpyStyleDashes`: Docstring style '
+                'mismatch. (Please read more at '
+                'https://jsh9.github.io/pydoclint/style_mismatch.html ). You specified '
+                '"google" style, but the docstring is likely not written in this style.',
             ],
         ),
         (
@@ -694,12 +568,10 @@ from tests.test_main import DATA_DIR
                 'skipCheckingShortDocstrings': True,
             },
             [
-                (
-                    'DOC404: Function `test_yield_with_typing_no_args` yield type(s) in docstring '
-                    'not consistent with the return annotation. The yield type (the 0th arg in '
-                    'Generator[...]/Iterator[...]): Generator[typing.Any]; docstring "yields" '
-                    'section types: Generator123[typing.Any]'
-                )
+                'DOC404: Function `test_yield_with_typing_no_args` yield type(s) in docstring '
+                'not consistent with the return annotation. The yield type (the 0th arg in '
+                'Generator[...]/Iterator[...]): Generator[typing.Any]; docstring "yields" '
+                'section types: Generator123[typing.Any]'
             ],
         ),
         (
@@ -710,11 +582,9 @@ from tests.test_main import DATA_DIR
                 'checkArgDefaults': True,
             },
             [
-                (
-                    'DOC105: Function `regular_function`: Argument names match, but type hints in '
-                    'these args do not match: param4 . (Note: docstring arg defaults should look '
-                    'like: `, default=XXX`)'
-                )
+                'DOC105: Function `regular_function`: Argument names match, but type hints in '
+                'these args do not match: param4 . (Note: docstring arg defaults should look '
+                'like: `, default=XXX`)'
             ],
         ),
         (
