@@ -197,7 +197,8 @@ class Visitor(ast.NodeVisitor):
             return
 
         if self.skipCheckingPrivateFunctions and isPrivateName(node.name):
-            self.parent = parent_  # restore
+            # Restore enclosing parent before skipping this private function
+            self.parent = parent_
             return
 
         docstring: str = getDocstring(node)
