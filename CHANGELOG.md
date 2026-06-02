@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.8.5] - 2026-06-02
+
+- Fixed
+  - A bug where malformed docstrings could trigger an internal error when the
+    underlying parser returned an empty parameter name
+  - Avoid cascading downstream violations after `DOC001` parsing errors
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.8.4...0.8.5
+
 ## [0.8.4] - 2026-05-16
 
 - Added

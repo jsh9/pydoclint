@@ -179,8 +179,22 @@ def parseDocstringInGivenStyle(
     exception: ParseError | None = None
     try:
         doc: Doc = Doc(docstring=docstring, style=style)
+        _validateParsedDoc(doc)
     except ParseError as exc:
         doc = Doc(docstring='', style=style)
         exception = exc
 
     return doc, exception
+
+
+def _validateParsedDoc(doc: Doc) -> None:
+    """
+    Validate parser output before pydoclint converts it into internal args.
+    """
+    for param in doc.parsed.params:
+        if not param.arg_name:
+            raise ParseError('Parsed docstring parameter has an empty name')
+
+    for attr in doc.parsed.attrs:
+        if not attr.arg_name:
+            raise ParseError('Parsed docstring attribute has an empty name')

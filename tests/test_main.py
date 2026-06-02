@@ -979,18 +979,38 @@ def testParsingErrors_google() -> None:
         filename=DATA_DIR / 'google/parsing_errors/cases.py',
         style='google',
         checkStyleMismatch=True,
+        allowInitDocstring=True,
+        checkClassAttributes=False,
     )
+    # When there are parsing errors, only DOC001 is reported for the
+    # malformed docstring; downstream checks are skipped.
     expected = [
-        'DOC001: Class `A`: Potential formatting errors in docstring. Error message: '
-        "Expected a colon in 'arg1'.",
         'DOC001: Function/method `__init__`: Potential formatting errors in '
         "docstring. Error message: Expected a colon in 'arg1'. (Note: DOC001 could "
         'trigger other unrelated violations under this function/method too. Please '
         'fix the docstring formatting first.)',
-        'DOC003: Function/method `__init__`: Docstring style mismatch. (Please read '
-        'more at https://jsh9.github.io/pydoclint/style_mismatch.html ). You '
-        'specified "google" style, but the docstring is likely not written in this '
-        'style.',
+        'DOC001: Function/method `test`: Potential formatting errors in docstring. '
+        'Error message: Parsed docstring parameter has an empty name (Note: DOC001 '
+        'could trigger other unrelated violations under this function/method too. '
+        'Please fix the docstring formatting first.)',
+        'DOC001: Function/method `sphinx_type_directive`: Potential formatting '
+        'errors in docstring. Error message: Parsed docstring parameter has an '
+        'empty name (Note: DOC001 could trigger other unrelated violations under '
+        'this function/method too. Please fix the docstring formatting first.)',
+        'DOC001: Function/method `sphinx_param_with_type`: Potential formatting '
+        'errors in docstring. Error message: Parsed docstring parameter has an '
+        'empty name (Note: DOC001 could trigger other unrelated violations under '
+        'this function/method too. Please fix the docstring formatting first.)',
+        'DOC001: Function/method `empty_google_arg_name`: Potential formatting '
+        'errors in docstring. Error message: Parsed docstring parameter has an '
+        'empty name (Note: DOC001 could trigger other unrelated violations under '
+        'this function/method too. Please fix the docstring formatting first.)',
+        'DOC001: Class `BadClassDoc`: Potential formatting errors in docstring. '
+        'Error message: Parsed docstring parameter has an empty name',
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        'docstring. Error message: Parsed docstring parameter has an empty name '
+        '(Note: DOC001 could trigger other unrelated violations under this '
+        'function/method too. Please fix the docstring formatting first.)',
     ]
     assert list(map(str, violations)) == expected
 
@@ -1000,8 +1020,32 @@ def testParsingErrors_sphinx() -> None:
         filename=DATA_DIR / 'sphinx/parsing_errors/cases.py',
         style='sphinx',
         checkStyleMismatch=True,
+        allowInitDocstring=True,
+        checkClassAttributes=False,
     )
-    expected = []  # not sure how to craft docstrings with parsing errors yet
+    # When there are parsing errors, only DOC001 is reported for the
+    # malformed docstring; downstream checks are skipped.
+    expected = [
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        'docstring. Error message: Expected one or two arguments for a param '
+        'keyword. (Note: DOC001 could trigger other unrelated violations under this '
+        'function/method too. Please fix the docstring formatting first.)',
+        'DOC001: Function/method `emptyParamName`: Potential formatting errors in '
+        'docstring. Error message: Expected one or two arguments for a param '
+        'keyword. (Note: DOC001 could trigger other unrelated violations under '
+        'this function/method too. Please fix the docstring formatting first.)',
+        'DOC001: Function/method `missingParamDirectiveArgument`: Potential '
+        'formatting errors in docstring. Error message: Expected one or two '
+        'arguments for a param keyword. (Note: DOC001 could trigger other '
+        'unrelated violations under this function/method too. Please fix the '
+        'docstring formatting first.)',
+        'DOC001: Class `BadClassDoc`: Potential formatting errors in docstring. '
+        'Error message: Expected one or two arguments for a param keyword.',
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        'docstring. Error message: Expected one or two arguments for a param '
+        'keyword. (Note: DOC001 could trigger other unrelated violations under '
+        'this function/method too. Please fix the docstring formatting first.)',
+    ]
     assert list(map(str, violations)) == expected
 
 
@@ -1012,10 +1056,12 @@ def testParsingErrors_numpy() -> None:
         argTypeHintsInSignature=False,
         style='numpy',
         checkStyleMismatch=True,
+        allowInitDocstring=True,
+        checkClassAttributes=False,
     )
+    # When there are parsing errors, only DOC001 is reported for the
+    # malformed docstring; downstream checks are skipped.
     expected = [
-        'DOC001: Class `A`: Potential formatting errors in docstring. Error message: '
-        "Section 'Parameters' is not empty but nothing was parsed.",
         'DOC001: Function/method `__init__`: Potential formatting errors in '
         "docstring. Error message: Section 'Parameters' is not empty but nothing was "
         'parsed. (Note: DOC001 could trigger other unrelated violations under this '
@@ -1024,16 +1070,31 @@ def testParsingErrors_numpy() -> None:
         "Error message: Section 'Yields' is not empty but nothing was parsed. (Note: "
         'DOC001 could trigger other unrelated violations under this function/method '
         'too. Please fix the docstring formatting first.)',
-        'DOC101: Method `A.method2`: Docstring contains fewer arguments than in '
-        'function signature.',
-        'DOC103: Method `A.method2`: Docstring arguments are different from function '
-        'arguments. (Or could be other formatting issues: '
-        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-        'Arguments in the function signature but not in the docstring: [arg4: ].',
         'DOC003: Function/method `funcWithGoogleStyle`: Docstring style mismatch. '
         '(Please read more at https://jsh9.github.io/pydoclint/style_mismatch.html '
         '). You specified "numpy" style, but the docstring is likely not written '
         'in this style.',
+        'DOC001: Function/method `missingParamName`: Potential formatting errors '
+        "in docstring. Error message: Section 'Parameters' is not empty but "
+        'nothing was parsed. (Note: DOC001 could trigger other unrelated '
+        'violations under this function/method too. Please fix the docstring '
+        'formatting first.)',
+        'DOC001: Function/method `malformedRaisesSection`: Potential formatting '
+        "errors in docstring. Error message: Section 'Raises' is not empty but "
+        'nothing was parsed. (Note: DOC001 could trigger other unrelated '
+        'violations under this function/method too. Please fix the docstring '
+        'formatting first.)',
+        'DOC001: Function/method `malformedYieldsSection`: Potential formatting '
+        "errors in docstring. Error message: Section 'Yields' is not empty but "
+        'nothing was parsed. (Note: DOC001 could trigger other unrelated '
+        'violations under this function/method too. Please fix the docstring '
+        'formatting first.)',
+        'DOC001: Class `BadClassDoc`: Potential formatting errors in docstring. '
+        "Error message: Section 'Parameters' is not empty but nothing was parsed.",
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        "docstring. Error message: Section 'Parameters' is not empty but nothing "
+        'was parsed. (Note: DOC001 could trigger other unrelated violations under '
+        'this function/method too. Please fix the docstring formatting first.)',
     ]
     assert list(map(str, violations)) == expected
 

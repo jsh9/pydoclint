@@ -10,10 +10,7 @@ if TYPE_CHECKING:
     from pydoclint.utils.return_arg import ReturnArg
     from pydoclint.utils.yield_arg import YieldArg
 
-from docstring_parser import ParseError
-
 from pydoclint.utils.arg import Arg, ArgList
-from pydoclint.utils.doc import Doc
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
     appendArgsToCheckToV105,
@@ -22,6 +19,7 @@ from pydoclint.utils.generic import (
     specialEqual,
     stripQuotes,
 )
+from pydoclint.utils.parse_docstring import parseDocstringInGivenStyle
 from pydoclint.utils.special_methods import checkIsPropertyMethod
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
@@ -219,18 +217,20 @@ def getDocumentedAndActualClassArgLists(
         # to determine whether a class needs a docstring.
         return None
 
-    try:
-        doc: Doc = Doc(docstring=classDocstring, style=style)
-    except ParseError as excp:
-        doc = Doc(docstring='', style=style)
+    doc, potentialParsingError = parseDocstringInGivenStyle(
+        docstring=classDocstring,
+        style=style,
+    )
+    if potentialParsingError is not None:
         violations.append(
             Violation(
                 code=1,
                 line=node.lineno,
                 msgPrefix=f'Class `{node.name}`:',
-                msgPostfix=str(excp).replace('\n', ' '),
+                msgPostfix=str(potentialParsingError).replace('\n', ' '),
             )
         )
+        return None
 
     if skipCheckingShortDocstrings and doc.isShortDocstring:
         return None
