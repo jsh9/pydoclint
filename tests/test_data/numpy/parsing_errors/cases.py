@@ -51,3 +51,85 @@ def funcWithGoogleStyle(arg1: str, arg2: int) -> str:
         str: Return value description
     """
     return arg1
+
+
+def missingParamName(param: str) -> str:
+    """A test function.
+
+    Parameters
+    ----------
+        This has no parameter name.
+
+    Returns
+    -------
+    str
+        A string.
+    """
+
+    pass
+
+
+def malformedRaisesSection(param: str) -> str:
+    """A test function.
+
+    Parameters
+    ----------
+    param : str
+        This is a parameter.
+
+    Raises
+    ------
+        Missing exception type.
+    """
+
+    pass
+
+
+def malformedYieldsSection(param: str) -> str:
+    """A test function.
+
+    Parameters
+    ----------
+    param : str
+        This is a parameter.
+
+    Yields
+    ------
+        Missing yield type.
+    """
+
+    pass
+
+
+class BadClassDoc:
+    """A test class.
+
+    Parameters
+    ----------
+        This has no parameter name.
+    """
+
+    def __init__(self, value) -> None:
+        """Initialize the class.
+
+        Parameters
+        ----------
+        value :
+            A value.
+        """
+
+        self.value = value
+
+
+class BadInitDoc:
+    """A test class."""
+
+    def __init__(self, value: str) -> None:
+        """Initialize the class.
+
+        Parameters
+        ----------
+            This has no parameter name.
+        """
+
+        self.value = value

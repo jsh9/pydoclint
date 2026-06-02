@@ -4,14 +4,15 @@ import ast
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from docstring_parser import ParseError
+
     from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
+    from pydoclint.utils.doc import Doc
     from pydoclint.utils.return_arg import ReturnArg
     from pydoclint.utils.yield_arg import YieldArg
 
-from docstring_parser import ParseError
 
 from pydoclint.utils.arg import Arg, ArgList
-from pydoclint.utils.doc import Doc
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
     buildFuncArgToDefaultMapping,
@@ -260,66 +261,81 @@ class Visitor(ast.NodeVisitor):
                         msgPostfix=msgPostfix,
                     )
                 )
-
-            if styleMismatch:
-                self.violations.append(
-                    Violation(
-                        code=3,
-                        line=node.lineno,
-                        msgPrefix=f'Function/method `{node.name}`:',
-                        msgPostfix=(
-                            f'You specified "{self.style}" style, but the'
-                            f' docstring is likely not written in this style.'
-                        ),
-                    )
-                )
-
-            isShort: bool = doc.isShortDocstring
-            if self.skipCheckingShortDocstrings and isShort:
+                # Parsing failed, so the parsed sections are unreliable.
+                # Report DOC001 only and skip downstream checks.
                 argViolations = []
                 returnViolations = []
                 yieldViolations = []
                 raiseViolations = []
-            else:
-                argViolations = self.checkArguments(
-                    node,
-                    parent_,
-                    doc,
-                    styleMismatch=styleMismatch,
-                )
-                if docstring == '' or styleMismatch:
+            else:  # The docstring parsed cleanly; run the normal checks.
+                if styleMismatch:
+                    self.violations.append(
+                        Violation(
+                            code=3,
+                            line=node.lineno,
+                            msgPrefix=f'Function/method `{node.name}`:',
+                            msgPostfix=(
+                                f'You specified "{self.style}" style, but the'
+                                ' docstring is likely not written in this'
+                                ' style.'
+                            ),
+                        )
+                    )
+
+                isShort: bool = doc.isShortDocstring
+                if self.skipCheckingShortDocstrings and isShort:
+                    argViolations = []
                     returnViolations = []
                     yieldViolations = []
                     raiseViolations = []
-                elif hasYieldStatements(node) and hasReturnStatements(node):
-                    returnViolations = self.checkReturnAndYield(
-                        node, parent_, doc
-                    )
-                    # It doesn't matter what violations fall into which
-                    # list, so we put everything in `returnViolations`
-                    # and then keep `yieldViolations` empty.
-                    yieldViolations = []
-                    if not self.skipCheckingRaises:
-                        raiseViolations = self.checkRaises(node, parent_, doc)
-                    else:
-                        raiseViolations = []
                 else:
-                    returnViolations = self.checkReturns(node, parent_, doc)
-                    yieldViolations = self.checkYields(node, parent_, doc)
-                    if not self.skipCheckingRaises:
-                        raiseViolations = self.checkRaises(node, parent_, doc)
-                    else:
-                        raiseViolations = []
-
-            if isClassConstructor:
-                # Re-check return violations because the rules are
-                # different for class constructors.
-                returnViolations = (
-                    self.checkReturnsAndYieldsInClassConstructor(
-                        parent=parent_,  # type: ignore[arg-type]
-                        doc=doc,
+                    argViolations = self.checkArguments(
+                        node,
+                        parent_,
+                        doc,
+                        styleMismatch=styleMismatch,
                     )
-                )
+                    if docstring == '' or styleMismatch:
+                        returnViolations = []
+                        yieldViolations = []
+                        raiseViolations = []
+                    elif hasYieldStatements(node) and hasReturnStatements(
+                        node
+                    ):
+                        returnViolations = self.checkReturnAndYield(
+                            node, parent_, doc
+                        )
+                        # It doesn't matter what violations fall into which
+                        # list, so we put everything in `returnViolations`
+                        # and then keep `yieldViolations` empty.
+                        yieldViolations = []
+                        if not self.skipCheckingRaises:
+                            raiseViolations = self.checkRaises(
+                                node, parent_, doc
+                            )
+                        else:
+                            raiseViolations = []
+                    else:
+                        returnViolations = self.checkReturns(
+                            node, parent_, doc
+                        )
+                        yieldViolations = self.checkYields(node, parent_, doc)
+                        if not self.skipCheckingRaises:
+                            raiseViolations = self.checkRaises(
+                                node, parent_, doc
+                            )
+                        else:
+                            raiseViolations = []
+
+                if isClassConstructor:
+                    # Re-check return violations because the rules are
+                    # different for class constructors.
+                    returnViolations = (
+                        self.checkReturnsAndYieldsInClassConstructor(
+                            parent=parent_,  # type: ignore[arg-type]
+                            doc=doc,
+                        )
+                    )
 
         self.violations.extend(argViolations)
         self.violations.extend(returnViolations)
@@ -380,31 +396,24 @@ class Visitor(ast.NodeVisitor):
             return classDocstring
 
         # Below: __init__() is allowed to have a separate docstring
-        try:
-            classDoc = Doc(docstring=classDocstring, style=self.style)
-        except ParseError as excp:
-            classDoc = Doc(docstring='', style=self.style)
+        classDoc, classDocParsingError = parseDocstringInGivenStyle(
+            classDocstring,
+            self.style,
+        )
+        if classDocParsingError is not None:
             self.violations.append(
                 Violation(
                     code=1,
                     line=parent_.lineno,
                     msgPrefix=f'Class `{className}`:',
-                    msgPostfix=str(excp).replace('\n', ' '),
+                    msgPostfix=str(classDocParsingError).replace('\n', ' '),
                 )
             )
 
-        try:
-            initDoc = Doc(docstring=initDocstring, style=self.style)
-        except ParseError as excp:
-            initDoc = Doc(docstring='', style=self.style)
-            self.violations.append(
-                Violation(
-                    code=1,
-                    line=node.lineno,
-                    msgPrefix=f'Method `{node.name}`',
-                    msgPostfix=str(excp).replace('\n', ' '),
-                )
-            )
+        initDoc, _ = parseDocstringInGivenStyle(
+            initDocstring,
+            self.style,
+        )
 
         if classDoc.hasReturnsSection:
             self.violations.append(
