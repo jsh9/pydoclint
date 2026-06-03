@@ -27,9 +27,6 @@ class MyClass3:
     This should cause DOC606 or DOC607 depending on whether inline
     docs are required.
 
-    Properties
-    ----------
-
     Attributes
     ----------
     field1 : int

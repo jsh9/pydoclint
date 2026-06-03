@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 
 from docstring_parser import ParseError
+from docstring_parser.numpydoc import DEFAULT_SECTIONS
 
 from pydoclint.utils.doc import Doc
 
@@ -23,6 +24,17 @@ _GOOGLE_KEYWORDS = (
     'Raises:',
     'Examples:',
     'Notes:',
+)
+
+_ALLOWED_NUMPY_SECTION_NAMES = frozenset(
+    section.title for section in DEFAULT_SECTIONS
+)
+
+# Match numpydoc section blocks: any non-empty title line followed by 3+
+# dashes. Colon-suffixed Google-style headings are intentionally ignored.
+_NUMPY_SECTION_HEADER_PATTERN = re.compile(
+    r'^\s*(?![^\n]*:\s*$)(\S[^\n]*?)\s*\n\s*-{3,}\s*$',
+    re.MULTILINE,
 )
 
 
@@ -178,6 +190,9 @@ def parseDocstringInGivenStyle(
     """Parse the docstring and return the content of the doc."""
     exception: ParseError | None = None
     try:
+        if style == 'numpy':
+            _validateNumpySectionHeaders(docstring)
+
         doc: Doc = Doc(docstring=docstring, style=style)
         _validateParsedDoc(doc)
     except ParseError as exc:
@@ -198,3 +213,31 @@ def _validateParsedDoc(doc: Doc) -> None:
     for attr in doc.parsed.attrs:
         if not attr.arg_name:
             raise ParseError('Parsed docstring attribute has an empty name')
+
+
+def _validateNumpySectionHeaders(docstring: str) -> None:
+    """
+    Reject unsupported numpy-style section headers before parser fallback.
+    """
+    unsupportedSectionNames: list[str] = []
+    for match in _NUMPY_SECTION_HEADER_PATTERN.finditer(docstring):
+        sectionName = match.group(1)
+        if (
+            sectionName not in _ALLOWED_NUMPY_SECTION_NAMES
+            and sectionName not in unsupportedSectionNames
+        ):
+            unsupportedSectionNames.append(sectionName)
+
+    if len(unsupportedSectionNames) == 1:
+        raise ParseError(
+            f'Unsupported numpy docstring section: '
+            f'"{unsupportedSectionNames[0]}"'
+        )
+
+    if len(unsupportedSectionNames) > 1:
+        sectionNames = ', '.join(
+            f'"{sectionName}"' for sectionName in unsupportedSectionNames
+        )
+        raise ParseError(
+            f'Unsupported numpy docstring sections: {sectionNames}'
+        )

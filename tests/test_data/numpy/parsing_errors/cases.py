@@ -133,3 +133,49 @@ class BadInitDoc:
         """
 
         self.value = value
+
+
+class MyOp:
+    """Build a generated report.
+
+    Parameters
+    ----------
+    scale
+        Multiplier applied to the final score.
+
+    Inputs
+    ------
+    records
+        Rows that should be included in the report.
+
+    Outputs
+    -------
+    summary
+        Generated report summary.
+
+    Properties
+    ----------
+    owner
+        Person responsible for the report.
+
+    🍔🥟🍕🌮🥦🍎🍊🌽🥭
+    ---------------
+    normalize
+        Adjustment applied before scoring.
+
+    Side Effects
+    ------------
+    log entry
+        Audit entry written after generation.
+
+    Raises
+    ------
+    ValueError
+        If ``scale`` is not positive.
+    """
+
+    def __init__(self, scale: float) -> None:
+        if scale <= 0:
+            raise ValueError(f"scale must be positive, got {scale}")
+
+        self.scale = scale

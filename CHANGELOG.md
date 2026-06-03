@@ -1,5 +1,14 @@
 # Change Log
 
+## [0.8.6] - 2026-06-03
+
+- Fixed
+  - A bug where `DOC001` did not intercept unsupported numpy docstring section
+    headers such as `Inputs`, `Outputs`, and non-ASCII names, and as a result
+    pydoclint would report confusing cascading violations
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.8.5...0.8.6
+
 ## [0.8.5] - 2026-06-02
 
 - Fixed

@@ -167,3 +167,5 @@ cython_debug/
 
 # AI coding assistants
 .claude/
+
+uv.lock
