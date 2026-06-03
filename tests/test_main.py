@@ -1095,6 +1095,11 @@ def testParsingErrors_numpy() -> None:
         "docstring. Error message: Section 'Parameters' is not empty but nothing "
         'was parsed. (Note: DOC001 could trigger other unrelated violations under '
         'this function/method too. Please fix the docstring formatting first.)',
+        'DOC001: Function/method `__init__`: Potential formatting errors in '
+        'docstring. Error message: Unsupported numpy docstring sections: '
+        '"Inputs", "Outputs", "Properties", "🍔🥟🍕🌮🥦🍎🍊🌽🥭", "Side Effects" '
+        '(Note: DOC001 could trigger other unrelated violations under this '
+        'function/method too. Please fix the docstring formatting first.)',
     ]
     assert list(map(str, violations)) == expected
 
