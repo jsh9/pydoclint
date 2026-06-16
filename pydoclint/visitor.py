@@ -969,14 +969,15 @@ class Visitor(ast.NodeVisitor):
             yieldSec: list[YieldArg] = doc.yieldSection
 
             if hasGenAsRetAnno or hasIterAsRetAnno:
-                extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-                yieldType: str | None = extract(
-                    returnAnnoText=returnAnno.annotation,
-                    hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
-                    hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
-                )
+                # Pass the original return annotation. Like the yields-only
+                # checkYields path, checkYieldTypesForViolations extracts the
+                # yield type itself. Pre-extracting here and passing the
+                # result double-extracted it: the second pass re-sliced the
+                # already-extracted type (e.g.
+                # Iterator[Dict[str, Any]] -> Dict[str, Any] -> (str, Any)),
+                # a spurious DOC404. See #288.
                 checkYieldTypesForViolations(
-                    returnAnnotation=ReturnAnnotation(yieldType),
+                    returnAnnotation=returnAnno,
                     violationList=violations,
                     yieldSection=yieldSec,
                     violation=v404,

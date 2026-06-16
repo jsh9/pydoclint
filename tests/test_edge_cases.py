@@ -659,6 +659,16 @@ from tests.test_main import DATA_DIR
                 'please combine it with the docstring of the class'
             ],
         ),
+        (
+            '34_doc404_return_and_yield_double_unwrap/google.py',
+            {
+                'style': 'google',
+                'argTypeHintsInDocstring': False,
+                'checkYieldTypes': True,
+                'checkReturnTypes': True,
+            },
+            [],
+        ),
     ],
 )
 def testEdgeCases(

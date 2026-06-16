@@ -1,5 +1,13 @@
 # Change Log
 
+## [Unreleased]
+
+- Fixed
+  - A `DOC404` false positive on a function with both a `return` and a `yield`
+    whose return annotation is a parametrized iterator (e.g.
+    `Iterator[Dict[str, Any]]`): the yield type was extracted twice, producing
+    `(str, Any)` instead of `Dict[str, Any]`
+
 ## [0.8.6] - 2026-06-03
 
 - Fixed
