@@ -669,6 +669,24 @@ from tests.test_main import DATA_DIR
             },
             [],
         ),
+        (
+            '34_doc404_return_and_yield_double_unwrap/numpy.py',
+            {
+                'style': 'numpy',
+                'checkYieldTypes': True,
+                'checkReturnTypes': True,
+            },
+            [],
+        ),
+        (
+            '34_doc404_return_and_yield_double_unwrap/sphinx.py',
+            {
+                'style': 'sphinx',
+                'checkYieldTypes': True,
+                'checkReturnTypes': True,
+            },
+            [],
+        ),
     ],
 )
 def testEdgeCases(
