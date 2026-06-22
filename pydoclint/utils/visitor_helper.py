@@ -761,7 +761,7 @@ def checkReturnTypesForGoogleOrSphinxStyle(
 
 def checkYieldTypesForViolations(
         *,
-        returnAnnotation: ReturnAnnotation,
+        originalReturnAnnotation: ReturnAnnotation,
         violationList: list[Violation],
         yieldSection: list[YieldArg],
         violation: Violation,
@@ -769,7 +769,41 @@ def checkYieldTypesForViolations(
         hasIteratorOrIterableAsReturnAnnotation: bool,
         requireYieldSectionWhenYieldingNothing: bool,
 ) -> None:
-    """Check yield types between function signature and docstring"""
+    """
+    Check yield types between function signature and docstring.
+
+    The ``originalReturnAnnotation`` value must be the original function return
+    annotation, such as ``Iterator[Dict[str, Any]]``. It must not be a
+    pre-extracted yield type, such as ``Dict[str, Any]``. This helper calls
+    ``extractYieldTypeFromGeneratorOrIteratorAnnotation`` and extracts the
+    yield type exactly once before comparing it with the docstring "Yields"
+    section.
+
+    Parameters
+    ----------
+    originalReturnAnnotation : ReturnAnnotation
+        The original function return annotation from the signature.
+    violationList : list[Violation]
+        The list of violations to append to.
+    yieldSection : list[YieldArg]
+        The parsed docstring "Yields" section.
+    violation : Violation
+        The DOC404 violation object to append when yield types mismatch.
+    hasGeneratorAsReturnAnnotation : bool
+        Whether the original return annotation is a Generator or
+        AsyncGenerator.
+    hasIteratorOrIterableAsReturnAnnotation : bool
+        Whether the original return annotation is an Iterator, Iterable,
+        AsyncIterator, or AsyncIterable.
+    requireYieldSectionWhenYieldingNothing : bool
+        Whether a "Yields" section is required when the extracted yield type is
+        None.
+
+    Returns
+    -------
+    None
+        This function mutates ``violationList`` in place.
+    """
     # Even though the numpy docstring guide demonstrates that we can
     # write multiple values in the "Yields" section
     # (https://numpydoc.readthedocs.io/en/latest/format.html#yields),
@@ -777,17 +811,17 @@ def checkYieldTypesForViolations(
     # values into one `Generator[..., ..., ...]`, because it is easier
     # to check and less ambiguous.
 
-    returnAnnoText: str | None = returnAnnotation.annotation
+    originalReturnAnnoText: str | None = originalReturnAnnotation.annotation
 
     extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
     yieldType: str | None = extract(
-        returnAnnoText,
+        originalReturnAnnoText,
         hasGeneratorAsReturnAnnotation,
         hasIteratorOrIterableAsReturnAnnotation,
     )
 
     if len(yieldSection) > 0:
-        if returnAnnoText is None:
+        if originalReturnAnnoText is None:
             msg = 'Return annotation does not exist or is not'
             msg += ' Generator[...]/Iterator[...]/Iterable[...],'
             msg += ' but docstring "yields" section has 1 type(s).'
@@ -812,7 +846,7 @@ def checkYieldTypesForViolations(
         # This means that we don't need to have a "Yields" section in the
         # docstring if the yield type is None.
         pass
-    elif returnAnnoText != '':
+    elif originalReturnAnnoText != '':
         msg = 'Return annotation exists, but docstring'
         msg += ' "yields" section does not exist or has 0 type(s).'
         violationList.append(violation.appendMoreMsg(moreMsg=msg))

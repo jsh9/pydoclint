@@ -67,3 +67,16 @@ def iteratorBuiltinDict() -> Iterator[dict[str, Any]]:
     """
     yield {}
     return
+
+
+def iteratorDictMismatch() -> Iterator[Dict[str, Any]]:
+    """
+    This test case verifies nested Iterator mismatches still fail.
+
+    Yields
+    ------
+    str
+        The outputs.
+    """
+    yield {}
+    return

@@ -660,32 +660,47 @@ from tests.test_main import DATA_DIR
             ],
         ),
         (
-            '34_doc404_return_and_yield_double_unwrap/google.py',
+            '35_doc404_return_and_yield_double_unwrap/google.py',
             {
                 'style': 'google',
                 'argTypeHintsInDocstring': False,
                 'checkYieldTypes': True,
                 'checkReturnTypes': True,
             },
-            [],
+            [
+                'DOC404: Function `iteratorDictMismatch` yield type(s) in docstring '
+                'not consistent with the return annotation. The yield type (the 0th '
+                'arg in Generator[...]/Iterator[...]): Dict[str, Any]; docstring '
+                '"yields" section types: str'
+            ],
         ),
         (
-            '34_doc404_return_and_yield_double_unwrap/numpy.py',
+            '35_doc404_return_and_yield_double_unwrap/numpy.py',
             {
                 'style': 'numpy',
                 'checkYieldTypes': True,
                 'checkReturnTypes': True,
             },
-            [],
+            [
+                'DOC404: Function `iteratorDictMismatch` yield type(s) in docstring '
+                'not consistent with the return annotation. The yield type (the 0th '
+                'arg in Generator[...]/Iterator[...]): Dict[str, Any]; docstring '
+                '"yields" section types: str'
+            ],
         ),
         (
-            '34_doc404_return_and_yield_double_unwrap/sphinx.py',
+            '35_doc404_return_and_yield_double_unwrap/sphinx.py',
             {
                 'style': 'sphinx',
                 'checkYieldTypes': True,
                 'checkReturnTypes': True,
             },
-            [],
+            [
+                'DOC404: Function `iteratorDictMismatch` yield type(s) in docstring '
+                'not consistent with the return annotation. The yield type (the 0th '
+                'arg in Generator[...]/Iterator[...]): Dict[str, Any]; docstring '
+                '"yields" section types: str'
+            ],
         ),
     ],
 )
