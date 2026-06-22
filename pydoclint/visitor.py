@@ -838,7 +838,7 @@ class Visitor(ast.NodeVisitor):
                 yieldSec = []
 
             checkYieldTypesForViolations(
-                returnAnnotation=returnAnno,
+                originalReturnAnnotation=returnAnno,
                 violationList=violations,
                 yieldSection=yieldSec,
                 violation=v404,
@@ -969,14 +969,8 @@ class Visitor(ast.NodeVisitor):
             yieldSec: list[YieldArg] = doc.yieldSection
 
             if hasGenAsRetAnno or hasIterAsRetAnno:
-                extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
-                yieldType: str | None = extract(
-                    returnAnnoText=returnAnno.annotation,
-                    hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
-                    hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
-                )
                 checkYieldTypesForViolations(
-                    returnAnnotation=ReturnAnnotation(yieldType),
+                    originalReturnAnnotation=returnAnno,
                     violationList=violations,
                     yieldSection=yieldSec,
                     violation=v404,
