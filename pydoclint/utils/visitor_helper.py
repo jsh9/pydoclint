@@ -870,15 +870,18 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         if hasGeneratorAsReturnAnnotation:
             if isinstance(
                 ast.parse(returnAnnoText).body[0].value.slice,  # type:ignore[attr-defined,arg-type]
-                ast.Constant,
+                ast.Tuple,
             ):
-                # This means returnAnnoText is something like "Generator[None]"
-                yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
-                )
-            else:
+                # This means returnAnnoText is something like
+                # "Generator[YieldType, SendType, ReturnType]"
                 yieldType = unparseName(
                     ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]
+                )
+            else:
+                # This means returnAnnoText has a single subscript argument,
+                # such as "Generator[int]" or "Generator[None]"
+                yieldType = unparseName(
+                    ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
                 )
         elif hasIteratorOrIterableAsReturnAnnotation:
             yieldType = unparseName(
