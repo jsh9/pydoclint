@@ -868,23 +868,12 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     yieldType: str | None
 
     try:
-        if hasGeneratorAsReturnAnnotation:
-            annotationSlice = (
-                ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
-            )
-            if isinstance(annotationSlice, ast.Tuple):
-                # PEP 696 allows yield+send without an explicit return type;
-                # the yield type is still the first supplied subscript arg.
-                yieldType = unparseName(annotationSlice.elts[0])
-            else:
-                # A single subscript arg (only a yield type); use the whole
-                # slice, which also covers the bare-None yield case
-                yieldType = unparseName(annotationSlice)
-        elif hasIteratorOrIterableAsReturnAnnotation:
-            annotationSlice = (
-                ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
-            )
-            yieldType = unparseName(annotationSlice)
+        if (
+            hasGeneratorAsReturnAnnotation
+            or hasIteratorOrIterableAsReturnAnnotation
+        ):
+            annotationArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+            yieldType = unparseName(annotationArgs[0])
         else:
             yieldType = returnAnnoText
     except (AttributeError, TypeError, IndexError):
@@ -902,30 +891,29 @@ def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
-        annotationSlice = (
-            ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
-        )
-        if isinstance(annotationSlice, ast.Tuple):
-            hasReturnTypeArg = (
-                len(annotationSlice.elts) > GENERATOR_RETURN_TYPE_ARG_INDEX
-            )
-            if hasReturnTypeArg:
-                returnArg = annotationSlice.elts[
-                    GENERATOR_RETURN_TYPE_ARG_INDEX
-                ]
-                returnType = unparseName(returnArg)
-            else:
-                # Two-arg Generator supplies YieldType and SendType only; the
-                # return type defaults to None, so do not read SendType here.
-                returnType = 'None'
-        else:
-            # One-arg Generator supplies YieldType only; SendType and
-            # ReturnType both default to None under PEP 696.
+        generatorArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+        if len(generatorArgs) <= GENERATOR_RETURN_TYPE_ARG_INDEX:
             returnType = 'None'
+        else:
+            returnArg = generatorArgs[GENERATOR_RETURN_TYPE_ARG_INDEX]
+            returnType = unparseName(returnArg)
     except (AttributeError, TypeError, IndexError):
         returnType = returnAnnoText
 
     return stripQuotes(returnType)
+
+
+def _extractAnnotationSubscriptArgs(
+        returnAnnoText: str | None,
+) -> list[ast.expr]:
+    """Return the arguments supplied inside a subscript annotation."""
+    annotationSlice = (
+        ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
+    )
+    if isinstance(annotationSlice, ast.Tuple):
+        return list(annotationSlice.elts)
+
+    return [annotationSlice]
 
 
 def addMismatchedRaisesExceptionViolation(
