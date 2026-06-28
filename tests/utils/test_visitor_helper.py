@@ -65,6 +65,10 @@ if TYPE_CHECKING:
         ('AsyncIterator[int]', False, True, 'int'),
         ('Iterable[int]', False, True, 'int'),
         ('AsyncIterable[int]', False, True, 'int'),
+        ('Iterator[int, str]', False, True, '(int, str)'),
+        ('Iterable[int, str]', False, True, '(int, str)'),
+        ('AsyncIterator[int, str]', False, True, '(int, str)'),
+        ('AsyncIterable[int, str]', False, True, '(int, str)'),
         ('Iterator[bool]', False, True, 'bool'),
         ('Iterator["MyClass"]', False, True, 'MyClass'),
         (

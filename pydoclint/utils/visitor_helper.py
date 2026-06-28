@@ -868,12 +868,12 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     yieldType: str | None
 
     try:
-        if (
-            hasGeneratorAsReturnAnnotation
-            or hasIteratorOrIterableAsReturnAnnotation
-        ):
+        if hasGeneratorAsReturnAnnotation:
             annotationArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
             yieldType = unparseName(annotationArgs[0])
+        elif hasIteratorOrIterableAsReturnAnnotation:
+            annotationSlice = _extractAnnotationSubscriptSlice(returnAnnoText)
+            yieldType = unparseName(annotationSlice)
         else:
             yieldType = returnAnnoText
     except (AttributeError, TypeError, IndexError):
@@ -907,13 +907,16 @@ def _extractAnnotationSubscriptArgs(
         returnAnnoText: str | None,
 ) -> list[ast.expr]:
     """Return the arguments supplied inside a subscript annotation."""
-    annotationSlice = (
-        ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
-    )
+    annotationSlice = _extractAnnotationSubscriptSlice(returnAnnoText)
     if isinstance(annotationSlice, ast.Tuple):
         return list(annotationSlice.elts)
 
     return [annotationSlice]
+
+
+def _extractAnnotationSubscriptSlice(returnAnnoText: str | None) -> ast.expr:
+    """Return the slice inside a subscript annotation."""
+    return ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type,no-any-return]
 
 
 def addMismatchedRaisesExceptionViolation(

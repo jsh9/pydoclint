@@ -571,7 +571,11 @@ from tests.test_main import DATA_DIR
                 'DOC404: Function `test_yield_with_typing_no_args` yield type(s) in docstring '
                 'not consistent with the return annotation. The yield type (the 0th arg in '
                 'Generator[...]/Iterator[...]): typing.Any; docstring "yields" '
-                'section types: Generator123[typing.Any]'
+                'section types: Generator123[typing.Any]',
+                'DOC404: Function `invalid_iterator_extra_arg` yield type(s) in docstring '
+                'not consistent with the return annotation. The yield type (the 0th arg in '
+                'Generator[...]/Iterator[...]): (int, str); docstring "yields" section '
+                'types: int',
             ],
         ),
         (

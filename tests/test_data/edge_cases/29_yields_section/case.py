@@ -24,3 +24,20 @@ def yield_5() -> Generator[int]:
 
     """
     yield 5
+
+
+def invalid_iterator_extra_arg() -> Iterator[int, str]:
+    """
+    Testing that an Iterator annotation with extra args is not normalized to
+    its first argument.
+
+    PEP 696 defines defaults for Generator's SendType and ReturnType, so
+    Generator[int, str] can be expanded meaningfully. Iterator has no matching
+    trailing type parameters, so Iterator[int, str] must stay as written and
+    trigger a yield-type mismatch.
+
+    Yields:
+        int: 1.
+
+    """
+    yield 1
