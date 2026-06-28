@@ -29,6 +29,7 @@ SPHINX_MSG_POSTFIX: str = (
     ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
     ' on how to correctly document class attributes.)'
 )
+GENERATOR_RETURN_TYPE_ARG_INDEX: int = 2
 
 
 def checkClassAttributesAgainstClassDocstring(
@@ -868,25 +869,22 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 
     try:
         if hasGeneratorAsReturnAnnotation:
-            if isinstance(
-                ast.parse(returnAnnoText).body[0].value.slice,  # type:ignore[attr-defined,arg-type]
-                ast.Tuple,
-            ):
-                # Multiple subscript args (yield, send, and return types);
-                # the yield type is the 0th element of the tuple
-                yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]
-                )
+            annotationSlice = (
+                ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
+            )
+            if isinstance(annotationSlice, ast.Tuple):
+                # PEP 696 allows yield+send without an explicit return type;
+                # the yield type is still the first supplied subscript arg.
+                yieldType = unparseName(annotationSlice.elts[0])
             else:
                 # A single subscript arg (only a yield type); use the whole
                 # slice, which also covers the bare-None yield case
-                yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
-                )
+                yieldType = unparseName(annotationSlice)
         elif hasIteratorOrIterableAsReturnAnnotation:
-            yieldType = unparseName(
+            annotationSlice = (
                 ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
             )
+            yieldType = unparseName(annotationSlice)
         else:
             yieldType = returnAnnoText
     except (AttributeError, TypeError, IndexError):
@@ -898,15 +896,32 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     """Extract return type from Generator annotations"""
     #
-    # "Return type" is the last element in a Generator
-    # type annotation (Generator[YieldType, SendType,
-    # ReturnType])
+    # "Return type" is the 2nd element in a Generator type annotation
+    # (Generator[YieldType, SendType, ReturnType]). Per PEP 696, it defaults
+    # to None when only yield type or yield+send type are provided.
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
-        returnType = unparseName(
-            ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
+        annotationSlice = (
+            ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
         )
+        if isinstance(annotationSlice, ast.Tuple):
+            hasReturnTypeArg = (
+                len(annotationSlice.elts) > GENERATOR_RETURN_TYPE_ARG_INDEX
+            )
+            if hasReturnTypeArg:
+                returnArg = annotationSlice.elts[
+                    GENERATOR_RETURN_TYPE_ARG_INDEX
+                ]
+                returnType = unparseName(returnArg)
+            else:
+                # Two-arg Generator supplies YieldType and SendType only; the
+                # return type defaults to None, so do not read SendType here.
+                returnType = 'None'
+        else:
+            # One-arg Generator supplies YieldType only; SendType and
+            # ReturnType both default to None under PEP 696.
+            returnType = 'None'
     except (AttributeError, TypeError, IndexError):
         returnType = returnAnnoText
 

@@ -22,11 +22,16 @@ if TYPE_CHECKING:
     [
         ('Generator', True, False, 'Generator'),
         ('AsyncGenerator', True, False, 'AsyncGenerator'),
+        ('Generator[None]', True, False, 'None'),
+        ('Generator[int]', True, False, 'int'),
+        ('Generator[int, str]', True, False, 'int'),
+        ('Generator[int, str, bool]', True, False, 'int'),
         ('Generator[None, None, None]', True, False, 'None'),
         ('Generator[int, None, str]', True, False, 'int'),
         ('AsyncGenerator[int, None, str]', True, False, 'int'),
         ('Generator[bool, None, str]', True, False, 'bool'),
         ('Generator["MyClass", None, str]', True, False, 'MyClass'),
+        ('Generator[Dict[str, int]]', True, False, 'Dict[str, int]'),
         (
             'Generator[Union[str, int], None, str]',
             True,
@@ -94,6 +99,11 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
         hasIter: bool,
         expected: str,
 ) -> None:
+    """Verify yield extraction for Generator, Iterator, and Iterable.
+
+    The abbreviated Generator cases guard against DOC404 regressions where the
+    whole annotation is compared with the docstring yield type.
+    """
     extracted = extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText=returnAnnoText,
         hasGeneratorAsReturnAnnotation=hasGen,
@@ -105,6 +115,11 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
 @pytest.mark.parametrize(
     ('returnAnnoText', 'expected'),
     [
+        ('Generator', 'Generator'),
+        ('Generator[int]', 'None'),
+        ('Generator[int, str]', 'None'),
+        ('Generator[int, str, bool]', 'bool'),
+        ('Generator[Dict[str, int]]', 'None'),
         ('Generator[int, None, str]', 'str'),
         ('AsyncGenerator[int, None, str]', 'str'),
         ('Generator[bool, None, float]', 'float'),
@@ -131,6 +146,11 @@ def testExtractReturnTypeFromGenerator(
         returnAnnoText: str,
         expected: str,
 ) -> None:
+    """Verify Generator return extraction, including PEP 696 defaults.
+
+    The two-argument case is necessary because its second arg is SendType, not
+    ReturnType, so pydoclint must compare returns against the default None.
+    """
     extracted = extractReturnTypeFromGenerator(returnAnnoText)
     assert extracted == expected
 

@@ -749,6 +749,11 @@ def testYieldsPy310plus(style: str) -> None:
     ['google', 'numpy', 'sphinx'],
 )
 def testReturnAndYield(style: str) -> None:
+    """Verify return/yield checks for each supported docstring style.
+
+    The PEP 696 fixture rows ensure the full visitor defaults omitted
+    Generator return types to None, not just the helper extractor.
+    """
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/return_and_yield/cases.py',
         checkReturnTypes=True,
@@ -783,6 +788,11 @@ def testReturnAndYield(style: str) -> None:
         'return annotation. The yield type (the 0th arg in '
         'Generator[...]/Iterator[...]): Iterator; docstring "yields" section types: '
         'int',
+        # func9 documents the second Generator arg as a return type; PEP 696
+        # makes that arg SendType, so DOC203 must still report a mismatch.
+        'DOC203: Function `func9` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['None']; docstring return "
+        "section types: ['str']",
     ]
     assert list(map(str, violations)) == expected
 
