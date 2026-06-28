@@ -749,10 +749,11 @@ def testYieldsPy310plus(style: str) -> None:
     ['google', 'numpy', 'sphinx'],
 )
 def testReturnAndYield(style: str) -> None:
-    """Verify return/yield checks for each supported docstring style.
+    """
+    Verify return/yield checks for each supported docstring style.
 
-    The PEP 696 fixture rows ensure the full visitor defaults omitted
-    Generator return types to None, not just the helper extractor.
+    The PEP 696 fixture rows ensure the full visitor defaults omitted Generator
+    return types to None, not just the helper extractor.
     """
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/return_and_yield/cases.py',

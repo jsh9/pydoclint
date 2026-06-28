@@ -99,7 +99,8 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
         hasIter: bool,
         expected: str,
 ) -> None:
-    """Verify yield extraction for Generator, Iterator, and Iterable.
+    """
+    Verify yield extraction for Generator, Iterator, and Iterable.
 
     The abbreviated Generator cases guard against DOC404 regressions where the
     whole annotation is compared with the docstring yield type.
@@ -146,7 +147,8 @@ def testExtractReturnTypeFromGenerator(
         returnAnnoText: str,
         expected: str,
 ) -> None:
-    """Verify Generator return extraction, including PEP 696 defaults.
+    """
+    Verify Generator return extraction, including PEP 696 defaults.
 
     The two-argument case is necessary because its second arg is SendType, not
     ReturnType, so pydoclint must compare returns against the default None.
