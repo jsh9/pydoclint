@@ -5,7 +5,13 @@ import pytest
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
+from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.visitor_helper import (
+    _extractAnnotationSubscriptArgs,
+    _extractAnnotationSubscriptSlice,
+    _extractAsyncGeneratorAnnotationSubscriptArgs,
+    _extractGeneratorAnnotationSubscriptArgs,
+    _extractGeneratorOrAsyncGeneratorAnnotationArgs,
     addStarsToDocstringArgsWhenApplicable,
     extractClassAttributesFromNode,
     extractReturnTypeFromGenerator,
@@ -296,6 +302,218 @@ def testExtractReturnTypeFromGenerator(
         generatorAnnotationKind=generatorAnnotationKind,
     )
     assert extracted == expected
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'generatorAnnotationKind', 'expected'),
+    [
+        ('Generator[int]', GeneratorAnnotationKind.GENERATOR, ['int']),
+        (
+            'Generator[int, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            ['int', 'str'],
+        ),
+        (
+            'Generator[int, str, bool]',
+            GeneratorAnnotationKind.GENERATOR,
+            ['int', 'str', 'bool'],
+        ),
+        (
+            'AsyncGenerator[int]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            ['int'],
+        ),
+        (
+            'AsyncGenerator[int, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            ['int', 'str'],
+        ),
+    ],
+)
+def testExtractGeneratorOrAsyncGeneratorAnnotationArgs(
+        returnAnnoText: str,
+        generatorAnnotationKind: GeneratorAnnotationKind,
+        expected: list[str],
+) -> None:
+    """Verify generator-like annotation args use the supplied kind's arity."""
+    extracted = _extractGeneratorOrAsyncGeneratorAnnotationArgs(
+        returnAnnoText,
+        generatorAnnotationKind=generatorAnnotationKind,
+    )
+    assert [unparseName(arg) for arg in extracted] == expected
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'generatorAnnotationKind', 'expectedError'),
+    [
+        (
+            'Generator[int, str, bool, bytes]',
+            GeneratorAnnotationKind.GENERATOR,
+            ValueError,
+        ),
+        (
+            'AsyncGenerator[int, str, bool]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            ValueError,
+        ),
+        (
+            'AsyncGenerator[int, str, bool, bytes]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            ValueError,
+        ),
+        ('Generator', GeneratorAnnotationKind.GENERATOR, AttributeError),
+        (
+            'AsyncGenerator',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            AttributeError,
+        ),
+    ],
+)
+def testExtractGeneratorOrAsyncGeneratorAnnotationArgsRaises(
+        returnAnnoText: str,
+        generatorAnnotationKind: GeneratorAnnotationKind,
+        expectedError: type[Exception],
+) -> None:
+    """Verify generator-like arg extraction preserves invalid-shape errors."""
+    with pytest.raises(expectedError):
+        _extractGeneratorOrAsyncGeneratorAnnotationArgs(
+            returnAnnoText,
+            generatorAnnotationKind=generatorAnnotationKind,
+        )
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expected'),
+    [
+        ('Generator[int]', ['int']),
+        ('Generator[int, str]', ['int', 'str']),
+        ('Generator[int, str, bool]', ['int', 'str', 'bool']),
+        ('Generator[Dict[str, int]]', ['Dict[str, int]']),
+    ],
+)
+def testExtractGeneratorAnnotationSubscriptArgs(
+        returnAnnoText: str,
+        expected: list[str],
+) -> None:
+    """Verify valid Generator arities are extracted as AST args."""
+    extracted = _extractGeneratorAnnotationSubscriptArgs(returnAnnoText)
+    assert [unparseName(arg) for arg in extracted] == expected
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expectedError'),
+    [
+        ('Generator[int, str, bool, bytes]', ValueError),
+        ('Generator', AttributeError),
+    ],
+)
+def testExtractGeneratorAnnotationSubscriptArgsRaises(
+        returnAnnoText: str,
+        expectedError: type[Exception],
+) -> None:
+    """Verify Generator arg extraction rejects unsupported shapes."""
+    with pytest.raises(expectedError):
+        _extractGeneratorAnnotationSubscriptArgs(returnAnnoText)
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expected'),
+    [
+        ('AsyncGenerator[int]', ['int']),
+        ('AsyncGenerator[int, str]', ['int', 'str']),
+        ('AsyncGenerator[Dict[str, int]]', ['Dict[str, int]']),
+    ],
+)
+def testExtractAsyncGeneratorAnnotationSubscriptArgs(
+        returnAnnoText: str,
+        expected: list[str],
+) -> None:
+    """Verify valid AsyncGenerator arities are extracted as AST args."""
+    extracted = _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
+    assert [unparseName(arg) for arg in extracted] == expected
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expectedError'),
+    [
+        ('AsyncGenerator[int, str, bool]', ValueError),
+        ('AsyncGenerator[int, str, bool, bytes]', ValueError),
+        ('AsyncGenerator', AttributeError),
+    ],
+)
+def testExtractAsyncGeneratorAnnotationSubscriptArgsRaises(
+        returnAnnoText: str,
+        expectedError: type[Exception],
+) -> None:
+    """Verify AsyncGenerator arg extraction rejects unsupported shapes."""
+    with pytest.raises(expectedError):
+        _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expected'),
+    [
+        ('Generator[int]', ['int']),
+        ('Generator[int, str]', ['int', 'str']),
+        ('Generator[Dict[str, int]]', ['Dict[str, int]']),
+    ],
+)
+def testExtractAnnotationSubscriptArgs(
+        returnAnnoText: str,
+        expected: list[str],
+) -> None:
+    """Verify generic subscript args keep single, tuple, and nested forms."""
+    extracted = _extractAnnotationSubscriptArgs(returnAnnoText)
+    assert [unparseName(arg) for arg in extracted] == expected
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expectedError'),
+    [
+        ('Generator', AttributeError),
+        (None, TypeError),
+    ],
+)
+def testExtractAnnotationSubscriptArgsRaises(
+        returnAnnoText: str | None,
+        expectedError: type[Exception],
+) -> None:
+    """Verify generic subscript arg extraction preserves parser errors."""
+    with pytest.raises(expectedError):
+        _extractAnnotationSubscriptArgs(returnAnnoText)
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expected'),
+    [
+        ('Generator[int]', 'int'),
+        ('Generator[int, str]', '(int, str)'),
+        ('Generator[Dict[str, int]]', 'Dict[str, int]'),
+    ],
+)
+def testExtractAnnotationSubscriptSlice(
+        returnAnnoText: str,
+        expected: str,
+) -> None:
+    """Verify generic subscript slice extraction returns the raw AST slice."""
+    extracted = _extractAnnotationSubscriptSlice(returnAnnoText)
+    assert unparseName(extracted) == expected
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'expectedError'),
+    [
+        ('Generator', AttributeError),
+        (None, TypeError),
+    ],
+)
+def testExtractAnnotationSubscriptSliceRaises(
+        returnAnnoText: str | None,
+        expectedError: type[Exception],
+) -> None:
+    """Verify generic subscript slice extraction preserves parser errors."""
+    with pytest.raises(expectedError):
+        _extractAnnotationSubscriptSlice(returnAnnoText)
 
 
 @pytest.mark.parametrize(
