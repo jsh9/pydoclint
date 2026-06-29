@@ -310,18 +310,17 @@ def _updateFamilyTree(
 
 
 def _getLineNum(node: ast.AST) -> int:
-    lineNum: int
-    try:
-        if 'lineno' in node.__dict__:  # normal case
-            lineNum = node.lineno  # type:ignore[attr-defined]
-        elif 'pattern' in node.__dict__:  # the node is a `case ...:`
-            lineNum = node.pattern.lineno  # type:ignore[attr-defined]
-        else:  # fallback case, but this could still fail
-            lineNum = node.lineno  # type:ignore[attr-defined]
-    except AttributeError:  # if `node` doesn't have any of those attributes
-        lineNum = -1
+    lineNum = getattr(node, 'lineno', None)
+    if isinstance(lineNum, int):
+        return lineNum
 
-    return lineNum
+    # A ``match`` case stores its source location on the pattern.
+    pattern = getattr(node, 'pattern', None)
+    patternLineNum = getattr(pattern, 'lineno', None)
+    if isinstance(patternLineNum, int):
+        return patternLineNum
+
+    return -1
 
 
 def _confirmThisStmtIsNotWithinNestedFunc(

@@ -4,7 +4,7 @@ import ast
 import copy
 import re
 from re import Match
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.unparser_custom import unparseName
@@ -211,6 +211,14 @@ def stringStartsWith(string: str | None, substrings: tuple[str, ...]) -> bool:
     return any(string.startswith(substring) for substring in substrings)
 
 
+@overload
+def stripQuotes(string: str) -> str: ...
+
+
+@overload
+def stripQuotes(string: None) -> None: ...
+
+
 def stripQuotes(string: str | None) -> str | None:
     """
     Strip quotes (both double and single quotes) from the given string. Also,
@@ -361,9 +369,13 @@ def buildFuncArgToDefaultMapping(
 
     # Map keyword-only arguments to their defaults
     # kwDefaults has one-to-one correspondence with kwOnlyArgs
-    for i in range(len(kwDefaults)):
-        if i < len(kwOnlyArgs) and kwDefaults[i] is not None:
-            argToDefaultMapping[kwOnlyArgs[i]] = kwDefaults[i]  # type: ignore[assignment]
+    for kwOnlyArg, defaultValue in zip(
+        kwOnlyArgs,
+        kwDefaults,
+        strict=False,
+    ):
+        if defaultValue is not None:
+            argToDefaultMapping[kwOnlyArg] = defaultValue
 
     return argToDefaultMapping
 

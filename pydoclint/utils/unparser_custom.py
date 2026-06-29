@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import re
 import sys
+from typing import overload
 
 
 def replaceTupleBracket(string: str) -> str:
@@ -33,9 +34,15 @@ else:  # Python 3.10 only, because this project doesn't support Python 3.9
     unparse = ast.unparse
 
 
-def unparseName(
-        node: ast.expr | ast.Module | None,
-) -> str | None:
+@overload
+def unparseName(node: ast.AST) -> str: ...
+
+
+@overload
+def unparseName(node: None) -> None: ...
+
+
+def unparseName(node: ast.AST | None) -> str | None:
     """Parse type annotations from argument list or return annotation."""
     if node is None:
         return None
