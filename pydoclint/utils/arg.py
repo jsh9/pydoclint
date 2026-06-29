@@ -298,7 +298,9 @@ class ArgList:
     ) -> None:
         try:  # we may not know all potential cases, so we use try/catch
             unparsedTarget: str | None = unparseName(target)
-            assert unparsedTarget is not None  # narrow type for static checkers
+            assert (
+                unparsedTarget is not None
+            )  # narrow type for static checkers
             infoList.append(Arg(name=unparsedTarget, typeHint=''))
         except Exception as ex:
             lineRange: str = (
