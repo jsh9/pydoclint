@@ -1,5 +1,16 @@
 # Change Log
 
+## [0.9.0] - 2026-06-29
+
+- Fixed
+  - A `DOC404` false positive for single-argument `Generator[YieldType]`
+    annotations, where pydoclint compared the docstring yield type with the
+    whole annotation instead of the generator yield type
+  - Return/yield handling for one- and two-argument `Generator[...]`
+    annotations so omitted return types default to `None` per PEP-696
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.8.7...0.9.0
+
 ## [0.8.7] - 2026-06-22
 
 - Fixed
