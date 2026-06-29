@@ -399,11 +399,11 @@ def testExtractGeneratorOrAsyncGeneratorAnnotationArgs(
             GeneratorAnnotationKind.ASYNC_GENERATOR,
             ValueError,
         ),
-        ('Generator', GeneratorAnnotationKind.GENERATOR, AttributeError),
+        ('Generator', GeneratorAnnotationKind.GENERATOR, TypeError),
         (
             'AsyncGenerator',
             GeneratorAnnotationKind.ASYNC_GENERATOR,
-            AttributeError,
+            TypeError,
         ),
     ],
 )
@@ -442,7 +442,7 @@ def testExtractGeneratorAnnotationSubscriptArgs(
     ('returnAnnoText', 'expectedError'),
     [
         ('Generator[int, str, bool, bytes]', ValueError),
-        ('Generator', AttributeError),
+        ('Generator', TypeError),
     ],
 )
 def testExtractGeneratorAnnotationSubscriptArgsRaises(
@@ -476,7 +476,7 @@ def testExtractAsyncGeneratorAnnotationSubscriptArgs(
     [
         ('AsyncGenerator[int, str, bool]', ValueError),
         ('AsyncGenerator[int, str, bool, bytes]', ValueError),
-        ('AsyncGenerator', AttributeError),
+        ('AsyncGenerator', TypeError),
     ],
 )
 def testExtractAsyncGeneratorAnnotationSubscriptArgsRaises(
@@ -508,7 +508,7 @@ def testExtractAnnotationSubscriptArgs(
 @pytest.mark.parametrize(
     ('returnAnnoText', 'expectedError'),
     [
-        ('Generator', AttributeError),
+        ('Generator', TypeError),
         (None, TypeError),
     ],
 )
@@ -541,7 +541,7 @@ def testExtractAnnotationSubscriptSlice(
 @pytest.mark.parametrize(
     ('returnAnnoText', 'expectedError'),
     [
-        ('Generator', AttributeError),
+        ('Generator', TypeError),
         (None, TypeError),
     ],
 )

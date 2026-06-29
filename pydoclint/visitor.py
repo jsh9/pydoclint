@@ -180,17 +180,18 @@ class Visitor(ast.NodeVisitor):
         self.parent = currentParent  # restore
 
     def visit_FunctionDef(self, node: FuncOrAsyncFuncDef) -> None:  # noqa: D102, PLR0915
-        parent_: ast.ClassDef | FuncOrAsyncFuncDef = self.parent  # type:ignore[assignment]
+        parent_: ast.AST = self.parent
         self.parent = node
 
-        isClassConstructor: bool = node.name == '__init__' and isinstance(
-            parent_, ast.ClassDef
+        parentClass = parent_ if isinstance(parent_, ast.ClassDef) else None
+        isClassConstructor: bool = (
+            node.name == '__init__' and parentClass is not None
         )
 
         if (
             isClassConstructor
-            and isinstance(parent_, ast.ClassDef)
-            and not isLastConstructor(node=node, parentClass=parent_)
+            and parentClass is not None
+            and not isLastConstructor(node=node, parentClass=parentClass)
         ):
             # Multiple __init__ definitions can exist when using overload stubs
             # but only the last implementation represents the real constructor
@@ -208,11 +209,10 @@ class Visitor(ast.NodeVisitor):
 
         self.isAbstractMethod = checkIsAbstractMethod(node)
 
-        if isClassConstructor:
-            assert isinstance(parent_, ast.ClassDef)  # to help mypy know type
+        if isClassConstructor and parentClass is not None:
             docstring = self._checkClassDocstringAndConstructorDocstrings(
                 node=node,
-                parent_=parent_,
+                parent_=parentClass,
                 initDocstring=docstring,
             )
 
@@ -329,12 +329,12 @@ class Visitor(ast.NodeVisitor):
                         else:
                             raiseViolations = []
 
-                if isClassConstructor:
+                if isClassConstructor and parentClass is not None:
                     # Re-check return violations because the rules are
                     # different for class constructors.
                     returnViolations = (
                         self.checkReturnsAndYieldsInClassConstructor(
-                            parent=parent_,  # type: ignore[arg-type]
+                            parent=parentClass,
                             doc=doc,
                         )
                     )

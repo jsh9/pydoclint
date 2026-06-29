@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- Changed
+  - Replaced tox type checking from `mypy` with `ty` and fixed the surfaced
+    typing issues with explicit type narrowing
+
 ## [0.9.0] - 2026-06-29
 
 - Fixed

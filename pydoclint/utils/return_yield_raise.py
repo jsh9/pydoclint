@@ -195,14 +195,14 @@ def _getRaisedExceptions(
                     if isinstance(child.exc, ast.Attribute):
                         # case: looks like m.n.exception
                         exceptionName = unparseName(child.exc)
-                        assert isinstance(exceptionName, str)  # satisfy mypy
+                        assert isinstance(exceptionName, str)
                         yield exceptionName
                     elif isinstance(child.exc, ast.Call) and isinstance(
                         child.exc.func, ast.Attribute
                     ):
                         # case: looks like m.n.exception()
                         exceptionName = unparseName(child.exc.func)
-                        assert isinstance(exceptionName, str)  # satisfy mypy
+                        assert isinstance(exceptionName, str)
                         yield exceptionName
                     elif (
                         currentParentExceptHandler
@@ -243,7 +243,7 @@ def _extractExceptionsFromExcept(
     if isinstance(node.type, ast.Attribute):
         # case: looks like m.n.exception
         exceptionName = unparseName(node.type)
-        assert isinstance(exceptionName, str)  # to make mypy happy
+        assert isinstance(exceptionName, str)
         yield exceptionName
 
     if isinstance(node.type, ast.Tuple):
@@ -251,7 +251,7 @@ def _extractExceptionsFromExcept(
             if isinstance(elt, ast.Attribute):
                 # case: looks like m.n.exception
                 exceptionName = unparseName(elt)
-                assert isinstance(exceptionName, str)  # to make mypy happy
+                assert isinstance(exceptionName, str)
                 yield exceptionName
             elif isinstance(elt, ast.Name):
                 yield elt.id
@@ -310,18 +310,17 @@ def _updateFamilyTree(
 
 
 def _getLineNum(node: ast.AST) -> int:
-    lineNum: int
-    try:
-        if 'lineno' in node.__dict__:  # normal case
-            lineNum = node.lineno  # type:ignore[attr-defined]
-        elif 'pattern' in node.__dict__:  # the node is a `case ...:`
-            lineNum = node.pattern.lineno  # type:ignore[attr-defined]
-        else:  # fallback case, but this could still fail
-            lineNum = node.lineno  # type:ignore[attr-defined]
-    except AttributeError:  # if `node` doesn't have any of those attributes
-        lineNum = -1
+    lineNum = getattr(node, 'lineno', None)
+    if isinstance(lineNum, int):
+        return lineNum
 
-    return lineNum
+    # A ``match`` case stores its source location on the pattern.
+    pattern = getattr(node, 'pattern', None)
+    patternLineNum = getattr(pattern, 'lineno', None)
+    if isinstance(patternLineNum, int):
+        return patternLineNum
+
+    return -1
 
 
 def _confirmThisStmtIsNotWithinNestedFunc(

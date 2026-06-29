@@ -427,10 +427,13 @@ def extractClassAttributesFromNode(
             atl.extend(ArgList.fromAstAssign(itm).infoList)
         elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):  # noqa: SIM102
             if treatPropertyMethodsAsClassAttrs and checkIsPropertyMethod(itm):
+                typeHint = (
+                    '' if itm.returns is None else unparseName(itm.returns)
+                )
                 atl.append(
                     Arg(
                         name=itm.name,
-                        typeHint=unparseName(itm.returns),  # type:ignore[arg-type]
+                        typeHint=typeHint,
                     )
                 )
 
@@ -712,7 +715,7 @@ def checkReturnTypesForNumpyStyle(
     returnAnnoItems: list[str] = returnAnnotation.decompose()
     returnAnnoInList: list[str] = returnAnnotation.putAnnotationInList()
 
-    returnSecTypes: list[str] = [stripQuotes(_.argType) for _ in returnSection]  # type:ignore[misc]
+    returnSecTypes: list[str] = [stripQuotes(_.argType) for _ in returnSection]
 
     if returnAnnoInList != returnSecTypes:
         if len(returnAnnoItems) != len(returnSection):
@@ -746,7 +749,7 @@ def checkReturnTypesForGoogleOrSphinxStyle(
     # use one compound style for tuples.
 
     if len(returnSection) > 0:
-        retArgType: str = stripQuotes(returnSection[0].argType)  # type:ignore[assignment]
+        retArgType: str = stripQuotes(returnSection[0].argType)
         if returnAnnotation.annotation is None:
             msg = 'Return annotation has 0 type(s); docstring'
             msg += ' return section has 1 type(s).'
@@ -1016,7 +1019,18 @@ def _extractAnnotationSubscriptArgs(
 
 def _extractAnnotationSubscriptSlice(returnAnnoText: str | None) -> ast.expr:
     """Return the slice inside a subscript annotation."""
-    return ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type,no-any-return]
+    if returnAnnoText is None:
+        raise TypeError('Return annotation cannot be None')
+
+    parsedBody0 = ast.parse(returnAnnoText).body[0]
+    if not isinstance(parsedBody0, ast.Expr):
+        raise TypeError('Return annotation must parse to an expression')
+
+    parsedValue = parsedBody0.value
+    if not isinstance(parsedValue, ast.Subscript):
+        raise TypeError('Return annotation must be subscripted')
+
+    return parsedValue.slice
 
 
 def addMismatchedRaisesExceptionViolation(
