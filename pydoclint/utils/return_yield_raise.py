@@ -54,21 +54,6 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     return getGeneratorAnnotationKind(node) is not None
 
 
-def hasAsyncGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
-    """
-    Check whether the node has a bare ``AsyncGenerator`` annotation.
-
-    The broader Generator detector also treats AsyncGenerator as
-    generator-like. This narrower detector lets parser helpers apply
-    AsyncGenerator arity rules without deciding which annotation spellings are
-    supported.
-    """
-    return (
-        getGeneratorAnnotationKind(node)
-        is GeneratorAnnotationKind.ASYNC_GENERATOR
-    )
-
-
 def getGeneratorAnnotationKind(
         node: FuncOrAsyncFuncDef,
 ) -> GeneratorAnnotationKind | None:

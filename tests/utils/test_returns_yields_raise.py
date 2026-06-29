@@ -8,7 +8,6 @@ from pydoclint.utils.return_yield_raise import (
     GeneratorAnnotationKind,
     getGeneratorAnnotationKind,
     getRaisedExceptions,
-    hasAsyncGeneratorAsReturnAnnotation,
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
     hasRaiseStatements,
@@ -376,36 +375,6 @@ def testHasGeneratorAsReturnAnnotation() -> None:
     }
 
     assert result == expected
-
-
-@pytest.mark.parametrize(
-    ('src', 'expected'),
-    [
-        ('def func():\n  pass', False),
-        ('def func() -> Generator[int, None, int]:\n  pass', False),
-        ('def func() -> AsyncGenerator:\n  pass', True),
-        ('def func() -> AsyncGenerator[int]:\n  pass', True),
-        ('def func() -> AsyncGenerator[int, str]:\n  pass', True),
-        ('def func() -> AsyncGenerator[int, str, bool]:\n  pass', True),
-        # Only bare AsyncGenerator annotations are recognized by design.
-        ('def func() -> typing.AsyncGenerator[int]:\n  pass', False),
-    ],
-)
-def testHasAsyncGeneratorAsReturnAnnotation(
-        src: str,
-        expected: bool,
-) -> None:
-    """
-    Verify AsyncGenerator detection stays narrow and bare-name-only.
-
-    Parser helpers depend on this detector for annotation kind, so the test
-    locks both supported bare spellings and the intentionally unsupported
-    qualified spelling.
-    """
-    tree = ast.parse(src)
-    assert len(tree.body) == 1  # sanity check
-    assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
-    assert hasAsyncGeneratorAsReturnAnnotation(tree.body[0]) == expected
 
 
 def testHasYieldStatement() -> None:

@@ -1,4 +1,4 @@
-from typing import Generator, Iterator
+from typing import AsyncGenerator, Generator, Iterator
 
 
 def func1(num: int) -> Generator[int, None, str]:
@@ -194,3 +194,22 @@ def func11(num: int) -> Generator[int, str, bool, bytes]:
     yield num
 
     return True
+
+
+def func12(num: int) -> AsyncGenerator[int, str]:
+    """
+    Test that the second AsyncGenerator argument is not a return type.
+
+    Expected: this fixture reports DOC203 because AsyncGenerator has no return
+    type argument, so the return type is None.
+
+    :param num: A number
+    :type num: int
+    :return: A string
+    :rtype: str
+    :yield: Another number
+    :ytype: int
+    """
+    yield num
+
+    return None

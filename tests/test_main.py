@@ -803,6 +803,9 @@ def testReturnAndYield(style: str) -> None:
         'return annotation. The yield type (the 0th arg in '
         'Generator[...]/Iterator[...]): Generator[int, str, bool, bytes]; '
         'docstring "yields" section types: int',
+        'DOC203: Function `func12` return type(s) in docstring not consistent with the '
+        "return annotation. Return annotation types: ['None']; docstring return "
+        "section types: ['str']",
     ]
     assert list(map(str, violations)) == expected
 
