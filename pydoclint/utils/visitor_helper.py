@@ -895,7 +895,28 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     return stripQuotes(yieldType)
 
 
-def extractReturnTypeFromGenerator(
+def getReturnTypeToDocument(
+        returnAnnotation: ReturnAnnotation,
+        *,
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
+) -> str | None:
+    """
+    Return the annotation type that a Returns section should document.
+
+    Generator-like annotations document their generator return type, while
+    Iterator and Iterable annotations keep the original annotation because they
+    do not have Generator's omitted return-type slot.
+    """
+    if generatorAnnotationKind is None:
+        return returnAnnotation.annotation
+
+    return extractReturnTypeFromGeneratorAnnotation(
+        returnAnnoText=returnAnnotation.annotation,
+        generatorAnnotationKind=generatorAnnotationKind,
+    )
+
+
+def extractReturnTypeFromGeneratorAnnotation(
         returnAnnoText: str | None,
         *,
         generatorAnnotationKind: GeneratorAnnotationKind,

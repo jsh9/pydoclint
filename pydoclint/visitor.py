@@ -59,8 +59,9 @@ from pydoclint.utils.visitor_helper import (
     checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs,
     checkReturnTypesForViolations,
     checkYieldTypesForViolations,
-    extractReturnTypeFromGenerator,
+    extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
+    getReturnTypeToDocument,
 )
 
 
@@ -933,24 +934,10 @@ class Visitor(ast.NodeVisitor):
                 # https://github.com/jsh9/pydoclint/issues/126#issuecomment-2136497913
                 and not hasBareReturnStmt
             ):
-                # A variable: "return type to document".
-                # For Generator annotations, this is the 3rd Generator arg or
-                # its PEP 696 default. For Iterator/Iterable annotations, keep
-                # the original annotation so they still require a Returns
-                # section when the function has a value-returning return.
-                returnTypeToDocument: str | None
-
-                if generatorAnnotationKind is not None:
-                    # because only Generator has return-type args
-                    returnTypeToDocument = extractReturnTypeFromGenerator(
-                        returnAnnoText=returnAnno.annotation,
-                        generatorAnnotationKind=generatorAnnotationKind,
-                    )
-                else:
-                    # Iterator/Iterable annotations do not have Generator's
-                    # omitted return-type slot. Keep the original annotation so
-                    # value-returning returns still require a Returns section.
-                    returnTypeToDocument = returnAnno.annotation
+                returnTypeToDocument = getReturnTypeToDocument(
+                    returnAnnotation=returnAnno,
+                    generatorAnnotationKind=generatorAnnotationKind,
+                )
 
                 # If "Generator[...]" is put in the return type annotation,
                 # we don't need a "Returns" section in the docstring.
@@ -962,7 +949,7 @@ class Visitor(ast.NodeVisitor):
                     violations.append(v201)
         elif self.checkReturnTypes:
             if generatorAnnotationKind is not None:
-                retTypeInGenerator = extractReturnTypeFromGenerator(
+                retTypeInGenerator = extractReturnTypeFromGeneratorAnnotation(
                     returnAnnoText=returnAnno.annotation,
                     generatorAnnotationKind=generatorAnnotationKind,
                 )

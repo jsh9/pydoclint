@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from pydoclint.utils.arg import Arg, ArgList
+from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.visitor_helper import (
@@ -14,9 +15,10 @@ from pydoclint.utils.visitor_helper import (
     _extractGeneratorOrAsyncGeneratorAnnotationArgs,
     addStarsToDocstringArgsWhenApplicable,
     extractClassAttributesFromNode,
-    extractReturnTypeFromGenerator,
+    extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getDocumentedAndActualClassArgLists,
+    getReturnTypeToDocument,
     updateDocumentedArgListWithInlineDocstrings,
 )
 
@@ -284,7 +286,7 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
         ),
     ],
 )
-def testExtractReturnTypeFromGenerator(
+def testExtractReturnTypeFromGeneratorAnnotation(
         returnAnnoText: str,
         generatorAnnotationKind: GeneratorAnnotationKind,
         expected: str,
@@ -297,8 +299,44 @@ def testExtractReturnTypeFromGenerator(
     AsyncGenerator cases pass the kind flag explicitly so return extraction
     does not infer annotation kind from raw strings.
     """
-    extracted = extractReturnTypeFromGenerator(
+    extracted = extractReturnTypeFromGeneratorAnnotation(
         returnAnnoText,
+        generatorAnnotationKind=generatorAnnotationKind,
+    )
+    assert extracted == expected
+
+
+@pytest.mark.parametrize(
+    ('returnAnnoText', 'generatorAnnotationKind', 'expected'),
+    [
+        ('Iterator[int]', None, 'Iterator[int]'),
+        ('Generator[int]', GeneratorAnnotationKind.GENERATOR, 'None'),
+        ('Generator[int, str]', GeneratorAnnotationKind.GENERATOR, 'None'),
+        (
+            'Generator[int, str, bool]',
+            GeneratorAnnotationKind.GENERATOR,
+            'bool',
+        ),
+        (
+            'AsyncGenerator[int, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            'None',
+        ),
+        (
+            'Generator[int, str, bool, bytes]',
+            GeneratorAnnotationKind.GENERATOR,
+            'Generator[int, str, bool, bytes]',
+        ),
+    ],
+)
+def testGetReturnTypeToDocument(
+        returnAnnoText: str,
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
+        expected: str,
+) -> None:
+    """Verify return-documentation type selection stays centralized."""
+    extracted = getReturnTypeToDocument(
+        returnAnnotation=ReturnAnnotation(returnAnnoText),
         generatorAnnotationKind=generatorAnnotationKind,
     )
     assert extracted == expected
