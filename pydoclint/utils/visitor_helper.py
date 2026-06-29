@@ -30,6 +30,7 @@ SPHINX_MSG_POSTFIX: str = (
     ' on how to correctly document class attributes.)'
 )
 GENERATOR_RETURN_TYPE_ARG_INDEX: int = 2
+GENERATOR_MAX_ARG_COUNT: int = GENERATOR_RETURN_TYPE_ARG_INDEX + 1
 
 
 def checkClassAttributesAgainstClassDocstring(
@@ -869,14 +870,16 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 
     try:
         if hasGeneratorAsReturnAnnotation:
-            annotationArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+            annotationArgs = _extractGeneratorAnnotationSubscriptArgs(
+                returnAnnoText
+            )
             yieldType = unparseName(annotationArgs[0])
         elif hasIteratorOrIterableAsReturnAnnotation:
             annotationSlice = _extractAnnotationSubscriptSlice(returnAnnoText)
             yieldType = unparseName(annotationSlice)
         else:
             yieldType = returnAnnoText
-    except (AttributeError, TypeError, IndexError):
+    except (AttributeError, TypeError, IndexError, ValueError):
         yieldType = returnAnnoText
 
     return stripQuotes(yieldType)
@@ -891,16 +894,32 @@ def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
-        generatorArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+        generatorArgs = _extractGeneratorAnnotationSubscriptArgs(
+            returnAnnoText
+        )
         if len(generatorArgs) <= GENERATOR_RETURN_TYPE_ARG_INDEX:
             returnType = 'None'
         else:
             returnArg = generatorArgs[GENERATOR_RETURN_TYPE_ARG_INDEX]
             returnType = unparseName(returnArg)
-    except (AttributeError, TypeError, IndexError):
+    except (AttributeError, TypeError, IndexError, ValueError):
         returnType = returnAnnoText
 
     return stripQuotes(returnType)
+
+
+def _extractGeneratorAnnotationSubscriptArgs(
+        returnAnnoText: str | None,
+) -> list[ast.expr]:
+    """
+    Extract Generator args only when its arity can be interpreted (i.e., 1-3
+    args).
+    """
+    annotationArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+    if 1 <= len(annotationArgs) <= GENERATOR_MAX_ARG_COUNT:
+        return annotationArgs
+
+    raise ValueError('Generator annotations must have 1 to 3 arguments')
 
 
 def _extractAnnotationSubscriptArgs(

@@ -923,24 +923,37 @@ class Visitor(ast.NodeVisitor):
             if doc.isShortDocstring and self.skipCheckingShortDocstrings:
                 pass
             elif (
-                # fmt: off
                 not (onlyHasYieldStmt and hasIterAsRetAnno)
                 and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
                 # If the return statement in the function body is a bare
                 # return, we don't throw DOC201 or DOC405. See more at:
                 # https://github.com/jsh9/pydoclint/issues/126#issuecomment-2136497913
                 and not hasBareReturnStmt
-                # fmt: on
             ):
-                retTypeInGenerator = extractReturnTypeFromGenerator(
-                    returnAnnoText=returnAnno.annotation,
-                )
+                # A variable: "return type to document".
+                # For Generator annotations, this is the 3rd Generator arg or
+                # its PEP 696 default. For Iterator/Iterable annotations, keep
+                # the original annotation so they still require a Returns
+                # section when the function has a value-returning return.
+                returnTypeToDocument: str | None
+
+                if hasGenAsRetAnno:  # check whether this is Generator[...]
+                    # because only Generator has return-type args
+                    returnTypeToDocument = extractReturnTypeFromGenerator(
+                        returnAnnoText=returnAnno.annotation,
+                    )
+                else:
+                    # Iterator/Iterable annotations do not have Generator's
+                    # omitted return-type slot. Keep the original annotation so
+                    # value-returning returns still require a Returns section.
+                    returnTypeToDocument = returnAnno.annotation
+
                 # If "Generator[...]" is put in the return type annotation,
                 # we don't need a "Returns" section in the docstring.
                 # Instead, we need a "Yields" section.
                 if (
                     self.requireReturnSectionWhenReturningNothing
-                    or retTypeInGenerator not in {'None', 'NoReturn'}
+                    or returnTypeToDocument not in {'None', 'NoReturn'}
                 ):
                     violations.append(v201)
         elif self.checkReturnTypes:

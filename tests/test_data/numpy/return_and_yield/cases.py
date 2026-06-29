@@ -222,3 +222,54 @@ def func9(num: int) -> Generator[int, str]:
     yield num
 
     return None
+
+
+def func10(num: int) -> Iterator[int]:
+    """
+    This fixture covers the Iterator[int] + value-returning return case. Even
+    though Iterator[int] has one subscript argument, pydoclint must not run it
+    through Generator return-type defaulting or treat the generator return type
+    as None. Because the function returns 'done', the missing Returns section
+    should still trigger DOC201.
+
+    Parameters
+    ----------
+    num : int
+        A number
+
+    Yields
+    ------
+    int
+        Another number
+    """
+    yield num
+
+    return 'done'
+
+
+def func11(num: int) -> Generator[int, str, bool, bytes]:
+    """
+    This fixture covers malformed Generator annotations with too many
+    subscript arguments. Pydoclint should keep the full annotation instead of
+    extracting int as the yield type and bool as the return type. Therefore,
+    the documented Returns bool should trigger DOC203, and the documented
+    Yields int should trigger DOC404.
+
+    Parameters
+    ----------
+    num : int
+        A number
+
+    Returns
+    -------
+    bool
+        A flag
+
+    Yields
+    ------
+    int
+        Another number
+    """
+    yield num
+
+    return True

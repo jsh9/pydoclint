@@ -794,6 +794,15 @@ def testReturnAndYield(style: str) -> None:
         'DOC203: Function `func9` return type(s) in docstring not consistent with the '
         "return annotation. Return annotation types: ['None']; docstring return "
         "section types: ['str']",
+        'DOC201: Function `func10` does not have a return section in docstring',
+        'DOC203: Function `func11` return type(s) in docstring not consistent with the '
+        'return annotation. Return annotation types: '
+        "['Generator[int, str, bool, bytes]']; docstring return section types: "
+        "['bool']",
+        'DOC404: Function `func11` yield type(s) in docstring not consistent with the '
+        'return annotation. The yield type (the 0th arg in '
+        'Generator[...]/Iterator[...]): Generator[int, str, bool, bytes]; '
+        'docstring "yields" section types: int',
     ]
     assert list(map(str, violations)) == expected
 
