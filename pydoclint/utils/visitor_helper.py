@@ -1024,11 +1024,11 @@ def _extractAnnotationSubscriptSlice(returnAnnoText: str | None) -> ast.expr:
 
     parsedBody0 = ast.parse(returnAnnoText).body[0]
     if not isinstance(parsedBody0, ast.Expr):
-        raise AttributeError('Return annotation must parse to an expression')
+        raise TypeError('Return annotation must parse to an expression')
 
     parsedValue = parsedBody0.value
     if not isinstance(parsedValue, ast.Subscript):
-        raise AttributeError('Return annotation must be subscripted')
+        raise TypeError('Return annotation must be subscripted')
 
     return parsedValue.slice
 

@@ -369,13 +369,15 @@ def buildFuncArgToDefaultMapping(
 
     # Map keyword-only arguments to their defaults
     # kwDefaults has one-to-one correspondence with kwOnlyArgs
-    for kwOnlyArg, defaultValue in zip(
-        kwOnlyArgs,
-        kwDefaults,
-        strict=False,
-    ):
-        if defaultValue is not None:
-            argToDefaultMapping[kwOnlyArg] = defaultValue
+    argToDefaultMapping.update({
+        kwOnlyArg: defaultValue
+        for kwOnlyArg, defaultValue in zip(
+            kwOnlyArgs,
+            kwDefaults,
+            strict=False,
+        )
+        if defaultValue is not None
+    })
 
     return argToDefaultMapping
 
