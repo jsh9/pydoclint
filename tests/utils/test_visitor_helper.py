@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from pydoclint.utils.arg import Arg, ArgList
+from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
 from pydoclint.utils.visitor_helper import (
     addStarsToDocstringArgsWhenApplicable,
     extractClassAttributesFromNode,
@@ -18,105 +19,155 @@ if TYPE_CHECKING:
 
 
 @pytest.mark.parametrize(
-    ('returnAnnoText', 'hasGen', 'hasIter', 'expected'),
+    ('returnAnnoText', 'generatorAnnotationKind', 'hasIter', 'expected'),
     [
-        ('Generator', True, False, 'Generator'),
-        ('AsyncGenerator', True, False, 'AsyncGenerator'),
-        ('Generator[None]', True, False, 'None'),
-        ('Generator[int]', True, False, 'int'),
-        ('Generator[int, str]', True, False, 'int'),
-        ('Generator[int, str, bool]', True, False, 'int'),
-        ('AsyncGenerator[int]', True, False, 'int'),
-        ('AsyncGenerator[int, str]', True, False, 'int'),
+        ('Generator', GeneratorAnnotationKind.GENERATOR, False, 'Generator'),
+        (
+            'AsyncGenerator',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
+            'AsyncGenerator',
+        ),
+        ('Generator[None]', GeneratorAnnotationKind.GENERATOR, False, 'None'),
+        ('Generator[int]', GeneratorAnnotationKind.GENERATOR, False, 'int'),
+        (
+            'Generator[int, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+        ),
+        (
+            'Generator[int, str, bool]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+        ),
+        (
+            'AsyncGenerator[int]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
+            'int',
+        ),
+        (
+            'AsyncGenerator[int, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
+            'int',
+        ),
         (  # 4 Generator args are malformed; keep full annotation.
             'Generator[int, str, bool, bytes]',
-            True,
+            GeneratorAnnotationKind.GENERATOR,
             False,
             'Generator[int, str, bool, bytes]',
         ),
         (  # 3 AsyncGenerator args are malformed; keep full annotation.
             'AsyncGenerator[int, str, bool]',
-            True,
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
             False,
             'AsyncGenerator[int, str, bool]',
         ),
         (  # 4 AsyncGenerator args are malformed; keep full annotation.
             'AsyncGenerator[int, str, bool, bytes]',
-            True,
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
             False,
             'AsyncGenerator[int, str, bool, bytes]',
         ),
-        ('Generator[None, None, None]', True, False, 'None'),
-        ('Generator[int, None, str]', True, False, 'int'),
+        (
+            'Generator[None, None, None]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'None',
+        ),
+        (
+            'Generator[int, None, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+        ),
         (
             'AsyncGenerator[int, None, str]',
-            True,
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
             False,
             'AsyncGenerator[int, None, str]',
         ),
-        ('Generator[bool, None, str]', True, False, 'bool'),
-        ('Generator["MyClass", None, str]', True, False, 'MyClass'),
-        ('Generator[Dict[str, int]]', True, False, 'Dict[str, int]'),
+        (
+            'Generator[bool, None, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'bool',
+        ),
+        (
+            'Generator["MyClass", None, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'MyClass',
+        ),
+        (
+            'Generator[Dict[str, int]]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'Dict[str, int]',
+        ),
         (
             'Generator[Union[str, int], None, str]',
-            True,
+            GeneratorAnnotationKind.GENERATOR,
             False,
             'Union[str, int]',
         ),
         (
             'Generator[str | int | float | bool | "MyClass", None, str]',
-            True,
+            GeneratorAnnotationKind.GENERATOR,
             False,
             'str | int | float | bool | MyClass',
         ),
         (
             'Generator[Literal["a", "b", "c"], None, str]',
-            True,
+            GeneratorAnnotationKind.GENERATOR,
             False,
             "Literal['a', 'b', 'c']",
         ),
         (
             'Generator[\n    Literal["a",\n"b",\n\t\n\n"c"], None, str]',
-            True,
+            GeneratorAnnotationKind.GENERATOR,
             False,
             "Literal['a', 'b', 'c']",
         ),
-        ('Iterator', False, True, 'Iterator'),
-        ('AsyncIterator', False, True, 'AsyncIterator'),
-        ('Iterable', False, True, 'Iterable'),
-        ('AsyncIterable', False, True, 'AsyncIterable'),
-        ('Iterator[None]', False, True, 'None'),
-        ('Iterator[int]', False, True, 'int'),
-        ('AsyncIterator[int]', False, True, 'int'),
-        ('Iterable[int]', False, True, 'int'),
-        ('AsyncIterable[int]', False, True, 'int'),
-        ('Iterator[int, str]', False, True, '(int, str)'),
-        ('Iterable[int, str]', False, True, '(int, str)'),
-        ('AsyncIterator[int, str]', False, True, '(int, str)'),
-        ('AsyncIterable[int, str]', False, True, '(int, str)'),
-        ('Iterator[bool]', False, True, 'bool'),
-        ('Iterator["MyClass"]', False, True, 'MyClass'),
+        ('Iterator', None, True, 'Iterator'),
+        ('AsyncIterator', None, True, 'AsyncIterator'),
+        ('Iterable', None, True, 'Iterable'),
+        ('AsyncIterable', None, True, 'AsyncIterable'),
+        ('Iterator[None]', None, True, 'None'),
+        ('Iterator[int]', None, True, 'int'),
+        ('AsyncIterator[int]', None, True, 'int'),
+        ('Iterable[int]', None, True, 'int'),
+        ('AsyncIterable[int]', None, True, 'int'),
+        ('Iterator[int, str]', None, True, '(int, str)'),
+        ('Iterable[int, str]', None, True, '(int, str)'),
+        ('AsyncIterator[int, str]', None, True, '(int, str)'),
+        ('AsyncIterable[int, str]', None, True, '(int, str)'),
+        ('Iterator[bool]', None, True, 'bool'),
+        ('Iterator["MyClass"]', None, True, 'MyClass'),
         (
             'Iterator[Union[str, int]]',
-            False,
+            None,
             True,
             'Union[str, int]',
         ),
         (
             'Iterator[str | int | float | bool | "MyClass"]',
-            False,
+            None,
             True,
             'str | int | float | bool | MyClass',
         ),
         (
             'Iterator[Literal["a", "b", "c"]]',
-            False,
+            None,
             True,
             "Literal['a', 'b', 'c']",
         ),
         (
             'Iterator[\n    Literal["a",\n"b",\n\t\n\n"c"]]',
-            False,
+            None,
             True,
             "Literal['a', 'b', 'c']",
         ),
@@ -124,7 +175,7 @@ if TYPE_CHECKING:
 )
 def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText: str,
-        hasGen: bool,
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
         hasIter: bool,
         expected: str,
 ) -> None:
@@ -138,64 +189,98 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
     """
     extracted = extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText=returnAnnoText,
-        hasGeneratorAsReturnAnnotation=hasGen,
+        generatorAnnotationKind=generatorAnnotationKind,
         hasIteratorOrIterableAsReturnAnnotation=hasIter,
-        hasAsyncGeneratorAsReturnAnnotation=(
-            returnAnnoText.startswith('AsyncGenerator')
-        ),
     )
     assert extracted == expected
 
 
 @pytest.mark.parametrize(
-    ('returnAnnoText', 'expected'),
+    ('returnAnnoText', 'generatorAnnotationKind', 'expected'),
     [
-        ('Generator', 'Generator'),
-        ('Generator[int]', 'None'),
-        ('Generator[int, str]', 'None'),
-        ('Generator[int, str, bool]', 'bool'),
-        ('AsyncGenerator[int]', 'None'),
-        ('AsyncGenerator[int, str]', 'None'),
+        ('Generator', GeneratorAnnotationKind.GENERATOR, 'Generator'),
+        ('Generator[int]', GeneratorAnnotationKind.GENERATOR, 'None'),
+        ('Generator[int, str]', GeneratorAnnotationKind.GENERATOR, 'None'),
+        (
+            'Generator[int, str, bool]',
+            GeneratorAnnotationKind.GENERATOR,
+            'bool',
+        ),
+        (
+            'AsyncGenerator[int]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            'None',
+        ),
+        (
+            'AsyncGenerator[int, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            'None',
+        ),
         (  # 4 Generator args are malformed; keep full annotation.
             'Generator[int, str, bool, bytes]',
+            GeneratorAnnotationKind.GENERATOR,
             'Generator[int, str, bool, bytes]',
         ),
         (  # 3 AsyncGenerator args are malformed; keep full annotation.
             'AsyncGenerator[int, str, bool]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
             'AsyncGenerator[int, str, bool]',
         ),
         (  # 4 AsyncGenerator args are malformed; keep full annotation.
             'AsyncGenerator[int, str, bool, bytes]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
             'AsyncGenerator[int, str, bool, bytes]',
         ),
-        ('Generator[Dict[str, int]]', 'None'),
-        ('Generator[int, None, str]', 'str'),
+        (
+            'Generator[Dict[str, int]]',
+            GeneratorAnnotationKind.GENERATOR,
+            'None',
+        ),
+        (
+            'Generator[int, None, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            'str',
+        ),
         (
             'AsyncGenerator[int, None, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
             'AsyncGenerator[int, None, str]',
         ),
-        ('Generator[bool, None, float]', 'float'),
-        ('Generator[None, None, "MyClass"]', 'MyClass'),
+        (
+            'Generator[bool, None, float]',
+            GeneratorAnnotationKind.GENERATOR,
+            'float',
+        ),
+        (
+            'Generator[None, None, "MyClass"]',
+            GeneratorAnnotationKind.GENERATOR,
+            'MyClass',
+        ),
         (
             'Generator[None, str, Union[str, int]]',
+            GeneratorAnnotationKind.GENERATOR,
             'Union[str, int]',
         ),
         (
             'Generator[str, None, str | int | float | bool | "MyClass"]',
+            GeneratorAnnotationKind.GENERATOR,
             'str | int | float | bool | MyClass',
         ),
         (
             'Generator[None, str, Literal["a", "b", "c"]]',
+            GeneratorAnnotationKind.GENERATOR,
             "Literal['a', 'b', 'c']",
         ),
         (
             'Generator[None, str, \n    Literal["a",\n"b",\n\t\n\n"c"]]',
+            GeneratorAnnotationKind.GENERATOR,
             "Literal['a', 'b', 'c']",
         ),
     ],
 )
 def testExtractReturnTypeFromGenerator(
         returnAnnoText: str,
+        generatorAnnotationKind: GeneratorAnnotationKind,
         expected: str,
 ) -> None:
     """
@@ -208,9 +293,7 @@ def testExtractReturnTypeFromGenerator(
     """
     extracted = extractReturnTypeFromGenerator(
         returnAnnoText,
-        hasAsyncGeneratorAsReturnAnnotation=(
-            returnAnnoText.startswith('AsyncGenerator')
-        ),
+        generatorAnnotationKind=generatorAnnotationKind,
     )
     assert extracted == expected
 

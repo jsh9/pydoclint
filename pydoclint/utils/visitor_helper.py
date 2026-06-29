@@ -20,6 +20,7 @@ from pydoclint.utils.generic import (
     stripQuotes,
 )
 from pydoclint.utils.parse_docstring import parseDocstringInGivenStyle
+from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
 from pydoclint.utils.special_methods import checkIsPropertyMethod
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
@@ -768,9 +769,8 @@ def checkYieldTypesForViolations(
         violationList: list[Violation],
         yieldSection: list[YieldArg],
         violation: Violation,
-        hasGeneratorAsReturnAnnotation: bool,
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
         hasIteratorOrIterableAsReturnAnnotation: bool,
-        hasAsyncGeneratorAsReturnAnnotation: bool,
         requireYieldSectionWhenYieldingNothing: bool,
 ) -> None:
     """
@@ -793,14 +793,11 @@ def checkYieldTypesForViolations(
         The parsed docstring "Yields" section.
     violation : Violation
         The DOC404 violation object to append when yield types mismatch.
-    hasGeneratorAsReturnAnnotation : bool
-        Whether the original return annotation is a Generator or
-        AsyncGenerator.
+    generatorAnnotationKind : GeneratorAnnotationKind | None
+        The kind of Generator-like original return annotation, if present.
     hasIteratorOrIterableAsReturnAnnotation : bool
         Whether the original return annotation is an Iterator, Iterable,
         AsyncIterator, or AsyncIterable.
-    hasAsyncGeneratorAsReturnAnnotation : bool
-        Whether the original return annotation is an AsyncGenerator.
     requireYieldSectionWhenYieldingNothing : bool
         Whether a "Yields" section is required when the extracted yield type is
         None.
@@ -822,12 +819,9 @@ def checkYieldTypesForViolations(
     extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
     yieldType: str | None = extract(
         returnAnnoText=originalReturnAnnoText,
-        hasGeneratorAsReturnAnnotation=hasGeneratorAsReturnAnnotation,
+        generatorAnnotationKind=generatorAnnotationKind,
         hasIteratorOrIterableAsReturnAnnotation=(
             hasIteratorOrIterableAsReturnAnnotation
-        ),
-        hasAsyncGeneratorAsReturnAnnotation=(
-            hasAsyncGeneratorAsReturnAnnotation
         ),
     )
 
@@ -848,7 +842,7 @@ def checkYieldTypesForViolations(
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
     elif (
         (
-            hasGeneratorAsReturnAnnotation
+            generatorAnnotationKind is not None
             or hasIteratorOrIterableAsReturnAnnotation
         )
         and yieldType == 'None'
@@ -865,17 +859,15 @@ def checkYieldTypesForViolations(
 
 def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText: str | None,
-        hasGeneratorAsReturnAnnotation: bool,  # noqa: FBT001
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
         hasIteratorOrIterableAsReturnAnnotation: bool,  # noqa: FBT001
-        *,
-        hasAsyncGeneratorAsReturnAnnotation: bool = False,
 ) -> str | None:
     """
     Extract yield type from generator or iterator annotations.
 
-    The caller supplies the AsyncGenerator flag so this helper only chooses
-    arity rules; supported annotation spellings stay owned by the AST
-    annotation detectors.
+    The caller supplies the generator kind so this helper only chooses arity
+    rules; supported annotation spellings stay owned by the AST annotation
+    detectors.
     """
     #
     # "Yield type" is the 0th element in a Generator
@@ -886,12 +878,10 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     yieldType: str | None
 
     try:
-        if hasGeneratorAsReturnAnnotation:
+        if generatorAnnotationKind is not None:
             annotationArgs = _extractGeneratorOrAsyncGeneratorAnnotationArgs(
                 returnAnnoText,
-                hasAsyncGeneratorAsReturnAnnotation=(
-                    hasAsyncGeneratorAsReturnAnnotation
-                ),
+                generatorAnnotationKind=generatorAnnotationKind,
             )
             yieldType = unparseName(annotationArgs[0])
         elif hasIteratorOrIterableAsReturnAnnotation:
@@ -908,14 +898,14 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 def extractReturnTypeFromGenerator(
         returnAnnoText: str | None,
         *,
-        hasAsyncGeneratorAsReturnAnnotation: bool = False,
+        generatorAnnotationKind: GeneratorAnnotationKind,
 ) -> str | None:
     """
     Extract return type from Generator and AsyncGenerator annotations.
 
-    The caller supplies the AsyncGenerator flag so this helper does not
-    re-detect annotation kind from raw text. That keeps spelling support
-    centralized in the AST annotation detectors.
+    The caller supplies the generator kind so this helper does not re-detect
+    annotation kind from raw text. That keeps spelling support centralized in
+    the AST annotation detectors.
     """
     #
     # "Return type" is the 2nd element in a Generator type annotation
@@ -926,7 +916,7 @@ def extractReturnTypeFromGenerator(
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
-        if hasAsyncGeneratorAsReturnAnnotation:
+        if generatorAnnotationKind is GeneratorAnnotationKind.ASYNC_GENERATOR:
             _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
             returnType = 'None'
             return stripQuotes(returnType)
@@ -948,19 +938,17 @@ def extractReturnTypeFromGenerator(
 def _extractGeneratorOrAsyncGeneratorAnnotationArgs(
         returnAnnoText: str | None,
         *,
-        hasAsyncGeneratorAsReturnAnnotation: bool = False,
+        generatorAnnotationKind: GeneratorAnnotationKind,
 ) -> list[ast.expr]:
     """
-    Extract Generator or AsyncGenerator args only when its arity can be
-    interpreted.
+    Extract generator-like annotation args according to their detected kind.
 
-    Generator annotations can have 1-3 args, while AsyncGenerator annotations
-    can have 1-2 args.
-
-    The caller supplies AsyncGenerator status so this helper only applies arity
-    rules; it should not decide which annotation spellings are supported.
+    ``Generator`` annotations are interpretable with 1-3 args, while
+    ``AsyncGenerator`` annotations are interpretable with 1-2 args. The caller
+    supplies the kind so this helper only applies the correct arity rule; it
+    does not decide which annotation spellings are recognized.
     """
-    if hasAsyncGeneratorAsReturnAnnotation:
+    if generatorAnnotationKind is GeneratorAnnotationKind.ASYNC_GENERATOR:
         return _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
 
     return _extractGeneratorAnnotationSubscriptArgs(returnAnnoText)
