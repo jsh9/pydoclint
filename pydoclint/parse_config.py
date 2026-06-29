@@ -57,7 +57,7 @@ def injectDefaultOptionsFromUserSpecifiedTomlFilePath(
     logger.info('Loading config from user-specified .toml file: %s', value)
 
     # Only enforce when users explicitly specify a config file
-    assert param.name is not None  # so that mypy is happy
+    assert param.name is not None  # narrow type for static checkers
     enforcePydoclintSection = (
         ctx.get_parameter_source(param.name) == ParameterSource.COMMANDLINE
     )

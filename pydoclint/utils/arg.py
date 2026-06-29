@@ -93,7 +93,7 @@ class Arg:
         """Construct an Arg object from a Python AST argument object"""
         anno: ast.expr | None = astArg.annotation
         typeHint: str | None = '' if anno is None else unparseName(anno)
-        assert typeHint is not None  # to help mypy better understand type
+        assert typeHint is not None  # narrow type for static checkers
         return Arg(name=astArg.arg, typeHint=typeHint)
 
     @classmethod
@@ -105,7 +105,7 @@ class Arg:
         """Construct an Arg object from AST argument with its default value"""
         anno: ast.expr | None = astArg.annotation
         typeHint: str | None = '' if anno is None else unparseName(anno)
-        assert typeHint is not None  # to help mypy better understand type
+        assert typeHint is not None  # narrow type for static checkers
 
         if astArg in argToDefaultMapping:
             # This means there IS a default value, even if it's None
@@ -140,7 +140,7 @@ class Arg:
         unparsedArgName = unparseName(astAnnAssign.target)
         unparsedTypeHint = unparseName(astAnnAssign.annotation)
 
-        # These assertions are to help mypy better interpret types
+        # These assertions narrow types for static checkers
         assert unparsedArgName is not None
         assert unparsedTypeHint is not None
 
@@ -298,7 +298,7 @@ class ArgList:
     ) -> None:
         try:  # we may not know all potential cases, so we use try/catch
             unparsedTarget: str | None = unparseName(target)
-            assert unparsedTarget is not None  # to help mypy understand type
+            assert unparsedTarget is not None  # narrow type for static checkers
             infoList.append(Arg(name=unparsedTarget, typeHint=''))
         except Exception as ex:
             lineRange: str = (

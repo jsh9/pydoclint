@@ -195,14 +195,14 @@ def _getRaisedExceptions(
                     if isinstance(child.exc, ast.Attribute):
                         # case: looks like m.n.exception
                         exceptionName = unparseName(child.exc)
-                        assert isinstance(exceptionName, str)  # satisfy mypy
+                        assert isinstance(exceptionName, str)
                         yield exceptionName
                     elif isinstance(child.exc, ast.Call) and isinstance(
                         child.exc.func, ast.Attribute
                     ):
                         # case: looks like m.n.exception()
                         exceptionName = unparseName(child.exc.func)
-                        assert isinstance(exceptionName, str)  # satisfy mypy
+                        assert isinstance(exceptionName, str)
                         yield exceptionName
                     elif (
                         currentParentExceptHandler
@@ -243,7 +243,7 @@ def _extractExceptionsFromExcept(
     if isinstance(node.type, ast.Attribute):
         # case: looks like m.n.exception
         exceptionName = unparseName(node.type)
-        assert isinstance(exceptionName, str)  # to make mypy happy
+        assert isinstance(exceptionName, str)
         yield exceptionName
 
     if isinstance(node.type, ast.Tuple):
@@ -251,7 +251,7 @@ def _extractExceptionsFromExcept(
             if isinstance(elt, ast.Attribute):
                 # case: looks like m.n.exception
                 exceptionName = unparseName(elt)
-                assert isinstance(exceptionName, str)  # to make mypy happy
+                assert isinstance(exceptionName, str)
                 yield exceptionName
             elif isinstance(elt, ast.Name):
                 yield elt.id

@@ -42,7 +42,7 @@ class ReturnAnnotation:
             When the annotation string has strange values
         """
         if self._isTuple():
-            assert self.annotation is not None  # to help mypy understand type
+            assert self.annotation is not None  # narrow type for static checkers
 
             if not self.annotation.endswith(']'):
                 raise EdgeCaseError('Return annotation not ending with `]`')
@@ -78,7 +78,7 @@ class ReturnAnnotation:
 
     def _isTuple(self) -> bool:
         try:
-            assert self.annotation is not None  # to help mypy understand type
+            assert self.annotation is not None  # narrow type for static checkers
             parsedBody0 = ast.parse(self.annotation).body[0]
             if not isinstance(parsedBody0, ast.Expr):
                 return False
