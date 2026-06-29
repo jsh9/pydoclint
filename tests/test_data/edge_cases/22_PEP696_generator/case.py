@@ -55,3 +55,18 @@ def setup_custom_logger2(caplog: pytest.LogCaptureFixture) -> Generator[None, No
     caplog.handler.setFormatter(logging.Formatter(format_copy))
     # Reset logger class
     logging.setLoggerClass(logging.Logger)
+
+
+def yield_5() -> Generator[int]:
+    """
+    Test issue #279's single-argument Generator regression.
+
+    Expected: the documented yield type is compared with int, not with the
+    whole Generator annotation, so this fixture should not report DOC404.
+
+    Yields
+    ------
+    int
+        5.
+    """
+    yield 5

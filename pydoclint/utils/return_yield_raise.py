@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+from enum import Enum, auto
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -16,6 +17,13 @@ ExprType = type[ast.expr]
 YieldAndYieldFromTypes = tuple[type[ast.Yield], type[ast.YieldFrom]]
 FuncOrAsyncFuncTypes = tuple[type[ast.FunctionDef], type[ast.AsyncFunctionDef]]
 FuncOrAsyncFunc = (ast.FunctionDef, ast.AsyncFunctionDef)
+
+
+class GeneratorAnnotationKind(Enum):
+    """Supported generator-like return annotation kinds."""
+
+    GENERATOR = auto()
+    ASYNC_GENERATOR = auto()
 
 
 def hasReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
@@ -43,13 +51,28 @@ def isReturnAnnotationNoReturn(node: FuncOrAsyncFuncDef) -> bool:
 
 def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has a 'Generator' return annotation"""
+    return getGeneratorAnnotationKind(node) is not None
+
+
+def getGeneratorAnnotationKind(
+        node: FuncOrAsyncFuncDef,
+) -> GeneratorAnnotationKind | None:
+    """Return the generator-like annotation kind for ``node`` if present."""
     if node.returns is None:
-        return False
+        return None
 
     returnAnno: str | None = unparseName(node.returns)
-    return returnAnno in {'Generator', 'AsyncGenerator'} or stringStartsWith(
-        returnAnno, ('Generator[', 'AsyncGenerator[')
-    )
+    if returnAnno == 'AsyncGenerator' or stringStartsWith(
+        returnAnno, ('AsyncGenerator[',)
+    ):
+        return GeneratorAnnotationKind.ASYNC_GENERATOR
+
+    if returnAnno == 'Generator' or stringStartsWith(
+        returnAnno, ('Generator[',)
+    ):
+        return GeneratorAnnotationKind.GENERATOR
+
+    return None
 
 
 def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:

@@ -5,6 +5,8 @@ import pytest
 from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
+    GeneratorAnnotationKind,
+    getGeneratorAnnotationKind,
     getRaisedExceptions,
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
@@ -234,6 +236,50 @@ def testHasReturnStatements_nestedFunction() -> None:
     }
 
     assert result == expected
+
+
+@pytest.mark.parametrize(
+    ('src', 'expected'),
+    [
+        ('def func():\n  pass', None),
+        (
+            'def func() -> Generator:\n  pass',
+            GeneratorAnnotationKind.GENERATOR,
+        ),
+        (
+            'def func() -> Generator[int, None, int]:\n  pass',
+            GeneratorAnnotationKind.GENERATOR,
+        ),
+        (
+            'def func() -> AsyncGenerator:\n  pass',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+        ),
+        (
+            'def func() -> AsyncGenerator[int]:\n  pass',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+        ),
+        (
+            'def func() -> AsyncGenerator[int, str]:\n  pass',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+        ),
+        (
+            'def func() -> AsyncGenerator[int, str, bool]:\n  pass',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+        ),
+        # Only bare generator annotations are recognized by design.
+        ('def func() -> typing.Generator[int]:\n  pass', None),
+        ('def func() -> typing.AsyncGenerator[int]:\n  pass', None),
+    ],
+)
+def testGetGeneratorAnnotationKind(
+        src: str,
+        expected: GeneratorAnnotationKind | None,
+) -> None:
+    """Verify generator annotation detection returns one explicit kind."""
+    tree = ast.parse(src)
+    assert len(tree.body) == 1  # sanity check
+    assert isinstance(tree.body[0], (ast.FunctionDef, ast.AsyncFunctionDef))
+    assert getGeneratorAnnotationKind(tree.body[0]) is expected
 
 
 @pytest.mark.parametrize(

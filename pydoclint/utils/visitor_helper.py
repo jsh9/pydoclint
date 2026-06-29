@@ -20,6 +20,7 @@ from pydoclint.utils.generic import (
     stripQuotes,
 )
 from pydoclint.utils.parse_docstring import parseDocstringInGivenStyle
+from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
 from pydoclint.utils.special_methods import checkIsPropertyMethod
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.violation import Violation
@@ -29,6 +30,9 @@ SPHINX_MSG_POSTFIX: str = (
     ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
     ' on how to correctly document class attributes.)'
 )
+GENERATOR_RETURN_TYPE_ARG_INDEX: int = 2
+GENERATOR_MAX_ARG_COUNT: int = GENERATOR_RETURN_TYPE_ARG_INDEX + 1
+ASYNC_GENERATOR_MAX_ARG_COUNT: int = 2
 
 
 def checkClassAttributesAgainstClassDocstring(
@@ -765,7 +769,7 @@ def checkYieldTypesForViolations(
         violationList: list[Violation],
         yieldSection: list[YieldArg],
         violation: Violation,
-        hasGeneratorAsReturnAnnotation: bool,
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
         hasIteratorOrIterableAsReturnAnnotation: bool,
         requireYieldSectionWhenYieldingNothing: bool,
 ) -> None:
@@ -789,9 +793,8 @@ def checkYieldTypesForViolations(
         The parsed docstring "Yields" section.
     violation : Violation
         The DOC404 violation object to append when yield types mismatch.
-    hasGeneratorAsReturnAnnotation : bool
-        Whether the original return annotation is a Generator or
-        AsyncGenerator.
+    generatorAnnotationKind : GeneratorAnnotationKind | None
+        The kind of Generator-like original return annotation, if present.
     hasIteratorOrIterableAsReturnAnnotation : bool
         Whether the original return annotation is an Iterator, Iterable,
         AsyncIterator, or AsyncIterable.
@@ -815,9 +818,11 @@ def checkYieldTypesForViolations(
 
     extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
     yieldType: str | None = extract(
-        originalReturnAnnoText,
-        hasGeneratorAsReturnAnnotation,
-        hasIteratorOrIterableAsReturnAnnotation,
+        returnAnnoText=originalReturnAnnoText,
+        generatorAnnotationKind=generatorAnnotationKind,
+        hasIteratorOrIterableAsReturnAnnotation=(
+            hasIteratorOrIterableAsReturnAnnotation
+        ),
     )
 
     if len(yieldSection) > 0:
@@ -837,7 +842,7 @@ def checkYieldTypesForViolations(
             violationList.append(violation.appendMoreMsg(moreMsg=msg))
     elif (
         (
-            hasGeneratorAsReturnAnnotation
+            generatorAnnotationKind is not None
             or hasIteratorOrIterableAsReturnAnnotation
         )
         and yieldType == 'None'
@@ -854,10 +859,16 @@ def checkYieldTypesForViolations(
 
 def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText: str | None,
-        hasGeneratorAsReturnAnnotation: bool,  # noqa: FBT001
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
         hasIteratorOrIterableAsReturnAnnotation: bool,  # noqa: FBT001
 ) -> str | None:
-    """Extract yield type from Generator or Iterator annotations"""
+    """
+    Extract yield type from generator or iterator annotations.
+
+    The caller supplies the generator kind so this helper only chooses arity
+    rules; supported annotation spellings stay owned by the AST annotation
+    detectors.
+    """
     #
     # "Yield type" is the 0th element in a Generator
     # type annotation (Generator[YieldType, SendType,
@@ -867,47 +878,145 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     yieldType: str | None
 
     try:
-        if hasGeneratorAsReturnAnnotation:
-            if isinstance(
-                ast.parse(returnAnnoText).body[0].value.slice,  # type:ignore[attr-defined,arg-type]
-                ast.Constant,
-            ):
-                # This means returnAnnoText is something like "Generator[None]"
-                yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
-                )
-            else:
-                yieldType = unparseName(
-                    ast.parse(returnAnnoText).body[0].value.slice.elts[0]  # type:ignore[attr-defined,arg-type]
-                )
-        elif hasIteratorOrIterableAsReturnAnnotation:
-            yieldType = unparseName(
-                ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type]
+        if generatorAnnotationKind is not None:
+            annotationArgs = _extractGeneratorOrAsyncGeneratorAnnotationArgs(
+                returnAnnoText,
+                generatorAnnotationKind=generatorAnnotationKind,
             )
+            yieldType = unparseName(annotationArgs[0])
+        elif hasIteratorOrIterableAsReturnAnnotation:
+            annotationSlice = _extractAnnotationSubscriptSlice(returnAnnoText)
+            yieldType = unparseName(annotationSlice)
         else:
             yieldType = returnAnnoText
-    except (AttributeError, TypeError, IndexError):
+    except (AttributeError, TypeError, IndexError, ValueError):
         yieldType = returnAnnoText
 
     return stripQuotes(yieldType)
 
 
-def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
-    """Extract return type from Generator annotations"""
+def getReturnTypeToDocument(
+        returnAnnotation: ReturnAnnotation,
+        *,
+        generatorAnnotationKind: GeneratorAnnotationKind | None,
+) -> str | None:
+    """
+    Return the annotation type that a Returns section should document.
+
+    Generator-like annotations document their generator return type, while
+    Iterator and Iterable annotations keep the original annotation because they
+    do not have Generator's omitted return-type slot.
+    """
+    if generatorAnnotationKind is None:
+        return returnAnnotation.annotation
+
+    return extractReturnTypeFromGeneratorAnnotation(
+        returnAnnoText=returnAnnotation.annotation,
+        generatorAnnotationKind=generatorAnnotationKind,
+    )
+
+
+def extractReturnTypeFromGeneratorAnnotation(
+        returnAnnoText: str | None,
+        *,
+        generatorAnnotationKind: GeneratorAnnotationKind,
+) -> str | None:
+    """
+    Extract return type from Generator and AsyncGenerator annotations.
+
+    The caller supplies the generator kind so this helper does not re-detect
+    annotation kind from raw text. That keeps spelling support centralized in
+    the AST annotation detectors.
+    """
     #
-    # "Return type" is the last element in a Generator
-    # type annotation (Generator[YieldType, SendType,
-    # ReturnType])
+    # "Return type" is the 2nd element in a Generator type annotation
+    # (Generator[YieldType, SendType, ReturnType]). Per PEP 696, it defaults
+    # to None when only yield type or yield+send type are provided.
+    # AsyncGenerator has no return type argument, so its return type is always
+    # None when its arity can be interpreted.
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
-        returnType = unparseName(
-            ast.parse(returnAnnoText).body[0].value.slice.elts[-1]  # type:ignore[attr-defined,arg-type]
+        if generatorAnnotationKind is GeneratorAnnotationKind.ASYNC_GENERATOR:
+            _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
+            returnType = 'None'
+            return stripQuotes(returnType)
+
+        generatorArgs = _extractGeneratorAnnotationSubscriptArgs(
+            returnAnnoText
         )
-    except (AttributeError, TypeError, IndexError):
+        if len(generatorArgs) <= GENERATOR_RETURN_TYPE_ARG_INDEX:
+            returnType = 'None'
+        else:
+            returnArg = generatorArgs[GENERATOR_RETURN_TYPE_ARG_INDEX]
+            returnType = unparseName(returnArg)
+    except (AttributeError, TypeError, IndexError, ValueError):
         returnType = returnAnnoText
 
     return stripQuotes(returnType)
+
+
+def _extractGeneratorOrAsyncGeneratorAnnotationArgs(
+        returnAnnoText: str | None,
+        *,
+        generatorAnnotationKind: GeneratorAnnotationKind,
+) -> list[ast.expr]:
+    """
+    Extract generator-like annotation args according to their detected kind.
+
+    ``Generator`` annotations are interpretable with 1-3 args, while
+    ``AsyncGenerator`` annotations are interpretable with 1-2 args. The caller
+    supplies the kind so this helper only applies the correct arity rule; it
+    does not decide which annotation spellings are recognized.
+    """
+    if generatorAnnotationKind is GeneratorAnnotationKind.ASYNC_GENERATOR:
+        return _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
+
+    return _extractGeneratorAnnotationSubscriptArgs(returnAnnoText)
+
+
+def _extractGeneratorAnnotationSubscriptArgs(
+        returnAnnoText: str | None,
+) -> list[ast.expr]:
+    """
+    Extract Generator args only when its arity can be interpreted (i.e., 1-3
+    args).
+    """
+    annotationArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+    if 1 <= len(annotationArgs) <= GENERATOR_MAX_ARG_COUNT:
+        return annotationArgs
+
+    raise ValueError('Generator annotations must have 1 to 3 arguments')
+
+
+def _extractAsyncGeneratorAnnotationSubscriptArgs(
+        returnAnnoText: str | None,
+) -> list[ast.expr]:
+    """
+    Extract AsyncGenerator args only when its arity can be interpreted (i.e.,
+    1-2 args).
+    """
+    annotationArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+    if 1 <= len(annotationArgs) <= ASYNC_GENERATOR_MAX_ARG_COUNT:
+        return annotationArgs
+
+    raise ValueError('AsyncGenerator annotations must have 1 to 2 arguments')
+
+
+def _extractAnnotationSubscriptArgs(
+        returnAnnoText: str | None,
+) -> list[ast.expr]:
+    """Return the arguments supplied inside a subscript annotation."""
+    annotationSlice = _extractAnnotationSubscriptSlice(returnAnnoText)
+    if isinstance(annotationSlice, ast.Tuple):
+        return list(annotationSlice.elts)
+
+    return [annotationSlice]
+
+
+def _extractAnnotationSubscriptSlice(returnAnnoText: str | None) -> ast.expr:
+    """Return the slice inside a subscript annotation."""
+    return ast.parse(returnAnnoText).body[0].value.slice  # type:ignore[attr-defined,arg-type,no-any-return]
 
 
 def addMismatchedRaisesExceptionViolation(

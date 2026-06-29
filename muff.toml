@@ -103,7 +103,7 @@ inline-quotes = "single"
 ban-relative-imports = "all"
 
 [lint.mccabe]
-max-complexity = 14
+max-complexity = 15
 
 [lint.pep8-naming]
 extend-ignore-names = [

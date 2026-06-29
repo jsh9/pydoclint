@@ -32,6 +32,7 @@ from pydoclint.utils.parse_docstring import (
 )
 from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_yield_raise import (
+    getGeneratorAnnotationKind,
     getRaisedExceptions,
     hasAssertStatements,
     hasBareReturnStatements,
@@ -58,8 +59,9 @@ from pydoclint.utils.visitor_helper import (
     checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs,
     checkReturnTypesForViolations,
     checkYieldTypesForViolations,
-    extractReturnTypeFromGenerator,
+    extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
+    getReturnTypeToDocument,
 )
 
 
@@ -796,7 +798,8 @@ class Visitor(ast.NodeVisitor):
         docstringHasYieldsSection: bool = doc.hasYieldsSection
 
         hasYieldStmt: bool = hasYieldStatements(node)
-        hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        generatorAnnotationKind = getGeneratorAnnotationKind(node)
+        hasGenAsRetAnno: bool = generatorAnnotationKind is not None
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
         noGenNorIterAsRetAnno = not hasGenAsRetAnno and not hasIterAsRetAnno
 
@@ -811,7 +814,7 @@ class Visitor(ast.NodeVisitor):
             extract = extractYieldTypeFromGeneratorOrIteratorAnnotation
             yieldType: str | None = extract(
                 returnAnnoText=returnAnno.annotation,
-                hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                generatorAnnotationKind=generatorAnnotationKind,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
             )
             if hasYieldStmt:
@@ -842,7 +845,7 @@ class Visitor(ast.NodeVisitor):
                 violationList=violations,
                 yieldSection=yieldSec,
                 violation=v404,
-                hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                generatorAnnotationKind=generatorAnnotationKind,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
                 requireYieldSectionWhenYieldingNothing=(
                     self.requireYieldSectionWhenYieldingNothing
@@ -901,7 +904,8 @@ class Visitor(ast.NodeVisitor):
         docstringHasReturnSection: bool = doc.hasReturnsSection
         docstringHasYieldsSection: bool = doc.hasYieldsSection
 
-        hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        generatorAnnotationKind = getGeneratorAnnotationKind(node)
+        hasGenAsRetAnno: bool = generatorAnnotationKind is not None
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
 
         hasReturnStmt: bool = hasReturnStatements(node)
@@ -923,30 +927,31 @@ class Visitor(ast.NodeVisitor):
             if doc.isShortDocstring and self.skipCheckingShortDocstrings:
                 pass
             elif (
-                # fmt: off
                 not (onlyHasYieldStmt and hasIterAsRetAnno)
                 and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
                 # If the return statement in the function body is a bare
                 # return, we don't throw DOC201 or DOC405. See more at:
                 # https://github.com/jsh9/pydoclint/issues/126#issuecomment-2136497913
                 and not hasBareReturnStmt
-                # fmt: on
             ):
-                retTypeInGenerator = extractReturnTypeFromGenerator(
-                    returnAnnoText=returnAnno.annotation,
+                returnTypeToDocument = getReturnTypeToDocument(
+                    returnAnnotation=returnAnno,
+                    generatorAnnotationKind=generatorAnnotationKind,
                 )
+
                 # If "Generator[...]" is put in the return type annotation,
                 # we don't need a "Returns" section in the docstring.
                 # Instead, we need a "Yields" section.
                 if (
                     self.requireReturnSectionWhenReturningNothing
-                    or retTypeInGenerator not in {'None', 'NoReturn'}
+                    or returnTypeToDocument not in {'None', 'NoReturn'}
                 ):
                     violations.append(v201)
         elif self.checkReturnTypes:
-            if hasGenAsRetAnno:
-                retTypeInGenerator = extractReturnTypeFromGenerator(
+            if generatorAnnotationKind is not None:
+                retTypeInGenerator = extractReturnTypeFromGeneratorAnnotation(
                     returnAnnoText=returnAnno.annotation,
+                    generatorAnnotationKind=generatorAnnotationKind,
                 )
                 checkReturnTypesForViolations(
                     style=self.style,
@@ -974,7 +979,7 @@ class Visitor(ast.NodeVisitor):
                     violationList=violations,
                     yieldSection=yieldSec,
                     violation=v404,
-                    hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
+                    generatorAnnotationKind=generatorAnnotationKind,
                     hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
                     requireYieldSectionWhenYieldingNothing=(
                         self.requireYieldSectionWhenYieldingNothing
