@@ -26,11 +26,19 @@ if TYPE_CHECKING:
         ('Generator[int]', True, False, 'int'),
         ('Generator[int, str]', True, False, 'int'),
         ('Generator[int, str, bool]', True, False, 'int'),
+        ('AsyncGenerator[int]', True, False, 'int'),
+        ('AsyncGenerator[int, str]', True, False, 'int'),
         (  # 4 Generator args are malformed; keep full annotation.
             'Generator[int, str, bool, bytes]',
             True,
             False,
             'Generator[int, str, bool, bytes]',
+        ),
+        (  # 3 AsyncGenerator args are malformed; keep full annotation.
+            'AsyncGenerator[int, str, bool]',
+            True,
+            False,
+            'AsyncGenerator[int, str, bool]',
         ),
         (  # 4 AsyncGenerator args are malformed; keep full annotation.
             'AsyncGenerator[int, str, bool, bytes]',
@@ -40,7 +48,12 @@ if TYPE_CHECKING:
         ),
         ('Generator[None, None, None]', True, False, 'None'),
         ('Generator[int, None, str]', True, False, 'int'),
-        ('AsyncGenerator[int, None, str]', True, False, 'int'),
+        (
+            'AsyncGenerator[int, None, str]',
+            True,
+            False,
+            'AsyncGenerator[int, None, str]',
+        ),
         ('Generator[bool, None, str]', True, False, 'bool'),
         ('Generator["MyClass", None, str]', True, False, 'MyClass'),
         ('Generator[Dict[str, int]]', True, False, 'Dict[str, int]'),
@@ -136,9 +149,15 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
         ('Generator[int]', 'None'),
         ('Generator[int, str]', 'None'),
         ('Generator[int, str, bool]', 'bool'),
+        ('AsyncGenerator[int]', 'None'),
+        ('AsyncGenerator[int, str]', 'None'),
         (  # 4 Generator args are malformed; keep full annotation.
             'Generator[int, str, bool, bytes]',
             'Generator[int, str, bool, bytes]',
+        ),
+        (  # 3 AsyncGenerator args are malformed; keep full annotation.
+            'AsyncGenerator[int, str, bool]',
+            'AsyncGenerator[int, str, bool]',
         ),
         (  # 4 AsyncGenerator args are malformed; keep full annotation.
             'AsyncGenerator[int, str, bool, bytes]',
@@ -146,7 +165,10 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
         ),
         ('Generator[Dict[str, int]]', 'None'),
         ('Generator[int, None, str]', 'str'),
-        ('AsyncGenerator[int, None, str]', 'str'),
+        (
+            'AsyncGenerator[int, None, str]',
+            'AsyncGenerator[int, None, str]',
+        ),
         ('Generator[bool, None, float]', 'float'),
         ('Generator[None, None, "MyClass"]', 'MyClass'),
         (

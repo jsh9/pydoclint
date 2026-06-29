@@ -31,6 +31,7 @@ SPHINX_MSG_POSTFIX: str = (
 )
 GENERATOR_RETURN_TYPE_ARG_INDEX: int = 2
 GENERATOR_MAX_ARG_COUNT: int = GENERATOR_RETURN_TYPE_ARG_INDEX + 1
+ASYNC_GENERATOR_MAX_ARG_COUNT: int = 2
 
 
 def checkClassAttributesAgainstClassDocstring(
@@ -859,7 +860,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
         hasGeneratorAsReturnAnnotation: bool,  # noqa: FBT001
         hasIteratorOrIterableAsReturnAnnotation: bool,  # noqa: FBT001
 ) -> str | None:
-    """Extract yield type from Generator or Iterator annotations"""
+    """Extract yield type from generator or iterator annotations"""
     #
     # "Yield type" is the 0th element in a Generator
     # type annotation (Generator[YieldType, SendType,
@@ -870,7 +871,7 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 
     try:
         if hasGeneratorAsReturnAnnotation:
-            annotationArgs = _extractGeneratorAnnotationSubscriptArgs(
+            annotationArgs = _extractGeneratorOrAsyncGeneratorAnnotationArgs(
                 returnAnnoText
             )
             yieldType = unparseName(annotationArgs[0])
@@ -886,14 +887,21 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
 
 
 def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
-    """Extract return type from Generator annotations"""
+    """Extract return type from Generator and AsyncGenerator annotations"""
     #
     # "Return type" is the 2nd element in a Generator type annotation
     # (Generator[YieldType, SendType, ReturnType]). Per PEP 696, it defaults
     # to None when only yield type or yield+send type are provided.
+    # AsyncGenerator has no return type argument, so its return type is always
+    # None when its arity can be interpreted.
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
     try:
+        if _isAsyncGeneratorAnnotation(returnAnnoText):
+            _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
+            returnType = 'None'
+            return stripQuotes(returnType)
+
         generatorArgs = _extractGeneratorAnnotationSubscriptArgs(
             returnAnnoText
         )
@@ -908,6 +916,22 @@ def extractReturnTypeFromGenerator(returnAnnoText: str | None) -> str | None:
     return stripQuotes(returnType)
 
 
+def _extractGeneratorOrAsyncGeneratorAnnotationArgs(
+        returnAnnoText: str | None,
+) -> list[ast.expr]:
+    """
+    Extract Generator or AsyncGenerator args only when its arity can be
+    interpreted.
+
+    Generator annotations can have 1-3 args, while AsyncGenerator annotations
+    can have 1-2 args.
+    """
+    if _isAsyncGeneratorAnnotation(returnAnnoText):
+        return _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
+
+    return _extractGeneratorAnnotationSubscriptArgs(returnAnnoText)
+
+
 def _extractGeneratorAnnotationSubscriptArgs(
         returnAnnoText: str | None,
 ) -> list[ast.expr]:
@@ -920,6 +944,27 @@ def _extractGeneratorAnnotationSubscriptArgs(
         return annotationArgs
 
     raise ValueError('Generator annotations must have 1 to 3 arguments')
+
+
+def _extractAsyncGeneratorAnnotationSubscriptArgs(
+        returnAnnoText: str | None,
+) -> list[ast.expr]:
+    """
+    Extract AsyncGenerator args only when its arity can be interpreted (i.e.,
+    1-2 args).
+    """
+    annotationArgs = _extractAnnotationSubscriptArgs(returnAnnoText)
+    if 1 <= len(annotationArgs) <= ASYNC_GENERATOR_MAX_ARG_COUNT:
+        return annotationArgs
+
+    raise ValueError('AsyncGenerator annotations must have 1 to 2 arguments')
+
+
+def _isAsyncGeneratorAnnotation(returnAnnoText: str | None) -> bool:
+    return returnAnnoText == 'AsyncGenerator' or (
+        returnAnnoText is not None
+        and returnAnnoText.startswith('AsyncGenerator[')
+    )
 
 
 def _extractAnnotationSubscriptArgs(
