@@ -52,6 +52,24 @@ def hasGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     )
 
 
+def hasAsyncGeneratorAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
+    """
+    Check whether the node has a bare ``AsyncGenerator`` annotation.
+
+    The broader Generator detector also treats AsyncGenerator as
+    generator-like. This narrower detector lets parser helpers apply
+    AsyncGenerator arity rules without deciding which annotation spellings are
+    supported.
+    """
+    if node.returns is None:
+        return False
+
+    returnAnno: str | None = unparseName(node.returns)
+    return returnAnno == 'AsyncGenerator' or stringStartsWith(
+        returnAnno, ('AsyncGenerator[',)
+    )
+
+
 def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     """
     Check whether ``node`` has a 'Iterator' or 'Iterable' return annotation

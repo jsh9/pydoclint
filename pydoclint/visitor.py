@@ -34,6 +34,7 @@ from pydoclint.utils.return_anno import ReturnAnnotation
 from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
     hasAssertStatements,
+    hasAsyncGeneratorAsReturnAnnotation,
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
     hasIteratorOrIterableAsReturnAnnotation,
@@ -797,6 +798,7 @@ class Visitor(ast.NodeVisitor):
 
         hasYieldStmt: bool = hasYieldStatements(node)
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        hasAsyncGenAsRetAnno: bool = hasAsyncGeneratorAsReturnAnnotation(node)
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
         noGenNorIterAsRetAnno = not hasGenAsRetAnno and not hasIterAsRetAnno
 
@@ -813,6 +815,7 @@ class Visitor(ast.NodeVisitor):
                 returnAnnoText=returnAnno.annotation,
                 hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                hasAsyncGeneratorAsReturnAnnotation=hasAsyncGenAsRetAnno,
             )
             if hasYieldStmt:
                 if (
@@ -844,6 +847,7 @@ class Visitor(ast.NodeVisitor):
                 violation=v404,
                 hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                 hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                hasAsyncGeneratorAsReturnAnnotation=hasAsyncGenAsRetAnno,
                 requireYieldSectionWhenYieldingNothing=(
                     self.requireYieldSectionWhenYieldingNothing
                 ),
@@ -902,6 +906,7 @@ class Visitor(ast.NodeVisitor):
         docstringHasYieldsSection: bool = doc.hasYieldsSection
 
         hasGenAsRetAnno: bool = hasGeneratorAsReturnAnnotation(node)
+        hasAsyncGenAsRetAnno: bool = hasAsyncGeneratorAsReturnAnnotation(node)
         hasIterAsRetAnno: bool = hasIteratorOrIterableAsReturnAnnotation(node)
 
         hasReturnStmt: bool = hasReturnStatements(node)
@@ -941,6 +946,9 @@ class Visitor(ast.NodeVisitor):
                     # because only Generator has return-type args
                     returnTypeToDocument = extractReturnTypeFromGenerator(
                         returnAnnoText=returnAnno.annotation,
+                        hasAsyncGeneratorAsReturnAnnotation=(
+                            hasAsyncGenAsRetAnno
+                        ),
                     )
                 else:
                     # Iterator/Iterable annotations do not have Generator's
@@ -960,6 +968,7 @@ class Visitor(ast.NodeVisitor):
             if hasGenAsRetAnno:
                 retTypeInGenerator = extractReturnTypeFromGenerator(
                     returnAnnoText=returnAnno.annotation,
+                    hasAsyncGeneratorAsReturnAnnotation=hasAsyncGenAsRetAnno,
                 )
                 checkReturnTypesForViolations(
                     style=self.style,
@@ -989,6 +998,7 @@ class Visitor(ast.NodeVisitor):
                     violation=v404,
                     hasGeneratorAsReturnAnnotation=hasGenAsRetAnno,
                     hasIteratorOrIterableAsReturnAnnotation=hasIterAsRetAnno,
+                    hasAsyncGeneratorAsReturnAnnotation=hasAsyncGenAsRetAnno,
                     requireYieldSectionWhenYieldingNothing=(
                         self.requireYieldSectionWhenYieldingNothing
                     ),

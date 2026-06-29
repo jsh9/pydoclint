@@ -132,12 +132,17 @@ def testExtractYieldTypeFromGeneratorOrIteratorAnnotation(
     Verify yield extraction for Generator, Iterator, and Iterable.
 
     The abbreviated Generator cases guard against DOC404 regressions where the
-    whole annotation is compared with the docstring yield type.
+    whole annotation is compared with the docstring yield type. AsyncGenerator
+    cases pass the kind flag explicitly because the production visitor owns
+    annotation-kind detection.
     """
     extracted = extractYieldTypeFromGeneratorOrIteratorAnnotation(
         returnAnnoText=returnAnnoText,
         hasGeneratorAsReturnAnnotation=hasGen,
         hasIteratorOrIterableAsReturnAnnotation=hasIter,
+        hasAsyncGeneratorAsReturnAnnotation=(
+            returnAnnoText.startswith('AsyncGenerator')
+        ),
     )
     assert extracted == expected
 
@@ -198,8 +203,15 @@ def testExtractReturnTypeFromGenerator(
 
     The two-argument case is necessary because its second arg is SendType, not
     ReturnType, so pydoclint must compare returns against the default None.
+    AsyncGenerator cases pass the kind flag explicitly so return extraction
+    does not infer annotation kind from raw strings.
     """
-    extracted = extractReturnTypeFromGenerator(returnAnnoText)
+    extracted = extractReturnTypeFromGenerator(
+        returnAnnoText,
+        hasAsyncGeneratorAsReturnAnnotation=(
+            returnAnnoText.startswith('AsyncGenerator')
+        ),
+    )
     assert extracted == expected
 
 
