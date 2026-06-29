@@ -30,7 +30,7 @@ this repository.
 
 ### 2.2. Code Quality
 
-- `mypy pydoclint/` - Type checking
+- `tox -e ty310,ty311,ty312,ty313` - Type checking
 - `muff format --diff --config=muff.toml pydoclint tests` - Format checking
   (use `--diff` to avoid accidental formatting)
 - `flake8 .` - Basic linting
@@ -39,7 +39,8 @@ this repository.
 
 ### 2.3. Specialized Tox Commands
 
-- `tox -e mypy` - Type checking only
+- `tox -e ty310,ty311,ty312,ty313` - Type checking only
+- `tox -e ty312` - Type checking for a single Python target version
 - `tox -e muff` - Format checking only
 - `tox -e check-self` - Run pydoclint on itself
 - `tox -e flake8-basic` - Basic flake8 checks
