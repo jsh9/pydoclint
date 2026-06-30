@@ -880,19 +880,28 @@ def extractYieldTypeFromGeneratorOrIteratorAnnotation(
     # Or it's the 0th (only) element in Iterator
     yieldType: str | None
 
-    try:
-        if generatorAnnotationKind is not None:
-            annotationArgs = _extractGeneratorOrAsyncGeneratorAnnotationArgs(
-                returnAnnoText,
-                generatorAnnotationKind=generatorAnnotationKind,
+    # Keep each annotation family in its own try so malformed annotations fall
+    # back to the original text without hiding normal branch logic.
+    if generatorAnnotationKind is not None:
+        try:
+            annotationArgs: list[ast.expr] = (
+                _extractGeneratorOrAsyncGeneratorAnnotationArgs(
+                    returnAnnoText,
+                    generatorAnnotationKind=generatorAnnotationKind,
+                )
             )
             yieldType = unparseName(annotationArgs[0])
-        elif hasIteratorOrIterableAsReturnAnnotation:
-            annotationSlice = _extractAnnotationSubscriptSlice(returnAnnoText)
-            yieldType = unparseName(annotationSlice)
-        else:
+        except (AttributeError, TypeError, IndexError, ValueError):
             yieldType = returnAnnoText
-    except (AttributeError, TypeError, IndexError, ValueError):
+    elif hasIteratorOrIterableAsReturnAnnotation:
+        try:
+            annotationSlice: ast.expr = _extractAnnotationSubscriptSlice(
+                returnAnnoText
+            )
+            yieldType = unparseName(annotationSlice)
+        except (AttributeError, TypeError, IndexError, ValueError):
+            yieldType = returnAnnoText
+    else:
         yieldType = returnAnnoText
 
     return stripQuotes(yieldType)
@@ -939,20 +948,30 @@ def extractReturnTypeFromGeneratorAnnotation(
     # None when its arity can be interpreted.
     # https://docs.python.org/3/library/typing.html#typing.Generator
     returnType: str | None
-    try:
-        if generatorAnnotationKind is GeneratorAnnotationKind.ASYNC_GENERATOR:
-            _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
-            returnType = 'None'
-            return stripQuotes(returnType)
 
+    # AsyncGenerator has no ReturnType slot; successful arity validation means
+    # the documented return type is None.
+    if generatorAnnotationKind is GeneratorAnnotationKind.ASYNC_GENERATOR:
+        try:
+            _extractAsyncGeneratorAnnotationSubscriptArgs(returnAnnoText)
+        except (AttributeError, TypeError, IndexError, ValueError):
+            returnType = returnAnnoText
+        else:
+            returnType = 'None'
+
+        return stripQuotes(returnType)
+
+    try:
+        generatorArgs: list[ast.expr]
         generatorArgs = _extractGeneratorAnnotationSubscriptArgs(
             returnAnnoText
         )
-        if len(generatorArgs) <= GENERATOR_RETURN_TYPE_ARG_INDEX:
-            returnType = 'None'
-        else:
-            returnArg = generatorArgs[GENERATOR_RETURN_TYPE_ARG_INDEX]
-            returnType = unparseName(returnArg)
+        # Abbreviated Generator annotations default ReturnType to None.
+        returnType = (
+            'None'
+            if len(generatorArgs) <= GENERATOR_RETURN_TYPE_ARG_INDEX
+            else unparseName(generatorArgs[GENERATOR_RETURN_TYPE_ARG_INDEX])
+        )
     except (AttributeError, TypeError, IndexError, ValueError):
         returnType = returnAnnoText
 
