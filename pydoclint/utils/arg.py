@@ -164,13 +164,12 @@ class Arg:
         For NumPy params and attrs, ``docstring_parser_fork`` exposes
         ``raw_type_name`` as the declaration type segment before the parser
         normalizes metadata into ``type_name`` and ``default``. For example,
-        ``arg : int, default=1`` has ``raw_type_name`` of
-        ``"int, default=1"``, ``type_name`` of ``"int"``, and ``default`` of
-        ``"1"``.
+        ``arg : int, default=1`` has ``raw_type_name`` of ``"int, default=1"``,
+        ``type_name`` of ``"int"``, and ``default`` of ``"1"``.
 
-        pydoclint keeps using the raw text so docstring defaults remain part
-        of ``Arg.typeHint`` for existing DOC105/DOC605 comparisons. Fall back
-        to ``type_name`` for parser outputs without ``raw_type_name``.
+        pydoclint keeps using the raw text so docstring defaults remain part of
+        ``Arg.typeHint`` for existing DOC105/DOC605 comparisons. Fall back to
+        ``type_name`` for parser outputs without ``raw_type_name``.
         """
         rawTypeName = getattr(docstringArg, 'raw_type_name', None)
         if rawTypeName is not None:
