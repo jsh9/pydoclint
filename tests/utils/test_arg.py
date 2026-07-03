@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+from docstring_parser.common import DocstringAttr, DocstringParam
 
 from pydoclint.utils.arg import Arg, ArgList
 
@@ -8,6 +9,76 @@ from pydoclint.utils.arg import Arg, ArgList
 def testArg_initializationCheck() -> None:
     with pytest.raises(ValueError, match='`name` cannot be an empty string'):
         Arg(name='', typeHint='int')
+
+
+@pytest.mark.parametrize(
+    ('param', 'expected'),
+    [
+        (
+            DocstringParam(
+                args=['param', 'arg1'],
+                description='Description',
+                arg_name='arg1',
+                type_name='int',
+                is_optional=True,
+                default='1',
+                raw_type_name='int, default=1',
+            ),
+            Arg(name='arg1', typeHint='int, default=1'),
+        ),
+        (
+            DocstringParam(
+                args=['param', 'arg1'],
+                description='Description',
+                arg_name='arg1',
+                type_name='int',
+                is_optional=False,
+                default=None,
+            ),
+            Arg(name='arg1', typeHint='int'),
+        ),
+    ],
+)
+def testArg_fromDocstringParam(
+        param: DocstringParam,
+        expected: Arg,
+) -> None:
+    assert Arg.fromDocstringParam(param) == expected
+
+
+@pytest.mark.parametrize(
+    ('attr', 'expected'),
+    [
+        (
+            DocstringAttr(
+                args=['attribute', 'attr1'],
+                description='Description',
+                arg_name='attr1',
+                type_name='bool',
+                is_optional=True,
+                default='False',
+                raw_type_name='bool, default: False',
+            ),
+            Arg(name='attr1', typeHint='bool, default: False'),
+        ),
+        (
+            DocstringAttr(
+                args=['attribute', 'attr1'],
+                description='Description',
+                arg_name='attr1',
+                type_name='bool',
+                is_optional=False,
+                default=None,
+            ),
+            Arg(name='attr1', typeHint='bool'),
+        ),
+    ],
+)
+def testArg_fromDocstringAttr(
+        attr: DocstringAttr,
+        expected: Arg,
+) -> None:
+    assert Arg.fromDocstringAttr(attr) == expected
 
 
 @pytest.mark.parametrize(

@@ -81,12 +81,18 @@ class Arg:
     @classmethod
     def fromDocstringParam(cls, param: DocstringParam) -> Arg:
         """Construct an Arg object from a DocstringParam object"""
-        return Arg(name=param.arg_name, typeHint=cls._str(param.type_name))
+        return Arg(
+            name=param.arg_name,
+            typeHint=cls._getRawTypeNameFromDocstringArg(param),
+        )
 
     @classmethod
     def fromDocstringAttr(cls, attr: DocstringAttr) -> Arg:
         """Construct an Arg object from a DocstringAttr object"""
-        return Arg(name=attr.arg_name, typeHint=cls._str(attr.type_name))
+        return Arg(
+            name=attr.arg_name,
+            typeHint=cls._getRawTypeNameFromDocstringArg(attr),
+        )
 
     @classmethod
     def fromAstArg(cls, astArg: ast.arg) -> Arg:
@@ -149,6 +155,15 @@ class Arg:
     @classmethod
     def _str(cls, typeName: str | None) -> str:
         return '' if typeName is None else typeName
+
+    @classmethod
+    def _getRawTypeNameFromDocstringArg(cls, docstringArg: Any) -> str:
+        """Return parser-preserved raw type name, falling back to type name."""
+        rawTypeName = getattr(docstringArg, 'raw_type_name', None)
+        if rawTypeName is not None:
+            return cls._str(rawTypeName)
+
+        return cls._str(docstringArg.type_name)
 
     @classmethod
     def _typeHintsEq(cls, hint1: str, hint2: str) -> bool:
