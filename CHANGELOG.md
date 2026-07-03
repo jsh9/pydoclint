@@ -2,11 +2,22 @@
 
 ## Unreleased
 
+## [0.9.1] - 2026-07-03
+
+- Fixed
+  - Restored numpy docstring default checking with
+    `docstring_parser_fork==0.0.16`, which preserves raw parameter and
+    attribute type declarations while still exposing normalized type/default
+    fields
 - Changed
   - Replaced tox type checking from `mypy` with `ty` and fixed the surfaced
     typing issues with explicit type narrowing
+  - Run the `tox -e pydoclint` self-check against the local package instead of
+    the latest published pydoclint release
   - Updated Muff tooling to `0.15.20` and added a pre-commit hook to keep the
     tox Muff pins in sync with the `muff-pre-commit` revision
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.9.0...0.9.1
 
 ## [0.9.0] - 2026-06-29
 

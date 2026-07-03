@@ -1,6 +1,7 @@
 from typing import Any
 
 import pytest
+from docstring_parser.common import DocstringAttr, DocstringParam
 
 from pydoclint.utils.arg import Arg, ArgList
 
@@ -8,6 +9,168 @@ from pydoclint.utils.arg import Arg, ArgList
 def testArg_initializationCheck() -> None:
     with pytest.raises(ValueError, match='`name` cannot be an empty string'):
         Arg(name='', typeHint='int')
+
+
+@pytest.mark.parametrize(
+    ('param', 'expected'),
+    [
+        pytest.param(
+            DocstringParam(
+                args=['param', 'arg1'],
+                description='Description',
+                arg_name='arg1',
+                type_name='int',
+                is_optional=True,
+                default='1',
+                raw_type_name='int, default=1',
+            ),
+            Arg(name='arg1', typeHint='int, default=1'),
+            id='param-prefers-raw-type-name',
+        ),
+        pytest.param(
+            DocstringParam(
+                args=['param', 'arg1'],
+                description='Description',
+                arg_name='arg1',
+                type_name='int',
+                is_optional=False,
+                default=None,
+            ),
+            Arg(name='arg1', typeHint='int'),
+            id='param-falls-back-to-type-name',
+        ),
+    ],
+)
+def testArg_fromDocstringParam(
+        param: DocstringParam,
+        expected: Arg,
+) -> None:
+    """Test preserving raw docstring param types when available."""
+    assert Arg.fromDocstringParam(param) == expected
+
+
+@pytest.mark.parametrize(
+    ('attr', 'expected'),
+    [
+        pytest.param(
+            DocstringAttr(
+                args=['attribute', 'attr1'],
+                description='Description',
+                arg_name='attr1',
+                type_name='bool',
+                is_optional=True,
+                default='False',
+                raw_type_name='bool, default: False',
+            ),
+            Arg(name='attr1', typeHint='bool, default: False'),
+            id='attr-prefers-raw-type-name',
+        ),
+        pytest.param(
+            DocstringAttr(
+                args=['attribute', 'attr1'],
+                description='Description',
+                arg_name='attr1',
+                type_name='bool',
+                is_optional=False,
+                default=None,
+            ),
+            Arg(name='attr1', typeHint='bool'),
+            id='attr-falls-back-to-type-name',
+        ),
+    ],
+)
+def testArg_fromDocstringAttr(
+        attr: DocstringAttr,
+        expected: Arg,
+) -> None:
+    """Test preserving raw docstring attr types when available."""
+    assert Arg.fromDocstringAttr(attr) == expected
+
+
+@pytest.mark.parametrize(
+    ('docstringArg', 'expected'),
+    [
+        pytest.param(
+            DocstringParam(
+                args=['param', 'arg1'],
+                description='Description',
+                arg_name='arg1',
+                type_name='int',
+                is_optional=True,
+                default='1',
+                raw_type_name='int, default=1',
+            ),
+            'int, default=1',
+            id='param-raw-type-name',
+        ),
+        pytest.param(
+            DocstringParam(
+                args=['param', 'arg1'],
+                description='Description',
+                arg_name='arg1',
+                type_name='int',
+                is_optional=False,
+                default=None,
+            ),
+            'int',
+            id='param-type-name-fallback',
+        ),
+        pytest.param(
+            DocstringParam(
+                args=['param', 'arg_without_type'],
+                description='Description',
+                arg_name='arg_without_type',
+                type_name=None,
+                is_optional=None,
+                default=None,
+            ),
+            '',
+            id='param-without-type',
+        ),
+        pytest.param(
+            DocstringAttr(
+                args=['attribute', 'attr1'],
+                description='Description',
+                arg_name='attr1',
+                type_name='bool',
+                is_optional=True,
+                default='False',
+                raw_type_name='bool, default: False',
+            ),
+            'bool, default: False',
+            id='attr-raw-type-name',
+        ),
+        pytest.param(
+            DocstringAttr(
+                args=['attribute', 'attr1'],
+                description='Description',
+                arg_name='attr1',
+                type_name='bool',
+                is_optional=False,
+                default=None,
+            ),
+            'bool',
+            id='attr-type-name-fallback',
+        ),
+        pytest.param(
+            DocstringAttr(
+                args=['attribute', 'attr_without_type'],
+                description='Description',
+                arg_name='attr_without_type',
+                type_name=None,
+                is_optional=None,
+                default=None,
+            ),
+            '',
+            id='attr-without-type',
+        ),
+    ],
+)
+def testArg_getRawTypeNameFromDocstringArg(
+        docstringArg: DocstringParam | DocstringAttr,
+        expected: str,
+) -> None:
+    assert Arg._getRawTypeNameFromDocstringArg(docstringArg) == expected
 
 
 @pytest.mark.parametrize(

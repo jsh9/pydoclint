@@ -81,12 +81,18 @@ class Arg:
     @classmethod
     def fromDocstringParam(cls, param: DocstringParam) -> Arg:
         """Construct an Arg object from a DocstringParam object"""
-        return Arg(name=param.arg_name, typeHint=cls._str(param.type_name))
+        return Arg(
+            name=param.arg_name,
+            typeHint=cls._getRawTypeNameFromDocstringArg(param),
+        )
 
     @classmethod
     def fromDocstringAttr(cls, attr: DocstringAttr) -> Arg:
         """Construct an Arg object from a DocstringAttr object"""
-        return Arg(name=attr.arg_name, typeHint=cls._str(attr.type_name))
+        return Arg(
+            name=attr.arg_name,
+            typeHint=cls._getRawTypeNameFromDocstringArg(attr),
+        )
 
     @classmethod
     def fromAstArg(cls, astArg: ast.arg) -> Arg:
@@ -149,6 +155,27 @@ class Arg:
     @classmethod
     def _str(cls, typeName: str | None) -> str:
         return '' if typeName is None else typeName
+
+    @classmethod
+    def _getRawTypeNameFromDocstringArg(cls, docstringArg: Any) -> str:
+        """
+        Return parser-preserved docstring type text when available.
+
+        For NumPy params and attrs, ``docstring_parser_fork`` exposes
+        ``raw_type_name`` as the declaration type segment before the parser
+        normalizes metadata into ``type_name`` and ``default``. For example,
+        ``arg : int, default=1`` has ``raw_type_name`` of ``"int, default=1"``,
+        ``type_name`` of ``"int"``, and ``default`` of ``"1"``.
+
+        pydoclint keeps using the raw text so docstring defaults remain part of
+        ``Arg.typeHint`` for existing DOC105/DOC605 comparisons. Fall back to
+        ``type_name`` for parser outputs without ``raw_type_name``.
+        """
+        rawTypeName = getattr(docstringArg, 'raw_type_name', None)
+        if rawTypeName is not None:
+            return cls._str(rawTypeName)
+
+        return cls._str(docstringArg.type_name)
 
     @classmethod
     def _typeHintsEq(cls, hint1: str, hint2: str) -> bool:
