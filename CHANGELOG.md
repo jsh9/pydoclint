@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Changed
+  - Moved the changelog full-diff pre-commit check into
+    `pre-commit-changelog-full-diff-check` and updated this repo to consume it
+    as an external hook
+
 ## [0.9.1] - 2026-07-03
 
 - Fixed
