@@ -110,7 +110,7 @@ class Doc:
 
     @property
     def returnSection(self) -> list[ReturnArg]:
-        """Get the return section of the docstring"""
+        """The return section of the docstring"""
         if isinstance(self.parsed, Docstring):  # Google, numpy, Sphinx styles
             returnSection: list[DocstringReturns] = self.parsed.many_returns
             return [
@@ -126,7 +126,7 @@ class Doc:
 
     @property
     def yieldSection(self) -> list[YieldArg]:
-        """Get the yield section of the docstring"""
+        """The yield section of the docstring"""
         if isinstance(self.parsed, Docstring):  # Google, numpy, Sphinx styles
             yieldSection: list[DocstringYields] = self.parsed.many_yields
             return [

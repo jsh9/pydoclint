@@ -5,6 +5,8 @@
 - Changed
   - Replaced tox type checking from `mypy` with `ty` and fixed the surfaced
     typing issues with explicit type narrowing
+  - Updated Muff tooling to `0.15.20` and added a pre-commit hook to keep the
+    tox Muff pins in sync with the `muff-pre-commit` revision
 
 ## [0.9.0] - 2026-06-29
 

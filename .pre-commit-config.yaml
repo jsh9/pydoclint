@@ -17,7 +17,7 @@ repos:
         exclude: ^tests/helpers\.py$
       - id: check-merge-conflict
   - repo: https://github.com/jsh9/muff-pre-commit
-    rev: 0.14.11
+    rev: 0.15.20
     hooks:
       - id: muff-format
         args: [--config, muff.toml]
@@ -68,7 +68,7 @@ repos:
       - id: markdown-toc-creator
         exclude: ^AGENTS\.md$|^CHANGELOG\.md$
   - repo: https://github.com/jsh9/format-docstring
-    rev: 0.2.7
+    rev: 0.4.0
     hooks:
       - id: format-docstring
         name: Format docstrings in .py files
@@ -81,6 +81,19 @@ repos:
     hooks:
       - id: blank-line-after-blocks
         args: [--exclude, r"tests/test_data|_generated\.py$"]
+  - repo: https://github.com/jsh9/pre-commit-tox-version-sync
+    rev: 0.1.1
+    hooks:
+      - id: sync-precommit-tox-versions
+        args:
+          - --pre-commit-repo
+          - https://github.com/jsh9/muff-pre-commit
+          - --tox-env
+          - muff-lint
+          - --tox-env
+          - muff-format
+          - --tox-dep
+          - muff
   - repo: local
     hooks:
       - id: copy_readme

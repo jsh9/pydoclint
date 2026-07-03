@@ -48,7 +48,7 @@ def testBaselineCreation(baselineFile: Path, style: str) -> None:
     assert baselineRegenerationNeeded is False
     assert all(
         len(violations) == 0
-        for filename, violations in remainingViolationsInAllFiles.items()
+        for violations in remainingViolationsInAllFiles.values()
     )
     assert len(unfixedBaselineViolationsInAllFiles) == 35
 
