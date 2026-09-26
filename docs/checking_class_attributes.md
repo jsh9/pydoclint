@@ -29,6 +29,23 @@ Oftentimes we'd like to also document them in docstrings and have _pydoclint_
 check them. It is controlled by the `--check-class-attributes` option (see
 <https://jsh9.github.io/pydoclint/config_options.html>)
 
+Private names and underscore-only placeholder names are controlled
+independently for function arguments and class attributes:
+
+| Name kind      | Function argument option        | Class attribute option                      |
+| -------------- | ------------------------------- | ------------------------------------------- |
+| `_value`       | `--ignore-private-args`         | `--ignore-private-class-attributes`         |
+| `_`, `__`, ... | `--ignore-underscore-only-args` | `--ignore-underscore-only-class-attributes` |
+
+For example, `_: dataclasses.KW_ONLY` is an underscore-only placeholder. To
+ignore it while still requiring private attributes such as `_value` to be
+documented, use:
+
+```toml
+ignore-private-class-attributes = false
+ignore-underscore-only-class-attributes = true
+```
+
 However, none of the mainstream docstring styles (Google, numpy, or Sphinx)
 offers explicit guidelines on documenting class attributes. Therefore,
 _pydoclint_ adopts the following stance (i.e., how to write docstrings that

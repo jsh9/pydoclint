@@ -121,3 +121,65 @@ def testCliConfigMissingSectionRaisesError() -> None:
             'Config file "bad.toml" does not have a [tool.pydoclint] section.'
             in result.output
         )
+
+
+@pytest.mark.parametrize('source', ['cli', 'toml'])
+@pytest.mark.parametrize(
+    ('optionName', 'value', 'expectedMessage'),
+    [
+        (
+            'ignore-underscore-args',
+            True,
+            'The option `--ignore-underscore-args` no longer works; please use '
+            '`--ignore-underscore-only-args=True` instead',
+        ),
+        (
+            'ignore-underscore-args',
+            False,
+            'The option `--ignore-underscore-args` no longer works; please use '
+            '`--ignore-underscore-only-args=False` instead',
+        ),
+        (
+            'should-document-private-class-attributes',
+            True,
+            'The option `--should-document-private-class-attributes` no longer '
+            'works. To preserve its previous behavior, please use both '
+            '`--ignore-private-class-attributes=False` and '
+            '`--ignore-underscore-only-class-attributes=False` instead',
+        ),
+        (
+            'should-document-private-class-attributes',
+            False,
+            'The option `--should-document-private-class-attributes` no longer '
+            'works. To preserve its previous behavior, please use both '
+            '`--ignore-private-class-attributes=True` and '
+            '`--ignore-underscore-only-class-attributes=True` instead',
+        ),
+    ],
+)
+def testRemovedOptionsShowMigrationError(
+        source: str,
+        optionName: str,
+        value: bool,
+        expectedMessage: str,
+) -> None:
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        samplePath = _writeSamplePythonFile(Path())
+
+        if source == 'cli':
+            arguments = [
+                f'--{optionName}={value}',
+                str(samplePath),
+            ]
+        else:
+            configPath = Path('pyproject.toml')
+            configPath.write_text(
+                f'[tool.pydoclint]\n{optionName} = {str(value).lower()}\n',
+                encoding='utf-8',
+            )
+            arguments = [str(samplePath)]
+
+        result = runner.invoke(cli_main, arguments)
+        assert result.exit_code == 1
+        assert expectedMessage in result.output

@@ -453,3 +453,8 @@ def isPrivateName(name: str) -> bool:
     return name.startswith('_') and not (
         name.startswith('__') and name.endswith('__')
     )
+
+
+def isUnderscoreOnlyName(name: str) -> bool:
+    """Return whether ``name`` consists only of underscore characters."""
+    return bool(name) and set(name) == {'_'}

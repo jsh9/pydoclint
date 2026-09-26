@@ -98,12 +98,20 @@ from tests.test_main import DATA_DIR
         ),
         (
             '11_private_class_attr/google.py',
-            {'style': 'google', 'shouldDocumentPrivateClassAttributes': False},
+            {
+                'style': 'google',
+                'ignorePrivateClassAttributes': True,
+                'ignoreUnderscoreOnlyClassAttributes': True,
+            },
             [],
         ),
         (
             '11_private_class_attr/google.py',
-            {'style': 'google', 'shouldDocumentPrivateClassAttributes': True},
+            {
+                'style': 'google',
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': False,
+            },
             [
                 'DOC601: Class `MyClass`: Class docstring contains fewer class attributes '
                 'than actual class attributes.  (Please read '
@@ -124,7 +132,8 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': True,
-                'shouldDocumentPrivateClassAttributes': True,
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': False,
             },
             [],
         ),
@@ -134,7 +143,8 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': True,
-                'shouldDocumentPrivateClassAttributes': False,
+                'ignorePrivateClassAttributes': True,
+                'ignoreUnderscoreOnlyClassAttributes': True,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -156,7 +166,8 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': False,
-                'shouldDocumentPrivateClassAttributes': True,
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': False,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -178,7 +189,8 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': False,
-                'shouldDocumentPrivateClassAttributes': False,
+                'ignorePrivateClassAttributes': True,
+                'ignoreUnderscoreOnlyClassAttributes': True,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -445,7 +457,7 @@ from tests.test_main import DATA_DIR
             '25_underscore_and_private_args/cases.py',
             {
                 'style': 'google',
-                'ignoreUnderscoreArgs': False,
+                'ignoreUnderscoreOnlyArgs': False,
                 'argTypeHintsInDocstring': False,
             },
             [
@@ -462,7 +474,7 @@ from tests.test_main import DATA_DIR
             '25_underscore_and_private_args/cases.py',
             {
                 'style': 'google',
-                'ignoreUnderscoreArgs': False,
+                'ignoreUnderscoreOnlyArgs': False,
                 'ignorePrivateArgs': True,
                 'argTypeHintsInDocstring': False,
             },
@@ -705,6 +717,17 @@ from tests.test_main import DATA_DIR
                 'arg in Generator[...]/Iterator[...]): Dict[str, Any]; docstring '
                 '"yields" section types: str'
             ],
+        ),
+        (
+            '36_dataclass_kw_only/case.py',
+            {
+                'style': 'numpy',
+                'argTypeHintsInDocstring': False,
+                'checkClassAttributes': True,
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': True,
+            },
+            [],
         ),
     ],
 )

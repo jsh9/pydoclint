@@ -2,7 +2,15 @@
 
 ## Unreleased
 
+- Fixed
+  - Allowed underscore-only class attribute placeholders, such as
+    `_: dataclasses.KW_ONLY`, to be ignored independently of private class
+    attributes (#302)
 - Changed
+  - Replaced `--ignore-underscore-args` with `--ignore-underscore-only-args`
+  - Replaced `--should-document-private-class-attributes` with independent
+    `--ignore-private-class-attributes` and
+    `--ignore-underscore-only-class-attributes` options
   - Moved the changelog full-diff pre-commit check into
     `pre-commit-changelog-full-diff-check` and updated this repo to consume it
     as an external hook

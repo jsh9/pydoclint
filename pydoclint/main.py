@@ -17,6 +17,10 @@ from pydoclint.baseline import (
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
+from pydoclint.utils.config_option import (
+    getIgnoreUnderscoreArgsRemovedMessage,
+    getShouldDocumentPrivateClassAttributesRemovedMessage,
+)
 from pydoclint.utils.invisible_chars import replaceInvisibleChars
 from pydoclint.utils.noqa import (
     codeIsSuppressed,
@@ -225,13 +229,21 @@ def validateNativeModeNoqaLocation(
     '-iua',
     '--ignore-underscore-args',
     type=bool,
+    default=None,
+    help=(
+        '(Removed) Please use --ignore-underscore-only-args with the same'
+        ' value instead.'
+    ),
+)
+@click.option(
+    '-iuoa',
+    '--ignore-underscore-only-args',
+    type=bool,
     show_default=True,
     default=True,
     help=(
-        'If True, underscore arguments (such as _, __, ...) in the function'
-        ' signature do not need to appear in the docstring. Note: "underscore'
-        ' arguments" are not the same as "arguments with leading'
-        ' underscores" (such as `_a`).'
+        'If True, arguments whose names contain only underscores (such as _, '
+        '__, ...) do not need to appear in the docstring.'
     ),
 )
 @click.option(
@@ -261,12 +273,33 @@ def validateNativeModeNoqaLocation(
     '-sdpca',
     '--should-document-private-class-attributes',
     type=bool,
-    show_default=True,
-    default=False,
+    default=None,
     help=(
-        'If True, private class attributes (the ones starting with _)'
-        ' should be documented in the docstring. If False, private'
-        ' class attributes should not appear in the docstring.'
+        '(Removed) Please use --ignore-private-class-attributes and'
+        ' --ignore-underscore-only-class-attributes instead.'
+    ),
+)
+@click.option(
+    '-ipca',
+    '--ignore-private-class-attributes',
+    type=bool,
+    show_default=True,
+    default=True,
+    help=(
+        'If True, private class attributes (underscore-prefixed names that'
+        ' contain non-underscore characters) should not appear in the'
+        ' docstring.'
+    ),
+)
+@click.option(
+    '-iuoca',
+    '--ignore-underscore-only-class-attributes',
+    type=bool,
+    show_default=True,
+    default=True,
+    help=(
+        'If True, class attributes whose names contain only underscores'
+        ' (such as _, __, ...) should not appear in the docstring.'
     ),
 )
 @click.option(
@@ -481,10 +514,13 @@ def main(  # noqa: C901, PLR0915
         allow_init_docstring: bool,
         check_return_types: bool,
         check_yield_types: bool,
-        ignore_underscore_args: bool,
+        ignore_underscore_args: bool | None,
+        ignore_underscore_only_args: bool,
         ignore_private_args: bool,
         check_class_attributes: bool,
-        should_document_private_class_attributes: bool,
+        should_document_private_class_attributes: bool | None,
+        ignore_private_class_attributes: bool,
+        ignore_underscore_only_class_attributes: bool,
         treat_property_methods_as_class_attributes: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
@@ -506,6 +542,32 @@ def main(  # noqa: C901, PLR0915
     """Command-line entry point of pydoclint"""
     logging.basicConfig(level=logging.WARNING if quiet else logging.INFO)
     ctx.ensure_object(dict)
+
+    if ignore_underscore_args is not None:
+        click.echo(
+            click.style(
+                getIgnoreUnderscoreArgsRemovedMessage(
+                    value=ignore_underscore_args
+                ),
+                fg='red',
+                bold=True,
+            ),
+            err=echoAsError,
+        )
+        ctx.exit(1)
+
+    if should_document_private_class_attributes is not None:
+        click.echo(
+            click.style(
+                getShouldDocumentPrivateClassAttributesRemovedMessage(
+                    value=should_document_private_class_attributes
+                ),
+                fg='red',
+                bold=True,
+            ),
+            err=echoAsError,
+        )
+        ctx.exit(1)
 
     if type_hints_in_docstring != 'None':  # it means users supply this option
         click.echo(
@@ -591,11 +653,12 @@ def main(  # noqa: C901, PLR0915
         allowInitDocstring=allow_init_docstring,
         checkReturnTypes=check_return_types,
         checkYieldTypes=check_yield_types,
-        ignoreUnderscoreArgs=ignore_underscore_args,
+        ignoreUnderscoreOnlyArgs=ignore_underscore_only_args,
         ignorePrivateArgs=ignore_private_args,
         checkClassAttributes=check_class_attributes,
-        shouldDocumentPrivateClassAttributes=(
-            should_document_private_class_attributes
+        ignorePrivateClassAttributes=ignore_private_class_attributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignore_underscore_only_class_attributes
         ),
         treatPropertyMethodsAsClassAttributes=(
             treat_property_methods_as_class_attributes
@@ -755,10 +818,11 @@ def _checkPaths(
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
-        ignoreUnderscoreArgs: bool = True,
+        ignoreUnderscoreOnlyArgs: bool = True,
         ignorePrivateArgs: bool = False,
         checkClassAttributes: bool = True,
-        shouldDocumentPrivateClassAttributes: bool = False,
+        ignorePrivateClassAttributes: bool = True,
+        ignoreUnderscoreOnlyClassAttributes: bool = True,
         treatPropertyMethodsAsClassAttributes: bool = False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireInlineClassVarDocs: bool = False,
@@ -813,11 +877,12 @@ def _checkPaths(
             allowInitDocstring=allowInitDocstring,
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
-            ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+            ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
             ignorePrivateArgs=ignorePrivateArgs,
             checkClassAttributes=checkClassAttributes,
-            shouldDocumentPrivateClassAttributes=(
-                shouldDocumentPrivateClassAttributes
+            ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+            ignoreUnderscoreOnlyClassAttributes=(
+                ignoreUnderscoreOnlyClassAttributes
             ),
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
@@ -859,10 +924,11 @@ def _checkFile(
         allowInitDocstring: bool = False,
         checkReturnTypes: bool = True,
         checkYieldTypes: bool = True,
-        ignoreUnderscoreArgs: bool = True,
+        ignoreUnderscoreOnlyArgs: bool = True,
         ignorePrivateArgs: bool = False,
         checkClassAttributes: bool = True,
-        shouldDocumentPrivateClassAttributes: bool = False,
+        ignorePrivateClassAttributes: bool = True,
+        ignoreUnderscoreOnlyClassAttributes: bool = True,
         treatPropertyMethodsAsClassAttributes: bool = False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireInlineClassVarDocs: bool = False,
@@ -912,11 +978,12 @@ def _checkFile(
         allowInitDocstring=allowInitDocstring,
         checkReturnTypes=checkReturnTypes,
         checkYieldTypes=checkYieldTypes,
-        ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+        ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
         ignorePrivateArgs=ignorePrivateArgs,
         checkClassAttributes=checkClassAttributes,
-        shouldDocumentPrivateClassAttributes=(
-            shouldDocumentPrivateClassAttributes
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
         ),
         treatPropertyMethodsAsClassAttributes=(
             treatPropertyMethodsAsClassAttributes

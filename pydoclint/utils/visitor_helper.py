@@ -16,6 +16,7 @@ from pydoclint.utils.generic import (
     appendArgsToCheckToV105,
     buildClassAttrToDefaultMapping,
     getDocstring,
+    isUnderscoreOnlyName,
     specialEqual,
     stripQuotes,
 )
@@ -46,7 +47,8 @@ def checkClassAttributesAgainstClassDocstring(
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
         skipCheckingShortDocstrings: bool,
-        shouldDocumentPrivateClassAttributes: bool,
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         requireInlineClassVarDocs: bool,
@@ -75,8 +77,10 @@ def checkClassAttributesAgainstClassDocstring(
         Whether to include type hints in docstring.
     skipCheckingShortDocstrings : bool
         Whether to skip checking short docstrings.
-    shouldDocumentPrivateClassAttributes : bool
-        Whether to document private class attributes.
+    ignorePrivateClassAttributes : bool
+        Whether to ignore private class attributes.
+    ignoreUnderscoreOnlyClassAttributes : bool
+        Whether to ignore class attributes with underscore-only names.
     treatPropertyMethodsAsClassAttributes : bool
         Whether to treat property methods as class attributes.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
@@ -93,7 +97,10 @@ def checkClassAttributesAgainstClassDocstring(
     docuemntedAndClassArgs = getDocumentedAndActualClassArgLists(
         node=node,
         style=style,
-        shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
+        ),
         treatPropertyMethodsAsClassAttributes=treatPropertyMethodsAsClassAttributes,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
@@ -158,7 +165,8 @@ def getDocumentedAndActualClassArgLists(
         *,
         node: ast.ClassDef,
         style: str,
-        shouldDocumentPrivateClassAttributes: bool,
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         checkArgDefaults: bool,
@@ -176,8 +184,10 @@ def getDocumentedAndActualClassArgLists(
         The class definition node.
     style : str
         The docstring style.
-    shouldDocumentPrivateClassAttributes : bool
-        Whether to document private class attributes.
+    ignorePrivateClassAttributes : bool
+        Whether to ignore private class attributes.
+    ignoreUnderscoreOnlyClassAttributes : bool
+        Whether to ignore class attributes with underscore-only names.
     treatPropertyMethodsAsClassAttributes : bool
         Whether to treat property methods as class attributes.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
@@ -201,8 +211,9 @@ def getDocumentedAndActualClassArgLists(
     """
     actualArgs: ArgList = extractClassAttributesFromNode(
         node=node,
-        shouldDocumentPrivateClassAttributes=(
-            shouldDocumentPrivateClassAttributes
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
         ),
         treatPropertyMethodsAsClassAttrs=treatPropertyMethodsAsClassAttributes,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
@@ -256,7 +267,6 @@ def getDocumentedAndActualClassArgLists(
         node=node,
         docArgs=docArgs,
         actualArgs=actualArgs,
-        shouldDocumentPrivateClassAttributes=shouldDocumentPrivateClassAttributes,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         requireInlineClassVarDocs=requireInlineClassVarDocs,
         violations=violations,
@@ -270,7 +280,6 @@ def updateDocumentedArgListWithInlineDocstrings(
         node: ast.ClassDef,
         docArgs: ArgList,
         actualArgs: ArgList,
-        shouldDocumentPrivateClassAttributes: bool,
         argTypeHintsInDocstring: bool,
         requireInlineClassVarDocs: bool,
         violations: list[Violation],
@@ -290,9 +299,6 @@ def updateDocumentedArgListWithInlineDocstrings(
         The argument list parsed from the class docstring.
     actualArgs : ArgList
         The actual class attributes extracted from the class definition.
-    shouldDocumentPrivateClassAttributes : bool
-        Whether we should document private class attributes. If ``True``,
-        private class attributes will be included.
     argTypeHintsInDocstring : bool
         Whether argument type hints are expected to be in the docstring.
     requireInlineClassVarDocs : bool
@@ -335,14 +341,7 @@ def updateDocumentedArgListWithInlineDocstrings(
 
             # only add if the var is in the actualArgs and
             # not already in docArgs, otherwise, it is a violation
-            if (
-                arg is not None
-                and (
-                    shouldDocumentPrivateClassAttributes
-                    or not arg.name.startswith('_')
-                )
-                and actualArgs.contains(arg)
-            ):
+            if arg is not None and actualArgs.contains(arg):
                 if not requireInlineClassVarDocs:
                     violations.append(
                         Violation(
@@ -370,10 +369,24 @@ def updateDocumentedArgListWithInlineDocstrings(
         prev = element
 
 
+def shouldIgnoreClassAttributeName(
+        *,
+        name: str,
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
+) -> bool:
+    """Return whether a class attribute name should be ignored."""
+    if isUnderscoreOnlyName(name):
+        return ignoreUnderscoreOnlyClassAttributes
+
+    return ignorePrivateClassAttributes and name.startswith('_')
+
+
 def extractClassAttributesFromNode(
         *,
         node: ast.ClassDef,
-        shouldDocumentPrivateClassAttributes: bool,
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
         treatPropertyMethodsAsClassAttrs: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         checkArgDefaults: bool,
@@ -385,9 +398,10 @@ def extractClassAttributesFromNode(
     ----------
     node : ast.ClassDef
         The class definition
-    shouldDocumentPrivateClassAttributes : bool
-        Whether we should document private class attributes.  If ``True``,
-        private class attributes will be included in the return value.
+    ignorePrivateClassAttributes : bool
+        Whether to ignore private class attributes.
+    ignoreUnderscoreOnlyClassAttributes : bool
+        Whether to ignore class attributes with underscore-only names.
     treatPropertyMethodsAsClassAttrs : bool
         Whether we'd like to treat property methods as class attributes. If
         ``True``, property methods will be included in the return value.
@@ -437,8 +451,17 @@ def extractClassAttributesFromNode(
                     )
                 )
 
-    if not shouldDocumentPrivateClassAttributes:
-        atl = [_ for _ in atl if not _.name.startswith('_')]
+    atl = [
+        arg
+        for arg in atl
+        if not shouldIgnoreClassAttributeName(
+            name=arg.name,
+            ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+            ignoreUnderscoreOnlyClassAttributes=(
+                ignoreUnderscoreOnlyClassAttributes
+            ),
+        )
+    ]
 
     if onlyAttrsWithClassVarAreTreatedAsClassAttrs:
         atl = [

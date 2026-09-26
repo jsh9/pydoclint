@@ -24,6 +24,7 @@ from pydoclint.utils.generic import (
     getDocstring,
     isLastConstructor,
     isPrivateName,
+    isUnderscoreOnlyName,
 )
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.parse_docstring import (
@@ -81,10 +82,11 @@ class Visitor(ast.NodeVisitor):
             allowInitDocstring: bool = False,
             checkReturnTypes: bool = True,
             checkYieldTypes: bool = True,
-            ignoreUnderscoreArgs: bool = True,
+            ignoreUnderscoreOnlyArgs: bool = True,
             ignorePrivateArgs: bool = False,
             checkClassAttributes: bool = True,
-            shouldDocumentPrivateClassAttributes: bool = False,
+            ignorePrivateClassAttributes: bool = True,
+            ignoreUnderscoreOnlyClassAttributes: bool = True,
             treatPropertyMethodsAsClassAttributes: bool = False,
             onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
             requireInlineClassVarDocs: bool = False,
@@ -106,11 +108,12 @@ class Visitor(ast.NodeVisitor):
         self.allowInitDocstring: bool = allowInitDocstring
         self.checkReturnTypes: bool = checkReturnTypes
         self.checkYieldTypes: bool = checkYieldTypes
-        self.ignoreUnderscoreArgs: bool = ignoreUnderscoreArgs
+        self.ignoreUnderscoreOnlyArgs: bool = ignoreUnderscoreOnlyArgs
         self.ignorePrivateArgs: bool = ignorePrivateArgs
         self.checkClassAttributes: bool = checkClassAttributes
-        self.shouldDocumentPrivateClassAttributes: bool = (
-            shouldDocumentPrivateClassAttributes
+        self.ignorePrivateClassAttributes: bool = ignorePrivateClassAttributes
+        self.ignoreUnderscoreOnlyClassAttributes: bool = (
+            ignoreUnderscoreOnlyClassAttributes
         )
         self.treatPropertyMethodsAsClassAttributes: bool = (
             treatPropertyMethodsAsClassAttributes
@@ -162,8 +165,11 @@ class Visitor(ast.NodeVisitor):
                 argTypeHintsInSignature=self.argTypeHintsInSignature,
                 argTypeHintsInDocstring=self.argTypeHintsInDocstring,
                 skipCheckingShortDocstrings=self.skipCheckingShortDocstrings,
-                shouldDocumentPrivateClassAttributes=(
-                    self.shouldDocumentPrivateClassAttributes
+                ignorePrivateClassAttributes=(
+                    self.ignorePrivateClassAttributes
+                ),
+                ignoreUnderscoreOnlyClassAttributes=(
+                    self.ignoreUnderscoreOnlyClassAttributes
                 ),
                 treatPropertyMethodsAsClassAttributes=(
                     self.treatPropertyMethodsAsClassAttributes
@@ -561,13 +567,15 @@ class Visitor(ast.NodeVisitor):
         else:
             funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
-        if self.ignoreUnderscoreArgs:
+        if self.ignoreUnderscoreOnlyArgs:
             # Ignore underscore arguments (such as _, __, ___, ...).
             # This is because these arguments are only placeholders and do not
             # need to be explained in the docstring.  (This is often used in
             # functions that must accept a certain number of input arguments.)
             funcArgs = ArgList([
-                _ for _ in funcArgs.infoList if set(_.name) != {'_'}
+                _
+                for _ in funcArgs.infoList
+                if not isUnderscoreOnlyName(_.name)
             ])
 
         if self.ignorePrivateArgs:
@@ -576,7 +584,7 @@ class Visitor(ast.NodeVisitor):
             funcArgs = ArgList([
                 _
                 for _ in funcArgs.infoList
-                if not _.name.startswith('_') or set(_.name) == {'_'}
+                if not _.name.startswith('_') or isUnderscoreOnlyName(_.name)
             ])
 
         if not self.shouldDocumentStarArguments:

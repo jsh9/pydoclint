@@ -3,6 +3,10 @@ from __future__ import annotations
 import importlib.metadata as importlib_metadata
 from typing import TYPE_CHECKING, Any
 
+from pydoclint.utils.config_option import (
+    getIgnoreUnderscoreArgsRemovedMessage,
+    getShouldDocumentPrivateClassAttributesRemovedMessage,
+)
 from pydoclint.visitor import Visitor
 
 if TYPE_CHECKING:
@@ -182,13 +186,22 @@ class Plugin:
             '-iua',
             '--ignore-underscore-args',
             action='store',
+            default=None,
+            parse_from_config=True,
+            help=(
+                '(Removed) Please use --ignore-underscore-only-args with the'
+                ' same value instead.'
+            ),
+        )
+        parser.add_option(
+            '-iuoa',
+            '--ignore-underscore-only-args',
+            action='store',
             default='True',
             parse_from_config=True,
             help=(
-                'If True, underscore arguments (such as _, __, ...) in the'
-                ' function signature do not need to appear in the docstring.'
-                ' Note: "underscore arguments" are not the same as "arguments'
-                ' with leading underscores" (such as `_a`).'
+                'If True, arguments whose names contain only underscores '
+                '(such as _, __, ...) do not need to appear in the docstring.'
             ),
         )
         parser.add_option(
@@ -218,12 +231,35 @@ class Plugin:
             '-sdpca',
             '--should-document-private-class-attributes',
             action='store',
-            default='False',
+            default=None,
             parse_from_config=True,
             help=(
-                'If True, private class attributes (the ones starting with _)'
-                ' should be documented in the docstring. If False, private'
-                ' class attributes should not appear in the docstring.'
+                '(Removed) Please use --ignore-private-class-attributes and'
+                ' --ignore-underscore-only-class-attributes instead.'
+            ),
+        )
+        parser.add_option(
+            '-ipca',
+            '--ignore-private-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, private class attributes (underscore-prefixed names'
+                ' that contain non-underscore characters) should not appear'
+                ' in the docstring.'
+            ),
+        )
+        parser.add_option(
+            '-iuoca',
+            '--ignore-underscore-only-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, class attributes whose names contain only'
+                ' underscores (such as _, __, ...) should not appear in the'
+                ' docstring.'
             ),
         )
         parser.add_option(
@@ -358,10 +394,17 @@ class Plugin:
         cls.check_return_types = options.check_return_types
         cls.check_yield_types = options.check_yield_types
         cls.ignore_underscore_args = options.ignore_underscore_args
+        cls.ignore_underscore_only_args = options.ignore_underscore_only_args
         cls.ignore_private_args = options.ignore_private_args
         cls.check_class_attributes = options.check_class_attributes
         cls.should_document_private_class_attributes = (
             options.should_document_private_class_attributes
+        )
+        cls.ignore_private_class_attributes = (
+            options.ignore_private_class_attributes
+        )
+        cls.ignore_underscore_only_class_attributes = (
+            options.ignore_underscore_only_class_attributes
         )
         cls.treat_property_methods_as_class_attributes = (
             options.treat_property_methods_as_class_attributes
@@ -384,6 +427,25 @@ class Plugin:
 
     def run(self) -> Generator[tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
+        if self.ignore_underscore_args is not None:
+            value = self._bool(
+                '--ignore-underscore-args', self.ignore_underscore_args
+            )
+            raise ValueError(
+                getIgnoreUnderscoreArgsRemovedMessage(value=value)
+            )
+
+        if self.should_document_private_class_attributes is not None:
+            value = self._bool(
+                '--should-document-private-class-attributes',
+                self.should_document_private_class_attributes,
+            )
+            raise ValueError(
+                getShouldDocumentPrivateClassAttributesRemovedMessage(
+                    value=value
+                )
+            )
+
         if self.type_hints_in_docstring != 'None':  # user supplies this option
             raise ValueError(
                 'The option `--type-hints-in-docstring` has been renamed;'
@@ -445,9 +507,9 @@ class Plugin:
             '--check-yield-types',
             self.check_yield_types,
         )
-        ignoreUnderscoreArgs = self._bool(
-            '--ignore-underscore-args',
-            self.ignore_underscore_args,
+        ignoreUnderscoreOnlyArgs = self._bool(
+            '--ignore-underscore-only-args',
+            self.ignore_underscore_only_args,
         )
         ignorePrivateArgs = self._bool(
             '--ignore-private-args',
@@ -457,9 +519,13 @@ class Plugin:
             '--check-class-attributes',
             self.check_class_attributes,
         )
-        shouldDocumentPrivateClassAttributes = self._bool(
-            '--should-document-private-class-attributes',
-            self.should_document_private_class_attributes,
+        ignorePrivateClassAttributes = self._bool(
+            '--ignore-private-class-attributes',
+            self.ignore_private_class_attributes,
+        )
+        ignoreUnderscoreOnlyClassAttributes = self._bool(
+            '--ignore-underscore-only-class-attributes',
+            self.ignore_underscore_only_class_attributes,
         )
         treatPropertyMethodsAsClassAttributes = self._bool(
             '--treat-property-methods-as-class-attributes',
@@ -512,11 +578,12 @@ class Plugin:
             ),
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
-            ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+            ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
             ignorePrivateArgs=ignorePrivateArgs,
             checkClassAttributes=checkClassAttributes,
-            shouldDocumentPrivateClassAttributes=(
-                shouldDocumentPrivateClassAttributes
+            ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+            ignoreUnderscoreOnlyClassAttributes=(
+                ignoreUnderscoreOnlyClassAttributes
             ),
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
