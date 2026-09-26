@@ -438,7 +438,7 @@ def extractClassAttributesFromNode(
                 )
 
     # Underscore-only names (_, __, ...) are placeholders (such as
-    # ``_: dataclasses.KW_ONLY``) and do not need to be documented.
+    # `_: dataclasses.KW_ONLY`) and do not need to be documented.
     atl = [_ for _ in atl if set(_.name) != {'_'}]
 
     if not shouldDocumentPrivateClassAttributes:
