@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Fixed
+  - Underscore-only class attributes (such as `_: dataclasses.KW_ONLY`) no
+    longer need to be documented when
+    `--should-document-private-class-attributes` is True (#302)
 - Changed
   - Moved the changelog full-diff pre-commit check into
     `pre-commit-changelog-full-diff-check` and updated this repo to consume it

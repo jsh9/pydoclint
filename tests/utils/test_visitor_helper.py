@@ -838,6 +838,8 @@ class MyClass:
     attr12: bool = attr1 == 2
     a13, a14, a15 = a16, a17, a18 = a19, a20, a21 = (1, 2), 3, 4
     _privAttr1: int = 12345
+    _: KW_ONLY
+    __ = 0
 
     @property
     def prop1(self) -> float | str | dict | None:
