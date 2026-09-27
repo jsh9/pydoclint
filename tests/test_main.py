@@ -2,7 +2,6 @@ import copy
 import itertools
 import sys
 from pathlib import Path
-from textwrap import dedent
 
 import pytest
 
@@ -10,39 +9,6 @@ from pydoclint.main import _checkFile
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
-
-ALL_CLASS_ATTRIBUTE_NAME_KINDS_DOCUMENTED_SRC = dedent(
-    '''
-    class Example:
-        """
-        Class with attributes from every name category.
-
-        Attributes
-        ----------
-        public
-            A public attribute.
-        _private
-            A private attribute.
-        _
-            An underscore-only attribute.
-        __
-            Another underscore-only attribute.
-        __slots__
-            Special protocol metadata.
-        __hash__
-            Special protocol metadata.
-        __match_args__
-            Special protocol metadata.
-        """
-        public: int
-        _private: str
-        _: bool
-        __: float
-        __slots__: tuple[str, ...]
-        __hash__ = None
-        __match_args__: tuple[str, ...]
-    '''
-)
 
 
 def pythonVersionBelow310() -> bool:
@@ -2071,20 +2037,17 @@ def testPrivateAndUnderscoreOnlyFunctionArgumentOptions(
     ],
 )
 def testIgnoredClassAttributeNamesAreExactExtras(
-        tmp_path: Path,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
         expectedExtraNames: list[str],
 ) -> None:
     """Ensure ignored and special-dunder attributes are exact extras."""
-    sourcePath = tmp_path / 'documented_class_attribute_name_kinds.py'
-    sourcePath.write_text(
-        ALL_CLASS_ATTRIBUTE_NAME_KINDS_DOCUMENTED_SRC,
-        encoding='utf-8',
-    )
-
     violations = _checkFile(
-        filename=sourcePath,
+        filename=(
+            DATA_DIR
+            / 'private_and_underscore_only_options'
+            / 'documented_class_attributes.py'
+        ),
         style='numpy',
         argTypeHintsInDocstring=False,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,

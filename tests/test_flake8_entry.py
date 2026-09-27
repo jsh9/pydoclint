@@ -1,6 +1,6 @@
 import ast
 import re
-from textwrap import dedent
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -8,9 +8,12 @@ import pytest
 
 from pydoclint.flake8_entry import Plugin
 
+THIS_DIR = Path(__file__).parent
+DATA_DIR = THIS_DIR / 'test_data'
+
 
 class FakeParser:
-    """Collect Flake8 option defaults for plugin tests."""
+    """Collect option defaults for pydoclint's Flake8 entry-point tests."""
 
     def __init__(self) -> None:
         self.defaults: dict[str, Any] = {}
@@ -21,17 +24,18 @@ class FakeParser:
         self.defaults[destination] = kwargs.get('default')
 
 
-def buildPlugin(src: str, **overrides: Any) -> Plugin:
-    """Build a plugin instance with real option defaults and overrides."""
+def buildFlake8Plugin(sourcePath: Path, **overrides: Any) -> Plugin:
+    """Build a Flake8 plugin with real option defaults and overrides."""
 
-    class TestPlugin(Plugin):
+    class IsolatedFlake8Plugin(Plugin):
         pass
 
     parser = FakeParser()
-    TestPlugin.add_options(parser)
+    IsolatedFlake8Plugin.add_options(parser)
     parser.defaults.update(overrides)
-    TestPlugin.parse_options(SimpleNamespace(**parser.defaults))
-    return TestPlugin(ast.parse(dedent(src)))
+    IsolatedFlake8Plugin.parse_options(SimpleNamespace(**parser.defaults))
+    sourceCode = sourcePath.read_text(encoding='utf-8')
+    return IsolatedFlake8Plugin(ast.parse(sourceCode))
 
 
 @pytest.mark.parametrize(
@@ -76,9 +80,12 @@ def testRemovedOptionsShowMigrationError(
         expectedMessage: str,
 ) -> None:
     """Ensure Flake8 rejects removed options with migration guidance."""
-    plugin = buildPlugin('def func(): pass', **overrides)
+    flake8Plugin = buildFlake8Plugin(
+        DATA_DIR / 'flake8_entry/minimal.py',
+        **overrides,
+    )
     with pytest.raises(ValueError, match=re.escape(expectedMessage)):
-        list(plugin.run())
+        list(flake8Plugin.run())
 
 
 @pytest.mark.parametrize(
@@ -104,25 +111,8 @@ def testNewClassAttributeOptionsPropagate(
         expectedMissingNames: list[str],
 ) -> None:
     """Ensure Flake8 forwards both class-attribute name controls."""
-    plugin = buildPlugin(
-        '''
-class Example:
-    """
-    Class with attributes from every name category.
-
-    Attributes
-    ----------
-    public
-        A public attribute.
-    """
-    public: int
-    _private: str
-    _: bool
-    __: float
-    __slots__: tuple[str, ...]
-    __hash__ = None
-    __match_args__: tuple[str, ...]
-''',
+    flake8Plugin = buildFlake8Plugin(
+        DATA_DIR / 'private_and_underscore_only_options/class_attributes.py',
         style='numpy',
         arg_type_hints_in_docstring='False',
         check_class_attributes='True',
@@ -131,7 +121,7 @@ class Example:
             ignoreUnderscoreOnlyClassAttributes
         ),
     )
-    messages = [message for _, _, message, _ in plugin.run()]
+    messages = [message for _, _, message, _ in flake8Plugin.run()]
     if not expectedMissingNames:
         assert messages == []
         return
@@ -161,17 +151,10 @@ def testIgnoreUnderscoreOnlyArgsPropagates(
         expectedCodes: list[str],
 ) -> None:
     """Ensure Flake8 forwards the underscore-only argument control."""
-    plugin = buildPlugin(
-        '''
-def func(_: int, value: int) -> None:
-    """Do something.
-
-    Args:
-        value (int): Value to process.
-    """
-''',
+    flake8Plugin = buildFlake8Plugin(
+        DATA_DIR / 'flake8_entry/underscore_only_function_argument.py',
         style='google',
         ignore_underscore_only_args=ignoreUnderscoreOnlyArgs,
     )
-    codes = [message.split()[0] for _, _, message, _ in plugin.run()]
+    codes = [message.split()[0] for _, _, message, _ in flake8Plugin.run()]
     assert codes == expectedCodes
