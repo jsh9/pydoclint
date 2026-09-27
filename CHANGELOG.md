@@ -41,7 +41,7 @@
     `--ignore-private-class-attributes`,
     `--ignore-underscore-only-class-attributes`, and
     `--ignore-special-dunder-class-attributes` to the inverse value
-- Housekeeping
+- Maintenance
   - Moved the changelog full-diff pre-commit check into
     `pre-commit-changelog-full-diff-check` and updated this repo to consume it
     as an external hook
