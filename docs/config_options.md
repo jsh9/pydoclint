@@ -167,8 +167,8 @@ If `True`, _pydoclint_ won't check private functions (such as `_helper` and
 `__name_mangled`) or underscore-only functions (such as `_` and `__`). Special
 dunder methods (such as `__init__`) are still checked. Any functions defined
 within skipped functions are also skipped. See
-[name categories](https://jsh9.github.io/pydoclint/name_categories.html) for
-how names are classified.
+[names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html)
+for how names are classified.
 
 ## 9. `--allow-init-docstring` (shortform: `-aid`, default: `False`)
 
@@ -211,7 +211,7 @@ classified.
 
 Private arguments such as `_a` are not underscore-only arguments; they are
 controlled by `--ignore-private-args`. See
-[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
+[names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html).
 
 **Why the default is `True`:** a name made only of underscores (`_`, `__`,
 `*_`, `**__`) marks an argument that is intentionally unused, such as a
@@ -237,7 +237,7 @@ If True, private arguments (such as `_value`, `__value`, and `*_args`) are
 excluded and must not appear in the docstring. Underscore-only arguments (such
 as `_`) are controlled by `--ignore-underscore-only-args`, and special dunder
 arguments (such as `__value__`) by `--ignore-special-dunder-args`. See
-[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
+[names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html).
 
 **Why the default is `False`:** an underscore prefix doesn't take an argument
 out of the call signature; callers can still pass it, so it is documented and
@@ -251,7 +251,7 @@ If True, special dunder arguments, whose names start and end with double
 underscores (such as `__value__` and `**__value__`), are excluded and must not
 appear in the docstring. The leading `*` or `**` of a star argument is removed
 before its name is classified. See
-[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
+[names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html).
 
 **Why the default is `False`:** like a private argument, a special dunder
 argument is part of the call signature, so it is documented and checked by
@@ -277,7 +277,7 @@ If True, private class attributes (underscore-prefixed names containing at
 least one non-underscore character, excluding special names that start and end
 with double underscores) are excluded and must not appear in the docstring. If
 False, they must be documented. See
-[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
+[names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html).
 
 **Why the default is `True`:** the class docstring's "Attributes" section
 describes the class's public interface. Private class attributes, such as
@@ -290,7 +290,7 @@ the removed `--should-document-private-class-attributes` option (`False`).
 If True, class attributes whose names contain only underscores (such as `_`,
 `__`, ...) are excluded and must not appear in the docstring. If False, they
 must be documented. See
-[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
+[names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html).
 
 **Why the default is `True`:** a class attribute named only with underscores is
 a placeholder, not data. For example, `_: dataclasses.KW_ONLY` is a dataclass
@@ -313,7 +313,7 @@ If True, special class attributes whose names start and end with double
 underscores (such as `__slots__`, `__match_args__`, and `__tablename__`) are
 excluded and must not appear in the docstring. If False, they must be
 documented. See
-[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
+[names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html).
 
 **Why the default is `True`:** special dunder class attributes, such as
 `__slots__`, `__match_args__`, `__hash__ = None`, or SQLAlchemy's

@@ -1,4 +1,4 @@
-# Name categories
+# Names with leading underscores
 
 <!--TOC-->
 

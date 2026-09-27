@@ -230,7 +230,7 @@ Here are some additional notes to help you use _pydoclint_ more easily:
 - [Notes for users](https://jsh9.github.io/pydoclint/notes_for_users.html)
   - (Contains frequently encountered issues)
 - [Checking class attributes](https://jsh9.github.io/pydoclint/checking_class_attributes.html)
-- [Name categories (private, underscore-only, and special names)](https://jsh9.github.io/pydoclint/name_categories.html)
+- [Names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html)
 - [Notes on `Generator` vs `Iterator`](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html)
 - [More about docstring style mismatch (`DOC003`)](https://jsh9.github.io/pydoclint/style_mismatch.html)
 
