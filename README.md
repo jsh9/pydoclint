@@ -198,7 +198,7 @@ You can use "baseline" with these 3 config options:
 - `--auto-regenerate-baseline`
 
 For more details, please read the
-[documentations on these options](https://jsh9.github.io/pydoclint/config_options.html#18---baseline).
+[documentations on these options](https://jsh9.github.io/pydoclint/config_options.html#baseline).
 
 #### 2.7.3. Pitfall: default values of arguments
 
@@ -230,6 +230,7 @@ Here are some additional notes to help you use _pydoclint_ more easily:
 - [Notes for users](https://jsh9.github.io/pydoclint/notes_for_users.html)
   - (Contains frequently encountered issues)
 - [Checking class attributes](https://jsh9.github.io/pydoclint/checking_class_attributes.html)
+- [Names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html)
 - [Notes on `Generator` vs `Iterator`](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html)
 - [More about docstring style mismatch (`DOC003`)](https://jsh9.github.io/pydoclint/style_mismatch.html)
 

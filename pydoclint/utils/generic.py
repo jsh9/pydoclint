@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import copy
 import re
+from enum import Enum, auto
 from re import Match
 from typing import TYPE_CHECKING, overload
 
@@ -433,12 +434,37 @@ def stripCommentsFromTypeHints(typeHint: str) -> str:
     return result
 
 
+class NameKind(Enum):
+    """Mutually exclusive categories for Python names."""
+
+    PUBLIC = auto()  # value, value_
+    PRIVATE = auto()  # _value, __value, _value__
+    UNDERSCORE_ONLY = auto()  # _, __, ___
+    SPECIAL_DUNDER = auto()  # __value__, __slots__, ___value___
+
+
+def classifyName(name: str) -> NameKind:
+    """Classify a Python name by its leading and trailing underscores."""
+    underscoreOnly = bool(name) and set(name) == {'_'}
+    if underscoreOnly:
+        return NameKind.UNDERSCORE_ONLY
+
+    if name.startswith('__') and name.endswith('__'):
+        return NameKind.SPECIAL_DUNDER
+
+    if name.startswith('_'):
+        return NameKind.PRIVATE
+
+    return NameKind.PUBLIC
+
+
 def isPrivateName(name: str) -> bool:
     """
     Return True if ``name`` is considered private.
 
-    A variable is considered private if its name starts with an underscore
-    ('`_`') but does not start and end with '`__`'.
+    A variable is considered private if its name starts with an underscore,
+    contains at least one non-underscore character, and is not a special
+    double-leading-and-trailing-underscore name.
 
     Parameters
     ----------
@@ -450,6 +476,9 @@ def isPrivateName(name: str) -> bool:
     bool
         True if ``name`` is private, else False.
     """
-    return name.startswith('_') and not (
-        name.startswith('__') and name.endswith('__')
-    )
+    return classifyName(name) is NameKind.PRIVATE
+
+
+def isUnderscoreOnlyName(name: str) -> bool:
+    """Return whether ``name`` consists only of underscore characters."""
+    return classifyName(name) is NameKind.UNDERSCORE_ONLY

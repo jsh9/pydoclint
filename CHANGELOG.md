@@ -1,11 +1,54 @@
 # Change Log
 
-## Unreleased
+## [0.10.0] - 2026-09-27
 
+- Added
+  - `--ignore-underscore-only-args` (`-iuoa`, default: `True`)
+  - `--ignore-special-dunder-args` (`-isda`, default: `False`)
+  - `--ignore-private-class-attributes` (`-ipca`, default: `True`)
+  - `--ignore-underscore-only-class-attributes` (`-iuoca`, default: `True`)
+  - `--ignore-special-dunder-class-attributes` (`-isdca`, default: `True`)
+- Fixed
+  - Allowed conventional underscore-only class attribute placeholders, such as
+    `_: dataclasses.KW_ONLY`, to be ignored independently of private class
+    attributes (#302). This is a name-based fix, so a `KW_ONLY` pseudo-field
+    whose name is not underscore-only is still treated like any other attribute
+  - Accepted Flake8 boolean option values case-insensitively (such as `false`),
+    so the lowercase values shown in migration messages work in Flake8 config
+    files
 - Changed
+  - Star arguments are now classified without their leading `*` or `**`, so
+    `*_` and `**__` are ignored by `--ignore-underscore-only-args`, and
+    `*_args` is ignored by `--ignore-private-args`
+  - `--skip-checking-private-functions` now also skips functions named `__` or
+    `___` (it already skipped `_`); special dunder methods such as `__init__`
+    are still checked
+  - `--ignore-private-args` no longer controls special dunder arguments (such
+    as `__value__`). If you set `--ignore-private-args=True` and want them to
+    stay ignored, also set `--ignore-special-dunder-args=True`
+  - Changed the `Visitor` keyword arguments from `ignoreUnderscoreArgs` and
+    `shouldDocumentPrivateClassAttributes` to `ignoreUnderscoreOnlyArgs`,
+    `ignoreSpecialDunderArgs`, `ignorePrivateClassAttributes`,
+    `ignoreUnderscoreOnlyClassAttributes`, and
+    `ignoreSpecialDunderClassAttributes`; this is a breaking change for code
+    that uses `Visitor` directly
+- Removed
+  - Removed `--ignore-underscore-args`; using it now fails with guidance to
+    delete it when it has the new default value or replace it with
+    `--ignore-underscore-only-args`
+  - Removed `--should-document-private-class-attributes`; using it now fails
+    with guidance to delete it when it has the new defaults or set
+    `--ignore-private-class-attributes`,
+    `--ignore-underscore-only-class-attributes`, and
+    `--ignore-special-dunder-class-attributes` to the inverse value
+- Maintenance
   - Moved the changelog full-diff pre-commit check into
     `pre-commit-changelog-full-diff-check` and updated this repo to consume it
     as an external hook
+  - Made `tox -e muff-lint` a non-mutating check that fails instead of
+    rewriting files
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.9.1...0.10.0
 
 ## [0.9.1] - 2026-07-03
 

@@ -23,7 +23,6 @@ from pydoclint.utils.generic import (
     generateFuncMsgPrefix,
     getDocstring,
     isLastConstructor,
-    isPrivateName,
 )
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.parse_docstring import (
@@ -62,6 +61,8 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getReturnTypeToDocument,
+    shouldIgnoreArgumentName,
+    shouldSkipCheckingPrivateFunction,
 )
 
 
@@ -81,10 +82,13 @@ class Visitor(ast.NodeVisitor):
             allowInitDocstring: bool = False,
             checkReturnTypes: bool = True,
             checkYieldTypes: bool = True,
-            ignoreUnderscoreArgs: bool = True,
+            ignoreUnderscoreOnlyArgs: bool = True,
             ignorePrivateArgs: bool = False,
+            ignoreSpecialDunderArgs: bool = False,
             checkClassAttributes: bool = True,
-            shouldDocumentPrivateClassAttributes: bool = False,
+            ignorePrivateClassAttributes: bool = True,
+            ignoreUnderscoreOnlyClassAttributes: bool = True,
+            ignoreSpecialDunderClassAttributes: bool = True,
             treatPropertyMethodsAsClassAttributes: bool = False,
             onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
             requireInlineClassVarDocs: bool = False,
@@ -106,11 +110,16 @@ class Visitor(ast.NodeVisitor):
         self.allowInitDocstring: bool = allowInitDocstring
         self.checkReturnTypes: bool = checkReturnTypes
         self.checkYieldTypes: bool = checkYieldTypes
-        self.ignoreUnderscoreArgs: bool = ignoreUnderscoreArgs
+        self.ignoreUnderscoreOnlyArgs: bool = ignoreUnderscoreOnlyArgs
         self.ignorePrivateArgs: bool = ignorePrivateArgs
+        self.ignoreSpecialDunderArgs: bool = ignoreSpecialDunderArgs
         self.checkClassAttributes: bool = checkClassAttributes
-        self.shouldDocumentPrivateClassAttributes: bool = (
-            shouldDocumentPrivateClassAttributes
+        self.ignorePrivateClassAttributes: bool = ignorePrivateClassAttributes
+        self.ignoreUnderscoreOnlyClassAttributes: bool = (
+            ignoreUnderscoreOnlyClassAttributes
+        )
+        self.ignoreSpecialDunderClassAttributes: bool = (
+            ignoreSpecialDunderClassAttributes
         )
         self.treatPropertyMethodsAsClassAttributes: bool = (
             treatPropertyMethodsAsClassAttributes
@@ -162,8 +171,14 @@ class Visitor(ast.NodeVisitor):
                 argTypeHintsInSignature=self.argTypeHintsInSignature,
                 argTypeHintsInDocstring=self.argTypeHintsInDocstring,
                 skipCheckingShortDocstrings=self.skipCheckingShortDocstrings,
-                shouldDocumentPrivateClassAttributes=(
-                    self.shouldDocumentPrivateClassAttributes
+                ignorePrivateClassAttributes=(
+                    self.ignorePrivateClassAttributes
+                ),
+                ignoreUnderscoreOnlyClassAttributes=(
+                    self.ignoreUnderscoreOnlyClassAttributes
+                ),
+                ignoreSpecialDunderClassAttributes=(
+                    self.ignoreSpecialDunderClassAttributes
                 ),
                 treatPropertyMethodsAsClassAttributes=(
                     self.treatPropertyMethodsAsClassAttributes
@@ -200,8 +215,11 @@ class Visitor(ast.NodeVisitor):
             self.parent = parent_  # restore
             return
 
-        if self.skipCheckingPrivateFunctions and isPrivateName(node.name):
-            # Restore enclosing parent before skipping this private function
+        if shouldSkipCheckingPrivateFunction(
+            name=node.name,
+            skipCheckingPrivateFunctions=self.skipCheckingPrivateFunctions,
+        ):
+            # Restore enclosing parent before skipping this function
             self.parent = parent_
             return
 
@@ -473,7 +491,7 @@ class Visitor(ast.NodeVisitor):
 
         return initDocstring
 
-    def checkArguments(  # noqa: C901, PLR0915
+    def checkArguments(  # noqa: PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
@@ -561,23 +579,19 @@ class Visitor(ast.NodeVisitor):
         else:
             funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
-        if self.ignoreUnderscoreArgs:
-            # Ignore underscore arguments (such as _, __, ___, ...).
-            # This is because these arguments are only placeholders and do not
-            # need to be explained in the docstring.  (This is often used in
-            # functions that must accept a certain number of input arguments.)
-            funcArgs = ArgList([
-                _ for _ in funcArgs.infoList if set(_.name) != {'_'}
-            ])
-
-        if self.ignorePrivateArgs:
-            # "Private arguments" are those whose names have leading
-            # underscores, but whose names are not purely _, __, ___, etc.
-            funcArgs = ArgList([
-                _
-                for _ in funcArgs.infoList
-                if not _.name.startswith('_') or set(_.name) == {'_'}
-            ])
+        # Ignored arguments are excluded from comparison, so they must not
+        # appear in the docstring. See shouldIgnoreArgumentName() for which
+        # option controls each kind of name.
+        funcArgs = ArgList([
+            _
+            for _ in funcArgs.infoList
+            if not shouldIgnoreArgumentName(
+                name=_.name,
+                ignorePrivateArgs=self.ignorePrivateArgs,
+                ignoreUnderscoreOnlyArgs=self.ignoreUnderscoreOnlyArgs,
+                ignoreSpecialDunderArgs=self.ignoreSpecialDunderArgs,
+            )
+        ])
 
         if not self.shouldDocumentStarArguments:
             # This is "should not" rather than "need not", which means that

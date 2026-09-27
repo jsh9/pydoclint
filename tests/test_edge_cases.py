@@ -98,12 +98,22 @@ from tests.test_main import DATA_DIR
         ),
         (
             '11_private_class_attr/google.py',
-            {'style': 'google', 'shouldDocumentPrivateClassAttributes': False},
+            {
+                'style': 'google',
+                'ignorePrivateClassAttributes': True,
+                'ignoreUnderscoreOnlyClassAttributes': True,
+                'ignoreSpecialDunderClassAttributes': True,
+            },
             [],
         ),
         (
             '11_private_class_attr/google.py',
-            {'style': 'google', 'shouldDocumentPrivateClassAttributes': True},
+            {
+                'style': 'google',
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': False,
+                'ignoreSpecialDunderClassAttributes': False,
+            },
             [
                 'DOC601: Class `MyClass`: Class docstring contains fewer class attributes '
                 'than actual class attributes.  (Please read '
@@ -124,7 +134,9 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': True,
-                'shouldDocumentPrivateClassAttributes': True,
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': False,
+                'ignoreSpecialDunderClassAttributes': False,
             },
             [],
         ),
@@ -134,7 +146,9 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': True,
-                'shouldDocumentPrivateClassAttributes': False,
+                'ignorePrivateClassAttributes': True,
+                'ignoreUnderscoreOnlyClassAttributes': True,
+                'ignoreSpecialDunderClassAttributes': True,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -156,7 +170,9 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': False,
-                'shouldDocumentPrivateClassAttributes': True,
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': False,
+                'ignoreSpecialDunderClassAttributes': False,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -178,7 +194,9 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'checkClassAttributes': True,
                 'treatPropertyMethodsAsClassAttributes': False,
-                'shouldDocumentPrivateClassAttributes': False,
+                'ignorePrivateClassAttributes': True,
+                'ignoreUnderscoreOnlyClassAttributes': True,
+                'ignoreSpecialDunderClassAttributes': True,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -441,66 +459,6 @@ from tests.test_main import DATA_DIR
                 'Arguments in the docstring but not in the function signature: [**kwargs: Any].',
             ],
         ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'ignoreUnderscoreArgs': False,
-                'argTypeHintsInDocstring': False,
-            },
-            [
-                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                'function signature.',
-                'DOC103: Function `function_1`: Docstring arguments are different from '
-                'function arguments. (Or could be other formatting issues: '
-                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                'Arguments in the function signature but not in the docstring: [_: float, __: '
-                'bool, __d: list, _c: dict].',
-            ],
-        ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'ignoreUnderscoreArgs': False,
-                'ignorePrivateArgs': True,
-                'argTypeHintsInDocstring': False,
-            },
-            [
-                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                'function signature.',
-                'DOC103: Function `function_1`: Docstring arguments are different from '
-                'function arguments. (Or could be other formatting issues: '
-                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                'Arguments in the function signature but not in the docstring: [_: float, __: '
-                'bool].',
-            ],
-        ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'argTypeHintsInDocstring': False,
-            },
-            [
-                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                'function signature.',
-                'DOC103: Function `function_1`: Docstring arguments are different from '
-                'function arguments. (Or could be other formatting issues: '
-                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                'Arguments in the function signature but not in the docstring: [__d: list, '
-                '_c: dict].',
-            ],
-        ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'ignorePrivateArgs': True,
-                'argTypeHintsInDocstring': False,
-            },
-            [],
-        ),
         ('26_decompose_tuples/cases.py', {}, []),
         ('27_declare_assert_error/cases.py', {'style': 'google'}, []),
         (
@@ -640,6 +598,18 @@ from tests.test_main import DATA_DIR
                 'DOC203: Function `_test_private_function` return type(s) in docstring not '
                 "consistent with the return annotation. Return annotation types: ['int']; "
                 "docstring return section types: ['bool']",
+                'DOC203: Function `_` return type(s) in docstring not consistent with the'
+                " return annotation. Return annotation types: ['int']; docstring return"
+                " section types: ['bool']",
+                'DOC203: Function `__` return type(s) in docstring not consistent with the'
+                " return annotation. Return annotation types: ['int']; docstring return"
+                " section types: ['bool']",
+                'DOC203: Function `inner_function` return type(s) in docstring not'
+                " consistent with the return annotation. Return annotation types: ['bool'];"
+                " docstring return section types: ['int']",
+                'DOC203: Function `__special__` return type(s) in docstring not consistent'
+                " with the return annotation. Return annotation types: ['int']; docstring"
+                " return section types: ['bool']",
                 'DOC301: Class `TestClass`: __init__() should not have a docstring; '
                 'please combine it with the docstring of the class',
                 'DOC105: Method `TestClass._private_method`: Argument names match, but type '
@@ -659,8 +629,11 @@ from tests.test_main import DATA_DIR
                 'skipCheckingShortDocstrings': False,
             },
             [
+                'DOC203: Function `__special__` return type(s) in docstring not consistent'
+                " with the return annotation. Return annotation types: ['int']; docstring"
+                " return section types: ['bool']",
                 'DOC301: Class `TestClass`: __init__() should not have a docstring; '
-                'please combine it with the docstring of the class'
+                'please combine it with the docstring of the class',
             ],
         ),
         (
@@ -705,6 +678,17 @@ from tests.test_main import DATA_DIR
                 'arg in Generator[...]/Iterator[...]): Dict[str, Any]; docstring '
                 '"yields" section types: str'
             ],
+        ),
+        (
+            '36_underscore_only_class_attribute/case.py',
+            {
+                'style': 'numpy',
+                'argTypeHintsInDocstring': False,
+                'checkClassAttributes': True,
+                'ignorePrivateClassAttributes': False,
+                'ignoreUnderscoreOnlyClassAttributes': True,
+            },
+            [],
         ),
     ],
 )

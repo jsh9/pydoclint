@@ -3,8 +3,11 @@ import ast
 import pytest
 
 from pydoclint.utils.generic import (
+    NameKind,
+    classifyName,
     collectFuncArgs,
     isPrivateName,
+    isUnderscoreOnlyName,
     specialEqual,
     stripQuotes,
 )
@@ -120,21 +123,27 @@ def testSpecialEqual(str1: str, str2: str, expected: bool) -> None:
 
 
 @pytest.mark.parametrize(
-    ('name', 'private'),
+    ('name', 'expectedKind'),
     [
-        ('__init__', False),
-        ('__init_', True),
-        ('__contains__', False),
-        ('__contains_', True),
-        ('__dunder____', False),
-        ('public_____name__', False),
-        ('_private_____name_____', True),
-        ('var', False),
-        ('_var', True),
-        ('__var', True),
-        ('__var_', True),
-        ('__var__', False),
+        ('', NameKind.PUBLIC),
+        ('value', NameKind.PUBLIC),
+        ('value_', NameKind.PUBLIC),
+        ('_value', NameKind.PRIVATE),
+        ('__value', NameKind.PRIVATE),
+        ('__value_', NameKind.PRIVATE),
+        ('_value__', NameKind.PRIVATE),
+        ('_', NameKind.UNDERSCORE_ONLY),
+        ('__', NameKind.UNDERSCORE_ONLY),
+        ('___', NameKind.UNDERSCORE_ONLY),
+        ('__value__', NameKind.SPECIAL_DUNDER),
+        ('__slots__', NameKind.SPECIAL_DUNDER),
+        ('___value___', NameKind.SPECIAL_DUNDER),
     ],
 )
-def testIsPrivateName(name: str, private: bool) -> None:
-    assert isPrivateName(name) == private
+def testClassifyName(name: str, expectedKind: NameKind) -> None:
+    """Ensure each spelling maps to one consistent name category."""
+    assert classifyName(name) is expectedKind
+    assert isPrivateName(name) == (expectedKind is NameKind.PRIVATE)
+    assert isUnderscoreOnlyName(name) == (
+        expectedKind is NameKind.UNDERSCORE_ONLY
+    )

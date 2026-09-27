@@ -1846,3 +1846,462 @@ def testInlineClassAttributeDocs(
             requireInlineClassVarDocs, argTypeHintsInDocstring
         ]
     )
+
+
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateClassAttributes',
+        'ignoreUnderscoreOnlyClassAttributes',
+        'ignoreSpecialDunderClassAttributes',
+        'expectedViolationMessages',
+    ),
+    [
+        (True, True, True, []),
+        (
+            True,
+            True,
+            False,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [__tablename__: str]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            True,
+            False,
+            True,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_: bool, __: float]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            True,
+            False,
+            False,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_: bool, __: float, __tablename__: str]. (Please'
+                ' read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            False,
+            True,
+            True,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_private: str]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            False,
+            True,
+            False,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [__tablename__: str, _private: str]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            False,
+            False,
+            True,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_: bool, __: float, _private: str]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            False,
+            False,
+            False,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_: bool, __: float, __tablename__: str, _private:'
+                ' str]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+    ],
+)
+def testClassAttributeNameCategoryOptions(
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
+        expectedViolationMessages: list[str],
+) -> None:
+    """Ensure the three class-attribute name options work together."""
+    violations = _checkFile(
+        filename=(DATA_DIR / 'name_category_options/class_attributes.py'),
+        style='numpy',
+        argTypeHintsInDocstring=False,
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
+        ),
+        ignoreSpecialDunderClassAttributes=ignoreSpecialDunderClassAttributes,
+    )
+    assert list(map(str, violations)) == expectedViolationMessages
+
+
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateArgs',
+        'ignoreUnderscoreOnlyArgs',
+        'ignoreSpecialDunderArgs',
+        'expectedViolationMessages',
+    ),
+    [
+        (True, True, True, []),
+        (
+            True,
+            True,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [__special__: str].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__special__: str].',
+            ],
+        ),
+        (
+            True,
+            False,
+            True,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [*_: int].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__: str].',
+            ],
+        ),
+        (
+            True,
+            False,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool, __special__: str].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__special__: str, *_: int].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__: str].',
+            ],
+        ),
+        (
+            False,
+            True,
+            True,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [__d: list, _c: dict].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [*_private: int].',
+            ],
+        ),
+        (
+            False,
+            True,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [__d: list, __special__: str, _c: dict].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__special__: str].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [*_private: int].',
+            ],
+        ),
+        (
+            False,
+            False,
+            True,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool, __d: list, _c: dict].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [*_: int].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__: str, *_private: int].',
+            ],
+        ),
+        (
+            False,
+            False,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool, __d: list, __special__:'
+                ' str, _c: dict].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__special__: str, *_: int].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__: str, *_private: int].',
+            ],
+        ),
+    ],
+)
+def testFunctionArgumentNameCategoryOptions(
+        ignorePrivateArgs: bool,
+        ignoreUnderscoreOnlyArgs: bool,
+        ignoreSpecialDunderArgs: bool,
+        expectedViolationMessages: list[str],
+) -> None:
+    """Ensure the three argument name options work together."""
+    violations = _checkFile(
+        filename=(DATA_DIR / 'name_category_options/function_arguments.py'),
+        style='google',
+        argTypeHintsInDocstring=False,
+        ignorePrivateArgs=ignorePrivateArgs,
+        ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
+        ignoreSpecialDunderArgs=ignoreSpecialDunderArgs,
+    )
+    assert list(map(str, violations)) == expectedViolationMessages
+
+
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateClassAttributes',
+        'ignoreUnderscoreOnlyClassAttributes',
+        'ignoreSpecialDunderClassAttributes',
+        'expectedExtraNames',
+    ),
+    [
+        (True, True, True, ['_private', '_', '__', '__tablename__']),
+        (True, True, False, ['_private', '_', '__']),
+        (True, False, True, ['_private', '__tablename__']),
+        (True, False, False, ['_private']),
+        (False, True, True, ['_', '__', '__tablename__']),
+        (False, True, False, ['_', '__']),
+        (False, False, True, ['__tablename__']),
+        (False, False, False, []),
+    ],
+)
+def testIgnoredClassAttributeNamesAreExactExtras(
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
+        expectedExtraNames: list[str],
+) -> None:
+    """Ensure every ignored class attribute is reported as an extra."""
+    violations = _checkFile(
+        filename=(
+            DATA_DIR
+            / 'name_category_options'
+            / 'documented_class_attributes.py'
+        ),
+        style='numpy',
+        argTypeHintsInDocstring=False,
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
+        ),
+        ignoreSpecialDunderClassAttributes=ignoreSpecialDunderClassAttributes,
+    )
+    if not expectedExtraNames:
+        assert violations == []
+        return
+
+    assert [violation.fullErrorCode for violation in violations] == [
+        'DOC602',
+        'DOC603',
+    ]
+    actualExtraArgs = (
+        str(violations[1])
+        .split(
+            'Arguments in the docstring but not in the actual class attributes: [',
+            maxsplit=1,
+        )[1]
+        .split('].', maxsplit=1)[0]
+        .split(', ')
+    )
+    actualExtraNames = [
+        arg.split(':', maxsplit=1)[0] for arg in actualExtraArgs
+    ]
+    assert sorted(actualExtraNames) == sorted(expectedExtraNames)

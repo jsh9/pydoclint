@@ -3,6 +3,10 @@ from __future__ import annotations
 import importlib.metadata as importlib_metadata
 from typing import TYPE_CHECKING, Any
 
+from pydoclint.utils.config_option_removal_messages import (
+    getIgnoreUnderscoreArgsRemovedMessage,
+    getShouldDocumentPrivateClassAttributesRemovedMessage,
+)
 from pydoclint.visitor import Visitor
 
 if TYPE_CHECKING:
@@ -108,7 +112,11 @@ class Plugin:
             action='store',
             default='False',
             parse_from_config=True,
-            help='If True, skip checking docstrings of private functions.',
+            help=(
+                'If True, skip checking docstrings of private functions (such'
+                ' as _helper) and underscore-only functions (such as _), but'
+                ' not special dunder methods (such as __init__).'
+            ),
         )
         parser.add_option(
             '-aid',
@@ -182,13 +190,23 @@ class Plugin:
             '-iua',
             '--ignore-underscore-args',
             action='store',
+            default=None,
+            parse_from_config=True,
+            help=(
+                '(Removed) Please use --ignore-underscore-only-args with the'
+                ' same value instead.'
+            ),
+        )
+        parser.add_option(
+            '-iuoa',
+            '--ignore-underscore-only-args',
+            action='store',
             default='True',
             parse_from_config=True,
             help=(
-                'If True, underscore arguments (such as _, __, ...) in the'
-                ' function signature do not need to appear in the docstring.'
-                ' Note: "underscore arguments" are not the same as "arguments'
-                ' with leading underscores" (such as `_a`).'
+                'If True, arguments whose names contain only underscores'
+                ' (such as _, __, *_, and **__) are excluded and must not'
+                ' appear in the docstring.'
             ),
         )
         parser.add_option(
@@ -198,9 +216,19 @@ class Plugin:
             default='False',
             parse_from_config=True,
             help=(
-                'If True, private arguments (those with leading underscores '
-                ' in their names but are not purely `_`, `__`, etc.) in the'
-                ' function signature do not need to appear in the docstring.'
+                'If True, private arguments (such as _value, __value, and'
+                ' *_args) are excluded and must not appear in the docstring.'
+            ),
+        )
+        parser.add_option(
+            '-isda',
+            '--ignore-special-dunder-args',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, special dunder arguments (such as __value__) are'
+                ' excluded and must not appear in the docstring.'
             ),
         )
         parser.add_option(
@@ -218,12 +246,51 @@ class Plugin:
             '-sdpca',
             '--should-document-private-class-attributes',
             action='store',
-            default='False',
+            default=None,
             parse_from_config=True,
             help=(
-                'If True, private class attributes (the ones starting with _)'
-                ' should be documented in the docstring. If False, private'
-                ' class attributes should not appear in the docstring.'
+                '(Removed) Please use --ignore-private-class-attributes,'
+                ' --ignore-underscore-only-class-attributes, and'
+                ' --ignore-special-dunder-class-attributes instead, each set'
+                ' to the inverse of the old value.'
+            ),
+        )
+        parser.add_option(
+            '-ipca',
+            '--ignore-private-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, private class attributes (underscore-prefixed names'
+                ' that contain non-underscore characters, excluding special'
+                ' names that start and end with double underscores) are'
+                ' excluded and must not appear in the docstring.'
+            ),
+        )
+        parser.add_option(
+            '-iuoca',
+            '--ignore-underscore-only-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, class attributes whose names contain only'
+                ' underscores (such as _, __, ...) are excluded and must not'
+                ' appear in the docstring.'
+            ),
+        )
+        parser.add_option(
+            '-isdca',
+            '--ignore-special-dunder-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, special class attributes whose names start and end'
+                ' with double underscores (such as __slots__ and'
+                ' __tablename__) are excluded and must not appear in the'
+                ' docstring.'
             ),
         )
         parser.add_option(
@@ -358,10 +425,21 @@ class Plugin:
         cls.check_return_types = options.check_return_types
         cls.check_yield_types = options.check_yield_types
         cls.ignore_underscore_args = options.ignore_underscore_args
+        cls.ignore_underscore_only_args = options.ignore_underscore_only_args
         cls.ignore_private_args = options.ignore_private_args
+        cls.ignore_special_dunder_args = options.ignore_special_dunder_args
         cls.check_class_attributes = options.check_class_attributes
         cls.should_document_private_class_attributes = (
             options.should_document_private_class_attributes
+        )
+        cls.ignore_private_class_attributes = (
+            options.ignore_private_class_attributes
+        )
+        cls.ignore_underscore_only_class_attributes = (
+            options.ignore_underscore_only_class_attributes
+        )
+        cls.ignore_special_dunder_class_attributes = (
+            options.ignore_special_dunder_class_attributes
         )
         cls.treat_property_methods_as_class_attributes = (
             options.treat_property_methods_as_class_attributes
@@ -384,6 +462,25 @@ class Plugin:
 
     def run(self) -> Generator[tuple[int, int, str, Any], None, None]:
         """Run the linter and yield the violation information"""
+        if self.ignore_underscore_args is not None:
+            value = self._bool(
+                '--ignore-underscore-args', self.ignore_underscore_args
+            )
+            raise ValueError(
+                getIgnoreUnderscoreArgsRemovedMessage(value=value)
+            )
+
+        if self.should_document_private_class_attributes is not None:
+            value = self._bool(
+                '--should-document-private-class-attributes',
+                self.should_document_private_class_attributes,
+            )
+            raise ValueError(
+                getShouldDocumentPrivateClassAttributesRemovedMessage(
+                    value=value
+                )
+            )
+
         if self.type_hints_in_docstring != 'None':  # user supplies this option
             raise ValueError(
                 'The option `--type-hints-in-docstring` has been renamed;'
@@ -445,21 +542,33 @@ class Plugin:
             '--check-yield-types',
             self.check_yield_types,
         )
-        ignoreUnderscoreArgs = self._bool(
-            '--ignore-underscore-args',
-            self.ignore_underscore_args,
+        ignoreUnderscoreOnlyArgs = self._bool(
+            '--ignore-underscore-only-args',
+            self.ignore_underscore_only_args,
         )
         ignorePrivateArgs = self._bool(
             '--ignore-private-args',
             self.ignore_private_args,
         )
+        ignoreSpecialDunderArgs = self._bool(
+            '--ignore-special-dunder-args',
+            self.ignore_special_dunder_args,
+        )
         checkClassAttributes = self._bool(
             '--check-class-attributes',
             self.check_class_attributes,
         )
-        shouldDocumentPrivateClassAttributes = self._bool(
-            '--should-document-private-class-attributes',
-            self.should_document_private_class_attributes,
+        ignorePrivateClassAttributes = self._bool(
+            '--ignore-private-class-attributes',
+            self.ignore_private_class_attributes,
+        )
+        ignoreUnderscoreOnlyClassAttributes = self._bool(
+            '--ignore-underscore-only-class-attributes',
+            self.ignore_underscore_only_class_attributes,
+        )
+        ignoreSpecialDunderClassAttributes = self._bool(
+            '--ignore-special-dunder-class-attributes',
+            self.ignore_special_dunder_class_attributes,
         )
         treatPropertyMethodsAsClassAttributes = self._bool(
             '--treat-property-methods-as-class-attributes',
@@ -512,11 +621,16 @@ class Plugin:
             ),
             checkReturnTypes=checkReturnTypes,
             checkYieldTypes=checkYieldTypes,
-            ignoreUnderscoreArgs=ignoreUnderscoreArgs,
+            ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
             ignorePrivateArgs=ignorePrivateArgs,
+            ignoreSpecialDunderArgs=ignoreSpecialDunderArgs,
             checkClassAttributes=checkClassAttributes,
-            shouldDocumentPrivateClassAttributes=(
-                shouldDocumentPrivateClassAttributes
+            ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+            ignoreUnderscoreOnlyClassAttributes=(
+                ignoreUnderscoreOnlyClassAttributes
+            ),
+            ignoreSpecialDunderClassAttributes=(
+                ignoreSpecialDunderClassAttributes
             ),
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
@@ -538,10 +652,13 @@ class Plugin:
 
     @classmethod
     def _bool(cls, optionName: str, optionValue: str) -> bool:
-        if optionValue == 'True':
+        # Flake8 passes config values through as strings, and users may write
+        # booleans in any case (such as `false`, which the TOML docs show).
+        normalizedValue = optionValue.lower()
+        if normalizedValue == 'true':
             return True
 
-        if optionValue == 'False':
+        if normalizedValue == 'false':
             return False
 
         raise ValueError(f'Invalid argument value: {optionName}={optionValue}')
