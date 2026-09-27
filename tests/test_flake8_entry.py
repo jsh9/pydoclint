@@ -29,7 +29,7 @@ PYDOCLINT_IMPORT_ROOT = Path(pydoclint.__file__).resolve().parent.parent
 
 
 class FakeParser:
-    """Collect option defaults for pydoclint's Flake8 entry-point tests."""
+    """A stand-in Flake8 option parser that records each option's default."""
 
     def __init__(self) -> None:
         self.defaults: dict[str, Any] = {}
