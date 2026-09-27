@@ -6,7 +6,7 @@ ______________________________________________________________________
 
 **Table of Contents**
 
-- [1. Numpy style](#1-numpy-style)
+- [1. NumPy style](#1-numpy-style)
 - [2. Google style](#2-google-style)
 - [3. Sphinx style](#3-sphinx-style)
 - [4. Special note: inline docstrings](#4-special-note-inline-docstrings)
@@ -16,7 +16,7 @@ ______________________________________________________________________
 
 <!--TOC-->
 
-Class attributes are similar to function arguments. They look like this:
+Class attributes are variables defined directly in a class:
 
 ```python
 class MyPet:
@@ -26,27 +26,22 @@ class MyPet:
     is_very_cute_or_not: bool = True
 ```
 
-Oftentimes we'd like to also document them in docstrings and have _pydoclint_
-check them. It is controlled by the `--check-class-attributes` option (see
-<https://jsh9.github.io/pydoclint/config_options.html>)
+Enable
+[`--check-class-attributes`](https://jsh9.github.io/pydoclint/config_options.html)
+to compare these attributes with the class docstring.
 
-However, none of the mainstream docstring styles (Google, numpy, or Sphinx)
-offers explicit guidelines on documenting class attributes. Therefore,
-_pydoclint_ adopts the following stance (i.e., how to write docstrings that
-pass _pydoclint_'s check)
+_pydoclint_ uses the following convention for NumPy, Google, and Sphinx
+docstrings:
 
-- Document the class attributes under the "Attribute" section, and document the
-  input arguments to `__init__()` under the "Parameters" (or "Args") section
-- Separate the "Attribute" and "Parameters" sections in your docstring
-- You can use a single docstring (under the class name) or two docstrings (one
-  under the class name and the other under `__init__()`)
-  - If you use two docstrings, please keep the "Attributes" section in the
-    docstring under the class name
+- Put class attributes in the class docstring's "Attributes" section.
+- Put `__init__()` arguments in a separate "Parameters" or "Args" section (or
+  use Sphinx `:param:` fields).
+- With the default `--allow-init-docstring=False`, keep both sections in the
+  class docstring. When the option is `True`, the constructor arguments may
+  instead be documented under `__init__()`. The "Attributes" section always
+  stays in the class docstring.
 
-Here are some examples showing how to document class attributes in different
-styles:
-
-## 1. Numpy style
+## 1. NumPy style
 
 ```python
 class MyPet:
@@ -78,16 +73,8 @@ class MyPet:
         self.airtag_id = airtag_id
 ```
 
-From this example, we can see a few things:
-
-1. The class attributes should be put in a different docstring section than the
-   argument passed into the class constructor (`__init__()`)
-2. Both the class attributes and the input arguments to `__init__()` are in the
-   same docstring. (This is assuming the _pydoclint_ option
-   `--allow-init-docstring` is `False`)
-
-If `--allow-init-docstring` is set to `True`, we can write two separate
-docstrings like this:
+The example uses the default `--allow-init-docstring=False`. When the option is
+`True`, the constructor arguments may use a separate docstring:
 
 ```python
 class MyPet:
@@ -147,8 +134,8 @@ class MyPet:
         self.airtag_id = airtag_id
 ```
 
-You can also use two separate docstrings (one for the class and one for
-`__init__()`, similar to the Numpy style.)
+As in the NumPy example, `--allow-init-docstring=True` permits a separate
+`__init__()` docstring.
 
 ## 3. Sphinx style
 
@@ -167,7 +154,7 @@ class MyPet:
 
         Age of my pet (unit: months)
 
-    .. attribute :: weight_in_keg
+    .. attribute :: weight_in_kg
         :type: float
 
         Weight of my pet (unit: kg)
@@ -191,16 +178,13 @@ class MyPet:
 
 ## 4. Special note: inline docstrings
 
-[PEP-257](https://peps.python.org/pep-0257/) indicates that string literals
-located directly after an assign statement may be treated as attribute
-documentation. As such, we also optionally support inline docstrings for class
-attributes with the `--require-inline-class-var-docs` option set to True (it is
-False by default). When this option is enabled, class attributes must be
-documented inline, and the class docstring should not include an "Attributes"
-section.
+[PEP 257](https://peps.python.org/pep-0257/) defines a string literal
+immediately after an assignment as an attribute docstring. Set
+`--require-inline-class-var-docs=True` to require this form (the default is
+`False`). When enabled, document every class attribute inline and omit the
+"Attributes" section from the class docstring.
 
-Attribute type documentation may be specified as the first thing in the
-docstring followed by a colon. For example:
+An inline docstring may begin with the attribute's type and a colon:
 
 ```python
 class MyClass:
@@ -210,38 +194,31 @@ class MyClass:
     """int: My first field"""
 ```
 
-This applies for all 3 styles (numpy, Google, and Sphinx).
+Inline attribute docstrings work with all three supported styles.
 
 ## 5. Private, underscore-only, and special names
 
-Private names, underscore-only placeholder names, and special-dunder names are
-handled by these context-specific options:
+The following options control private, underscore-only, and special-dunder
+names:
 
-| Applies to                                               | Option and default                                   |
-| -------------------------------------------------------- | ---------------------------------------------------- |
-| Private function arguments, such as `_value`             | `--ignore-private-args` (`False`)                    |
-| Special-dunder function arguments, such as `__value__`   | `--ignore-private-args` (`False`)                    |
-| Underscore-only function arguments, such as `_`          | `--ignore-underscore-only-args` (`True`)             |
-| Private class attributes, such as `_value`               | `--ignore-private-class-attributes` (`True`)         |
-| Underscore-only class attributes, such as `_`            | `--ignore-underscore-only-class-attributes` (`True`) |
-| Special-dunder class attributes, such as `__tablename__` | `--ignore-special-dunder-class-attributes` (`True`)  |
+| Name and context                             | Option and default                                   |
+| -------------------------------------------- | ---------------------------------------------------- |
+| Private argument (`_value`)                  | `--ignore-private-args` (`False`)                    |
+| Special-dunder argument (`__value__`)        | `--ignore-private-args` (`False`)                    |
+| Underscore-only argument (`_`)               | `--ignore-underscore-only-args` (`True`)             |
+| Private class attribute (`_value`)           | `--ignore-private-class-attributes` (`True`)         |
+| Underscore-only class attribute (`_`)        | `--ignore-underscore-only-class-attributes` (`True`) |
+| Special-dunder class attribute (`__slots__`) | `--ignore-special-dunder-class-attributes` (`True`)  |
 
-When an argument or attribute is ignored, it is excluded from comparison and
-must not appear in the docstring. It is not treated as optional documentation:
-documenting an ignored name produces an extra-name violation (such as `DOC602`
-and `DOC603` for class attributes).
+"Ignore" means exclude from comparison, not make optional. An ignored name must
+not appear in the docstring; documenting it produces an extra-name violation
+(`DOC602` and `DOC603` for class attributes).
 
-Special names start and end with double underscores, such as `__slots__`.
-Special-dunder arguments participate in argument comparison unless
-`--ignore-private-args=True`. Special-dunder class attributes participate in
-the "Attributes" section comparison only when
-`--ignore-special-dunder-class-attributes=False`. Special methods, such as
-`__init__`, are always checked, even with
+Special-dunder methods such as `__init__` are always checked, even when
 `--skip-checking-private-functions=True`.
 
-For example, `_: dataclasses.KW_ONLY` is an underscore-only placeholder. To
-ignore it while still requiring private attributes such as `_value` to be
-documented, use:
+To ignore `_: dataclasses.KW_ONLY` while requiring private attributes such as
+`_value`, use:
 
 ```toml
 ignore-private-class-attributes = false
@@ -250,4 +227,4 @@ ignore-underscore-only-class-attributes = true
 
 See
 [name categories](https://jsh9.github.io/pydoclint/config_options.html#name-categories)
-for how each option treats each kind of name.
+for the complete classification rules.
