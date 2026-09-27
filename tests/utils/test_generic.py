@@ -141,6 +141,7 @@ def testSpecialEqual(str1: str, str2: str, expected: bool) -> None:
     ],
 )
 def testClassifyName(name: str, expectedKind: NameKind) -> None:
+    """Ensure each spelling maps to one consistent name category."""
     assert classifyName(name) is expectedKind
     assert isPrivateName(name) == (expectedKind is NameKind.PRIVATE)
     assert isUnderscoreOnlyName(name) == (

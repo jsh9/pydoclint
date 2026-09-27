@@ -1922,6 +1922,7 @@ def testClassAttributeNameOptionsReachVisitor(
         ignoreUnderscoreOnlyClassAttributes: bool,
         expectedMissingNames: list[str],
 ) -> None:
+    """Ensure native checking applies both class-attribute name controls."""
     sourcePath = tmp_path / 'class_attribute_name_kinds.py'
     sourcePath.write_text(CLASS_ATTRIBUTE_NAME_KINDS_SRC, encoding='utf-8')
 
@@ -1990,6 +1991,7 @@ def testIgnoredClassAttributeNamesAreExactExtras(
         ignoreUnderscoreOnlyClassAttributes: bool,
         expectedExtraNames: list[str],
 ) -> None:
+    """Ensure ignored and special-dunder attributes are exact extras."""
     sourcePath = tmp_path / 'documented_class_attribute_name_kinds.py'
     sourcePath.write_text(
         ALL_CLASS_ATTRIBUTE_NAME_KINDS_DOCUMENTED_SRC,

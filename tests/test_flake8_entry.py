@@ -75,6 +75,7 @@ def testRemovedOptionsShowMigrationError(
         overrides: dict[str, str],
         expectedMessage: str,
 ) -> None:
+    """Ensure Flake8 rejects removed options with migration guidance."""
     plugin = buildPlugin('def func(): pass', **overrides)
     with pytest.raises(ValueError, match=re.escape(expectedMessage)):
         list(plugin.run())
@@ -102,6 +103,7 @@ def testNewClassAttributeOptionsPropagate(
         ignoreUnderscoreOnlyClassAttributes: str,
         expectedMissingNames: list[str],
 ) -> None:
+    """Ensure Flake8 forwards both class-attribute name controls."""
     plugin = buildPlugin(
         '''
 class Example:
@@ -158,6 +160,7 @@ def testIgnoreUnderscoreOnlyArgsPropagates(
         ignoreUnderscoreOnlyArgs: str,
         expectedCodes: list[str],
 ) -> None:
+    """Ensure Flake8 forwards the underscore-only argument control."""
     plugin = buildPlugin(
         '''
 def func(_: int, value: int) -> None:

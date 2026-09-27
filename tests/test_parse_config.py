@@ -212,6 +212,7 @@ def testClassAttributeNameOptionsPropagateThroughNativeConfig(
         ignoreUnderscoreOnlyClassAttributes: bool,
         expectedMissingNames: list[str],
 ) -> None:
+    """Ensure CLI and TOML sources propagate both class name controls."""
     runner = CliRunner()
     with runner.isolated_filesystem():
         samplePath = _writePythonFile(
@@ -269,6 +270,7 @@ def testUnderscoreOnlyArgumentOptionPropagatesThroughNativeConfig(
         source: str,
         ignoreUnderscoreOnlyArgs: bool,
 ) -> None:
+    """Ensure CLI and TOML propagate the underscore-only argument control."""
     runner = CliRunner()
     with runner.isolated_filesystem():
         samplePath = _writePythonFile(Path(), UNDERSCORE_ARGUMENT_SRC)
@@ -353,6 +355,7 @@ def testRemovedOptionsShowMigrationError(
         value: bool,
         expectedMessage: str,
 ) -> None:
+    """Ensure native config sources reject removed options with guidance."""
     runner = CliRunner()
     with runner.isolated_filesystem():
         samplePath = _writeSamplePythonFile(Path())

@@ -881,6 +881,7 @@ def testExtractClassAttributesFromNode_privateAndUnderscoreOnlyNames(
         ignoreUnderscoreOnlyClassAttributes: bool,
         expectedNames: list[str],
 ) -> None:
+    """Ensure class-attribute extraction applies every name category."""
     parsed = ast.parse(
         dedent(
             """
@@ -1496,6 +1497,7 @@ def testInlineClassAttributeDocsRespectNameKinds(
         ignoreUnderscoreOnlyClassAttributes: bool,
         expectedNames: list[str],
 ) -> None:
+    """Ensure inline docs use the prefiltered class-attribute names."""
     parsed = ast.parse(
         dedent(
             '''
