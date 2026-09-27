@@ -32,6 +32,9 @@ documentedClassAttributesFixture = (
 underscoreArgumentFixture = (
     DATA_DIR / 'name_category_options' / 'underscore_only_function_argument.py'
 )
+argumentNameKindsFixture = (
+    DATA_DIR / 'name_category_options' / 'argument_categories.py'
+)
 
 
 @pytest.mark.parametrize(
@@ -260,44 +263,74 @@ def testClassAttributeNameOptionsPropagateThroughNativeConfig(
     'source',
     ['cli', 'inferred_toml', 'explicit_toml'],
 )
-@pytest.mark.parametrize('ignoreUnderscoreOnlyArgs', [True, False])
-def testUnderscoreOnlyArgumentOptionPropagatesThroughNativeConfig(
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateArgs',
+        'ignoreUnderscoreOnlyArgs',
+        'ignoreSpecialDunderArgs',
+        'expectedMissingNames',
+    ),
+    [
+        (True, True, True, []),
+        (True, True, False, ['__special__: float']),
+        (True, False, True, ['_: bool']),
+        (True, False, False, ['_: bool', '__special__: float']),
+        (False, True, True, ['_private: str']),
+        (False, True, False, ['_private: str', '__special__: float']),
+        (False, False, True, ['_private: str', '_: bool']),
+        (
+            False,
+            False,
+            False,
+            ['_private: str', '_: bool', '__special__: float'],
+        ),
+    ],
+)
+def testArgumentNameOptionsPropagateThroughNativeConfig(
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
         source: str,
+        ignorePrivateArgs: bool,
         ignoreUnderscoreOnlyArgs: bool,
+        ignoreSpecialDunderArgs: bool,
+        expectedMissingNames: list[str],
 ) -> None:
-    """Ensure CLI and TOML propagate the underscore-only argument control."""
+    """Ensure CLI and TOML sources propagate all argument name controls."""
     monkeypatch.chdir(tmp_path)
     result = _invokeNativeCli(
         source=source,
-        fixturePath=underscoreArgumentFixture,
+        fixturePath=argumentNameKindsFixture,
         cliOptions=[
             '--style=google',
             '--arg-type-hints-in-docstring=False',
-            '--check-return-types=False',
+            f'--ignore-private-args={ignorePrivateArgs}',
             f'--ignore-underscore-only-args={ignoreUnderscoreOnlyArgs}',
+            f'--ignore-special-dunder-args={ignoreSpecialDunderArgs}',
         ],
         tomlOptions=[
             "style = 'google'",
             'arg-type-hints-in-docstring = false',
-            'check-return-types = false',
+            f'ignore-private-args = {str(ignorePrivateArgs).lower()}',
             'ignore-underscore-only-args ='
             f' {str(ignoreUnderscoreOnlyArgs).lower()}',
+            'ignore-special-dunder-args ='
+            f' {str(ignoreSpecialDunderArgs).lower()}',
         ],
     )
 
-    if ignoreUnderscoreOnlyArgs:
+    if not expectedMissingNames:
         assert result.exit_code == 0
         assert 'No violations' in result.output
-    else:
-        assert result.exit_code == 1
-        assert result.output.count('DOC101') == 1
-        assert result.output.count('DOC103') == 1
-        assert (
-            'Arguments in the function signature but not in the'
-            ' docstring: [_: int].' in result.output
-        )
+        return
+
+    assert result.exit_code == 1
+    assert result.output.count('DOC101') == 1
+    assert result.output.count('DOC103') == 1
+    actualMissingNames = extractListedNames(
+        result.output,
+        'Arguments in the function signature but not in the docstring: [',
+    )
+    assert sorted(actualMissingNames) == sorted(expectedMissingNames)
 
 
 @pytest.mark.parametrize(

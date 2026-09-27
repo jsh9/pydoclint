@@ -2014,21 +2014,42 @@ def testClassAttributeNameCategoryOptions(
     assert list(map(str, violations)) == expectedViolationMessages
 
 
-# Only 4 cases (not 8 like the class-attribute matrix): there is no separate
-# special-dunder option for arguments. Special dunder arguments, such as
-# `__special__` and `**__special__` in the fixture, are controlled by
-# `ignorePrivateArgs` for backward compatibility.
 @pytest.mark.parametrize(
     (
         'ignorePrivateArgs',
         'ignoreUnderscoreOnlyArgs',
+        'ignoreSpecialDunderArgs',
         'expectedViolationMessages',
     ),
     [
-        (True, True, []),
+        (True, True, True, []),
+        (
+            True,
+            True,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [__special__: str].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__special__: str].',
+            ],
+        ),
         (
             True,
             False,
+            True,
             [
                 'DOC101: Function `function_1`: Docstring contains fewer'
                 ' arguments than in function signature.',
@@ -2057,8 +2078,63 @@ def testClassAttributeNameCategoryOptions(
             ],
         ),
         (
+            True,
+            False,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool, __special__: str].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__special__: str, *_: int].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__: str].',
+            ],
+        ),
+        (
             False,
             True,
+            True,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [__d: list, _c: dict].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [*_private: int].',
+            ],
+        ),
+        (
+            False,
+            True,
+            False,
             [
                 'DOC101: Function `function_1`: Docstring contains fewer'
                 ' arguments than in function signature.',
@@ -2089,6 +2165,7 @@ def testClassAttributeNameCategoryOptions(
         (
             False,
             False,
+            True,
             [
                 'DOC101: Function `function_1`: Docstring contains fewer'
                 ' arguments than in function signature.',
@@ -2097,8 +2174,39 @@ def testClassAttributeNameCategoryOptions(
                 ' formatting issues:'
                 ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
                 ' ). Arguments in the function signature but not in the'
-                ' docstring: [_: float, __: bool, __d: list, __special__: str,'
-                ' _c: dict].',
+                ' docstring: [_: float, __: bool, __d: list, _c: dict].',
+                'DOC101: Function `function_2`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_2`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [*_: int].',
+                'DOC101: Function `function_3`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_3`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [**__: str, *_private: int].',
+            ],
+        ),
+        (
+            False,
+            False,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool, __d: list, __special__:'
+                ' str, _c: dict].',
                 'DOC101: Function `function_2`: Docstring contains fewer'
                 ' arguments than in function signature.',
                 'DOC103: Function `function_2`: Docstring arguments are'
@@ -2119,18 +2227,20 @@ def testClassAttributeNameCategoryOptions(
         ),
     ],
 )
-def testPrivateAndUnderscoreOnlyFunctionArgumentOptions(
+def testFunctionArgumentNameCategoryOptions(
         ignorePrivateArgs: bool,
         ignoreUnderscoreOnlyArgs: bool,
+        ignoreSpecialDunderArgs: bool,
         expectedViolationMessages: list[str],
 ) -> None:
-    """Ensure private and underscore-only argument options work together."""
+    """Ensure the three argument name options work together."""
     violations = _checkFile(
         filename=(DATA_DIR / 'name_category_options/function_arguments.py'),
         style='google',
         argTypeHintsInDocstring=False,
         ignorePrivateArgs=ignorePrivateArgs,
         ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
+        ignoreSpecialDunderArgs=ignoreSpecialDunderArgs,
     )
     assert list(map(str, violations)) == expectedViolationMessages
 

@@ -28,24 +28,25 @@ ______________________________________________________________________
 - [13. `--check-yield-types` (shortform: `-cyt`, default: `True`)](#13---check-yield-types-shortform--cyt-default-true)
 - [14. `--ignore-underscore-only-args` (shortform: `-iuoa`, default: `True`)](#14---ignore-underscore-only-args-shortform--iuoa-default-true)
 - [15. `--ignore-private-args` (shortform: `-ipa`, default: `False`)](#15---ignore-private-args-shortform--ipa-default-false)
-- [16. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#16---check-class-attributes-shortform--cca-default-true)
-- [17. `--ignore-private-class-attributes` (shortform: `-ipca`, default: `True`)](#17---ignore-private-class-attributes-shortform--ipca-default-true)
-- [18. `--ignore-underscore-only-class-attributes` (shortform: `-iuoca`, default: `True`)](#18---ignore-underscore-only-class-attributes-shortform--iuoca-default-true)
-- [19. `--ignore-special-dunder-class-attributes` (shortform: `-isdca`, default: `True`)](#19---ignore-special-dunder-class-attributes-shortform--isdca-default-true)
-- [20. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#20---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
-- [21. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)](#21---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
-- [22. `--require-inline-class-var-docs` (shortform: `-ricvd`, default: `False`)](#22---require-inline-class-var-docs-shortform--ricvd-default-false)
-- [23. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#23---should-document-star-arguments-shortform--sdsa-default-true)
-- [24. `--omit-stars-when-documenting-varargs` (shortform: `-oswdv`, default: `False`)](#24---omit-stars-when-documenting-varargs-shortform--oswdv-default-false)
-- [25. `--check-style-mismatch` (shortform: `-csm`, default: `False`)](#25---check-style-mismatch-shortform--csm-default-false)
-- [26. `--check-arg-defaults` (shortform: `-cad`, default: `False`)](#26---check-arg-defaults-shortform--cad-default-false)
-- [27. `--baseline`](#27---baseline)
-- [28. `--generate-baseline` (default: `False`)](#28---generate-baseline-default-false)
-- [29. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#29---auto-regenerate-baseline-shortform--arb-default-true)
-- [30. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#30---show-filenames-in-every-violation-message-shortform--sfn-default-false)
-- [31. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)](#31---native-mode-noqa-location-shortform--nmnl-default-docstring)
-- [32. `--config` (default: `pyproject.toml`)](#32---config-default-pyprojecttoml)
-- [33. Name categories](#33-name-categories)
+- [16. `--ignore-special-dunder-args` (shortform: `-isda`, default: `False`)](#16---ignore-special-dunder-args-shortform--isda-default-false)
+- [17. `--check-class-attributes` (shortform: `-cca`, default: `True`)](#17---check-class-attributes-shortform--cca-default-true)
+- [18. `--ignore-private-class-attributes` (shortform: `-ipca`, default: `True`)](#18---ignore-private-class-attributes-shortform--ipca-default-true)
+- [19. `--ignore-underscore-only-class-attributes` (shortform: `-iuoca`, default: `True`)](#19---ignore-underscore-only-class-attributes-shortform--iuoca-default-true)
+- [20. `--ignore-special-dunder-class-attributes` (shortform: `-isdca`, default: `True`)](#20---ignore-special-dunder-class-attributes-shortform--isdca-default-true)
+- [21. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)](#21---treat-property-methods-as-class-attributes-shortform--tpmaca-default-false)
+- [22. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)](#22---only-attrs-with-classvar-are-treated-as-class-attrs-shortform--oawcv-default-false)
+- [23. `--require-inline-class-var-docs` (shortform: `-ricvd`, default: `False`)](#23---require-inline-class-var-docs-shortform--ricvd-default-false)
+- [24. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)](#24---should-document-star-arguments-shortform--sdsa-default-true)
+- [25. `--omit-stars-when-documenting-varargs` (shortform: `-oswdv`, default: `False`)](#25---omit-stars-when-documenting-varargs-shortform--oswdv-default-false)
+- [26. `--check-style-mismatch` (shortform: `-csm`, default: `False`)](#26---check-style-mismatch-shortform--csm-default-false)
+- [27. `--check-arg-defaults` (shortform: `-cad`, default: `False`)](#27---check-arg-defaults-shortform--cad-default-false)
+- [28. `--baseline`](#28---baseline)
+- [29. `--generate-baseline` (default: `False`)](#29---generate-baseline-default-false)
+- [30. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#30---auto-regenerate-baseline-shortform--arb-default-true)
+- [31. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#31---show-filenames-in-every-violation-message-shortform--sfn-default-false)
+- [32. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)](#32---native-mode-noqa-location-shortform--nmnl-default-docstring)
+- [33. `--config` (default: `pyproject.toml`)](#33---config-default-pyprojecttoml)
+- [34. Name categories](#34-name-categories)
 
 ______________________________________________________________________
 
@@ -211,6 +212,12 @@ classified.
 Private arguments such as `_a` are not underscore-only arguments; they are
 controlled by `--ignore-private-args`. See [name categories](#name-categories).
 
+**Why the default is `True`:** a name made only of underscores (`_`, `__`,
+`*_`, `**__`) marks an argument that is intentionally unused, such as a
+callback parameter that the function must accept but ignores. There is nothing
+to document about it. This is also the default of the removed
+`--ignore-underscore-args` option, so existing projects keep their behavior.
+
 The removed `--ignore-underscore-args` option now stops the lint run with a
 migration error. Delete the old setting when it is `true`, because that is the
 new default. When it is `false`, replace it with one of these equivalent forms:
@@ -226,13 +233,34 @@ ignore-underscore-only-args = false
 ## 15. `--ignore-private-args` (shortform: `-ipa`, default: `False`)
 
 If True, private arguments (such as `_value`, `__value`, and `*_args`) are
-excluded and must not appear in the docstring. For backward compatibility, this
-option also controls special dunder arguments (such as `__value__`).
-Underscore-only arguments (such as `_`) are controlled by
-`--ignore-underscore-only-args` instead. See
+excluded and must not appear in the docstring. Underscore-only arguments (such
+as `_`) are controlled by `--ignore-underscore-only-args`, and special dunder
+arguments (such as `__value__`) by `--ignore-special-dunder-args`. See
 [name categories](#name-categories).
 
-## 16. `--check-class-attributes` (shortform: `-cca`, default: `True`)
+**Why the default is `False`:** an underscore prefix doesn't take an argument
+out of the call signature; callers can still pass it, so it is documented and
+checked like any other argument. Set this option to `True` if your private
+arguments are reserved for internal callers, such as recursion state or test
+hooks, and you don't want to document them.
+
+## 16. `--ignore-special-dunder-args` (shortform: `-isda`, default: `False`)
+
+If True, special dunder arguments, whose names start and end with double
+underscores (such as `__value__` and `**__value__`), are excluded and must not
+appear in the docstring. The leading `*` or `**` of a star argument is removed
+before its name is classified. See [name categories](#name-categories).
+
+**Why the default is `False`:** like a private argument, a special dunder
+argument is part of the call signature, so it is documented and checked by
+default. Such argument names are rare. With this default, the default
+configuration treats them exactly as it did before this option existed.
+
+Before this option existed, `--ignore-private-args` also controlled special
+dunder arguments. If you set `--ignore-private-args=True` and want dunder
+arguments to stay ignored, also set `--ignore-special-dunder-args=True`.
+
+## 17. `--check-class-attributes` (shortform: `-cca`, default: `True`)
 
 If True, check the class attributes (defined under the class definition)
 against the "Attributes" section of the class's docstring.
@@ -241,18 +269,31 @@ Please read
 [this page](https://jsh9.github.io/pydoclint/checking_class_attributes.html)
 for more instructions.
 
-## 17. `--ignore-private-class-attributes` (shortform: `-ipca`, default: `True`)
+## 18. `--ignore-private-class-attributes` (shortform: `-ipca`, default: `True`)
 
 If True, private class attributes (underscore-prefixed names containing at
 least one non-underscore character, excluding special names that start and end
 with double underscores) are excluded and must not appear in the docstring. If
 False, they must be documented.
 
-## 18. `--ignore-underscore-only-class-attributes` (shortform: `-iuoca`, default: `True`)
+**Why the default is `True`:** the class docstring's "Attributes" section
+describes the class's public interface. Private class attributes, such as
+`_cache` or `_registry`, are implementation details that users of the class
+shouldn't rely on, so they are left out by default. This matches the default of
+the removed `--should-document-private-class-attributes` option (`False`).
+
+## 19. `--ignore-underscore-only-class-attributes` (shortform: `-iuoca`, default: `True`)
 
 If True, class attributes whose names contain only underscores (such as `_`,
 `__`, ...) are excluded and must not appear in the docstring. If False, they
 must be documented.
+
+**Why the default is `True`:** a class attribute named only with underscores is
+a placeholder, not data. For example, `_: dataclasses.KW_ONLY` is a dataclass
+marker that makes the fields after it keyword-only; it isn't an attribute of
+the instances. There is nothing to document, so it is ignored by default. This
+matches the default of the removed `--should-document-private-class-attributes`
+option (`False`).
 
 To require documentation for `_value` while ignoring placeholders such as `_`
 (for example, `_: dataclasses.KW_ONLY`), use:
@@ -262,12 +303,20 @@ ignore-private-class-attributes = false
 ignore-underscore-only-class-attributes = true
 ```
 
-## 19. `--ignore-special-dunder-class-attributes` (shortform: `-isdca`, default: `True`)
+## 20. `--ignore-special-dunder-class-attributes` (shortform: `-isdca`, default: `True`)
 
 If True, special class attributes whose names start and end with double
 underscores (such as `__slots__`, `__match_args__`, and `__tablename__`) are
 excluded and must not appear in the docstring. If False, they must be
 documented.
+
+**Why the default is `True`:** special dunder class attributes, such as
+`__slots__`, `__match_args__`, `__hash__ = None`, or SQLAlchemy's
+`__tablename__`, configure how Python or a framework treats the class. They are
+not attributes that users of the class read or set, so they are left out of the
+"Attributes" section by default. Set this option to `False` if your project
+documents them. This matches the default of the removed
+`--should-document-private-class-attributes` option (`False`).
 
 The removed `--should-document-private-class-attributes` option now stops the
 lint run with a migration error. Delete the old setting when it is `false`,
@@ -288,20 +337,20 @@ ignore-underscore-only-class-attributes = false
 ignore-special-dunder-class-attributes = false
 ```
 
-## 20. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)
+## 21. `--treat-property-methods-as-class-attributes` (shortform: `-tpmaca`, default: `False`)
 
 If True, treat `@property` methods as class properties. This means that they
 need to be documented in the "Attributes" section of the class docstring, and
 there cannot be any docstring under the @property methods. This option is only
 effective when --check-class-attributes is True.
 
-## 21. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)
+## 22. `--only-attrs-with-ClassVar-are-treated-as-class-attrs` (shortform: `-oawcv`, default: `False`)
 
 If True, only the attributes whose type annotations are wrapped within
 `ClassVar` (where `ClassVar` is imported from `typing`) are treated as class
 attributes, and all other attributes are treated as instance attributes.
 
-## 22. `--require-inline-class-var-docs` (shortform: `-ricvd`, default: `False`)
+## 23. `--require-inline-class-var-docs` (shortform: `-ricvd`, default: `False`)
 
 If True, class attributes (a.k.a.,
 [`ClassVar`](https://typing.python.org/en/latest/spec/class-compat.html#classvar))
@@ -324,20 +373,20 @@ an "Attributes" section in the class docstring will trigger `DOC607`.
 Inline docstrings may specify the attribute type as the first token in the
 docstring followed by a `:`.
 
-## 23. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)
+## 24. `--should-document-star-arguments` (shortform: `-sdsa`, default: `True`)
 
 If True, "star arguments" (such as `*args`, `**kwargs`, `**props`, etc.) in the
 function signature should be documented in the docstring. If False, they should
 not appear in the docstring.
 
-## 24. `--omit-stars-when-documenting-varargs` (shortform: `-oswdv`, default: `False`)
+## 25. `--omit-stars-when-documenting-varargs` (shortform: `-oswdv`, default: `False`)
 
 If True, docstring argument entries describing `*args` or `**kwargs` may omit
 the leading `*`, and pydoclint will still match them against the function
 signature. Leave this disabled to require docstrings to include the leading `*`
 characters for varargs.
 
-## 25. `--check-style-mismatch` (shortform: `-csm`, default: `False`)
+## 26. `--check-style-mismatch` (shortform: `-csm`, default: `False`)
 
 If True, check that style specified in --style matches the detected style of
 the docstring. If there is a mismatch, `DOC003` will be reported. Setting this
@@ -346,7 +395,7 @@ to False will silence all `DOC003` violations.
 Read more about this config option and `DOC003` at
 [https://jsh9.github.io/pydoclint/style_mismatch.html](https://jsh9.github.io/pydoclint/style_mismatch.html).
 
-## 26. `--check-arg-defaults` (shortform: `-cad`, default: `False`)
+## 27. `--check-arg-defaults` (shortform: `-cad`, default: `False`)
 
 If True, docstring type hints should contain default values consistent with the
 function signature. If False, docstring type hints should not contain default
@@ -354,7 +403,7 @@ values. (Only applies to numpy style for now.)
 
 <a id="baseline"></a>
 
-## 27. `--baseline`
+## 28. `--baseline`
 
 Baseline allows you to remember the current project state and then show only
 new violations, ignoring old ones. This can be very useful when you'd like to
@@ -376,12 +425,12 @@ If `--generate-baseline` is not passed to _pydoclint_ (the default is `False`),
 _pydoclint_ will read your baseline file, and ignore all violations specified
 in that file.
 
-## 28. `--generate-baseline` (default: `False`)
+## 29. `--generate-baseline` (default: `False`)
 
 Required to use with `--baseline` option. If `True`, generate the baseline file
 that contains all current violations.
 
-## 29. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)
+## 30. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)
 
 If it's set to True, _pydoclint_ will automatically regenerate the baseline
 file every time you fix violations in the baseline and rerun _pydoclint_.
@@ -389,7 +438,7 @@ file every time you fix violations in the baseline and rerun _pydoclint_.
 This saves you from having to manually regenerate the baseline file by setting
 `--generate-baseline=True` and run _pydoclint_.
 
-## 30. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
+## 31. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)
 
 If False, in the terminal the violation messages are grouped by file names:
 
@@ -423,7 +472,7 @@ This can be convenient if you would like to click on each violation message and
 go to the corresponding line in your IDE. (Note: not all terminal app offers
 this functionality.)
 
-## 31. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)
+## 32. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)
 
 This option controls where _pydoclint_ looks for inline `# noqa: DOCxxx`
 comments when running in native mode (i.e., outside of Flake8). Two values are
@@ -438,7 +487,7 @@ Only DOC-prefixed violation codes are honored; other codes are ignored by the
 native parser. This setting has no effect in Flake8 mode, which is controlled
 by Flake8's own `noqa` handling.
 
-## 32. `--config` (default: `pyproject.toml`)
+## 33. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this
@@ -447,7 +496,7 @@ page:
 
 <a id="name-categories"></a>
 
-## 33. Name categories
+## 34. Name categories
 
 _pydoclint_ puts every function, argument, and class attribute name into
 exactly one category:
@@ -464,8 +513,9 @@ Each option then decides which categories it applies to:
 | Option                                      | Applies to                                |
 | ------------------------------------------- | ----------------------------------------- |
 | `--skip-checking-private-functions`         | `PRIVATE` and `UNDERSCORE_ONLY` functions |
-| `--ignore-private-args`                     | `PRIVATE` and `SPECIAL_DUNDER` arguments  |
+| `--ignore-private-args`                     | `PRIVATE` arguments                       |
 | `--ignore-underscore-only-args`             | `UNDERSCORE_ONLY` arguments               |
+| `--ignore-special-dunder-args`              | `SPECIAL_DUNDER` arguments                |
 | `--ignore-private-class-attributes`         | `PRIVATE` class attributes                |
 | `--ignore-underscore-only-class-attributes` | `UNDERSCORE_ONLY` class attributes        |
 | `--ignore-special-dunder-class-attributes`  | `SPECIAL_DUNDER` class attributes         |
@@ -475,14 +525,17 @@ In particular:
 - `--skip-checking-private-functions` skips private and underscore-only
   functions, together with everything defined inside them. Special dunder
   methods, such as `__init__`, are always checked.
-- `--ignore-private-args` controls both private and special dunder arguments,
-  for backward compatibility. `--ignore-underscore-only-args` controls
-  underscore-only arguments.
+- Arguments and class attributes each have three options that independently
+  control private, underscore-only, and special dunder names.
 - The leading `*` or `**` of a star argument is removed before its name is
   classified, so `*_` is underscore-only and `**_kwargs` is private.
-- The three class-attribute options independently control private,
-  underscore-only, and special dunder class attributes.
 - Public names are never ignored by these options.
+
+The defaults follow one rule per context. Arguments are part of a function's
+call signature, so only underscore-only placeholder arguments are ignored by
+default. The "Attributes" section describes a class's public interface, so
+private, underscore-only, and special dunder class attributes are all ignored
+by default. Each option's section explains its default in more detail.
 
 An ignored argument or class attribute is excluded from comparison; it is not
 optional documentation. Documenting an ignored name produces an "extra name"

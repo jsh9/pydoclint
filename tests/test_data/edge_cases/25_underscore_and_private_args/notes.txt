@@ -1,8 +1,8 @@
 The cases that used to live in this directory covered
 https://github.com/jsh9/pydoclint/issues/216.
 
-They were moved to the parametrized 2x2 option test
-testPrivateAndUnderscoreOnlyFunctionArgumentOptions() in tests/test_main.py.
+They were moved to the parametrized option-matrix test
+testFunctionArgumentNameCategoryOptions() in tests/test_main.py.
 That test uses the shared fixture at
 tests/test_data/name_category_options/function_arguments.py.
 

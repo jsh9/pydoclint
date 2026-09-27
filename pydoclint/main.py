@@ -259,8 +259,18 @@ def validateNativeModeNoqaLocation(
     default=False,
     help=(
         'If True, private arguments (such as _value, __value, and *_args)'
-        ' and, for backward compatibility, special dunder arguments (such as'
-        ' __value__) are excluded and must not appear in the docstring.'
+        ' are excluded and must not appear in the docstring.'
+    ),
+)
+@click.option(
+    '-isda',
+    '--ignore-special-dunder-args',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, special dunder arguments (such as __value__) are excluded'
+        ' and must not appear in the docstring.'
     ),
 )
 @click.option(
@@ -538,6 +548,7 @@ def main(  # noqa: C901, PLR0915
         ignore_underscore_args: bool | None,
         ignore_underscore_only_args: bool,
         ignore_private_args: bool,
+        ignore_special_dunder_args: bool,
         check_class_attributes: bool,
         should_document_private_class_attributes: bool | None,
         ignore_private_class_attributes: bool,
@@ -677,6 +688,7 @@ def main(  # noqa: C901, PLR0915
         checkYieldTypes=check_yield_types,
         ignoreUnderscoreOnlyArgs=ignore_underscore_only_args,
         ignorePrivateArgs=ignore_private_args,
+        ignoreSpecialDunderArgs=ignore_special_dunder_args,
         checkClassAttributes=check_class_attributes,
         ignorePrivateClassAttributes=ignore_private_class_attributes,
         ignoreUnderscoreOnlyClassAttributes=(
@@ -845,6 +857,7 @@ def _checkPaths(
         checkYieldTypes: bool = True,
         ignoreUnderscoreOnlyArgs: bool = True,
         ignorePrivateArgs: bool = False,
+        ignoreSpecialDunderArgs: bool = False,
         checkClassAttributes: bool = True,
         ignorePrivateClassAttributes: bool = True,
         ignoreUnderscoreOnlyClassAttributes: bool = True,
@@ -905,6 +918,7 @@ def _checkPaths(
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
             ignorePrivateArgs=ignorePrivateArgs,
+            ignoreSpecialDunderArgs=ignoreSpecialDunderArgs,
             checkClassAttributes=checkClassAttributes,
             ignorePrivateClassAttributes=ignorePrivateClassAttributes,
             ignoreUnderscoreOnlyClassAttributes=(
@@ -955,6 +969,7 @@ def _checkFile(
         checkYieldTypes: bool = True,
         ignoreUnderscoreOnlyArgs: bool = True,
         ignorePrivateArgs: bool = False,
+        ignoreSpecialDunderArgs: bool = False,
         checkClassAttributes: bool = True,
         ignorePrivateClassAttributes: bool = True,
         ignoreUnderscoreOnlyClassAttributes: bool = True,
@@ -1010,6 +1025,7 @@ def _checkFile(
         checkYieldTypes=checkYieldTypes,
         ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
         ignorePrivateArgs=ignorePrivateArgs,
+        ignoreSpecialDunderArgs=ignoreSpecialDunderArgs,
         checkClassAttributes=checkClassAttributes,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(

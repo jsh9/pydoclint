@@ -1623,51 +1623,45 @@ def testShouldSkipCheckingPrivateFunction(
     ) is (skipCheckingPrivateFunctions and skippedWhenEnabled)
 
 
+@pytest.mark.parametrize('ignoreSpecialDunderArgs', [True, False])
 @pytest.mark.parametrize('ignoreUnderscoreOnlyArgs', [True, False])
 @pytest.mark.parametrize('ignorePrivateArgs', [True, False])
 @pytest.mark.parametrize(
-    (
-        'name',
-        'controlledByIgnorePrivateArgs',
-        'controlledByIgnoreUnderscoreOnlyArgs',
-    ),
+    ('name', 'controllingOption'),
     [
-        ('value', False, False),
-        ('_private', True, False),
-        ('_', False, True),
-        ('__', False, True),
-        ('__special__', True, False),
-        ('*_', False, True),
-        ('**__', False, True),
-        ('*_private', True, False),
-        ('**__private', True, False),
-        ('**__special__', True, False),
+        ('value', None),
+        ('_private', 'ignorePrivateArgs'),
+        ('_', 'ignoreUnderscoreOnlyArgs'),
+        ('__', 'ignoreUnderscoreOnlyArgs'),
+        ('__special__', 'ignoreSpecialDunderArgs'),
+        ('*_', 'ignoreUnderscoreOnlyArgs'),
+        ('**__', 'ignoreUnderscoreOnlyArgs'),
+        ('*_private', 'ignorePrivateArgs'),
+        ('**__private', 'ignorePrivateArgs'),
+        ('**__special__', 'ignoreSpecialDunderArgs'),
     ],
 )
 def testShouldIgnoreArgumentName(
         name: str,
-        controlledByIgnorePrivateArgs: bool,
-        controlledByIgnoreUnderscoreOnlyArgs: bool,
+        controllingOption: str | None,
         ignorePrivateArgs: bool,
         ignoreUnderscoreOnlyArgs: bool,
+        ignoreSpecialDunderArgs: bool,
 ) -> None:
     """
     Check which argument names ``shouldIgnoreArgumentName()`` ignores.
 
-    Private and special dunder names (such as ``_private`` and ``__special__``)
-    are ignored only when ``ignorePrivateArgs`` is True, underscore-only names
-    (such as ``_``) only when ``ignoreUnderscoreOnlyArgs`` is True, and public
-    names never. A leading ``*`` or ``**`` doesn't change the result, so
+    Each non-public name is controlled by exactly one option: private names
+    (such as ``_private``) by ``ignorePrivateArgs``, underscore-only names
+    (such as ``_``) by ``ignoreUnderscoreOnlyArgs``, and special dunder names
+    (such as ``__special__``) by ``ignoreSpecialDunderArgs``. Public names are
+    never ignored. A leading ``*`` or ``**`` doesn't change the result, so
     ``*_private`` is treated like ``_private``.
     """
-    expected = (controlledByIgnorePrivateArgs and ignorePrivateArgs) or (
-        controlledByIgnoreUnderscoreOnlyArgs and ignoreUnderscoreOnlyArgs
-    )
-    assert (
-        shouldIgnoreArgumentName(
-            name=name,
-            ignorePrivateArgs=ignorePrivateArgs,
-            ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
-        )
-        is expected
-    )
+    options = {
+        'ignorePrivateArgs': ignorePrivateArgs,
+        'ignoreUnderscoreOnlyArgs': ignoreUnderscoreOnlyArgs,
+        'ignoreSpecialDunderArgs': ignoreSpecialDunderArgs,
+    }
+    expected = controllingOption is not None and options[controllingOption]
+    assert shouldIgnoreArgumentName(name=name, **options) is expected

@@ -4,6 +4,7 @@
 
 - Added
   - `--ignore-underscore-only-args` (`-iuoa`, default: `True`)
+  - `--ignore-special-dunder-args` (`-isda`, default: `False`)
   - `--ignore-private-class-attributes` (`-ipca`, default: `True`)
   - `--ignore-underscore-only-class-attributes` (`-iuoca`, default: `True`)
   - `--ignore-special-dunder-class-attributes` (`-isdca`, default: `True`)
@@ -23,13 +24,16 @@
   - `--skip-checking-private-functions` continues to skip underscore-only
     functions such as `_`, and now also skips `__` and `___`; special dunder
     methods are still checked
-  - `--ignore-private-args` keeps controlling special dunder arguments (such as
-    `__value__`) for backward compatibility
-  - Special dunder class attributes, such as `__tablename__`, now have an
-    independent option, `--ignore-special-dunder-class-attributes`
+  - Special dunder arguments and class attributes now have independent options,
+    `--ignore-special-dunder-args` and
+    `--ignore-special-dunder-class-attributes`
+  - `--ignore-private-args` no longer controls special dunder arguments (such
+    as `__value__`). If you set `--ignore-private-args=True` and want them to
+    stay ignored, also set `--ignore-special-dunder-args=True`
   - Changed the `Visitor` keyword arguments from `ignoreUnderscoreArgs` and
     `shouldDocumentPrivateClassAttributes` to `ignoreUnderscoreOnlyArgs`,
-    `ignorePrivateClassAttributes`, `ignoreUnderscoreOnlyClassAttributes`, and
+    `ignoreSpecialDunderArgs`, `ignorePrivateClassAttributes`,
+    `ignoreUnderscoreOnlyClassAttributes`, and
     `ignoreSpecialDunderClassAttributes`; this is a breaking change to the
     Python API
   - Made `tox -e muff-lint` a non-mutating check that fails instead of

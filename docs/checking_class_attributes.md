@@ -209,8 +209,9 @@ names:
     (default: `True`)
 - Function arguments
   - Private (`_value`): `--ignore-private-args` (default: `False`)
-  - Special-dunder (`__value__`): `--ignore-private-args` (default: `False`)
   - Underscore-only (`_`): `--ignore-underscore-only-args` (default: `True`)
+  - Special-dunder (`__value__`): `--ignore-special-dunder-args` (default:
+    `False`)
 
 "Ignore" means exclude from comparison, not make optional. An ignored name must
 not appear in the docstring; documenting it produces an extra-name violation
@@ -229,4 +230,4 @@ ignore-underscore-only-class-attributes = true
 
 See
 [name categories](https://jsh9.github.io/pydoclint/config_options.html#name-categories)
-for the complete classification rules.
+for the complete classification rules and the reasoning behind each default.

@@ -216,26 +216,57 @@ def testNewClassAttributeOptionsPropagate(
 
 
 @pytest.mark.parametrize(
-    ('ignoreUnderscoreOnlyArgs', 'expectedCodes'),
+    (
+        'ignorePrivateArgs',
+        'ignoreUnderscoreOnlyArgs',
+        'ignoreSpecialDunderArgs',
+        'expectedMissingNames',
+    ),
     [
-        ('True', []),
-        ('False', ['DOC101', 'DOC103']),
+        ('True', 'True', 'True', []),
+        ('True', 'True', 'False', ['__special__: float']),
+        ('True', 'False', 'True', ['_: bool']),
+        ('True', 'False', 'False', ['_: bool', '__special__: float']),
+        ('False', 'True', 'True', ['_private: str']),
+        ('False', 'True', 'False', ['_private: str', '__special__: float']),
+        ('False', 'False', 'True', ['_private: str', '_: bool']),
+        (
+            'False',
+            'False',
+            'False',
+            ['_private: str', '_: bool', '__special__: float'],
+        ),
     ],
 )
-def testIgnoreUnderscoreOnlyArgsPropagates(
+def testArgumentNameOptionsPropagate(
+        ignorePrivateArgs: str,
         ignoreUnderscoreOnlyArgs: str,
-        expectedCodes: list[str],
+        ignoreSpecialDunderArgs: str,
+        expectedMissingNames: list[str],
 ) -> None:
-    """Ensure Flake8 forwards the underscore-only argument control."""
+    """Ensure Flake8 forwards all three argument name controls."""
     flake8Plugin = buildFlake8Plugin(
-        NAME_CATEGORY_OPTIONS_DATA_DIR
-        / 'underscore_only_function_argument.py',
+        NAME_CATEGORY_OPTIONS_DATA_DIR / 'argument_categories.py',
         style='google',
         arg_type_hints_in_docstring='False',
+        ignore_private_args=ignorePrivateArgs,
         ignore_underscore_only_args=ignoreUnderscoreOnlyArgs,
+        ignore_special_dunder_args=ignoreSpecialDunderArgs,
     )
-    codes = [message.split()[0] for _, _, message, _ in flake8Plugin.run()]
-    assert codes == expectedCodes
+    messages = [message for _, _, message, _ in flake8Plugin.run()]
+    if not expectedMissingNames:
+        assert messages == []
+        return
+
+    assert [message.split()[0] for message in messages] == [
+        'DOC101',
+        'DOC103',
+    ]
+    actualMissingNames = extractListedNames(
+        messages[1],
+        'but not in the docstring: [',
+    )
+    assert sorted(actualMissingNames) == sorted(expectedMissingNames)
 
 
 @pytest.mark.parametrize(

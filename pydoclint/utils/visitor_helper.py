@@ -432,19 +432,21 @@ def shouldIgnoreArgumentName(
         name: str,
         ignorePrivateArgs: bool,
         ignoreUnderscoreOnlyArgs: bool,
+        ignoreSpecialDunderArgs: bool,
 ) -> bool:
     """Return whether a function argument name should be ignored."""
     # collectFuncArgs() prefixes star arguments with * or **, which are not
     # part of the Python identifier being classified.
     identifier = name.lstrip('*')
     nameKind = classifyName(identifier)
+    if nameKind is NameKind.PRIVATE:
+        return ignorePrivateArgs
+
     if nameKind is NameKind.UNDERSCORE_ONLY:
         return ignoreUnderscoreOnlyArgs
 
-    if nameKind in {NameKind.PRIVATE, NameKind.SPECIAL_DUNDER}:
-        # For backward compatibility, ignorePrivateArgs also controls special
-        # dunder arguments, as it did before names were classified.
-        return ignorePrivateArgs
+    if nameKind is NameKind.SPECIAL_DUNDER:
+        return ignoreSpecialDunderArgs
 
     return False
 

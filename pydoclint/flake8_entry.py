@@ -217,9 +217,18 @@ class Plugin:
             parse_from_config=True,
             help=(
                 'If True, private arguments (such as _value, __value, and'
-                ' *_args) and, for backward compatibility, special dunder'
-                ' arguments (such as __value__) are excluded and must not'
-                ' appear in the docstring.'
+                ' *_args) are excluded and must not appear in the docstring.'
+            ),
+        )
+        parser.add_option(
+            '-isda',
+            '--ignore-special-dunder-args',
+            action='store',
+            default='False',
+            parse_from_config=True,
+            help=(
+                'If True, special dunder arguments (such as __value__) are'
+                ' excluded and must not appear in the docstring.'
             ),
         )
         parser.add_option(
@@ -418,6 +427,7 @@ class Plugin:
         cls.ignore_underscore_args = options.ignore_underscore_args
         cls.ignore_underscore_only_args = options.ignore_underscore_only_args
         cls.ignore_private_args = options.ignore_private_args
+        cls.ignore_special_dunder_args = options.ignore_special_dunder_args
         cls.check_class_attributes = options.check_class_attributes
         cls.should_document_private_class_attributes = (
             options.should_document_private_class_attributes
@@ -540,6 +550,10 @@ class Plugin:
             '--ignore-private-args',
             self.ignore_private_args,
         )
+        ignoreSpecialDunderArgs = self._bool(
+            '--ignore-special-dunder-args',
+            self.ignore_special_dunder_args,
+        )
         checkClassAttributes = self._bool(
             '--check-class-attributes',
             self.check_class_attributes,
@@ -609,6 +623,7 @@ class Plugin:
             checkYieldTypes=checkYieldTypes,
             ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
             ignorePrivateArgs=ignorePrivateArgs,
+            ignoreSpecialDunderArgs=ignoreSpecialDunderArgs,
             checkClassAttributes=checkClassAttributes,
             ignorePrivateClassAttributes=ignorePrivateClassAttributes,
             ignoreUnderscoreOnlyClassAttributes=(

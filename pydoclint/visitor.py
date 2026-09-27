@@ -84,6 +84,7 @@ class Visitor(ast.NodeVisitor):
             checkYieldTypes: bool = True,
             ignoreUnderscoreOnlyArgs: bool = True,
             ignorePrivateArgs: bool = False,
+            ignoreSpecialDunderArgs: bool = False,
             checkClassAttributes: bool = True,
             ignorePrivateClassAttributes: bool = True,
             ignoreUnderscoreOnlyClassAttributes: bool = True,
@@ -111,6 +112,7 @@ class Visitor(ast.NodeVisitor):
         self.checkYieldTypes: bool = checkYieldTypes
         self.ignoreUnderscoreOnlyArgs: bool = ignoreUnderscoreOnlyArgs
         self.ignorePrivateArgs: bool = ignorePrivateArgs
+        self.ignoreSpecialDunderArgs: bool = ignoreSpecialDunderArgs
         self.checkClassAttributes: bool = checkClassAttributes
         self.ignorePrivateClassAttributes: bool = ignorePrivateClassAttributes
         self.ignoreUnderscoreOnlyClassAttributes: bool = (
@@ -587,6 +589,7 @@ class Visitor(ast.NodeVisitor):
                 name=_.name,
                 ignorePrivateArgs=self.ignorePrivateArgs,
                 ignoreUnderscoreOnlyArgs=self.ignoreUnderscoreOnlyArgs,
+                ignoreSpecialDunderArgs=self.ignoreSpecialDunderArgs,
             )
         ])
 
