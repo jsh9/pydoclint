@@ -1599,7 +1599,7 @@ def testInlineClassAttributeDocsRespectNameKinds(
 
 @pytest.mark.parametrize('skipCheckingPrivateFunctions', [True, False])
 @pytest.mark.parametrize(
-    ('name', 'skippedWhenEnabled'),
+    ('functionName', 'skippedWhenEnabled'),
     [
         ('value', False),
         ('_private', True),
@@ -1612,13 +1612,13 @@ def testInlineClassAttributeDocsRespectNameKinds(
     ],
 )
 def testShouldSkipCheckingPrivateFunction(
-        name: str,
+        functionName: str,
         skippedWhenEnabled: bool,
         skipCheckingPrivateFunctions: bool,
 ) -> None:
     """Ensure private and underscore-only functions are the ones skipped."""
     assert shouldSkipCheckingPrivateFunction(
-        name=name,
+        name=functionName,
         skipCheckingPrivateFunctions=skipCheckingPrivateFunctions,
     ) is (skipCheckingPrivateFunctions and skippedWhenEnabled)
 
