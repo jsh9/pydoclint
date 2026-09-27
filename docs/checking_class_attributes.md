@@ -32,10 +32,12 @@ check them. It is controlled by the `--check-class-attributes` option (see
 Private names and underscore-only placeholder names are controlled
 independently for function arguments and class attributes:
 
-| Context            | Private names such as `_value`                        | Underscore-only names such as `_`, `__`, ...                  |
-| ------------------ | ----------------------------------------------------- | ------------------------------------------------------------- |
-| Function arguments | `--ignore-private-args` (default: `False`)            | `--ignore-underscore-only-args` (default: `True`)             |
-| Class attributes   | `--ignore-private-class-attributes` (default: `True`) | `--ignore-underscore-only-class-attributes` (default: `True`) |
+| Applies to                                      | Option and default                                   |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| Private function arguments, such as `_value`    | `--ignore-private-args` (`False`)                    |
+| Underscore-only function arguments, such as `_` | `--ignore-underscore-only-args` (`True`)             |
+| Private class attributes, such as `_value`      | `--ignore-private-class-attributes` (`True`)         |
+| Underscore-only class attributes, such as `_`   | `--ignore-underscore-only-class-attributes` (`True`) |
 
 When an argument or attribute is ignored, it is excluded from comparison and
 must not appear in the docstring. It is not treated as optional documentation.
