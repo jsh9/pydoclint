@@ -453,66 +453,6 @@ from tests.test_main import DATA_DIR
                 'Arguments in the docstring but not in the function signature: [**kwargs: Any].',
             ],
         ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'ignoreUnderscoreOnlyArgs': False,
-                'argTypeHintsInDocstring': False,
-            },
-            [
-                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                'function signature.',
-                'DOC103: Function `function_1`: Docstring arguments are different from '
-                'function arguments. (Or could be other formatting issues: '
-                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                'Arguments in the function signature but not in the docstring: [_: float, __: '
-                'bool, __d: list, _c: dict].',
-            ],
-        ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'ignoreUnderscoreOnlyArgs': False,
-                'ignorePrivateArgs': True,
-                'argTypeHintsInDocstring': False,
-            },
-            [
-                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                'function signature.',
-                'DOC103: Function `function_1`: Docstring arguments are different from '
-                'function arguments. (Or could be other formatting issues: '
-                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                'Arguments in the function signature but not in the docstring: [_: float, __: '
-                'bool].',
-            ],
-        ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'argTypeHintsInDocstring': False,
-            },
-            [
-                'DOC101: Function `function_1`: Docstring contains fewer arguments than in '
-                'function signature.',
-                'DOC103: Function `function_1`: Docstring arguments are different from '
-                'function arguments. (Or could be other formatting issues: '
-                'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ). '
-                'Arguments in the function signature but not in the docstring: [__d: list, '
-                '_c: dict].',
-            ],
-        ),
-        (
-            '25_underscore_and_private_args/cases.py',
-            {
-                'style': 'google',
-                'ignorePrivateArgs': True,
-                'argTypeHintsInDocstring': False,
-            },
-            [],
-        ),
         ('26_decompose_tuples/cases.py', {}, []),
         ('27_declare_assert_error/cases.py', {'style': 'google'}, []),
         (

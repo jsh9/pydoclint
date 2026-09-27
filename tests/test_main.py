@@ -32,6 +32,28 @@ CLASS_ATTRIBUTE_NAME_KINDS_SRC = dedent(
     '''
 )
 
+# Regression coverage for https://github.com/jsh9/pydoclint/issues/216
+FUNCTION_ARGUMENT_NAME_KINDS_SRC = dedent(
+    '''
+    def function_1(
+        a: str,
+        b: int,
+        _c: dict,
+        __d: list,
+        _: float,
+        __: bool,
+        __special__: str,
+    ):
+        """My function.
+
+        Args:
+            a:
+            b:
+            __special__:
+        """
+    '''
+)
+
 ALL_CLASS_ATTRIBUTE_NAME_KINDS_DOCUMENTED_SRC = dedent(
     '''
     class Example:
@@ -1907,22 +1929,73 @@ def testInlineClassAttributeDocs(
     (
         'ignorePrivateClassAttributes',
         'ignoreUnderscoreOnlyClassAttributes',
-        'expectedMissingNames',
+        'expectedViolationMessages',
     ),
     [
         (True, True, []),
-        (True, False, ['_: bool', '__: float']),
-        (False, True, ['_private: str']),
-        (False, False, ['_private: str', '_: bool', '__: float']),
+        (
+            True,
+            False,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_: bool, __: float]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            False,
+            True,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_private: str]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
+        (
+            False,
+            False,
+            [
+                'DOC601: Class `Example`: Class docstring contains fewer class'
+                ' attributes than actual class attributes.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+                'DOC603: Class `Example`: Class docstring attributes are'
+                ' different from actual class attributes. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Attributes in the class definition but not in the'
+                ' docstring: [_: bool, __: float, _private: str]. (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+        ),
     ],
 )
-def testClassAttributeNameOptionsReachVisitor(
+def testPrivateAndUnderscoreOnlyClassAttributeOptions(
         tmp_path: Path,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
-        expectedMissingNames: list[str],
+        expectedViolationMessages: list[str],
 ) -> None:
-    """Ensure native checking applies both class-attribute name controls."""
+    """Ensure private and underscore-only class options work together."""
     sourcePath = tmp_path / 'class_attribute_name_kinds.py'
     sourcePath.write_text(CLASS_ATTRIBUTE_NAME_KINDS_SRC, encoding='utf-8')
 
@@ -1935,22 +2008,79 @@ def testClassAttributeNameOptionsReachVisitor(
             ignoreUnderscoreOnlyClassAttributes
         ),
     )
-    messages = list(map(str, violations))
-    if not expectedMissingNames:
-        assert messages == []
-        return
+    assert list(map(str, violations)) == expectedViolationMessages
 
-    assert [violation.fullErrorCode for violation in violations] == [
-        'DOC601',
-        'DOC603',
-    ]
-    actualMissingNames = (
-        messages[1]
-        .split(': [', maxsplit=1)[1]
-        .split('].', maxsplit=1)[0]
-        .split(', ')
+
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateArgs',
+        'ignoreUnderscoreOnlyArgs',
+        'expectedViolationMessages',
+    ),
+    [
+        (True, True, []),
+        (
+            True,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool].',
+            ],
+        ),
+        (
+            False,
+            True,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [__d: list, _c: dict].',
+            ],
+        ),
+        (
+            False,
+            False,
+            [
+                'DOC101: Function `function_1`: Docstring contains fewer'
+                ' arguments than in function signature.',
+                'DOC103: Function `function_1`: Docstring arguments are'
+                ' different from function arguments. (Or could be other'
+                ' formatting issues:'
+                ' https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103'
+                ' ). Arguments in the function signature but not in the'
+                ' docstring: [_: float, __: bool, __d: list, _c: dict].',
+            ],
+        ),
+    ],
+)
+def testPrivateAndUnderscoreOnlyFunctionArgumentOptions(
+        tmp_path: Path,
+        ignorePrivateArgs: bool,
+        ignoreUnderscoreOnlyArgs: bool,
+        expectedViolationMessages: list[str],
+) -> None:
+    """Ensure private and underscore-only argument options work together."""
+    sourcePath = tmp_path / 'function_argument_name_kinds.py'
+    sourcePath.write_text(FUNCTION_ARGUMENT_NAME_KINDS_SRC, encoding='utf-8')
+
+    violations = _checkFile(
+        filename=sourcePath,
+        style='google',
+        argTypeHintsInDocstring=False,
+        ignorePrivateArgs=ignorePrivateArgs,
+        ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
     )
-    assert sorted(actualMissingNames) == sorted(expectedMissingNames)
+    assert list(map(str, violations)) == expectedViolationMessages
 
 
 @pytest.mark.parametrize(
