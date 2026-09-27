@@ -46,7 +46,6 @@ ______________________________________________________________________
 - [31. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#31---show-filenames-in-every-violation-message-shortform--sfn-default-false)
 - [32. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)](#32---native-mode-noqa-location-shortform--nmnl-default-docstring)
 - [33. `--config` (default: `pyproject.toml`)](#33---config-default-pyprojecttoml)
-- [34. Name categories](#34-name-categories)
 
 ______________________________________________________________________
 
@@ -168,7 +167,8 @@ If `True`, _pydoclint_ won't check private functions (such as `_helper` and
 `__name_mangled`) or underscore-only functions (such as `_` and `__`). Special
 dunder methods (such as `__init__`) are still checked. Any functions defined
 within skipped functions are also skipped. See
-[name categories](#name-categories) for how names are classified.
+[name categories](https://jsh9.github.io/pydoclint/name_categories.html) for
+how names are classified.
 
 ## 9. `--allow-init-docstring` (shortform: `-aid`, default: `False`)
 
@@ -210,7 +210,8 @@ leading `*` or `**` of a star argument is removed before its name is
 classified.
 
 Private arguments such as `_a` are not underscore-only arguments; they are
-controlled by `--ignore-private-args`. See [name categories](#name-categories).
+controlled by `--ignore-private-args`. See
+[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
 
 **Why the default is `True`:** a name made only of underscores (`_`, `__`,
 `*_`, `**__`) marks an argument that is intentionally unused, such as a
@@ -236,7 +237,7 @@ If True, private arguments (such as `_value`, `__value`, and `*_args`) are
 excluded and must not appear in the docstring. Underscore-only arguments (such
 as `_`) are controlled by `--ignore-underscore-only-args`, and special dunder
 arguments (such as `__value__`) by `--ignore-special-dunder-args`. See
-[name categories](#name-categories).
+[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
 
 **Why the default is `False`:** an underscore prefix doesn't take an argument
 out of the call signature; callers can still pass it, so it is documented and
@@ -249,7 +250,8 @@ hooks, and you don't want to document them.
 If True, special dunder arguments, whose names start and end with double
 underscores (such as `__value__` and `**__value__`), are excluded and must not
 appear in the docstring. The leading `*` or `**` of a star argument is removed
-before its name is classified. See [name categories](#name-categories).
+before its name is classified. See
+[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
 
 **Why the default is `False`:** like a private argument, a special dunder
 argument is part of the call signature, so it is documented and checked by
@@ -274,7 +276,8 @@ for more instructions.
 If True, private class attributes (underscore-prefixed names containing at
 least one non-underscore character, excluding special names that start and end
 with double underscores) are excluded and must not appear in the docstring. If
-False, they must be documented.
+False, they must be documented. See
+[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
 
 **Why the default is `True`:** the class docstring's "Attributes" section
 describes the class's public interface. Private class attributes, such as
@@ -286,7 +289,8 @@ the removed `--should-document-private-class-attributes` option (`False`).
 
 If True, class attributes whose names contain only underscores (such as `_`,
 `__`, ...) are excluded and must not appear in the docstring. If False, they
-must be documented.
+must be documented. See
+[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
 
 **Why the default is `True`:** a class attribute named only with underscores is
 a placeholder, not data. For example, `_: dataclasses.KW_ONLY` is a dataclass
@@ -308,7 +312,8 @@ ignore-underscore-only-class-attributes = true
 If True, special class attributes whose names start and end with double
 underscores (such as `__slots__`, `__match_args__`, and `__tablename__`) are
 excluded and must not appear in the docstring. If False, they must be
-documented.
+documented. See
+[name categories](https://jsh9.github.io/pydoclint/name_categories.html).
 
 **Why the default is `True`:** special dunder class attributes, such as
 `__slots__`, `__match_args__`, `__hash__ = None`, or SQLAlchemy's
@@ -493,51 +498,3 @@ The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this
 page:
 [How to configure _pydoclint_](https://jsh9.github.io/pydoclint/how_to_config.html)
-
-<a id="name-categories"></a>
-
-## 34. Name categories
-
-_pydoclint_ puts every function, argument, and class attribute name into
-exactly one category:
-
-| Category          | Examples                                 |
-| ----------------- | ---------------------------------------- |
-| `PUBLIC`          | `value`, `value_`                        |
-| `PRIVATE`         | `_value`, `__value`, `_value__`          |
-| `UNDERSCORE_ONLY` | `_`, `__`, `___`                         |
-| `SPECIAL_DUNDER`  | `__init__`, `__slots__`, `__tablename__` |
-
-Each option then decides which categories it applies to:
-
-| Option                                      | Applies to                                |
-| ------------------------------------------- | ----------------------------------------- |
-| `--skip-checking-private-functions`         | `PRIVATE` and `UNDERSCORE_ONLY` functions |
-| `--ignore-private-args`                     | `PRIVATE` arguments                       |
-| `--ignore-underscore-only-args`             | `UNDERSCORE_ONLY` arguments               |
-| `--ignore-special-dunder-args`              | `SPECIAL_DUNDER` arguments                |
-| `--ignore-private-class-attributes`         | `PRIVATE` class attributes                |
-| `--ignore-underscore-only-class-attributes` | `UNDERSCORE_ONLY` class attributes        |
-| `--ignore-special-dunder-class-attributes`  | `SPECIAL_DUNDER` class attributes         |
-
-In particular:
-
-- `--skip-checking-private-functions` skips private and underscore-only
-  functions, together with everything defined inside them. Special dunder
-  methods, such as `__init__`, are always checked.
-- Arguments and class attributes each have three options that independently
-  control private, underscore-only, and special dunder names.
-- The leading `*` or `**` of a star argument is removed before its name is
-  classified, so `*_` is underscore-only and `**_kwargs` is private.
-- Public names are never ignored by these options.
-
-The defaults follow one rule per context. Arguments are part of a function's
-call signature, so only underscore-only placeholder arguments are ignored by
-default. The "Attributes" section describes a class's public interface, so
-private, underscore-only, and special dunder class attributes are all ignored
-by default. Each option's section explains its default in more detail.
-
-An ignored argument or class attribute is excluded from comparison; it is not
-optional documentation. Documenting an ignored name produces an "extra name"
-violation, such as `DOC102`/`DOC103` for arguments or `DOC602`/`DOC603` for
-class attributes.

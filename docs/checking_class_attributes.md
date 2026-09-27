@@ -228,6 +228,5 @@ ignore-private-class-attributes = false
 ignore-underscore-only-class-attributes = true
 ```
 
-See
-[name categories](https://jsh9.github.io/pydoclint/config_options.html#name-categories)
+See [name categories](https://jsh9.github.io/pydoclint/name_categories.html)
 for the complete classification rules and the reasoning behind each default.
