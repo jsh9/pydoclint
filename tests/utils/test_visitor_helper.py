@@ -1651,7 +1651,15 @@ def testShouldIgnoreArgumentName(
         ignorePrivateArgs: bool,
         ignoreUnderscoreOnlyArgs: bool,
 ) -> None:
-    """Ensure stars are stripped and each name kind maps to one option."""
+    """
+    Check which argument names ``shouldIgnoreArgumentName()`` ignores.
+
+    Private and special dunder names (such as ``_private`` and ``__special__``)
+    are ignored only when ``ignorePrivateArgs`` is True, underscore-only names
+    (such as ``_``) only when ``ignoreUnderscoreOnlyArgs`` is True, and public
+    names never. A leading ``*`` or ``**`` doesn't change the result, so
+    ``*_private`` is treated like ``_private``.
+    """
     expected = (controlledByIgnorePrivateArgs and ignorePrivateArgs) or (
         controlledByIgnoreUnderscoreOnlyArgs and ignoreUnderscoreOnlyArgs
     )
