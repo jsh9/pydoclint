@@ -401,13 +401,13 @@ def shouldSkipCheckingPrivateFunction(
         skipCheckingPrivateFunctions: bool,
 ) -> bool:
     """
-    Decide whether ``--skip-checking-private-functions`` skips a function.
+    Return whether to skip checking a function's docstring based on its name.
 
-    When the option is on, a function is skipped (its docstring is not checked)
-    if its name is private, such as ``_helper`` or ``__mangled``, or
-    underscore-only, such as ``_`` in a ``singledispatch`` registration. Public
-    functions and special dunder methods, such as ``__init__``, are always
-    checked.
+    When ``--skip-checking-private-functions`` is on, a function is skipped
+    (its docstring is not checked) if its name is private, such as ``_helper``
+    or ``__mangled``, or underscore-only, such as ``_`` in a ``singledispatch``
+    registration. Public functions and special dunder methods, such as
+    ``__init__``, are always checked.
 
     Parameters
     ----------
