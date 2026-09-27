@@ -23,7 +23,7 @@ from pydoclint.utils.noqa import (
     collectNativeNoqaSuppression,
     collectNoqaCodesByLine,
 )
-from pydoclint.utils.removed_config_options import (
+from pydoclint.utils.config_option_removal_messages import (
     getIgnoreUnderscoreArgsRemovedMessage,
     getShouldDocumentPrivateClassAttributesRemovedMessage,
 )

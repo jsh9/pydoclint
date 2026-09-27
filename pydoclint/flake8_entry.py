@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib.metadata as importlib_metadata
 from typing import TYPE_CHECKING, Any
 
-from pydoclint.utils.removed_config_options import (
+from pydoclint.utils.config_option_removal_messages import (
     getIgnoreUnderscoreArgsRemovedMessage,
     getShouldDocumentPrivateClassAttributesRemovedMessage,
 )
