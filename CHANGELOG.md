@@ -41,6 +41,12 @@
     `--ignore-private-class-attributes`,
     `--ignore-underscore-only-class-attributes`, and
     `--ignore-special-dunder-class-attributes` to the inverse value
+- Housekeeping
+  - Moved the changelog full-diff pre-commit check into
+    `pre-commit-changelog-full-diff-check` and updated this repo to consume it
+    as an external hook
+  - Made `tox -e muff-lint` a non-mutating check that fails instead of
+    rewriting files
 
 ## [0.9.1] - 2026-07-03
 
