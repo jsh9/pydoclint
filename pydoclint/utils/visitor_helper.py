@@ -379,7 +379,7 @@ def shouldIgnoreClassAttributeName(
 ) -> bool:
     """Return whether a class attribute name should be ignored."""
     nameKind = classifyName(name)
-    if nameKind is NameKind.SPECIAL:
+    if nameKind is NameKind.SPECIAL_DUNDER:
         return True
 
     if nameKind is NameKind.UNDERSCORE_ONLY:

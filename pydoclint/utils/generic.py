@@ -440,7 +440,7 @@ class NameKind(Enum):
     PUBLIC = auto()
     PRIVATE = auto()
     UNDERSCORE_ONLY = auto()
-    SPECIAL = auto()
+    SPECIAL_DUNDER = auto()
 
 
 def classifyName(name: str) -> NameKind:
@@ -450,7 +450,7 @@ def classifyName(name: str) -> NameKind:
         return NameKind.UNDERSCORE_ONLY
 
     if name.startswith('__') and name.endswith('__'):
-        return NameKind.SPECIAL
+        return NameKind.SPECIAL_DUNDER
 
     if name.startswith('_'):
         return NameKind.PRIVATE

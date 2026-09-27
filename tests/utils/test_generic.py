@@ -135,9 +135,9 @@ def testSpecialEqual(str1: str, str2: str, expected: bool) -> None:
         ('_', NameKind.UNDERSCORE_ONLY),
         ('__', NameKind.UNDERSCORE_ONLY),
         ('___', NameKind.UNDERSCORE_ONLY),
-        ('__value__', NameKind.SPECIAL),
-        ('__slots__', NameKind.SPECIAL),
-        ('___value___', NameKind.SPECIAL),
+        ('__value__', NameKind.SPECIAL_DUNDER),
+        ('__slots__', NameKind.SPECIAL_DUNDER),
+        ('___value___', NameKind.SPECIAL_DUNDER),
     ],
 )
 def testClassifyName(name: str, expectedKind: NameKind) -> None:
