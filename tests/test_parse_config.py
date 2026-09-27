@@ -1,5 +1,5 @@
+import shutil
 from pathlib import Path
-from textwrap import dedent
 from typing import Any
 
 import pytest
@@ -13,40 +13,16 @@ from pydoclint.parse_config import (
 )
 
 THIS_DIR = Path(__file__).parent
-CONFIG_DATA_DIR: Path = THIS_DIR / 'test_data' / 'config_files'
-
-CLASS_ATTRIBUTE_NAME_KINDS_SRC = dedent(
-    '''
-    class Example:
-        """
-        Class with attributes from every name category.
-
-        Attributes
-        ----------
-        public
-            A public attribute.
-        """
-        public: int
-        _private: str
-        _: bool
-        __: float
-        __slots__: tuple[str, ...]
-        __hash__ = None
-        __match_args__: tuple[str, ...]
-    '''
+DATA_DIR = THIS_DIR / 'test_data'
+CONFIG_DATA_DIR: Path = DATA_DIR / 'config_files'
+minimalFixture = DATA_DIR / 'common/minimal.py'
+classAttributeNameKindsFixture = (
+    DATA_DIR / 'private_and_underscore_only_options/class_attributes.py'
 )
-
-UNDERSCORE_ARGUMENT_SRC = dedent(
-    '''
-    def func(_: int, value: int) -> None:
-        """Do something.
-
-        Parameters
-        ----------
-        value
-            Value to process.
-        """
-    '''
+underscoreArgumentFixture = (
+    DATA_DIR
+    / 'private_and_underscore_only_options'
+    / 'underscore_only_function_argument.py'
 )
 
 
@@ -107,23 +83,10 @@ def testParseOneTomlFileEnforceErrors(
         parseOneTomlFile(filename, enforcePydoclintSection=True)
 
 
-def _writeSamplePythonFile(directory: Path) -> Path:
-    """Create a minimal Python file that passes linting."""
+def _copyPythonFixture(directory: Path, fixturePath: Path) -> Path:
+    """Copy a Python source fixture into ``directory``."""
     samplePath = directory / 'sample.py'
-    # fmt: off
-    samplePath.write_text(
-        'def foo():\n'
-        '    """Summary."""\n'
-        '    pass\n'
-    )
-    # fmt: on
-    return samplePath
-
-
-def _writePythonFile(directory: Path, source: str) -> Path:
-    """Write a Python source fixture into ``directory``."""
-    samplePath = directory / 'sample.py'
-    samplePath.write_text(source, encoding='utf-8')
+    shutil.copyfile(fixturePath, samplePath)
     return samplePath
 
 
@@ -154,7 +117,7 @@ def _getConfigArguments(
 def testCliDefaultConfigMissingFileIsAllowed() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path())
+        samplePath = _copyPythonFixture(Path(), minimalFixture)
         result = runner.invoke(cli_main, [str(samplePath)])
         assert result.exit_code == 0
         assert 'No violations' in result.output
@@ -163,7 +126,7 @@ def testCliDefaultConfigMissingFileIsAllowed() -> None:
 def testCliConfigMissingFileRaisesError() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path())
+        samplePath = _copyPythonFixture(Path(), minimalFixture)
         result = runner.invoke(
             cli_main,
             ['--config', 'custom.toml', str(samplePath)],
@@ -175,7 +138,7 @@ def testCliConfigMissingFileRaisesError() -> None:
 def testCliConfigMissingSectionRaisesError() -> None:
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path())
+        samplePath = _copyPythonFixture(Path(), minimalFixture)
         badConfig = Path('bad.toml')
         badConfig.write_text('[tool.other]\nflag = true\n', encoding='utf-8')
         result = runner.invoke(
@@ -215,9 +178,9 @@ def testClassAttributeNameOptionsPropagateThroughNativeConfig(
     """Ensure CLI and TOML sources propagate both class name controls."""
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writePythonFile(
+        samplePath = _copyPythonFixture(
             Path(),
-            CLASS_ATTRIBUTE_NAME_KINDS_SRC,
+            classAttributeNameKindsFixture,
         )
         arguments = _getConfigArguments(
             source=source,
@@ -273,18 +236,20 @@ def testUnderscoreOnlyArgumentOptionPropagatesThroughNativeConfig(
     """Ensure CLI and TOML propagate the underscore-only argument control."""
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writePythonFile(Path(), UNDERSCORE_ARGUMENT_SRC)
+        samplePath = _copyPythonFixture(Path(), underscoreArgumentFixture)
         arguments = _getConfigArguments(
             source=source,
             samplePath=samplePath,
             cliOptions=[
-                '--style=numpy',
+                '--style=google',
                 '--arg-type-hints-in-docstring=False',
+                '--check-return-types=False',
                 f'--ignore-underscore-only-args={ignoreUnderscoreOnlyArgs}',
             ],
             tomlOptions=[
-                "style = 'numpy'",
+                "style = 'google'",
                 'arg-type-hints-in-docstring = false',
+                'check-return-types = false',
                 'ignore-underscore-only-args ='
                 f' {str(ignoreUnderscoreOnlyArgs).lower()}',
             ],
@@ -358,7 +323,7 @@ def testRemovedOptionsShowMigrationError(
     """Ensure native config sources reject removed options with guidance."""
     runner = CliRunner()
     with runner.isolated_filesystem():
-        samplePath = _writeSamplePythonFile(Path())
+        samplePath = _copyPythonFixture(Path(), minimalFixture)
 
         arguments = _getConfigArguments(
             source=source,

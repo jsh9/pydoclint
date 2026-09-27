@@ -81,7 +81,7 @@ def testRemovedOptionsShowMigrationError(
 ) -> None:
     """Ensure Flake8 rejects removed options with migration guidance."""
     flake8Plugin = buildFlake8Plugin(
-        DATA_DIR / 'flake8_entry/minimal.py',
+        DATA_DIR / 'common/minimal.py',
         **overrides,
     )
     with pytest.raises(ValueError, match=re.escape(expectedMessage)):
@@ -152,8 +152,11 @@ def testIgnoreUnderscoreOnlyArgsPropagates(
 ) -> None:
     """Ensure Flake8 forwards the underscore-only argument control."""
     flake8Plugin = buildFlake8Plugin(
-        DATA_DIR / 'flake8_entry/underscore_only_function_argument.py',
+        DATA_DIR
+        / 'private_and_underscore_only_options'
+        / 'underscore_only_function_argument.py',
         style='google',
+        arg_type_hints_in_docstring='False',
         ignore_underscore_only_args=ignoreUnderscoreOnlyArgs,
     )
     codes = [message.split()[0] for _, _, message, _ in flake8Plugin.run()]
