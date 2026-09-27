@@ -1,0 +1,10 @@
+The cases that used to live in this directory covered
+https://github.com/jsh9/pydoclint/issues/216.
+
+They were moved to the parametrized 2x2 option test
+testPrivateAndUnderscoreOnlyFunctionArgumentOptions() in tests/test_main.py.
+That test uses the shared fixture at
+tests/test_data/private_and_underscore_only_options/function_arguments.py.
+
+This directory is retained so the historical edge-case numbering remains
+understandable.
