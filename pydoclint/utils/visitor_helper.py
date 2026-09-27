@@ -383,17 +383,35 @@ def updateDocumentedArgListWithInlineDocstrings(
         prev = element
 
 
-def shouldSkipFunctionName(
+def shouldSkipCheckingPrivateFunction(
         *,
         name: str,
         skipCheckingPrivateFunctions: bool,
 ) -> bool:
-    """Return whether a function should be skipped because of its name."""
+    """
+    Decide whether ``--skip-checking-private-functions`` skips a function.
+
+    When the option is on, a function is skipped (its docstring is not checked)
+    if its name is private, such as ``_helper`` or ``__mangled``, or
+    underscore-only, such as ``_`` in a ``singledispatch`` registration. Public
+    functions and special dunder methods, such as ``__init__``, are always
+    checked.
+
+    Parameters
+    ----------
+    name : str
+        The function or method name.
+    skipCheckingPrivateFunctions : bool
+        The value of the ``--skip-checking-private-functions`` option.
+
+    Returns
+    -------
+    bool
+        True if the function should not be checked.
+    """
     if not skipCheckingPrivateFunctions:
         return False
 
-    # Underscore-only functions (such as singledispatch registrations named
-    # _) are skipped like private functions; special dunder methods are not.
     return classifyName(name) in {NameKind.PRIVATE, NameKind.UNDERSCORE_ONLY}
 
 

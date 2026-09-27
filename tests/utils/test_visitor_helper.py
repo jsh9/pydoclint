@@ -21,7 +21,7 @@ from pydoclint.utils.visitor_helper import (
     getDocumentedAndActualClassArgLists,
     getReturnTypeToDocument,
     shouldIgnoreArgumentName,
-    shouldSkipFunctionName,
+    shouldSkipCheckingPrivateFunction,
     updateDocumentedArgListWithInlineDocstrings,
 )
 
@@ -1611,13 +1611,13 @@ def testInlineClassAttributeDocsRespectNameKinds(
         ('__init__', False),
     ],
 )
-def testShouldSkipFunctionName(
+def testShouldSkipCheckingPrivateFunction(
         name: str,
         skippedWhenEnabled: bool,
         skipCheckingPrivateFunctions: bool,
 ) -> None:
     """Ensure private and underscore-only functions are the ones skipped."""
-    assert shouldSkipFunctionName(
+    assert shouldSkipCheckingPrivateFunction(
         name=name,
         skipCheckingPrivateFunctions=skipCheckingPrivateFunctions,
     ) is (skipCheckingPrivateFunctions and skippedWhenEnabled)

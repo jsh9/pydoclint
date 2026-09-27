@@ -62,7 +62,7 @@ from pydoclint.utils.visitor_helper import (
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getReturnTypeToDocument,
     shouldIgnoreArgumentName,
-    shouldSkipFunctionName,
+    shouldSkipCheckingPrivateFunction,
 )
 
 
@@ -213,7 +213,7 @@ class Visitor(ast.NodeVisitor):
             self.parent = parent_  # restore
             return
 
-        if shouldSkipFunctionName(
+        if shouldSkipCheckingPrivateFunction(
             name=node.name,
             skipCheckingPrivateFunctions=self.skipCheckingPrivateFunctions,
         ):
