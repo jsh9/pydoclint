@@ -6,41 +6,22 @@ ______________________________________________________________________
 
 **Table of Contents**
 
-- [1. Why is _pydoclint_ so much faster than _darglint_, hhe](#1-why-is-pydoclint-so-much-faster-than-darglint-hhe)
-- [2. Cases that _pydoclint_ is not designed to handle](#2-cases-that-pydoclint-is-not-designed-to-handle)
-- [3. Notes on writing type hints](#3-notes-on-writing-type-hints)
-- [4. Notes on writing Sphinx-style docstrings](#4-notes-on-writing-sphinx-style-docstrings)
-- [5. Notes for Google-style users](#5-notes-for-google-style-users)
-- [6. How to adopt _pydoclint_ more easily in legacy projects](#6-how-to-adopt-pydoclint-more-easily-in-legacy-projects)
-- [7. How to integrate _pydoclint_ with different editors or IDEs](#7-how-to-integrate-pydoclint-with-different-editors-or-ides)
-  - [7.1. Integrate _pydoclint_ with Neovim using null-ls](#71-integrate-pydoclint-with-neovim-using-null-ls)
+- [1. Cases that _pydoclint_ is not designed to handle](#1-cases-that-pydoclint-is-not-designed-to-handle)
+- [2. Notes on writing type hints](#2-notes-on-writing-type-hints)
+- [3. How to integrate _pydoclint_ with different editors or IDEs](#3-how-to-integrate-pydoclint-with-different-editors-or-ides)
+  - [3.1. Integrate _pydoclint_ with Neovim using null-ls](#31-integrate-pydoclint-with-neovim-using-null-ls)
 
 ______________________________________________________________________
 
 <!--TOC-->
 
-## 1. Why is _pydoclint_ so much faster than _darglint_, hhe
-
-Based on the best understanding of the authors of _pydoclint_, here are some
-reasons (this may not be an exhaustive list):
-
-- _pydoclint_ uses reputable docstring parsers:
-  [docstring_parser](https://github.com/rr-/docstring_parser), while _darglint_
-  implements
-  [its own docstring parser](https://github.com/terrencepreilly/darglint/tree/abc26b768cd7135d848223ba53f68323593c33d5/darglint/parse)
-- _pydoclint_ uses a static syntax analyzer: Python's
-  [official AST module](https://docs.python.org/3/library/ast.html)
-  - On the other hand _darglint_ uses
-    [Python's `inspect` module](https://github.com/search?q=repo%3Aterrencepreilly%2Fdarglint%20inspect&type=code)
-    in some places. (The `inspect` module requires compiling the Python source
-    code, which can be time consuming for big code bases)
-  - This choice of _pydoclint_ is not without caveats -- please read Section 2
-
-## 2. Cases that _pydoclint_ is not designed to handle
+## 1. Cases that _pydoclint_ is not designed to handle
 
 _pydoclint_ uses a static syntax analyzer (Python's
 [official AST module](https://docs.python.org/3/library/ast.html)) to analyze
-the incoming Python source code.
+the incoming Python source code, and
+[docstring_parser_fork](https://github.com/jsh9/docstring_parser_fork) to parse
+docstrings. It never imports or runs your code.
 
 The static syntax analysis is very fast because it doesn't execute or evaluate
 any code. For example, this piece of Python code is not runnable:
@@ -50,7 +31,7 @@ a = b
 ```
 
 because `b` is not defined. But the static syntax analyzer does not "know"
-this: it doesn't need to "know" this to analyze the syntatic structure of
+this: it doesn't need to "know" this to analyze the syntactic structure of
 `a = b`.
 
 As a result, _pydoclint_ is not designed to handle cases where Pythonic naming
@@ -108,9 +89,9 @@ def myFunc(arg1: hello[int], arg2: world[str]) -> None:
 The authors of _pydoclint_ feel that this is a sensible design choice to
 achieve and maintain _pydoclint_'s speed.
 
-## 3. Notes on writing type hints
+## 2. Notes on writing type hints
 
-As mentioned in Section 2 above, _pydoclint_ uses static syntax analysis. As a
+As mentioned in Section 1 above, _pydoclint_ uses static syntax analysis. As a
 result, it cannot really "know" that these type annotations are in fact
 equivalent:
 
@@ -131,36 +112,9 @@ annotations verbatim.
 Again, the authors of _pydoclint_ feel that this is a reasonable price to pay
 in order to achieve fast linting and reduce ambiguity.
 
-## 4. Notes on writing Sphinx-style docstrings
+## 3. How to integrate _pydoclint_ with different editors or IDEs
 
-See
-[minor style deviations](https://jsh9.github.io/pydoclint/style_deviations.html#sphinx)
-for more details.
-
-## 5. Notes for Google-style users
-
-See
-[minor style deviations](https://jsh9.github.io/pydoclint/style_deviations.html#google)
-for more details.
-
-## 6. How to adopt _pydoclint_ more easily in legacy projects
-
-If you have large legacy projects, adoting a new linter may be daunting: you'll
-see hundreds or even thousands of violations at first.
-
-Fortunately, _pydoclint_ offers a "baseline" feature, which ignores existing
-violations for now, and will only report new violations.
-
-To use this feature, you only need to generate a "baseline violations" file
-(containing the hundreds or thousands of existing violations) once, and save it
-somewhere in your repo.
-
-For more details, please check out
-[this section](https://jsh9.github.io/pydoclint/config_options.html#baseline).
-
-## 7. How to integrate _pydoclint_ with different editors or IDEs
-
-### 7.1. Integrate _pydoclint_ with Neovim using null-ls
+### 3.1. Integrate _pydoclint_ with Neovim using null-ls
 
 If you use [Neovim](https://neovim.io/), you can integrate _pydoclint_ with
 your editor using the [null-ls](https://github.com/nvimtools/none-ls.nvim)
@@ -195,7 +149,7 @@ null_ls.setup({
 })
 ```
 
-Adjust the extra*args based on your preferred \_pydoclint* configuration. With
+Adjust `extra_args` based on your preferred _pydoclint_ configuration. With
 this setup, you can now enjoy the benefits of _pydoclint_'s fast and
 comprehensive docstring linting directly within your Neovim editing
 environment.

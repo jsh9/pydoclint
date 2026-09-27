@@ -404,7 +404,8 @@ Read more about this config option and `DOC003` at
 
 If True, docstring type hints should contain default values consistent with the
 function signature. If False, docstring type hints should not contain default
-values. (Only applies to numpy style for now.)
+values. (Only applies to numpy and Google styles; not compatible with Sphinx
+style.)
 
 <a id="baseline"></a>
 

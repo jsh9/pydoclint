@@ -59,6 +59,9 @@ files : list[str]
 flag : int | None, default=None
 ```
 
+(The `default=None` part is only expected when `--check-arg-defaults` is
+`True`. See the next section.)
+
 ### 1.2. Default values
 
 These styles to specify default values are ***not*** accepted by _pydoclint_:
@@ -79,6 +82,12 @@ onething: bool, default=False
 
 This would ensure that different code maintainers would write consistent style
 within the same project.
+
+Note that by default (`--check-arg-defaults=False`), _pydoclint_ expects
+docstring type hints **without** default values (e.g., `something: int`), and
+reports `DOC105` if you add them. If you prefer to document default values, set
+`--check-arg-defaults=True`: _pydoclint_ then requires them, in the forms shown
+above, and checks them against the function signature.
 
 ## 2. Google
 
@@ -129,6 +138,10 @@ This is accepted:
 ```
 flag (int, default=None): The flag
 ```
+
+As with the numpy style, default values are only expected when
+`--check-arg-defaults` is `True`. By default, write `flag (int): The flag`
+instead.
 
 ## 3. Sphinx
 

@@ -6,8 +6,8 @@ Most likely, you landed on this page because you saw a `DOC405` violation:
 > use Generator[YieldType, SendType, ReturnType] as the return type annotation,
 > and put your yield type in YieldType and return type in ReturnType.
 
-If you are trying to do write functions that both yield and return something,
-such as this one:
+If you are trying to write functions that both yield and return something, such
+as this one:
 
 ```python
 from typing import Generator
