@@ -437,10 +437,10 @@ def stripCommentsFromTypeHints(typeHint: str) -> str:
 class NameKind(Enum):
     """Mutually exclusive categories for Python names."""
 
-    PUBLIC = auto()
-    PRIVATE = auto()
-    UNDERSCORE_ONLY = auto()
-    SPECIAL_DUNDER = auto()
+    PUBLIC = auto()  # value, value_
+    PRIVATE = auto()  # _value, __value, _value__
+    UNDERSCORE_ONLY = auto()  # _, __, ___
+    SPECIAL_DUNDER = auto()  # __value__, __slots__, ___value___
 
 
 def classifyName(name: str) -> NameKind:
