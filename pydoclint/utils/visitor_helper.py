@@ -524,10 +524,10 @@ def extractClassAttributesFromNode(
     if 'body' not in node.__dict__ or len(node.body) == 0:
         return ArgList([])
 
-    classAttributeArgs: list[Arg] = []
+    classAttributes: list[Arg] = []
     for itm in node.body:
         if isinstance(itm, ast.AnnAssign):  # with type hints ("a: int = 1")
-            classAttributeArgs.append(Arg.fromAstAnnAssign(itm))
+            classAttributes.append(Arg.fromAstAnnAssign(itm))
         elif isinstance(itm, ast.Assign):  # no type hints
             if not isinstance(itm.targets, list) or len(itm.targets) == 0:
                 raise EdgeCaseError(
@@ -535,22 +535,22 @@ def extractClassAttributesFromNode(
                     f' Instead, it is {itm.targets}'
                 )
 
-            classAttributeArgs.extend(ArgList.fromAstAssign(itm).infoList)
+            classAttributes.extend(ArgList.fromAstAssign(itm).infoList)
         elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):  # noqa: SIM102
             if treatPropertyMethodsAsClassAttrs and checkIsPropertyMethod(itm):
                 typeHint = (
                     '' if itm.returns is None else unparseName(itm.returns)
                 )
-                classAttributeArgs.append(
+                classAttributes.append(
                     Arg(
                         name=itm.name,
                         typeHint=typeHint,
                     )
                 )
 
-    classAttributeArgs = [
+    classAttributes = [
         arg
-        for arg in classAttributeArgs
+        for arg in classAttributes
         if not shouldIgnoreClassAttributeName(
             name=arg.name,
             ignorePrivateClassAttributes=ignorePrivateClassAttributes,
@@ -564,18 +564,18 @@ def extractClassAttributesFromNode(
     ]
 
     if onlyAttrsWithClassVarAreTreatedAsClassAttrs:
-        classAttributeArgs = [
+        classAttributes = [
             Arg(
                 name=_.name,
                 typeHint=_.typeHint[9:-1],  # remove "ClassVar[" and "]"
             )
-            for _ in classAttributeArgs
+            for _ in classAttributes
             if (
                 _.typeHint.startswith('ClassVar[') and _.typeHint.endswith(']')
             )
         ]
 
-    astArgList = ArgList(infoList=classAttributeArgs)
+    astArgList = ArgList(infoList=classAttributes)
 
     if not checkArgDefaults:  # no need to add defaults to type hints
         return astArgList
