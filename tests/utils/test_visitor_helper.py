@@ -20,6 +20,8 @@ from pydoclint.utils.visitor_helper import (
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getDocumentedAndActualClassArgLists,
     getReturnTypeToDocument,
+    shouldIgnoreArgumentName,
+    shouldSkipFunctionName,
     updateDocumentedArgListWithInlineDocstrings,
 )
 
@@ -856,6 +858,7 @@ class MyClass:
         node=parsed.body[0],
         ignorePrivateClassAttributes=ignorePriv,
         ignoreUnderscoreOnlyClassAttributes=True,
+        ignoreSpecialDunderClassAttributes=True,
         treatPropertyMethodsAsClassAttrs=treatProp,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
         checkArgDefaults=False,
@@ -867,18 +870,52 @@ class MyClass:
     (
         'ignorePrivateClassAttributes',
         'ignoreUnderscoreOnlyClassAttributes',
+        'ignoreSpecialDunderClassAttributes',
         'expectedNames',
     ),
     [
-        (True, True, ['public']),
-        (True, False, ['public', '_', '__']),
-        (False, True, ['public', '_private']),
-        (False, False, ['public', '_private', '_', '__']),
+        (True, True, True, ['public']),
+        (
+            True,
+            True,
+            False,
+            ['public', '__slots__', '__hash__', '__match_args__'],
+        ),
+        (True, False, True, ['public', '_', '__']),
+        (
+            True,
+            False,
+            False,
+            ['public', '_', '__', '__slots__', '__hash__', '__match_args__'],
+        ),
+        (False, True, True, ['public', '_private']),
+        (
+            False,
+            True,
+            False,
+            ['public', '_private', '__slots__', '__hash__', '__match_args__'],
+        ),
+        (False, False, True, ['public', '_private', '_', '__']),
+        (
+            False,
+            False,
+            False,
+            [
+                'public',
+                '_private',
+                '_',
+                '__',
+                '__slots__',
+                '__hash__',
+                '__match_args__',
+            ],
+        ),
     ],
 )
 def testExtractClassAttributesFromNode_privateAndUnderscoreOnlyNames(
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
         expectedNames: list[str],
 ) -> None:
     """Ensure class-attribute extraction applies every name category."""
@@ -902,6 +939,7 @@ def testExtractClassAttributesFromNode_privateAndUnderscoreOnlyNames(
         ignoreUnderscoreOnlyClassAttributes=(
             ignoreUnderscoreOnlyClassAttributes
         ),
+        ignoreSpecialDunderClassAttributes=ignoreSpecialDunderClassAttributes,
         treatPropertyMethodsAsClassAttrs=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
         checkArgDefaults=False,
@@ -948,6 +986,7 @@ class MyClass:
         node=parsed.body[1],
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
+        ignoreSpecialDunderClassAttributes=True,
         treatPropertyMethodsAsClassAttrs=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
@@ -1052,6 +1091,7 @@ def testRequireInlineClassvarDocs(
         style=style,
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
+        ignoreSpecialDunderClassAttributes=True,
         treatPropertyMethodsAsClassAttributes=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
         checkArgDefaults=False,
@@ -1239,6 +1279,7 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
         style=style,
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
+        ignoreSpecialDunderClassAttributes=True,
         treatPropertyMethodsAsClassAttributes=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
         checkArgDefaults=False,
@@ -1320,6 +1361,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
         style=style,
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
+        ignoreSpecialDunderClassAttributes=True,
         treatPropertyMethodsAsClassAttributes=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
         checkArgDefaults=False,
@@ -1455,6 +1497,7 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
         node=node,
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
+        ignoreSpecialDunderClassAttributes=True,
         treatPropertyMethodsAsClassAttrs=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
         checkArgDefaults=False,
@@ -1483,18 +1526,24 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     (
         'ignorePrivateClassAttributes',
         'ignoreUnderscoreOnlyClassAttributes',
+        'ignoreSpecialDunderClassAttributes',
         'expectedNames',
     ),
     [
-        (True, True, ['public']),
-        (True, False, ['public', '_']),
-        (False, True, ['public', '_private']),
-        (False, False, ['public', '_private', '_']),
+        (True, True, True, ['public']),
+        (True, True, False, ['public', '__slots__']),
+        (True, False, True, ['public', '_']),
+        (True, False, False, ['public', '_', '__slots__']),
+        (False, True, True, ['public', '_private']),
+        (False, True, False, ['public', '_private', '__slots__']),
+        (False, False, True, ['public', '_private', '_']),
+        (False, False, False, ['public', '_private', '_', '__slots__']),
     ],
 )
 def testInlineClassAttributeDocsRespectNameKinds(
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
         expectedNames: list[str],
 ) -> None:
     """Ensure inline docs use the prefiltered class-attribute names."""
@@ -1526,6 +1575,7 @@ def testInlineClassAttributeDocsRespectNameKinds(
         ignoreUnderscoreOnlyClassAttributes=(
             ignoreUnderscoreOnlyClassAttributes
         ),
+        ignoreSpecialDunderClassAttributes=ignoreSpecialDunderClassAttributes,
         treatPropertyMethodsAsClassAttrs=False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
         checkArgDefaults=False,
@@ -1545,3 +1595,71 @@ def testInlineClassAttributeDocsRespectNameKinds(
     assert [arg.name for arg in actualArgs.infoList] == expectedNames
     assert [arg.name for arg in docArgs.infoList] == expectedNames
     assert violations == []
+
+
+@pytest.mark.parametrize('skipCheckingPrivateFunctions', [True, False])
+@pytest.mark.parametrize(
+    ('name', 'skippedWhenEnabled'),
+    [
+        ('value', False),
+        ('_private', True),
+        ('__name_mangled', True),
+        ('_', True),
+        ('__', True),
+        ('___', True),
+        ('__special__', False),
+        ('__init__', False),
+    ],
+)
+def testShouldSkipFunctionName(
+        name: str,
+        skippedWhenEnabled: bool,
+        skipCheckingPrivateFunctions: bool,
+) -> None:
+    """Ensure private and underscore-only functions are the ones skipped."""
+    assert shouldSkipFunctionName(
+        name=name,
+        skipCheckingPrivateFunctions=skipCheckingPrivateFunctions,
+    ) is (skipCheckingPrivateFunctions and skippedWhenEnabled)
+
+
+@pytest.mark.parametrize('ignoreUnderscoreOnlyArgs', [True, False])
+@pytest.mark.parametrize('ignorePrivateArgs', [True, False])
+@pytest.mark.parametrize(
+    (
+        'name',
+        'controlledByIgnorePrivateArgs',
+        'controlledByIgnoreUnderscoreOnlyArgs',
+    ),
+    [
+        ('value', False, False),
+        ('_private', True, False),
+        ('_', False, True),
+        ('__', False, True),
+        ('__special__', True, False),
+        ('*_', False, True),
+        ('**__', False, True),
+        ('*_private', True, False),
+        ('**__private', True, False),
+        ('**__special__', True, False),
+    ],
+)
+def testShouldIgnoreArgumentName(
+        name: str,
+        controlledByIgnorePrivateArgs: bool,
+        controlledByIgnoreUnderscoreOnlyArgs: bool,
+        ignorePrivateArgs: bool,
+        ignoreUnderscoreOnlyArgs: bool,
+) -> None:
+    """Ensure stars are stripped and each name kind maps to one option."""
+    expected = (controlledByIgnorePrivateArgs and ignorePrivateArgs) or (
+        controlledByIgnoreUnderscoreOnlyArgs and ignoreUnderscoreOnlyArgs
+    )
+    assert (
+        shouldIgnoreArgumentName(
+            name=name,
+            ignorePrivateArgs=ignorePrivateArgs,
+            ignoreUnderscoreOnlyArgs=ignoreUnderscoreOnlyArgs,
+        )
+        is expected
+    )

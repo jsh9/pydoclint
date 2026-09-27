@@ -1,15 +1,31 @@
 import ast
+import os
 import re
+import shutil
+import subprocess  # noqa: S404
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
+import pydoclint
 from pydoclint.flake8_entry import Plugin
+from tests.helpers import (
+    IGNORE_UNDERSCORE_ARGS_DEFAULT_MESSAGE,
+    IGNORE_UNDERSCORE_ARGS_NONDEFAULT_MESSAGE,
+    SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_DEFAULT_MESSAGE,
+    SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_ENABLED_MESSAGE,
+    extractListedNames,
+)
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
+NAME_OPTIONS_DATA_DIR = DATA_DIR / 'private_and_underscore_only_options'
+
+# Where the test process imports pydoclint from; real Flake8 runs use it too
+PYDOCLINT_IMPORT_ROOT = Path(pydoclint.__file__).resolve().parent.parent
 
 
 class FakeParser:
@@ -38,40 +54,88 @@ def buildFlake8Plugin(sourcePath: Path, **overrides: Any) -> Plugin:
     return IsolatedFlake8Plugin(ast.parse(sourceCode))
 
 
+def runRealFlake8(
+        directory: Path,
+        *,
+        sourcePath: Path,
+        configLines: list[str],
+) -> subprocess.CompletedProcess[str]:
+    """Run real Flake8 on a copied fixture with a temporary ``.flake8``."""
+    shutil.copyfile(sourcePath, directory / 'sample.py')
+    (directory / '.flake8').write_text(
+        '[flake8]\nselect = DOC\n' + '\n'.join(configLines) + '\n',
+        encoding='utf-8',
+    )
+    # Flake8 finds pydoclint through the entry point of the current
+    # environment. Putting the code under test first on the path keeps an
+    # older installed pydoclint from shadowing it.
+    env = os.environ.copy()
+    env['PYTHONPATH'] = os.pathsep.join([
+        str(PYDOCLINT_IMPORT_ROOT),
+        *filter(None, [env.get('PYTHONPATH')]),
+    ])
+    return subprocess.run(
+        [sys.executable, '-m', 'flake8', 'sample.py'],
+        cwd=directory,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+@pytest.mark.parametrize(
+    ('optionValue', 'expected'),
+    [
+        ('True', True),
+        ('true', True),
+        ('TRUE', True),
+        ('False', False),
+        ('false', False),
+        ('FALSE', False),
+    ],
+)
+def testBoolParsesValuesCaseInsensitively(
+        optionValue: str,
+        expected: bool,
+) -> None:
+    """Ensure Flake8 boolean option values are parsed regardless of case."""
+    assert Plugin._bool('--example-option', optionValue) is expected
+
+
+@pytest.mark.parametrize('optionValue', ['yes', '1', '', 'Truee'])
+def testBoolRejectsNonBooleanValues(optionValue: str) -> None:
+    """Ensure non-boolean Flake8 option values still fail clearly."""
+    with pytest.raises(ValueError, match=r'^Invalid argument value: ') as exc:
+        Plugin._bool('--example-option', optionValue)
+
+    assert str(exc.value) == (
+        f'Invalid argument value: --example-option={optionValue}'
+    )
+
+
 @pytest.mark.parametrize(
     ('overrides', 'expectedMessage'),
     [
-        (
+        pytest.param(
             {'ignore_underscore_args': 'True'},
-            'The option `--ignore-underscore-args` no longer works; remove it.'
-            ' Its replacement, `--ignore-underscore-only-args`, defaults to'
-            ' `True` (`ignore-underscore-only-args = true` in TOML/Flake8),'
-            ' which preserves this behavior.',
+            IGNORE_UNDERSCORE_ARGS_DEFAULT_MESSAGE,
+            id='ignore-underscore-args-default',
         ),
-        (
+        pytest.param(
             {'ignore_underscore_args': 'False'},
-            'The option `--ignore-underscore-args` no longer works. Replace it'
-            ' with `--ignore-underscore-only-args=False` on the command line or'
-            ' `ignore-underscore-only-args = false` in TOML/Flake8 config.',
+            IGNORE_UNDERSCORE_ARGS_NONDEFAULT_MESSAGE,
+            id='ignore-underscore-args-nondefault',
         ),
-        (
-            {'should_document_private_class_attributes': 'True'},
-            'The option `--should-document-private-class-attributes` no longer'
-            ' works. Use `--ignore-private-class-attributes=False` and'
-            ' `--ignore-underscore-only-class-attributes=False` on the command'
-            ' line, or `ignore-private-class-attributes = false` and'
-            ' `ignore-underscore-only-class-attributes = false` in TOML/Flake8'
-            ' config. Special dunder class attributes are always excluded.',
-        ),
-        (
+        pytest.param(
             {'should_document_private_class_attributes': 'False'},
-            'The option `--should-document-private-class-attributes` no longer'
-            ' works; remove it. Its replacements,'
-            ' `--ignore-private-class-attributes` and'
-            ' `--ignore-underscore-only-class-attributes`, both default to'
-            ' `True` (`ignore-private-class-attributes = true` and'
-            ' `ignore-underscore-only-class-attributes = true` in'
-            ' TOML/Flake8), which preserves this behavior.',
+            SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_DEFAULT_MESSAGE,
+            id='should-document-private-class-attributes-default',
+        ),
+        pytest.param(
+            {'should_document_private_class_attributes': 'True'},
+            SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_ENABLED_MESSAGE,
+            id='should-document-private-class-attributes-enabled',
         ),
     ],
 )
@@ -84,41 +148,58 @@ def testRemovedOptionsShowMigrationError(
         DATA_DIR / 'common/minimal.py',
         **overrides,
     )
-    with pytest.raises(ValueError, match=re.escape(expectedMessage)):
+    with pytest.raises(ValueError, match=re.escape(expectedMessage)) as exc:
         list(flake8Plugin.run())
+
+    assert str(exc.value) == expectedMessage
 
 
 @pytest.mark.parametrize(
     (
         'ignorePrivateClassAttributes',
         'ignoreUnderscoreOnlyClassAttributes',
+        'ignoreSpecialDunderClassAttributes',
         'expectedMissingNames',
     ),
     [
-        ('True', 'True', []),
-        ('True', 'False', ['_: bool', '__: float']),
-        ('False', 'True', ['_private: str']),
+        ('True', 'True', 'True', []),
+        ('True', 'True', 'False', ['__tablename__: str']),
+        ('True', 'False', 'True', ['_: bool', '__: float']),
+        (
+            'True',
+            'False',
+            'False',
+            ['_: bool', '__: float', '__tablename__: str'],
+        ),
+        ('False', 'True', 'True', ['_private: str']),
+        ('False', 'True', 'False', ['_private: str', '__tablename__: str']),
+        ('False', 'False', 'True', ['_private: str', '_: bool', '__: float']),
         (
             'False',
             'False',
-            ['_private: str', '_: bool', '__: float'],
+            'False',
+            ['_private: str', '_: bool', '__: float', '__tablename__: str'],
         ),
     ],
 )
 def testNewClassAttributeOptionsPropagate(
         ignorePrivateClassAttributes: str,
         ignoreUnderscoreOnlyClassAttributes: str,
+        ignoreSpecialDunderClassAttributes: str,
         expectedMissingNames: list[str],
 ) -> None:
-    """Ensure Flake8 forwards both class-attribute name controls."""
+    """Ensure Flake8 forwards all three class-attribute name controls."""
     flake8Plugin = buildFlake8Plugin(
-        DATA_DIR / 'private_and_underscore_only_options/class_attributes.py',
+        NAME_OPTIONS_DATA_DIR / 'class_attributes.py',
         style='numpy',
         arg_type_hints_in_docstring='False',
         check_class_attributes='True',
         ignore_private_class_attributes=ignorePrivateClassAttributes,
         ignore_underscore_only_class_attributes=(
             ignoreUnderscoreOnlyClassAttributes
+        ),
+        ignore_special_dunder_class_attributes=(
+            ignoreSpecialDunderClassAttributes
         ),
     )
     messages = [message for _, _, message, _ in flake8Plugin.run()]
@@ -130,12 +211,7 @@ def testNewClassAttributeOptionsPropagate(
         'DOC601',
         'DOC603',
     ]
-    actualMissingNames = (
-        messages[1]
-        .split(': [', maxsplit=1)[1]
-        .split('].', maxsplit=1)[0]
-        .split(', ')
-    )
+    actualMissingNames = extractListedNames(messages[1], ': [')
     assert sorted(actualMissingNames) == sorted(expectedMissingNames)
 
 
@@ -152,12 +228,90 @@ def testIgnoreUnderscoreOnlyArgsPropagates(
 ) -> None:
     """Ensure Flake8 forwards the underscore-only argument control."""
     flake8Plugin = buildFlake8Plugin(
-        DATA_DIR
-        / 'private_and_underscore_only_options'
-        / 'underscore_only_function_argument.py',
+        NAME_OPTIONS_DATA_DIR / 'underscore_only_function_argument.py',
         style='google',
         arg_type_hints_in_docstring='False',
         ignore_underscore_only_args=ignoreUnderscoreOnlyArgs,
     )
     codes = [message.split()[0] for _, _, message, _ in flake8Plugin.run()]
     assert codes == expectedCodes
+
+
+@pytest.mark.parametrize(
+    ('fixtureName', 'configLines', 'expectedCodes', 'expectedMissingNames'),
+    [
+        pytest.param(
+            'underscore_only_function_argument.py',
+            ['style = google', 'arg-type-hints-in-docstring = false'],
+            [],
+            [],
+            id='ignore-underscore-args-default',
+        ),
+        pytest.param(
+            'underscore_only_function_argument.py',
+            [
+                'style = google',
+                'arg-type-hints-in-docstring = false',
+                'ignore-underscore-only-args = false',
+            ],
+            ['DOC101', 'DOC103'],
+            ['_: int'],
+            id='ignore-underscore-args-nondefault',
+        ),
+        pytest.param(
+            'class_attributes.py',
+            ['style = numpy', 'arg-type-hints-in-docstring = false'],
+            [],
+            [],
+            id='should-document-private-class-attributes-default',
+        ),
+        pytest.param(
+            'class_attributes.py',
+            [
+                'style = numpy',
+                'arg-type-hints-in-docstring = false',
+                'ignore-private-class-attributes = false',
+                'ignore-underscore-only-class-attributes = false',
+                'ignore-special-dunder-class-attributes = false',
+            ],
+            ['DOC601', 'DOC603'],
+            ['_private: str', '_: bool', '__: float', '__tablename__: str'],
+            id='should-document-private-class-attributes-enabled',
+        ),
+    ],
+)
+def testRealFlake8AppliesLowercaseMigrationReplacements(
+        tmp_path: Path,
+        fixtureName: str,
+        configLines: list[str],
+        expectedCodes: list[str],
+        expectedMissingNames: list[str],
+) -> None:
+    """
+    Ensure lowercase replacements work in a real ``.flake8`` file.
+
+    Each case applies the replacement recommended for a removed option and
+    checks that the result matches the removed option's old behavior.
+    """
+    result = runRealFlake8(
+        tmp_path,
+        sourcePath=NAME_OPTIONS_DATA_DIR / fixtureName,
+        configLines=configLines,
+    )
+    output = result.stdout + result.stderr
+    assert 'ValueError' not in output
+    assert 'Invalid argument value' not in output
+
+    violationLines = [
+        line
+        for line in result.stdout.splitlines()
+        if line.startswith('sample')
+    ]
+    assert [line.split()[1] for line in violationLines] == expectedCodes
+    assert result.returncode == (1 if expectedCodes else 0), output
+    if expectedMissingNames:
+        actualMissingNames = extractListedNames(
+            violationLines[1],
+            'but not in the docstring: [',
+        )
+        assert sorted(actualMissingNames) == sorted(expectedMissingNames)

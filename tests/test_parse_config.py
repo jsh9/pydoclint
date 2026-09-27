@@ -3,13 +3,20 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from click.testing import CliRunner
+from click.testing import CliRunner, Result
 
 from pydoclint.main import main as cli_main
 from pydoclint.parse_config import (
     MissingPydoclintSectionError,
     findCommonParentFolder,
     parseOneTomlFile,
+)
+from tests.helpers import (
+    IGNORE_UNDERSCORE_ARGS_DEFAULT_MESSAGE,
+    IGNORE_UNDERSCORE_ARGS_NONDEFAULT_MESSAGE,
+    SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_DEFAULT_MESSAGE,
+    SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_ENABLED_MESSAGE,
+    extractListedNames,
 )
 
 THIS_DIR = Path(__file__).parent
@@ -18,6 +25,11 @@ CONFIG_DATA_DIR: Path = DATA_DIR / 'config_files'
 minimalFixture = DATA_DIR / 'common/minimal.py'
 classAttributeNameKindsFixture = (
     DATA_DIR / 'private_and_underscore_only_options/class_attributes.py'
+)
+documentedClassAttributesFixture = (
+    DATA_DIR
+    / 'private_and_underscore_only_options'
+    / 'documented_class_attributes.py'
 )
 underscoreArgumentFixture = (
     DATA_DIR
@@ -152,6 +164,24 @@ def testCliConfigMissingSectionRaisesError() -> None:
         )
 
 
+def _invokeNativeCli(
+        *,
+        source: str,
+        fixturePath: Path,
+        cliOptions: list[str],
+        tomlOptions: list[str],
+) -> Result:
+    """Lint a copied fixture in the current directory through the CLI."""
+    samplePath = _copyPythonFixture(Path(), fixturePath)
+    arguments = _getConfigArguments(
+        source=source,
+        samplePath=samplePath,
+        cliOptions=cliOptions,
+        tomlOptions=tomlOptions,
+    )
+    return CliRunner().invoke(cli_main, arguments)
+
+
 @pytest.mark.parametrize(
     'source',
     ['cli', 'inferred_toml', 'explicit_toml'],
@@ -160,68 +190,74 @@ def testCliConfigMissingSectionRaisesError() -> None:
     (
         'ignorePrivateClassAttributes',
         'ignoreUnderscoreOnlyClassAttributes',
+        'ignoreSpecialDunderClassAttributes',
         'expectedMissingNames',
     ),
     [
-        (True, True, []),
-        (True, False, ['_: bool', '__: float']),
-        (False, True, ['_private: str']),
-        (False, False, ['_private: str', '_: bool', '__: float']),
+        (True, True, True, []),
+        (True, True, False, ['__tablename__: str']),
+        (True, False, True, ['_: bool', '__: float']),
+        (True, False, False, ['_: bool', '__: float', '__tablename__: str']),
+        (False, True, True, ['_private: str']),
+        (False, True, False, ['_private: str', '__tablename__: str']),
+        (False, False, True, ['_private: str', '_: bool', '__: float']),
+        (
+            False,
+            False,
+            False,
+            ['_private: str', '_: bool', '__: float', '__tablename__: str'],
+        ),
     ],
 )
 def testClassAttributeNameOptionsPropagateThroughNativeConfig(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
         source: str,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
         expectedMissingNames: list[str],
 ) -> None:
-    """Ensure CLI and TOML sources propagate both class name controls."""
-    runner = CliRunner()
-    with runner.isolated_filesystem():
-        samplePath = _copyPythonFixture(
-            Path(),
-            classAttributeNameKindsFixture,
-        )
-        arguments = _getConfigArguments(
-            source=source,
-            samplePath=samplePath,
-            cliOptions=[
-                '--style=numpy',
-                '--arg-type-hints-in-docstring=False',
-                '--ignore-private-class-attributes='
-                f'{ignorePrivateClassAttributes}',
-                '--ignore-underscore-only-class-attributes='
-                f'{ignoreUnderscoreOnlyClassAttributes}',
-            ],
-            tomlOptions=[
-                "style = 'numpy'",
-                'arg-type-hints-in-docstring = false',
-                'ignore-private-class-attributes ='
-                f' {str(ignorePrivateClassAttributes).lower()}',
-                'ignore-underscore-only-class-attributes ='
-                f' {str(ignoreUnderscoreOnlyClassAttributes).lower()}',
-            ],
-        )
+    """Ensure CLI and TOML sources propagate all class name controls."""
+    monkeypatch.chdir(tmp_path)
+    result = _invokeNativeCli(
+        source=source,
+        fixturePath=classAttributeNameKindsFixture,
+        cliOptions=[
+            '--style=numpy',
+            '--arg-type-hints-in-docstring=False',
+            '--ignore-private-class-attributes='
+            f'{ignorePrivateClassAttributes}',
+            '--ignore-underscore-only-class-attributes='
+            f'{ignoreUnderscoreOnlyClassAttributes}',
+            '--ignore-special-dunder-class-attributes='
+            f'{ignoreSpecialDunderClassAttributes}',
+        ],
+        tomlOptions=[
+            "style = 'numpy'",
+            'arg-type-hints-in-docstring = false',
+            'ignore-private-class-attributes ='
+            f' {str(ignorePrivateClassAttributes).lower()}',
+            'ignore-underscore-only-class-attributes ='
+            f' {str(ignoreUnderscoreOnlyClassAttributes).lower()}',
+            'ignore-special-dunder-class-attributes ='
+            f' {str(ignoreSpecialDunderClassAttributes).lower()}',
+        ],
+    )
 
-        result = runner.invoke(cli_main, arguments)
-        if not expectedMissingNames:
-            assert result.exit_code == 0
-            assert 'No violations' in result.output
-            return
+    if not expectedMissingNames:
+        assert result.exit_code == 0
+        assert 'No violations' in result.output
+        return
 
-        assert result.exit_code == 1
-        assert result.output.count('DOC601') == 1
-        assert result.output.count('DOC603') == 1
-        actualMissingNames = (
-            result.output
-            .split(
-                'Attributes in the class definition but not in the docstring: [',
-                maxsplit=1,
-            )[1]
-            .split('].', maxsplit=1)[0]
-            .split(', ')
-        )
-        assert sorted(actualMissingNames) == sorted(expectedMissingNames)
+    assert result.exit_code == 1
+    assert result.output.count('DOC601') == 1
+    assert result.output.count('DOC603') == 1
+    actualMissingNames = extractListedNames(
+        result.output,
+        'Attributes in the class definition but not in the docstring: [',
+    )
+    assert sorted(actualMissingNames) == sorted(expectedMissingNames)
 
 
 @pytest.mark.parametrize(
@@ -230,43 +266,42 @@ def testClassAttributeNameOptionsPropagateThroughNativeConfig(
 )
 @pytest.mark.parametrize('ignoreUnderscoreOnlyArgs', [True, False])
 def testUnderscoreOnlyArgumentOptionPropagatesThroughNativeConfig(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
         source: str,
         ignoreUnderscoreOnlyArgs: bool,
 ) -> None:
     """Ensure CLI and TOML propagate the underscore-only argument control."""
-    runner = CliRunner()
-    with runner.isolated_filesystem():
-        samplePath = _copyPythonFixture(Path(), underscoreArgumentFixture)
-        arguments = _getConfigArguments(
-            source=source,
-            samplePath=samplePath,
-            cliOptions=[
-                '--style=google',
-                '--arg-type-hints-in-docstring=False',
-                '--check-return-types=False',
-                f'--ignore-underscore-only-args={ignoreUnderscoreOnlyArgs}',
-            ],
-            tomlOptions=[
-                "style = 'google'",
-                'arg-type-hints-in-docstring = false',
-                'check-return-types = false',
-                'ignore-underscore-only-args ='
-                f' {str(ignoreUnderscoreOnlyArgs).lower()}',
-            ],
-        )
+    monkeypatch.chdir(tmp_path)
+    result = _invokeNativeCli(
+        source=source,
+        fixturePath=underscoreArgumentFixture,
+        cliOptions=[
+            '--style=google',
+            '--arg-type-hints-in-docstring=False',
+            '--check-return-types=False',
+            f'--ignore-underscore-only-args={ignoreUnderscoreOnlyArgs}',
+        ],
+        tomlOptions=[
+            "style = 'google'",
+            'arg-type-hints-in-docstring = false',
+            'check-return-types = false',
+            'ignore-underscore-only-args ='
+            f' {str(ignoreUnderscoreOnlyArgs).lower()}',
+        ],
+    )
 
-        result = runner.invoke(cli_main, arguments)
-        if ignoreUnderscoreOnlyArgs:
-            assert result.exit_code == 0
-            assert 'No violations' in result.output
-        else:
-            assert result.exit_code == 1
-            assert result.output.count('DOC101') == 1
-            assert result.output.count('DOC103') == 1
-            assert (
-                'Arguments in the function signature but not in the'
-                ' docstring: [_: int].' in result.output
-            )
+    if ignoreUnderscoreOnlyArgs:
+        assert result.exit_code == 0
+        assert 'No violations' in result.output
+    else:
+        assert result.exit_code == 1
+        assert result.output.count('DOC101') == 1
+        assert result.output.count('DOC103') == 1
+        assert (
+            'Arguments in the function signature but not in the'
+            ' docstring: [_: int].' in result.output
+        )
 
 
 @pytest.mark.parametrize(
@@ -276,62 +311,217 @@ def testUnderscoreOnlyArgumentOptionPropagatesThroughNativeConfig(
 @pytest.mark.parametrize(
     ('optionName', 'value', 'expectedMessage'),
     [
-        (
+        pytest.param(
             'ignore-underscore-args',
             True,
-            'The option `--ignore-underscore-args` no longer works; remove it.'
-            ' Its replacement, `--ignore-underscore-only-args`, defaults to'
-            ' `True` (`ignore-underscore-only-args = true` in TOML/Flake8),'
-            ' which preserves this behavior.',
+            IGNORE_UNDERSCORE_ARGS_DEFAULT_MESSAGE,
+            id='ignore-underscore-args-default',
         ),
-        (
+        pytest.param(
             'ignore-underscore-args',
             False,
-            'The option `--ignore-underscore-args` no longer works. Replace it'
-            ' with `--ignore-underscore-only-args=False` on the command line or'
-            ' `ignore-underscore-only-args = false` in TOML/Flake8 config.',
+            IGNORE_UNDERSCORE_ARGS_NONDEFAULT_MESSAGE,
+            id='ignore-underscore-args-nondefault',
         ),
-        (
-            'should-document-private-class-attributes',
-            True,
-            'The option `--should-document-private-class-attributes` no longer'
-            ' works. Use `--ignore-private-class-attributes=False` and'
-            ' `--ignore-underscore-only-class-attributes=False` on the command'
-            ' line, or `ignore-private-class-attributes = false` and'
-            ' `ignore-underscore-only-class-attributes = false` in TOML/Flake8'
-            ' config. Special dunder class attributes are always excluded.',
-        ),
-        (
+        pytest.param(
             'should-document-private-class-attributes',
             False,
-            'The option `--should-document-private-class-attributes` no longer'
-            ' works; remove it. Its replacements,'
-            ' `--ignore-private-class-attributes` and'
-            ' `--ignore-underscore-only-class-attributes`, both default to'
-            ' `True` (`ignore-private-class-attributes = true` and'
-            ' `ignore-underscore-only-class-attributes = true` in'
-            ' TOML/Flake8), which preserves this behavior.',
+            SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_DEFAULT_MESSAGE,
+            id='should-document-private-class-attributes-default',
+        ),
+        pytest.param(
+            'should-document-private-class-attributes',
+            True,
+            SHOULD_DOCUMENT_PRIVATE_CLASS_ATTRIBUTES_ENABLED_MESSAGE,
+            id='should-document-private-class-attributes-enabled',
         ),
     ],
 )
 def testRemovedOptionsShowMigrationError(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
         source: str,
         optionName: str,
         value: bool,
         expectedMessage: str,
 ) -> None:
     """Ensure native config sources reject removed options with guidance."""
-    runner = CliRunner()
-    with runner.isolated_filesystem():
-        samplePath = _copyPythonFixture(Path(), minimalFixture)
+    monkeypatch.chdir(tmp_path)
+    result = _invokeNativeCli(
+        source=source,
+        fixturePath=minimalFixture,
+        cliOptions=[f'--{optionName}={value}'],
+        tomlOptions=[f'{optionName} = {str(value).lower()}'],
+    )
 
-        arguments = _getConfigArguments(
-            source=source,
-            samplePath=samplePath,
-            cliOptions=[f'--{optionName}={value}'],
-            tomlOptions=[f'{optionName} = {str(value).lower()}'],
+    assert result.exit_code == 1
+    assert result.output.strip() == expectedMessage
+
+
+@pytest.mark.parametrize(
+    'source',
+    ['cli', 'inferred_toml', 'explicit_toml'],
+)
+@pytest.mark.parametrize(
+    (
+        'replacementCliOptions',
+        'replacementTomlOptions',
+        'expectedMissingNames',
+    ),
+    [
+        # The old `True` ignored `_`; delete it and rely on the default
+        pytest.param([], [], [], id='ignore-underscore-args-default'),
+        # The old `False` required `_` to be documented
+        pytest.param(
+            ['--ignore-underscore-only-args=False'],
+            ['ignore-underscore-only-args = false'],
+            ['_: int'],
+            id='ignore-underscore-args-nondefault',
+        ),
+    ],
+)
+def testIgnoreUnderscoreArgsReplacementPreservesOldBehavior(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        source: str,
+        replacementCliOptions: list[str],
+        replacementTomlOptions: list[str],
+        expectedMissingNames: list[str],
+) -> None:
+    """Ensure the recommended replacement keeps the removed behavior."""
+    monkeypatch.chdir(tmp_path)
+    result = _invokeNativeCli(
+        source=source,
+        fixturePath=underscoreArgumentFixture,
+        cliOptions=[
+            '--style=google',
+            '--arg-type-hints-in-docstring=False',
+            *replacementCliOptions,
+        ],
+        tomlOptions=[
+            "style = 'google'",
+            'arg-type-hints-in-docstring = false',
+            *replacementTomlOptions,
+        ],
+    )
+
+    if not expectedMissingNames:
+        assert result.exit_code == 0
+        assert 'No violations' in result.output
+        return
+
+    assert result.exit_code == 1
+    assert result.output.count('DOC101') == 1
+    assert result.output.count('DOC103') == 1
+    actualMissingNames = extractListedNames(
+        result.output,
+        'Arguments in the function signature but not in the docstring: [',
+    )
+    assert actualMissingNames == expectedMissingNames
+
+
+@pytest.mark.parametrize(
+    'source',
+    ['cli', 'inferred_toml', 'explicit_toml'],
+)
+@pytest.mark.parametrize(
+    (
+        'replacementCliOptions',
+        'replacementTomlOptions',
+        'expectedMissingNames',
+        'expectedExtraNames',
+    ),
+    [
+        # The old `False` excluded every underscore-prefixed attribute, so
+        # documenting one was an error; delete it and rely on the defaults
+        pytest.param(
+            [],
+            [],
+            [],
+            ['_private', '_', '__', '__tablename__'],
+            id='should-document-private-class-attributes-default',
+        ),
+        # The old `True` required every underscore-prefixed attribute,
+        # including special dunder attributes such as `__tablename__`
+        pytest.param(
+            [
+                '--ignore-private-class-attributes=False',
+                '--ignore-underscore-only-class-attributes=False',
+                '--ignore-special-dunder-class-attributes=False',
+            ],
+            [
+                'ignore-private-class-attributes = false',
+                'ignore-underscore-only-class-attributes = false',
+                'ignore-special-dunder-class-attributes = false',
+            ],
+            ['_private: str', '_: bool', '__: float', '__tablename__: str'],
+            [],
+            id='should-document-private-class-attributes-enabled',
+        ),
+    ],
+)
+def testShouldDocumentPrivateClassAttributesReplacementPreservesOldBehavior(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        source: str,
+        replacementCliOptions: list[str],
+        replacementTomlOptions: list[str],
+        expectedMissingNames: list[str],
+        expectedExtraNames: list[str],
+) -> None:
+    """Ensure the recommended replacements keep the removed behavior."""
+    monkeypatch.chdir(tmp_path)
+    cliOptions = [
+        '--style=numpy',
+        '--arg-type-hints-in-docstring=False',
+        *replacementCliOptions,
+    ]
+    tomlOptions = [
+        "style = 'numpy'",
+        'arg-type-hints-in-docstring = false',
+        *replacementTomlOptions,
+    ]
+
+    # Only `public` is documented, so required names are reported as missing
+    missingResult = _invokeNativeCli(
+        source=source,
+        fixturePath=classAttributeNameKindsFixture,
+        cliOptions=cliOptions,
+        tomlOptions=tomlOptions,
+    )
+    if expectedMissingNames:
+        assert missingResult.exit_code == 1
+        assert missingResult.output.count('DOC601') == 1
+        assert missingResult.output.count('DOC603') == 1
+        actualMissingNames = extractListedNames(
+            missingResult.output,
+            'Attributes in the class definition but not in the docstring: [',
         )
+        assert sorted(actualMissingNames) == sorted(expectedMissingNames)
+    else:
+        assert missingResult.exit_code == 0
+        assert 'No violations' in missingResult.output
 
-        result = runner.invoke(cli_main, arguments)
-        assert result.exit_code == 1
-        assert expectedMessage in result.output
+    # Every name is documented, so ignored names are reported as extras
+    documentedResult = _invokeNativeCli(
+        source=source,
+        fixturePath=documentedClassAttributesFixture,
+        cliOptions=cliOptions,
+        tomlOptions=tomlOptions,
+    )
+    if expectedExtraNames:
+        assert documentedResult.exit_code == 1
+        assert documentedResult.output.count('DOC602') == 1
+        assert documentedResult.output.count('DOC603') == 1
+        actualExtraArgs = extractListedNames(
+            documentedResult.output,
+            'Arguments in the docstring but not in the actual class'
+            ' attributes: [',
+        )
+        actualExtraNames = [
+            arg.split(':', maxsplit=1)[0] for arg in actualExtraArgs
+        ]
+        assert sorted(actualExtraNames) == sorted(expectedExtraNames)
+    else:
+        assert documentedResult.exit_code == 0
+        assert 'No violations' in documentedResult.output

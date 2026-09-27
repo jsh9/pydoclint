@@ -2,18 +2,38 @@
 
 ## Unreleased
 
+- Added
+  - `--ignore-underscore-only-args` (`-iuoa`, default: `True`)
+  - `--ignore-private-class-attributes` (`-ipca`, default: `True`)
+  - `--ignore-underscore-only-class-attributes` (`-iuoca`, default: `True`)
+  - `--ignore-special-dunder-class-attributes` (`-isdca`, default: `True`)
 - Fixed
-  - Allowed underscore-only class attribute placeholders, such as
+  - Allowed conventional underscore-only class attribute placeholders, such as
     `_: dataclasses.KW_ONLY`, to be ignored independently of private class
-    attributes through name-based classification (#302)
+    attributes (#302). This is a name-based fix, so a `KW_ONLY` pseudo-field
+    whose name is not underscore-only is still treated like any other attribute
+  - Accepted Flake8 boolean option values case-insensitively (such as `false`),
+    so the lowercase values shown in migration messages work in Flake8 config
+    files
 - Changed
-  - Unified public, private, underscore-only, and special name classification
-    across functions, arguments, and class attributes
+  - Added a shared name classifier and explicit context-specific policies for
+    functions, arguments, and class attributes
+  - Starred arguments are classified by their underlying identifier, so `*_`
+    and `**__` are underscore-only arguments and `*_args` is a private argument
+  - `--skip-checking-private-functions` continues to skip underscore-only
+    functions such as `_`, and now also skips `__` and `___`; special dunder
+    methods are still checked
+  - `--ignore-private-args` keeps controlling special dunder arguments (such as
+    `__value__`) for backward compatibility
+  - Special dunder class attributes, such as `__tablename__`, now have an
+    independent option, `--ignore-special-dunder-class-attributes`
   - Changed the `Visitor` keyword arguments from `ignoreUnderscoreArgs` and
     `shouldDocumentPrivateClassAttributes` to `ignoreUnderscoreOnlyArgs`,
-    `ignorePrivateClassAttributes`, and `ignoreUnderscoreOnlyClassAttributes`
-  - Always exclude special class attributes such as `__slots__`, `__hash__`,
-    and `__match_args__` from Attributes-section comparison
+    `ignorePrivateClassAttributes`, `ignoreUnderscoreOnlyClassAttributes`, and
+    `ignoreSpecialDunderClassAttributes`; this is a breaking change to the
+    Python API
+  - Made `tox -e muff-lint` a non-mutating check that fails instead of
+    rewriting files
   - Moved the changelog full-diff pre-commit check into
     `pre-commit-changelog-full-diff-check` and updated this repo to consume it
     as an external hook
@@ -22,9 +42,10 @@
     delete it when it has the new default value or replace it with
     `--ignore-underscore-only-args`
   - Removed `--should-document-private-class-attributes`; using it now fails
-    with guidance to delete it when it has the new defaults or replace it with
-    `--ignore-private-class-attributes` and
-    `--ignore-underscore-only-class-attributes`
+    with guidance to delete it when it has the new defaults or set
+    `--ignore-private-class-attributes`,
+    `--ignore-underscore-only-class-attributes`, and
+    `--ignore-special-dunder-class-attributes` to the inverse value
 
 ## [0.9.1] - 2026-07-03
 

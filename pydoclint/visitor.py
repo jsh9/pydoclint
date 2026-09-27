@@ -23,8 +23,6 @@ from pydoclint.utils.generic import (
     generateFuncMsgPrefix,
     getDocstring,
     isLastConstructor,
-    isPrivateName,
-    isUnderscoreOnlyName,
 )
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.parse_docstring import (
@@ -63,6 +61,8 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getReturnTypeToDocument,
+    shouldIgnoreArgumentName,
+    shouldSkipFunctionName,
 )
 
 
@@ -87,6 +87,7 @@ class Visitor(ast.NodeVisitor):
             checkClassAttributes: bool = True,
             ignorePrivateClassAttributes: bool = True,
             ignoreUnderscoreOnlyClassAttributes: bool = True,
+            ignoreSpecialDunderClassAttributes: bool = True,
             treatPropertyMethodsAsClassAttributes: bool = False,
             onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
             requireInlineClassVarDocs: bool = False,
@@ -114,6 +115,9 @@ class Visitor(ast.NodeVisitor):
         self.ignorePrivateClassAttributes: bool = ignorePrivateClassAttributes
         self.ignoreUnderscoreOnlyClassAttributes: bool = (
             ignoreUnderscoreOnlyClassAttributes
+        )
+        self.ignoreSpecialDunderClassAttributes: bool = (
+            ignoreSpecialDunderClassAttributes
         )
         self.treatPropertyMethodsAsClassAttributes: bool = (
             treatPropertyMethodsAsClassAttributes
@@ -171,6 +175,9 @@ class Visitor(ast.NodeVisitor):
                 ignoreUnderscoreOnlyClassAttributes=(
                     self.ignoreUnderscoreOnlyClassAttributes
                 ),
+                ignoreSpecialDunderClassAttributes=(
+                    self.ignoreSpecialDunderClassAttributes
+                ),
                 treatPropertyMethodsAsClassAttributes=(
                     self.treatPropertyMethodsAsClassAttributes
                 ),
@@ -206,8 +213,11 @@ class Visitor(ast.NodeVisitor):
             self.parent = parent_  # restore
             return
 
-        if self.skipCheckingPrivateFunctions and isPrivateName(node.name):
-            # Restore enclosing parent before skipping this private function
+        if shouldSkipFunctionName(
+            name=node.name,
+            skipCheckingPrivateFunctions=self.skipCheckingPrivateFunctions,
+        ):
+            # Restore enclosing parent before skipping this function
             self.parent = parent_
             return
 
@@ -479,7 +489,7 @@ class Visitor(ast.NodeVisitor):
 
         return initDocstring
 
-    def checkArguments(  # noqa: C901, PLR0915
+    def checkArguments(  # noqa: PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
@@ -567,22 +577,18 @@ class Visitor(ast.NodeVisitor):
         else:
             funcArgs = ArgList([Arg.fromAstArg(_) for _ in astArgList])
 
-        if self.ignoreUnderscoreOnlyArgs:
-            # Ignore underscore arguments (such as _, __, ___, ...).
-            # These placeholder arguments are excluded from comparison, so
-            # they must not appear in the docstring.
-            funcArgs = ArgList([
-                _
-                for _ in funcArgs.infoList
-                if not isUnderscoreOnlyName(_.name)
-            ])
-
-        if self.ignorePrivateArgs:
-            # Private arguments have leading underscores but are neither
-            # underscore-only placeholders nor special dunder names.
-            funcArgs = ArgList([
-                _ for _ in funcArgs.infoList if not isPrivateName(_.name)
-            ])
+        # Ignored arguments are excluded from comparison, so they must not
+        # appear in the docstring. See shouldIgnoreArgumentName() for which
+        # option controls each kind of name.
+        funcArgs = ArgList([
+            _
+            for _ in funcArgs.infoList
+            if not shouldIgnoreArgumentName(
+                name=_.name,
+                ignorePrivateArgs=self.ignorePrivateArgs,
+                ignoreUnderscoreOnlyArgs=self.ignoreUnderscoreOnlyArgs,
+            )
+        ])
 
         if not self.shouldDocumentStarArguments:
             # This is "should not" rather than "need not", which means that

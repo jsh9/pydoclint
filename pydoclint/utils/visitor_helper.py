@@ -50,6 +50,7 @@ def checkClassAttributesAgainstClassDocstring(
         skipCheckingShortDocstrings: bool,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         requireInlineClassVarDocs: bool,
@@ -82,6 +83,8 @@ def checkClassAttributesAgainstClassDocstring(
         Whether to ignore private class attributes.
     ignoreUnderscoreOnlyClassAttributes : bool
         Whether to ignore class attributes with underscore-only names.
+    ignoreSpecialDunderClassAttributes : bool
+        Whether to ignore class attributes with special dunder names.
     treatPropertyMethodsAsClassAttributes : bool
         Whether to treat property methods as class attributes.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
@@ -101,6 +104,9 @@ def checkClassAttributesAgainstClassDocstring(
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(
             ignoreUnderscoreOnlyClassAttributes
+        ),
+        ignoreSpecialDunderClassAttributes=(
+            ignoreSpecialDunderClassAttributes
         ),
         treatPropertyMethodsAsClassAttributes=treatPropertyMethodsAsClassAttributes,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
@@ -168,6 +174,7 @@ def getDocumentedAndActualClassArgLists(
         style: str,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
         treatPropertyMethodsAsClassAttributes: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         checkArgDefaults: bool,
@@ -189,6 +196,8 @@ def getDocumentedAndActualClassArgLists(
         Whether to ignore private class attributes.
     ignoreUnderscoreOnlyClassAttributes : bool
         Whether to ignore class attributes with underscore-only names.
+    ignoreSpecialDunderClassAttributes : bool
+        Whether to ignore class attributes with special dunder names.
     treatPropertyMethodsAsClassAttributes : bool
         Whether to treat property methods as class attributes.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
@@ -215,6 +224,9 @@ def getDocumentedAndActualClassArgLists(
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(
             ignoreUnderscoreOnlyClassAttributes
+        ),
+        ignoreSpecialDunderClassAttributes=(
+            ignoreSpecialDunderClassAttributes
         ),
         treatPropertyMethodsAsClassAttrs=treatPropertyMethodsAsClassAttributes,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs=(
@@ -371,21 +383,61 @@ def updateDocumentedArgListWithInlineDocstrings(
         prev = element
 
 
+def shouldSkipFunctionName(
+        *,
+        name: str,
+        skipCheckingPrivateFunctions: bool,
+) -> bool:
+    """Return whether a function should be skipped because of its name."""
+    if not skipCheckingPrivateFunctions:
+        return False
+
+    # Underscore-only functions (such as singledispatch registrations named
+    # _) are skipped like private functions; special dunder methods are not.
+    return classifyName(name) in {NameKind.PRIVATE, NameKind.UNDERSCORE_ONLY}
+
+
+def shouldIgnoreArgumentName(
+        *,
+        name: str,
+        ignorePrivateArgs: bool,
+        ignoreUnderscoreOnlyArgs: bool,
+) -> bool:
+    """Return whether a function argument name should be ignored."""
+    # collectFuncArgs() prefixes star arguments with * or **, which are not
+    # part of the Python identifier being classified.
+    identifier = name.lstrip('*')
+    nameKind = classifyName(identifier)
+    if nameKind is NameKind.UNDERSCORE_ONLY:
+        return ignoreUnderscoreOnlyArgs
+
+    if nameKind in {NameKind.PRIVATE, NameKind.SPECIAL_DUNDER}:
+        # For backward compatibility, ignorePrivateArgs also controls special
+        # dunder arguments, as it did before names were classified.
+        return ignorePrivateArgs
+
+    return False
+
+
 def shouldIgnoreClassAttributeName(
         *,
         name: str,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
 ) -> bool:
     """Return whether a class attribute name should be ignored."""
     nameKind = classifyName(name)
-    if nameKind is NameKind.SPECIAL_DUNDER:
-        return True
+    if nameKind is NameKind.PRIVATE:
+        return ignorePrivateClassAttributes
 
     if nameKind is NameKind.UNDERSCORE_ONLY:
         return ignoreUnderscoreOnlyClassAttributes
 
-    return nameKind is NameKind.PRIVATE and ignorePrivateClassAttributes
+    if nameKind is NameKind.SPECIAL_DUNDER:
+        return ignoreSpecialDunderClassAttributes
+
+    return False
 
 
 def extractClassAttributesFromNode(
@@ -393,6 +445,7 @@ def extractClassAttributesFromNode(
         node: ast.ClassDef,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
+        ignoreSpecialDunderClassAttributes: bool,
         treatPropertyMethodsAsClassAttrs: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         checkArgDefaults: bool,
@@ -408,6 +461,8 @@ def extractClassAttributesFromNode(
         Whether to ignore private class attributes.
     ignoreUnderscoreOnlyClassAttributes : bool
         Whether to ignore class attributes with underscore-only names.
+    ignoreSpecialDunderClassAttributes : bool
+        Whether to ignore class attributes with special dunder names.
     treatPropertyMethodsAsClassAttrs : bool
         Whether we'd like to treat property methods as class attributes. If
         ``True``, property methods will be included in the return value.
@@ -465,6 +520,9 @@ def extractClassAttributesFromNode(
             ignorePrivateClassAttributes=ignorePrivateClassAttributes,
             ignoreUnderscoreOnlyClassAttributes=(
                 ignoreUnderscoreOnlyClassAttributes
+            ),
+            ignoreSpecialDunderClassAttributes=(
+                ignoreSpecialDunderClassAttributes
             ),
         )
     ]

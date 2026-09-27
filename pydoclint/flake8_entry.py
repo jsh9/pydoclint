@@ -112,7 +112,11 @@ class Plugin:
             action='store',
             default='False',
             parse_from_config=True,
-            help='If True, skip checking docstrings of private functions.',
+            help=(
+                'If True, skip checking docstrings of private functions (such'
+                ' as _helper) and underscore-only functions (such as _), but'
+                ' not special dunder methods (such as __init__).'
+            ),
         )
         parser.add_option(
             '-aid',
@@ -201,8 +205,8 @@ class Plugin:
             parse_from_config=True,
             help=(
                 'If True, arguments whose names contain only underscores'
-                ' (such as _, __, ...) are excluded and must not appear in the'
-                ' docstring.'
+                ' (such as _, __, *_, and **__) are excluded and must not'
+                ' appear in the docstring.'
             ),
         )
         parser.add_option(
@@ -212,11 +216,10 @@ class Plugin:
             default='False',
             parse_from_config=True,
             help=(
-                'If True, private arguments (underscore-prefixed names'
-                ' containing at least one non-underscore character,'
-                ' excluding special names that start and end with double'
-                ' underscores) are excluded and must not appear in the'
-                ' docstring.'
+                'If True, private arguments (such as _value, __value, and'
+                ' *_args) and, for backward compatibility, special dunder'
+                ' arguments (such as __value__) are excluded and must not'
+                ' appear in the docstring.'
             ),
         )
         parser.add_option(
@@ -237,8 +240,10 @@ class Plugin:
             default=None,
             parse_from_config=True,
             help=(
-                '(Removed) Please use --ignore-private-class-attributes and'
-                ' --ignore-underscore-only-class-attributes instead.'
+                '(Removed) Please use --ignore-private-class-attributes,'
+                ' --ignore-underscore-only-class-attributes, and'
+                ' --ignore-special-dunder-class-attributes instead, each set'
+                ' to the inverse of the old value.'
             ),
         )
         parser.add_option(
@@ -264,6 +269,19 @@ class Plugin:
                 'If True, class attributes whose names contain only'
                 ' underscores (such as _, __, ...) are excluded and must not'
                 ' appear in the docstring.'
+            ),
+        )
+        parser.add_option(
+            '-isdca',
+            '--ignore-special-dunder-class-attributes',
+            action='store',
+            default='True',
+            parse_from_config=True,
+            help=(
+                'If True, special class attributes whose names start and end'
+                ' with double underscores (such as __slots__ and'
+                ' __tablename__) are excluded and must not appear in the'
+                ' docstring.'
             ),
         )
         parser.add_option(
@@ -410,6 +428,9 @@ class Plugin:
         cls.ignore_underscore_only_class_attributes = (
             options.ignore_underscore_only_class_attributes
         )
+        cls.ignore_special_dunder_class_attributes = (
+            options.ignore_special_dunder_class_attributes
+        )
         cls.treat_property_methods_as_class_attributes = (
             options.treat_property_methods_as_class_attributes
         )
@@ -531,6 +552,10 @@ class Plugin:
             '--ignore-underscore-only-class-attributes',
             self.ignore_underscore_only_class_attributes,
         )
+        ignoreSpecialDunderClassAttributes = self._bool(
+            '--ignore-special-dunder-class-attributes',
+            self.ignore_special_dunder_class_attributes,
+        )
         treatPropertyMethodsAsClassAttributes = self._bool(
             '--treat-property-methods-as-class-attributes',
             self.treat_property_methods_as_class_attributes,
@@ -589,6 +614,9 @@ class Plugin:
             ignoreUnderscoreOnlyClassAttributes=(
                 ignoreUnderscoreOnlyClassAttributes
             ),
+            ignoreSpecialDunderClassAttributes=(
+                ignoreSpecialDunderClassAttributes
+            ),
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
             ),
@@ -609,10 +637,13 @@ class Plugin:
 
     @classmethod
     def _bool(cls, optionName: str, optionValue: str) -> bool:
-        if optionValue == 'True':
+        # Flake8 passes config values through as strings, and users may write
+        # booleans in any case (such as `false`, which the TOML docs show).
+        normalizedValue = optionValue.lower()
+        if normalizedValue == 'true':
             return True
 
-        if optionValue == 'False':
+        if normalizedValue == 'false':
             return False
 
         raise ValueError(f'Invalid argument value: {optionName}={optionValue}')

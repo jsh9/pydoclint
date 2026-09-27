@@ -10,6 +10,7 @@ ______________________________________________________________________
 - [2. Google style](#2-google-style)
 - [3. Sphinx style](#3-sphinx-style)
 - [4. Special note: inline docstrings](#4-special-note-inline-docstrings)
+- [5. Private, underscore-only, and special names](#5-private-underscore-only-and-special-names)
 
 ______________________________________________________________________
 
@@ -28,33 +29,6 @@ class MyPet:
 Oftentimes we'd like to also document them in docstrings and have _pydoclint_
 check them. It is controlled by the `--check-class-attributes` option (see
 <https://jsh9.github.io/pydoclint/config_options.html>)
-
-Private names and underscore-only placeholder names are controlled
-independently for function arguments and class attributes:
-
-| Applies to                                      | Option and default                                   |
-| ----------------------------------------------- | ---------------------------------------------------- |
-| Private function arguments, such as `_value`    | `--ignore-private-args` (`False`)                    |
-| Underscore-only function arguments, such as `_` | `--ignore-underscore-only-args` (`True`)             |
-| Private class attributes, such as `_value`      | `--ignore-private-class-attributes` (`True`)         |
-| Underscore-only class attributes, such as `_`   | `--ignore-underscore-only-class-attributes` (`True`) |
-
-When an argument or attribute is ignored, it is excluded from comparison and
-must not appear in the docstring. It is not treated as optional documentation.
-
-Special names that start and end with double underscores, such as `__slots__`,
-form a separate category. Special methods are checked, special function
-arguments remain documentable, and special class attributes are always excluded
-from the "Attributes" section comparison.
-
-For example, `_: dataclasses.KW_ONLY` is an underscore-only placeholder. To
-ignore it while still requiring private attributes such as `_value` to be
-documented, use:
-
-```toml
-ignore-private-class-attributes = false
-ignore-underscore-only-class-attributes = true
-```
 
 However, none of the mainstream docstring styles (Google, numpy, or Sphinx)
 offers explicit guidelines on documenting class attributes. Therefore,
@@ -237,3 +211,42 @@ class MyClass:
 ```
 
 This applies for all 3 styles (numpy, Google, and Sphinx).
+
+## 5. Private, underscore-only, and special names
+
+Private names, underscore-only placeholder names, and special dunder names are
+controlled independently for function arguments and class attributes:
+
+| Applies to                                        | Option and default                                   |
+| ------------------------------------------------- | ---------------------------------------------------- |
+| Private function arguments, such as `_value`      | `--ignore-private-args` (`False`)                    |
+| Underscore-only function arguments, such as `_`   | `--ignore-underscore-only-args` (`True`)             |
+| Private class attributes, such as `_value`        | `--ignore-private-class-attributes` (`True`)         |
+| Underscore-only class attributes, such as `_`     | `--ignore-underscore-only-class-attributes` (`True`) |
+| Special class attributes, such as `__tablename__` | `--ignore-special-dunder-class-attributes` (`True`)  |
+
+When an argument or attribute is ignored, it is excluded from comparison and
+must not appear in the docstring. It is not treated as optional documentation:
+documenting an ignored name produces an extra-name violation (such as `DOC602`
+and `DOC603` for class attributes).
+
+Special names start and end with double underscores, such as `__slots__`.
+Special-dunder arguments participate in argument comparison unless
+`--ignore-private-args=True`. Special-dunder class attributes participate in
+the "Attributes" section comparison only when
+`--ignore-special-dunder-class-attributes=False`. Special methods, such as
+`__init__`, are always checked, even with
+`--skip-checking-private-functions=True`.
+
+For example, `_: dataclasses.KW_ONLY` is an underscore-only placeholder. To
+ignore it while still requiring private attributes such as `_value` to be
+documented, use:
+
+```toml
+ignore-private-class-attributes = false
+ignore-underscore-only-class-attributes = true
+```
+
+See
+[name categories](https://jsh9.github.io/pydoclint/config_options.html#name-categories)
+for how each option treats each kind of name.

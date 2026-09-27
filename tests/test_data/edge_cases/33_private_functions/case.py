@@ -17,6 +17,24 @@ def _() -> int:
     return 2
 
 
+def __() -> int:
+    """Test another underscore-only function name.
+
+    Returns:
+        bool: An intentionally incorrect return type.
+    """
+
+    def inner_function() -> bool:
+        """Inner function should be skipped with its underscore-only parent.
+
+        Returns:
+            int: An intentionally incorrect return type.
+        """
+        return False
+
+    return 2
+
+
 def __special__() -> int:
     """Test a special function name.
 

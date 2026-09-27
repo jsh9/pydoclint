@@ -17,15 +17,15 @@ from pydoclint.baseline import (
 from pydoclint.parse_config import (
     injectDefaultOptionsFromUserSpecifiedTomlFilePath,
 )
+from pydoclint.utils.config_option_removal_messages import (
+    getIgnoreUnderscoreArgsRemovedMessage,
+    getShouldDocumentPrivateClassAttributesRemovedMessage,
+)
 from pydoclint.utils.invisible_chars import replaceInvisibleChars
 from pydoclint.utils.noqa import (
     codeIsSuppressed,
     collectNativeNoqaSuppression,
     collectNoqaCodesByLine,
-)
-from pydoclint.utils.config_option_removal_messages import (
-    getIgnoreUnderscoreArgsRemovedMessage,
-    getShouldDocumentPrivateClassAttributesRemovedMessage,
 )
 from pydoclint.utils.violation import Violation
 from pydoclint.visitor import Visitor
@@ -161,7 +161,11 @@ def validateNativeModeNoqaLocation(
     type=bool,
     show_default=True,
     default=False,
-    help='If True, skip checking docstrings of private functions.',
+    help=(
+        'If True, skip checking docstrings of private functions (such as'
+        ' _helper) and underscore-only functions (such as _), but not special'
+        ' dunder methods (such as __init__).'
+    ),
 )
 @click.option(
     '-aid',
@@ -243,7 +247,8 @@ def validateNativeModeNoqaLocation(
     default=True,
     help=(
         'If True, arguments whose names contain only underscores (such as _,'
-        ' __, ...) are excluded and must not appear in the docstring.'
+        ' __, *_, and **__) are excluded and must not appear in the'
+        ' docstring.'
     ),
 )
 @click.option(
@@ -253,10 +258,9 @@ def validateNativeModeNoqaLocation(
     show_default=True,
     default=False,
     help=(
-        'If True, private arguments (underscore-prefixed names containing at'
-        ' least one non-underscore character, excluding special names that'
-        ' start and end with double underscores) are excluded and must not'
-        ' appear in the docstring.'
+        'If True, private arguments (such as _value, __value, and *_args)'
+        ' and, for backward compatibility, special dunder arguments (such as'
+        ' __value__) are excluded and must not appear in the docstring.'
     ),
 )
 @click.option(
@@ -276,8 +280,10 @@ def validateNativeModeNoqaLocation(
     type=bool,
     default=None,
     help=(
-        '(Removed) Please use --ignore-private-class-attributes and'
-        ' --ignore-underscore-only-class-attributes instead.'
+        '(Removed) Please use --ignore-private-class-attributes,'
+        ' --ignore-underscore-only-class-attributes, and'
+        ' --ignore-special-dunder-class-attributes instead, each set to the'
+        ' inverse of the old value.'
     ),
 )
 @click.option(
@@ -303,6 +309,18 @@ def validateNativeModeNoqaLocation(
         'If True, class attributes whose names contain only underscores'
         ' (such as _, __, ...) are excluded and must not appear in the'
         ' docstring.'
+    ),
+)
+@click.option(
+    '-isdca',
+    '--ignore-special-dunder-class-attributes',
+    type=bool,
+    show_default=True,
+    default=True,
+    help=(
+        'If True, special class attributes whose names start and end with'
+        ' double underscores (such as __slots__ and __tablename__) are'
+        ' excluded and must not appear in the docstring.'
     ),
 )
 @click.option(
@@ -524,6 +542,7 @@ def main(  # noqa: C901, PLR0915
         should_document_private_class_attributes: bool | None,
         ignore_private_class_attributes: bool,
         ignore_underscore_only_class_attributes: bool,
+        ignore_special_dunder_class_attributes: bool,
         treat_property_methods_as_class_attributes: bool,
         require_return_section_when_returning_none: bool,
         require_return_section_when_returning_nothing: bool,
@@ -662,6 +681,9 @@ def main(  # noqa: C901, PLR0915
         ignorePrivateClassAttributes=ignore_private_class_attributes,
         ignoreUnderscoreOnlyClassAttributes=(
             ignore_underscore_only_class_attributes
+        ),
+        ignoreSpecialDunderClassAttributes=(
+            ignore_special_dunder_class_attributes
         ),
         treatPropertyMethodsAsClassAttributes=(
             treat_property_methods_as_class_attributes
@@ -826,6 +848,7 @@ def _checkPaths(
         checkClassAttributes: bool = True,
         ignorePrivateClassAttributes: bool = True,
         ignoreUnderscoreOnlyClassAttributes: bool = True,
+        ignoreSpecialDunderClassAttributes: bool = True,
         treatPropertyMethodsAsClassAttributes: bool = False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireInlineClassVarDocs: bool = False,
@@ -887,6 +910,9 @@ def _checkPaths(
             ignoreUnderscoreOnlyClassAttributes=(
                 ignoreUnderscoreOnlyClassAttributes
             ),
+            ignoreSpecialDunderClassAttributes=(
+                ignoreSpecialDunderClassAttributes
+            ),
             treatPropertyMethodsAsClassAttributes=(
                 treatPropertyMethodsAsClassAttributes
             ),
@@ -932,6 +958,7 @@ def _checkFile(
         checkClassAttributes: bool = True,
         ignorePrivateClassAttributes: bool = True,
         ignoreUnderscoreOnlyClassAttributes: bool = True,
+        ignoreSpecialDunderClassAttributes: bool = True,
         treatPropertyMethodsAsClassAttributes: bool = False,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool = False,
         requireInlineClassVarDocs: bool = False,
@@ -987,6 +1014,9 @@ def _checkFile(
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(
             ignoreUnderscoreOnlyClassAttributes
+        ),
+        ignoreSpecialDunderClassAttributes=(
+            ignoreSpecialDunderClassAttributes
         ),
         treatPropertyMethodsAsClassAttributes=(
             treatPropertyMethodsAsClassAttributes

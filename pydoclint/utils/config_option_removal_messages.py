@@ -27,18 +27,22 @@ def getShouldDocumentPrivateClassAttributesRemovedMessage(
         return (
             'The option `--should-document-private-class-attributes` no longer'
             ' works; remove it. Its replacements,'
-            ' `--ignore-private-class-attributes` and'
-            ' `--ignore-underscore-only-class-attributes`, both default to'
-            ' `True` (`ignore-private-class-attributes = true` and'
-            ' `ignore-underscore-only-class-attributes = true` in'
+            ' `--ignore-private-class-attributes`,'
+            ' `--ignore-underscore-only-class-attributes`, and'
+            ' `--ignore-special-dunder-class-attributes`, all default to'
+            ' `True` (`ignore-private-class-attributes = true`,'
+            ' `ignore-underscore-only-class-attributes = true`, and'
+            ' `ignore-special-dunder-class-attributes = true` in'
             ' TOML/Flake8), which preserves this behavior.'
         )
 
     return (
         'The option `--should-document-private-class-attributes` no longer'
-        ' works. Use `--ignore-private-class-attributes=False` and'
-        ' `--ignore-underscore-only-class-attributes=False` on the command'
-        ' line, or `ignore-private-class-attributes = false` and'
-        ' `ignore-underscore-only-class-attributes = false` in TOML/Flake8'
-        ' config. Special dunder class attributes are always excluded.'
+        ' works. Use `--ignore-private-class-attributes=False`,'
+        ' `--ignore-underscore-only-class-attributes=False`, and'
+        ' `--ignore-special-dunder-class-attributes=False` on the command'
+        ' line, or `ignore-private-class-attributes = false`,'
+        ' `ignore-underscore-only-class-attributes = false`, and'
+        ' `ignore-special-dunder-class-attributes = false` in TOML/Flake8'
+        ' config.'
     )

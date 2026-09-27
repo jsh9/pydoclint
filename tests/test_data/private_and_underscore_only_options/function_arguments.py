@@ -13,5 +13,20 @@ def function_1(
     Args:
         a:
         b:
-        __special__:
+    """
+
+
+def function_2(a: str, *_: int, **__special__: str) -> None:
+    """My function with starred underscore-only and special arguments.
+
+    Args:
+        a:
+    """
+
+
+def function_3(a: str, *_private: int, **__: str) -> None:
+    """My function with starred private and underscore-only arguments.
+
+    Args:
+        a:
     """

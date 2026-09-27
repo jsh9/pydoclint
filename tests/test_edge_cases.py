@@ -102,6 +102,7 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'ignorePrivateClassAttributes': True,
                 'ignoreUnderscoreOnlyClassAttributes': True,
+                'ignoreSpecialDunderClassAttributes': True,
             },
             [],
         ),
@@ -111,6 +112,7 @@ from tests.test_main import DATA_DIR
                 'style': 'google',
                 'ignorePrivateClassAttributes': False,
                 'ignoreUnderscoreOnlyClassAttributes': False,
+                'ignoreSpecialDunderClassAttributes': False,
             },
             [
                 'DOC601: Class `MyClass`: Class docstring contains fewer class attributes '
@@ -134,6 +136,7 @@ from tests.test_main import DATA_DIR
                 'treatPropertyMethodsAsClassAttributes': True,
                 'ignorePrivateClassAttributes': False,
                 'ignoreUnderscoreOnlyClassAttributes': False,
+                'ignoreSpecialDunderClassAttributes': False,
             },
             [],
         ),
@@ -145,6 +148,7 @@ from tests.test_main import DATA_DIR
                 'treatPropertyMethodsAsClassAttributes': True,
                 'ignorePrivateClassAttributes': True,
                 'ignoreUnderscoreOnlyClassAttributes': True,
+                'ignoreSpecialDunderClassAttributes': True,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -168,6 +172,7 @@ from tests.test_main import DATA_DIR
                 'treatPropertyMethodsAsClassAttributes': False,
                 'ignorePrivateClassAttributes': False,
                 'ignoreUnderscoreOnlyClassAttributes': False,
+                'ignoreSpecialDunderClassAttributes': False,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -191,6 +196,7 @@ from tests.test_main import DATA_DIR
                 'treatPropertyMethodsAsClassAttributes': False,
                 'ignorePrivateClassAttributes': True,
                 'ignoreUnderscoreOnlyClassAttributes': True,
+                'ignoreSpecialDunderClassAttributes': True,
             },
             [
                 'DOC602: Class `House`: Class docstring contains more class attributes than '
@@ -595,6 +601,12 @@ from tests.test_main import DATA_DIR
                 'DOC203: Function `_` return type(s) in docstring not consistent with the'
                 " return annotation. Return annotation types: ['int']; docstring return"
                 " section types: ['bool']",
+                'DOC203: Function `__` return type(s) in docstring not consistent with the'
+                " return annotation. Return annotation types: ['int']; docstring return"
+                " section types: ['bool']",
+                'DOC203: Function `inner_function` return type(s) in docstring not'
+                " consistent with the return annotation. Return annotation types: ['bool'];"
+                " docstring return section types: ['int']",
                 'DOC203: Function `__special__` return type(s) in docstring not consistent'
                 " with the return annotation. Return annotation types: ['int']; docstring"
                 " return section types: ['bool']",
@@ -617,9 +629,6 @@ from tests.test_main import DATA_DIR
                 'skipCheckingShortDocstrings': False,
             },
             [
-                'DOC203: Function `_` return type(s) in docstring not consistent with the'
-                " return annotation. Return annotation types: ['int']; docstring return"
-                " section types: ['bool']",
                 'DOC203: Function `__special__` return type(s) in docstring not consistent'
                 " with the return annotation. Return annotation types: ['int']; docstring"
                 " return section types: ['bool']",
