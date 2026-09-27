@@ -11,49 +11,6 @@ from pydoclint.main import _checkFile
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
 
-CLASS_ATTRIBUTE_NAME_KINDS_SRC = dedent(
-    '''
-    class Example:
-        """
-        Class with attributes from every name category.
-
-        Attributes
-        ----------
-        public
-            A public attribute.
-        """
-        public: int
-        _private: str
-        _: bool
-        __: float
-        __slots__: tuple[str, ...]
-        __hash__ = None
-        __match_args__: tuple[str, ...]
-    '''
-)
-
-# Regression coverage for https://github.com/jsh9/pydoclint/issues/216
-FUNCTION_ARGUMENT_NAME_KINDS_SRC = dedent(
-    '''
-    def function_1(
-        a: str,
-        b: int,
-        _c: dict,
-        __d: list,
-        _: float,
-        __: bool,
-        __special__: str,
-    ):
-        """My function.
-
-        Args:
-            a:
-            b:
-            __special__:
-        """
-    '''
-)
-
 ALL_CLASS_ATTRIBUTE_NAME_KINDS_DOCUMENTED_SRC = dedent(
     '''
     class Example:
@@ -1990,17 +1947,16 @@ def testInlineClassAttributeDocs(
     ],
 )
 def testPrivateAndUnderscoreOnlyClassAttributeOptions(
-        tmp_path: Path,
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
         expectedViolationMessages: list[str],
 ) -> None:
     """Ensure private and underscore-only class options work together."""
-    sourcePath = tmp_path / 'class_attribute_name_kinds.py'
-    sourcePath.write_text(CLASS_ATTRIBUTE_NAME_KINDS_SRC, encoding='utf-8')
-
     violations = _checkFile(
-        filename=sourcePath,
+        filename=(
+            DATA_DIR
+            / 'private_and_underscore_only_options/class_attributes.py'
+        ),
         style='numpy',
         argTypeHintsInDocstring=False,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
@@ -2064,17 +2020,16 @@ def testPrivateAndUnderscoreOnlyClassAttributeOptions(
     ],
 )
 def testPrivateAndUnderscoreOnlyFunctionArgumentOptions(
-        tmp_path: Path,
         ignorePrivateArgs: bool,
         ignoreUnderscoreOnlyArgs: bool,
         expectedViolationMessages: list[str],
 ) -> None:
     """Ensure private and underscore-only argument options work together."""
-    sourcePath = tmp_path / 'function_argument_name_kinds.py'
-    sourcePath.write_text(FUNCTION_ARGUMENT_NAME_KINDS_SRC, encoding='utf-8')
-
     violations = _checkFile(
-        filename=sourcePath,
+        filename=(
+            DATA_DIR
+            / 'private_and_underscore_only_options/function_arguments.py'
+        ),
         style='google',
         argTypeHintsInDocstring=False,
         ignorePrivateArgs=ignorePrivateArgs,
