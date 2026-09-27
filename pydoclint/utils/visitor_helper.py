@@ -80,11 +80,17 @@ def checkClassAttributesAgainstClassDocstring(
     skipCheckingShortDocstrings : bool
         Whether to skip checking short docstrings.
     ignorePrivateClassAttributes : bool
-        Whether to ignore private class attributes.
+        Whether to ignore private class attributes (such as ``_value``) when
+        checking the docstring. Ignored attributes must not appear in the
+        docstring.
     ignoreUnderscoreOnlyClassAttributes : bool
-        Whether to ignore class attributes with underscore-only names.
+        Whether to ignore class attributes with underscore-only names (such as
+        ``_``) when checking the docstring. Ignored attributes must not appear
+        in the docstring.
     ignoreSpecialDunderClassAttributes : bool
-        Whether to ignore class attributes with special dunder names.
+        Whether to ignore class attributes with special dunder names (such as
+        ``__slots__``) when checking the docstring. Ignored attributes must not
+        appear in the docstring.
     treatPropertyMethodsAsClassAttributes : bool
         Whether to treat property methods as class attributes.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
@@ -193,11 +199,17 @@ def getDocumentedAndActualClassArgLists(
     style : str
         The docstring style.
     ignorePrivateClassAttributes : bool
-        Whether to ignore private class attributes.
+        Whether to ignore private class attributes (such as ``_value``) when
+        checking the docstring. Ignored attributes must not appear in the
+        docstring.
     ignoreUnderscoreOnlyClassAttributes : bool
-        Whether to ignore class attributes with underscore-only names.
+        Whether to ignore class attributes with underscore-only names (such as
+        ``_``) when checking the docstring. Ignored attributes must not appear
+        in the docstring.
     ignoreSpecialDunderClassAttributes : bool
-        Whether to ignore class attributes with special dunder names.
+        Whether to ignore class attributes with special dunder names (such as
+        ``__slots__``) when checking the docstring. Ignored attributes must not
+        appear in the docstring.
     treatPropertyMethodsAsClassAttributes : bool
         Whether to treat property methods as class attributes.
     onlyAttrsWithClassVarAreTreatedAsClassAttrs : bool
@@ -476,11 +488,17 @@ def extractClassAttributesFromNode(
     node : ast.ClassDef
         The class definition
     ignorePrivateClassAttributes : bool
-        Whether to ignore private class attributes.
+        Whether to ignore private class attributes (such as ``_value``) when
+        checking the docstring. Ignored attributes must not appear in the
+        docstring.
     ignoreUnderscoreOnlyClassAttributes : bool
-        Whether to ignore class attributes with underscore-only names.
+        Whether to ignore class attributes with underscore-only names (such as
+        ``_``) when checking the docstring. Ignored attributes must not appear
+        in the docstring.
     ignoreSpecialDunderClassAttributes : bool
-        Whether to ignore class attributes with special dunder names.
+        Whether to ignore class attributes with special dunder names (such as
+        ``__slots__``) when checking the docstring. Ignored attributes must not
+        appear in the docstring.
     treatPropertyMethodsAsClassAttrs : bool
         Whether we'd like to treat property methods as class attributes. If
         ``True``, property methods will be included in the return value.
