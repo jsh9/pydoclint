@@ -24,17 +24,13 @@ DATA_DIR = THIS_DIR / 'test_data'
 CONFIG_DATA_DIR: Path = DATA_DIR / 'config_files'
 minimalFixture = DATA_DIR / 'common/minimal.py'
 classAttributeNameKindsFixture = (
-    DATA_DIR / 'private_and_underscore_only_options/class_attributes.py'
+    DATA_DIR / 'name_category_options/class_attributes.py'
 )
 documentedClassAttributesFixture = (
-    DATA_DIR
-    / 'private_and_underscore_only_options'
-    / 'documented_class_attributes.py'
+    DATA_DIR / 'name_category_options' / 'documented_class_attributes.py'
 )
 underscoreArgumentFixture = (
-    DATA_DIR
-    / 'private_and_underscore_only_options'
-    / 'underscore_only_function_argument.py'
+    DATA_DIR / 'name_category_options' / 'underscore_only_function_argument.py'
 )
 
 

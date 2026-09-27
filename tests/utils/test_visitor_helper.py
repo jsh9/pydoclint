@@ -912,7 +912,7 @@ class MyClass:
         ),
     ],
 )
-def testExtractClassAttributesFromNode_privateAndUnderscoreOnlyNames(
+def testExtractClassAttributesFromNodeNameCategoryOptions(
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
         ignoreSpecialDunderClassAttributes: bool,

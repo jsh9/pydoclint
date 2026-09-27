@@ -1994,7 +1994,7 @@ def testInlineClassAttributeDocs(
         ),
     ],
 )
-def testPrivateAndUnderscoreOnlyClassAttributeOptions(
+def testClassAttributeNameCategoryOptions(
         ignorePrivateClassAttributes: bool,
         ignoreUnderscoreOnlyClassAttributes: bool,
         ignoreSpecialDunderClassAttributes: bool,
@@ -2002,10 +2002,7 @@ def testPrivateAndUnderscoreOnlyClassAttributeOptions(
 ) -> None:
     """Ensure the three class-attribute name options work together."""
     violations = _checkFile(
-        filename=(
-            DATA_DIR
-            / 'private_and_underscore_only_options/class_attributes.py'
-        ),
+        filename=(DATA_DIR / 'name_category_options/class_attributes.py'),
         style='numpy',
         argTypeHintsInDocstring=False,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
@@ -2125,10 +2122,7 @@ def testPrivateAndUnderscoreOnlyFunctionArgumentOptions(
 ) -> None:
     """Ensure private and underscore-only argument options work together."""
     violations = _checkFile(
-        filename=(
-            DATA_DIR
-            / 'private_and_underscore_only_options/function_arguments.py'
-        ),
+        filename=(DATA_DIR / 'name_category_options/function_arguments.py'),
         style='google',
         argTypeHintsInDocstring=False,
         ignorePrivateArgs=ignorePrivateArgs,
@@ -2165,7 +2159,7 @@ def testIgnoredClassAttributeNamesAreExactExtras(
     violations = _checkFile(
         filename=(
             DATA_DIR
-            / 'private_and_underscore_only_options'
+            / 'name_category_options'
             / 'documented_class_attributes.py'
         ),
         style='numpy',

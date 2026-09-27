@@ -22,7 +22,7 @@ from tests.helpers import (
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
-NAME_OPTIONS_DATA_DIR = DATA_DIR / 'private_and_underscore_only_options'
+NAME_CATEGORY_OPTIONS_DATA_DIR = DATA_DIR / 'name_category_options'
 
 # Where the test process imports pydoclint from; real Flake8 runs use it too
 PYDOCLINT_IMPORT_ROOT = Path(pydoclint.__file__).resolve().parent.parent
@@ -190,7 +190,7 @@ def testNewClassAttributeOptionsPropagate(
 ) -> None:
     """Ensure Flake8 forwards all three class-attribute name controls."""
     flake8Plugin = buildFlake8Plugin(
-        NAME_OPTIONS_DATA_DIR / 'class_attributes.py',
+        NAME_CATEGORY_OPTIONS_DATA_DIR / 'class_attributes.py',
         style='numpy',
         arg_type_hints_in_docstring='False',
         check_class_attributes='True',
@@ -228,7 +228,8 @@ def testIgnoreUnderscoreOnlyArgsPropagates(
 ) -> None:
     """Ensure Flake8 forwards the underscore-only argument control."""
     flake8Plugin = buildFlake8Plugin(
-        NAME_OPTIONS_DATA_DIR / 'underscore_only_function_argument.py',
+        NAME_CATEGORY_OPTIONS_DATA_DIR
+        / 'underscore_only_function_argument.py',
         style='google',
         arg_type_hints_in_docstring='False',
         ignore_underscore_only_args=ignoreUnderscoreOnlyArgs,
@@ -295,7 +296,7 @@ def testRealFlake8AppliesLowercaseMigrationReplacements(
     """
     result = runRealFlake8(
         tmp_path,
-        sourcePath=NAME_OPTIONS_DATA_DIR / fixtureName,
+        sourcePath=NAME_CATEGORY_OPTIONS_DATA_DIR / fixtureName,
         configLines=configLines,
     )
     output = result.stdout + result.stderr

@@ -214,16 +214,17 @@ This applies for all 3 styles (numpy, Google, and Sphinx).
 
 ## 5. Private, underscore-only, and special names
 
-Private names, underscore-only placeholder names, and special dunder names are
-controlled independently for function arguments and class attributes:
+Private names, underscore-only placeholder names, and special-dunder names are
+handled by these context-specific options:
 
-| Applies to                                        | Option and default                                   |
-| ------------------------------------------------- | ---------------------------------------------------- |
-| Private function arguments, such as `_value`      | `--ignore-private-args` (`False`)                    |
-| Underscore-only function arguments, such as `_`   | `--ignore-underscore-only-args` (`True`)             |
-| Private class attributes, such as `_value`        | `--ignore-private-class-attributes` (`True`)         |
-| Underscore-only class attributes, such as `_`     | `--ignore-underscore-only-class-attributes` (`True`) |
-| Special class attributes, such as `__tablename__` | `--ignore-special-dunder-class-attributes` (`True`)  |
+| Applies to                                               | Option and default                                   |
+| -------------------------------------------------------- | ---------------------------------------------------- |
+| Private function arguments, such as `_value`             | `--ignore-private-args` (`False`)                    |
+| Special-dunder function arguments, such as `__value__`   | `--ignore-private-args` (`False`)                    |
+| Underscore-only function arguments, such as `_`          | `--ignore-underscore-only-args` (`True`)             |
+| Private class attributes, such as `_value`               | `--ignore-private-class-attributes` (`True`)         |
+| Underscore-only class attributes, such as `_`            | `--ignore-underscore-only-class-attributes` (`True`) |
+| Special-dunder class attributes, such as `__tablename__` | `--ignore-special-dunder-class-attributes` (`True`)  |
 
 When an argument or attribute is ignored, it is excluded from comparison and
 must not appear in the docstring. It is not treated as optional documentation:
