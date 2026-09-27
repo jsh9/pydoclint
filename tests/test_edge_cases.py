@@ -652,6 +652,12 @@ from tests.test_main import DATA_DIR
                 'DOC203: Function `_test_private_function` return type(s) in docstring not '
                 "consistent with the return annotation. Return annotation types: ['int']; "
                 "docstring return section types: ['bool']",
+                'DOC203: Function `_` return type(s) in docstring not consistent with the'
+                " return annotation. Return annotation types: ['int']; docstring return"
+                " section types: ['bool']",
+                'DOC203: Function `__special__` return type(s) in docstring not consistent'
+                " with the return annotation. Return annotation types: ['int']; docstring"
+                " return section types: ['bool']",
                 'DOC301: Class `TestClass`: __init__() should not have a docstring; '
                 'please combine it with the docstring of the class',
                 'DOC105: Method `TestClass._private_method`: Argument names match, but type '
@@ -671,8 +677,14 @@ from tests.test_main import DATA_DIR
                 'skipCheckingShortDocstrings': False,
             },
             [
+                'DOC203: Function `_` return type(s) in docstring not consistent with the'
+                " return annotation. Return annotation types: ['int']; docstring return"
+                " section types: ['bool']",
+                'DOC203: Function `__special__` return type(s) in docstring not consistent'
+                " with the return annotation. Return annotation types: ['int']; docstring"
+                " return section types: ['bool']",
                 'DOC301: Class `TestClass`: __init__() should not have a docstring; '
-                'please combine it with the docstring of the class'
+                'please combine it with the docstring of the class',
             ],
         ),
         (
@@ -719,7 +731,7 @@ from tests.test_main import DATA_DIR
             ],
         ),
         (
-            '36_dataclass_kw_only/case.py',
+            '36_underscore_only_class_attribute/case.py',
             {
                 'style': 'numpy',
                 'argTypeHintsInDocstring': False,

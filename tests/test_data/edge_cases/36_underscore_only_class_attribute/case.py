@@ -1,3 +1,4 @@
+# Regression test for https://github.com/jsh9/pydoclint/issues/302
 import dataclasses
 
 

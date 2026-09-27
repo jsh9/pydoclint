@@ -32,10 +32,18 @@ check them. It is controlled by the `--check-class-attributes` option (see
 Private names and underscore-only placeholder names are controlled
 independently for function arguments and class attributes:
 
-| Name kind      | Function argument option        | Class attribute option                      |
-| -------------- | ------------------------------- | ------------------------------------------- |
-| `_value`       | `--ignore-private-args`         | `--ignore-private-class-attributes`         |
-| `_`, `__`, ... | `--ignore-underscore-only-args` | `--ignore-underscore-only-class-attributes` |
+| Context            | Private names such as `_value`                        | Underscore-only names such as `_`, `__`, ...                  |
+| ------------------ | ----------------------------------------------------- | ------------------------------------------------------------- |
+| Function arguments | `--ignore-private-args` (default: `False`)            | `--ignore-underscore-only-args` (default: `True`)             |
+| Class attributes   | `--ignore-private-class-attributes` (default: `True`) | `--ignore-underscore-only-class-attributes` (default: `True`) |
+
+When an argument or attribute is ignored, it is excluded from comparison and
+must not appear in the docstring. It is not treated as optional documentation.
+
+Special names that start and end with double underscores, such as `__slots__`,
+form a separate category. Special methods are checked, special function
+arguments remain documentable, and special class attributes are always excluded
+from the "Attributes" section comparison.
 
 For example, `_: dataclasses.KW_ONLY` is an underscore-only placeholder. To
 ignore it while still requiring private attributes such as `_value` to be

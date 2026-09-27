@@ -7,6 +7,25 @@ def _test_private_function() -> int:
     """
     return 2
 
+
+def _() -> int:
+    """Test an underscore-only function name.
+
+    Returns:
+        bool: An intentionally incorrect return type.
+    """
+    return 2
+
+
+def __special__() -> int:
+    """Test a special function name.
+
+    Returns:
+        bool: An intentionally incorrect return type.
+    """
+    return 2
+
+
 class TestClass:
     """
     Docstring for TestClass, this will still be checked if

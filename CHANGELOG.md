@@ -5,15 +5,26 @@
 - Fixed
   - Allowed underscore-only class attribute placeholders, such as
     `_: dataclasses.KW_ONLY`, to be ignored independently of private class
-    attributes (#302)
+    attributes through name-based classification (#302)
 - Changed
-  - Replaced `--ignore-underscore-args` with `--ignore-underscore-only-args`
-  - Replaced `--should-document-private-class-attributes` with independent
-    `--ignore-private-class-attributes` and
-    `--ignore-underscore-only-class-attributes` options
+  - Unified public, private, underscore-only, and special name classification
+    across functions, arguments, and class attributes
+  - Changed the `Visitor` keyword arguments from `ignoreUnderscoreArgs` and
+    `shouldDocumentPrivateClassAttributes` to `ignoreUnderscoreOnlyArgs`,
+    `ignorePrivateClassAttributes`, and `ignoreUnderscoreOnlyClassAttributes`
+  - Always exclude special class attributes such as `__slots__`, `__hash__`,
+    and `__match_args__` from Attributes-section comparison
   - Moved the changelog full-diff pre-commit check into
     `pre-commit-changelog-full-diff-check` and updated this repo to consume it
     as an external hook
+- Removed
+  - Removed `--ignore-underscore-args`; using it now fails with guidance to
+    delete it when it has the new default value or replace it with
+    `--ignore-underscore-only-args`
+  - Removed `--should-document-private-class-attributes`; using it now fails
+    with guidance to delete it when it has the new defaults or replace it with
+    `--ignore-private-class-attributes` and
+    `--ignore-underscore-only-class-attributes`
 
 ## [0.9.1] - 2026-07-03
 

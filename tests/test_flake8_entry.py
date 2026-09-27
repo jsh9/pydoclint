@@ -1,5 +1,6 @@
 import ast
 import re
+from textwrap import dedent
 from types import SimpleNamespace
 from typing import Any
 
@@ -22,11 +23,15 @@ class FakeParser:
 
 def buildPlugin(src: str, **overrides: Any) -> Plugin:
     """Build a plugin instance with real option defaults and overrides."""
+
+    class TestPlugin(Plugin):
+        pass
+
     parser = FakeParser()
-    Plugin.add_options(parser)
+    TestPlugin.add_options(parser)
     parser.defaults.update(overrides)
-    Plugin.parse_options(SimpleNamespace(**parser.defaults))
-    return Plugin(ast.parse(src))
+    TestPlugin.parse_options(SimpleNamespace(**parser.defaults))
+    return TestPlugin(ast.parse(dedent(src)))
 
 
 @pytest.mark.parametrize(
@@ -34,27 +39,35 @@ def buildPlugin(src: str, **overrides: Any) -> Plugin:
     [
         (
             {'ignore_underscore_args': 'True'},
-            'The option `--ignore-underscore-args` no longer works; please use '
-            '`--ignore-underscore-only-args=True` instead',
+            'The option `--ignore-underscore-args` no longer works; remove it.'
+            ' Its replacement, `--ignore-underscore-only-args`, defaults to'
+            ' `True` (`ignore-underscore-only-args = true` in TOML/Flake8),'
+            ' which preserves this behavior.',
         ),
         (
             {'ignore_underscore_args': 'False'},
-            'The option `--ignore-underscore-args` no longer works; please use '
-            '`--ignore-underscore-only-args=False` instead',
+            'The option `--ignore-underscore-args` no longer works. Replace it'
+            ' with `--ignore-underscore-only-args=False` on the command line or'
+            ' `ignore-underscore-only-args = false` in TOML/Flake8 config.',
         ),
         (
             {'should_document_private_class_attributes': 'True'},
-            'The option `--should-document-private-class-attributes` no longer '
-            'works. To preserve its previous behavior, please use both '
-            '`--ignore-private-class-attributes=False` and '
-            '`--ignore-underscore-only-class-attributes=False` instead',
+            'The option `--should-document-private-class-attributes` no longer'
+            ' works. Use `--ignore-private-class-attributes=False` and'
+            ' `--ignore-underscore-only-class-attributes=False` on the command'
+            ' line, or `ignore-private-class-attributes = false` and'
+            ' `ignore-underscore-only-class-attributes = false` in TOML/Flake8'
+            ' config. Special dunder class attributes are always excluded.',
         ),
         (
             {'should_document_private_class_attributes': 'False'},
-            'The option `--should-document-private-class-attributes` no longer '
-            'works. To preserve its previous behavior, please use both '
-            '`--ignore-private-class-attributes=True` and '
-            '`--ignore-underscore-only-class-attributes=True` instead',
+            'The option `--should-document-private-class-attributes` no longer'
+            ' works; remove it. Its replacements,'
+            ' `--ignore-private-class-attributes` and'
+            ' `--ignore-underscore-only-class-attributes`, both default to'
+            ' `True` (`ignore-private-class-attributes = true` and'
+            ' `ignore-underscore-only-class-attributes = true` in'
+            ' TOML/Flake8), which preserves this behavior.',
         ),
     ],
 )
@@ -67,34 +80,71 @@ def testRemovedOptionsShowMigrationError(
         list(plugin.run())
 
 
-def testNewClassAttributeOptionsPropagate() -> None:
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateClassAttributes',
+        'ignoreUnderscoreOnlyClassAttributes',
+        'expectedMissingNames',
+    ),
+    [
+        ('True', 'True', []),
+        ('True', 'False', ['_: bool', '__: float']),
+        ('False', 'True', ['_private: str']),
+        (
+            'False',
+            'False',
+            ['_private: str', '_: bool', '__: float'],
+        ),
+    ],
+)
+def testNewClassAttributeOptionsPropagate(
+        ignorePrivateClassAttributes: str,
+        ignoreUnderscoreOnlyClassAttributes: str,
+        expectedMissingNames: list[str],
+) -> None:
     plugin = buildPlugin(
         '''
-import dataclasses
-
-@dataclasses.dataclass
-class Result:
+class Example:
     """
-    Class for storing stuff.
+    Class with attributes from every name category.
 
     Attributes
     ----------
-    foo
-        The foo.
-    bar
-        The bar.
+    public
+        A public attribute.
     """
-    _: dataclasses.KW_ONLY
-    foo: int
-    bar: int
+    public: int
+    _private: str
+    _: bool
+    __: float
+    __slots__: tuple[str, ...]
+    __hash__ = None
+    __match_args__: tuple[str, ...]
 ''',
         style='numpy',
         arg_type_hints_in_docstring='False',
         check_class_attributes='True',
-        ignore_private_class_attributes='False',
-        ignore_underscore_only_class_attributes='True',
+        ignore_private_class_attributes=ignorePrivateClassAttributes,
+        ignore_underscore_only_class_attributes=(
+            ignoreUnderscoreOnlyClassAttributes
+        ),
     )
-    assert list(plugin.run()) == []
+    messages = [message for _, _, message, _ in plugin.run()]
+    if not expectedMissingNames:
+        assert messages == []
+        return
+
+    assert [message.split()[0] for message in messages] == [
+        'DOC601',
+        'DOC603',
+    ]
+    actualMissingNames = (
+        messages[1]
+        .split(': [', maxsplit=1)[1]
+        .split('].', maxsplit=1)[0]
+        .split(', ')
+    )
+    assert sorted(actualMissingNames) == sorted(expectedMissingNames)
 
 
 @pytest.mark.parametrize(

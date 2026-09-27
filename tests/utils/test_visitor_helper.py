@@ -1,4 +1,5 @@
 import ast
+from textwrap import dedent
 from typing import TYPE_CHECKING
 
 import pytest
@@ -881,13 +882,18 @@ def testExtractClassAttributesFromNode_privateAndUnderscoreOnlyNames(
         expectedNames: list[str],
 ) -> None:
     parsed = ast.parse(
-        """
-class MyClass:
-    public: int
-    _private: str
-    _: bool
-    __: float
-"""
+        dedent(
+            """
+            class MyClass:
+                public: int
+                _private: str
+                _: bool
+                __: float
+                __slots__: tuple[str, ...]
+                __hash__ = None
+                __match_args__: tuple[str, ...]
+            """
+        )
     )
     extracted = extractClassAttributesFromNode(
         node=parsed.body[0],
@@ -1470,3 +1476,70 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     # Verify results
     assert [v.code for v in violations] == expected_violations
     assert docArgs == ArgList(expected_docargs)
+
+
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateClassAttributes',
+        'ignoreUnderscoreOnlyClassAttributes',
+        'expectedNames',
+    ),
+    [
+        (True, True, ['public']),
+        (True, False, ['public', '_']),
+        (False, True, ['public', '_private']),
+        (False, False, ['public', '_private', '_']),
+    ],
+)
+def testInlineClassAttributeDocsRespectNameKinds(
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
+        expectedNames: list[str],
+) -> None:
+    parsed = ast.parse(
+        dedent(
+            '''
+            class Example:
+                """Class with inline attribute documentation."""
+
+                public: int
+                """int: A public attribute."""
+
+                _private: str
+                """str: A private attribute."""
+
+                _: bool
+                """bool: An underscore-only attribute."""
+
+                __slots__: tuple[str, ...]
+                """tuple[str, ...]: Special protocol metadata."""
+            '''
+        )
+    )
+    node = parsed.body[0]
+    assert isinstance(node, ast.ClassDef)
+    actualArgs = extractClassAttributesFromNode(
+        node=node,
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
+        ),
+        treatPropertyMethodsAsClassAttrs=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=False,
+    )
+    docArgs = ArgList([])
+    violations: list[Violation] = []
+
+    updateDocumentedArgListWithInlineDocstrings(
+        node=node,
+        docArgs=docArgs,
+        actualArgs=actualArgs,
+        argTypeHintsInDocstring=True,
+        requireInlineClassVarDocs=True,
+        violations=violations,
+    )
+
+    assert [arg.name for arg in actualArgs.infoList] == expectedNames
+    assert [arg.name for arg in docArgs.infoList] == expectedNames
+    assert violations == []

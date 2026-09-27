@@ -200,20 +200,29 @@ return annotation in the function signature are consistent.
 
 ## 14. `--ignore-underscore-only-args` (shortform: `-iuoa`, default: `True`)
 
-If True, underscore arguments (such as \_, \_\_, ...) in the function signature
-do not need to appear in the docstring.
+If True, arguments whose names contain only underscores (such as \_, \_\_, ...)
+are excluded and must not appear in the docstring.
 
 Note: "underscore arguments" are not the same as "private arguments" (i.e.,
 "arguments with leading underscores") such as `_a`.
 
-The removed `--ignore-underscore-args` option is replaced by this option. Use
-the same value when migrating.
+The removed `--ignore-underscore-args` option now stops the lint run with a
+migration error. Delete the old setting when it is `true`, because that is the
+new default. When it is `false`, replace it with one of these equivalent forms:
+
+```console
+pydoclint --ignore-underscore-only-args=False .
+```
+
+```toml
+ignore-underscore-only-args = false
+```
 
 ## 15. `--ignore-private-args` (shortform: `-ipa`, default: `False`)
 
-If True, private arguments (those with leading underscores in their names but
-are not purely `_`, `__`, etc.) in the function signature do not need to appear
-in the docstring.
+If True, private arguments (underscore-prefixed names containing at least one
+non-underscore character, excluding special names that start and end with
+double underscores) are excluded and must not appear in the docstring.
 
 ## 16. `--check-class-attributes` (shortform: `-cca`, default: `True`)
 
@@ -227,18 +236,29 @@ for more instructions.
 ## 17. `--ignore-private-class-attributes` (shortform: `-ipca`, default: `True`)
 
 If True, private class attributes (underscore-prefixed names containing at
-least one non-underscore character, such as `_value`) should not appear in the
-docstring. If False, they should be documented.
+least one non-underscore character, excluding special names that start and end
+with double underscores) are excluded and must not appear in the docstring. If
+False, they must be documented.
 
 ## 18. `--ignore-underscore-only-class-attributes` (shortform: `-iuoca`, default: `True`)
 
 If True, class attributes whose names contain only underscores (such as `_`,
-`__`, ...) should not appear in the docstring. If False, they should be
-documented.
+`__`, ...) are excluded and must not appear in the docstring. If False, they
+must be documented.
 
-The removed `--should-document-private-class-attributes` option is replaced by
-these two independent options. To preserve its old behavior, invert the old
-value for both new options. For example:
+Special class attributes that start and end with double underscores, such as
+`__slots__`, `__hash__`, and `__match_args__`, are always excluded from the
+"Attributes" section comparison.
+
+The removed `--should-document-private-class-attributes` option now stops the
+lint run with a migration error. Delete the old setting when it is `false`,
+because both replacements default to `true`. When it is `true`, use both
+replacement options with the inverse value:
+
+```console
+pydoclint --ignore-private-class-attributes=False \
+    --ignore-underscore-only-class-attributes=False .
+```
 
 ```toml
 # Replaces should-document-private-class-attributes = true
@@ -317,6 +337,8 @@ Read more about this config option and `DOC003` at
 If True, docstring type hints should contain default values consistent with the
 function signature. If False, docstring type hints should not contain default
 values. (Only applies to numpy style for now.)
+
+<a id="baseline"></a>
 
 ## 26. `--baseline`
 

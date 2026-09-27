@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib.metadata as importlib_metadata
 from typing import TYPE_CHECKING, Any
 
-from pydoclint.utils.config_option import (
+from pydoclint.utils.removed_config_options import (
     getIgnoreUnderscoreArgsRemovedMessage,
     getShouldDocumentPrivateClassAttributesRemovedMessage,
 )
@@ -200,8 +200,9 @@ class Plugin:
             default='True',
             parse_from_config=True,
             help=(
-                'If True, arguments whose names contain only underscores '
-                '(such as _, __, ...) do not need to appear in the docstring.'
+                'If True, arguments whose names contain only underscores'
+                ' (such as _, __, ...) are excluded and must not appear in the'
+                ' docstring.'
             ),
         )
         parser.add_option(
@@ -211,9 +212,11 @@ class Plugin:
             default='False',
             parse_from_config=True,
             help=(
-                'If True, private arguments (those with leading underscores '
-                ' in their names but are not purely `_`, `__`, etc.) in the'
-                ' function signature do not need to appear in the docstring.'
+                'If True, private arguments (underscore-prefixed names'
+                ' containing at least one non-underscore character,'
+                ' excluding special names that start and end with double'
+                ' underscores) are excluded and must not appear in the'
+                ' docstring.'
             ),
         )
         parser.add_option(
@@ -246,8 +249,9 @@ class Plugin:
             parse_from_config=True,
             help=(
                 'If True, private class attributes (underscore-prefixed names'
-                ' that contain non-underscore characters) should not appear'
-                ' in the docstring.'
+                ' that contain non-underscore characters, excluding special'
+                ' names that start and end with double underscores) are'
+                ' excluded and must not appear in the docstring.'
             ),
         )
         parser.add_option(
@@ -258,8 +262,8 @@ class Plugin:
             parse_from_config=True,
             help=(
                 'If True, class attributes whose names contain only'
-                ' underscores (such as _, __, ...) should not appear in the'
-                ' docstring.'
+                ' underscores (such as _, __, ...) are excluded and must not'
+                ' appear in the docstring.'
             ),
         )
         parser.add_option(

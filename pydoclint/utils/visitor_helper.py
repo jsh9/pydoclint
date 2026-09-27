@@ -13,10 +13,11 @@ if TYPE_CHECKING:
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
+    NameKind,
     appendArgsToCheckToV105,
     buildClassAttrToDefaultMapping,
+    classifyName,
     getDocstring,
-    isUnderscoreOnlyName,
     specialEqual,
     stripQuotes,
 )
@@ -298,7 +299,8 @@ def updateDocumentedArgListWithInlineDocstrings(
     docArgs : ArgList
         The argument list parsed from the class docstring.
     actualArgs : ArgList
-        The actual class attributes extracted from the class definition.
+        The actual class attributes extracted from the class definition and
+        already filtered according to the class-attribute name options.
     argTypeHintsInDocstring : bool
         Whether argument type hints are expected to be in the docstring.
     requireInlineClassVarDocs : bool
@@ -376,10 +378,14 @@ def shouldIgnoreClassAttributeName(
         ignoreUnderscoreOnlyClassAttributes: bool,
 ) -> bool:
     """Return whether a class attribute name should be ignored."""
-    if isUnderscoreOnlyName(name):
+    nameKind = classifyName(name)
+    if nameKind is NameKind.SPECIAL:
+        return True
+
+    if nameKind is NameKind.UNDERSCORE_ONLY:
         return ignoreUnderscoreOnlyClassAttributes
 
-    return ignorePrivateClassAttributes and name.startswith('_')
+    return nameKind is NameKind.PRIVATE and ignorePrivateClassAttributes
 
 
 def extractClassAttributesFromNode(
@@ -427,10 +433,10 @@ def extractClassAttributesFromNode(
     if 'body' not in node.__dict__ or len(node.body) == 0:
         return ArgList([])
 
-    atl: list[Arg] = []
+    classAttributeArgs: list[Arg] = []
     for itm in node.body:
         if isinstance(itm, ast.AnnAssign):  # with type hints ("a: int = 1")
-            atl.append(Arg.fromAstAnnAssign(itm))
+            classAttributeArgs.append(Arg.fromAstAnnAssign(itm))
         elif isinstance(itm, ast.Assign):  # no type hints
             if not isinstance(itm.targets, list) or len(itm.targets) == 0:
                 raise EdgeCaseError(
@@ -438,22 +444,22 @@ def extractClassAttributesFromNode(
                     f' Instead, it is {itm.targets}'
                 )
 
-            atl.extend(ArgList.fromAstAssign(itm).infoList)
+            classAttributeArgs.extend(ArgList.fromAstAssign(itm).infoList)
         elif isinstance(itm, (ast.AsyncFunctionDef, ast.FunctionDef)):  # noqa: SIM102
             if treatPropertyMethodsAsClassAttrs and checkIsPropertyMethod(itm):
                 typeHint = (
                     '' if itm.returns is None else unparseName(itm.returns)
                 )
-                atl.append(
+                classAttributeArgs.append(
                     Arg(
                         name=itm.name,
                         typeHint=typeHint,
                     )
                 )
 
-    atl = [
+    classAttributeArgs = [
         arg
-        for arg in atl
+        for arg in classAttributeArgs
         if not shouldIgnoreClassAttributeName(
             name=arg.name,
             ignorePrivateClassAttributes=ignorePrivateClassAttributes,
@@ -464,18 +470,18 @@ def extractClassAttributesFromNode(
     ]
 
     if onlyAttrsWithClassVarAreTreatedAsClassAttrs:
-        atl = [
+        classAttributeArgs = [
             Arg(
                 name=_.name,
                 typeHint=_.typeHint[9:-1],  # remove "ClassVar[" and "]"
             )
-            for _ in atl
+            for _ in classAttributeArgs
             if (
                 _.typeHint.startswith('ClassVar[') and _.typeHint.endswith(']')
             )
         ]
 
-    astArgList = ArgList(infoList=atl)
+    astArgList = ArgList(infoList=classAttributeArgs)
 
     if not checkArgDefaults:  # no need to add defaults to type hints
         return astArgList

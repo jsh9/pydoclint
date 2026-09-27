@@ -198,7 +198,7 @@ You can use "baseline" with these 3 config options:
 - `--auto-regenerate-baseline`
 
 For more details, please read the
-[documentations on these options](https://jsh9.github.io/pydoclint/config_options.html#18---baseline).
+[documentations on these options](https://jsh9.github.io/pydoclint/config_options.html#baseline).
 
 #### 2.7.3. Pitfall: default values of arguments
 

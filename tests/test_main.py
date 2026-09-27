@@ -2,6 +2,7 @@ import copy
 import itertools
 import sys
 from pathlib import Path
+from textwrap import dedent
 
 import pytest
 
@@ -9,6 +10,60 @@ from pydoclint.main import _checkFile
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
+
+CLASS_ATTRIBUTE_NAME_KINDS_SRC = dedent(
+    '''
+    class Example:
+        """
+        Class with attributes from every name category.
+
+        Attributes
+        ----------
+        public
+            A public attribute.
+        """
+        public: int
+        _private: str
+        _: bool
+        __: float
+        __slots__: tuple[str, ...]
+        __hash__ = None
+        __match_args__: tuple[str, ...]
+    '''
+)
+
+ALL_CLASS_ATTRIBUTE_NAME_KINDS_DOCUMENTED_SRC = dedent(
+    '''
+    class Example:
+        """
+        Class with attributes from every name category.
+
+        Attributes
+        ----------
+        public
+            A public attribute.
+        _private
+            A private attribute.
+        _
+            An underscore-only attribute.
+        __
+            Another underscore-only attribute.
+        __slots__
+            Special protocol metadata.
+        __hash__
+            Special protocol metadata.
+        __match_args__
+            Special protocol metadata.
+        """
+        public: int
+        _private: str
+        _: bool
+        __: float
+        __slots__: tuple[str, ...]
+        __hash__ = None
+        __match_args__: tuple[str, ...]
+    '''
+)
 
 
 def pythonVersionBelow310() -> bool:
@@ -1846,3 +1901,124 @@ def testInlineClassAttributeDocs(
             requireInlineClassVarDocs, argTypeHintsInDocstring
         ]
     )
+
+
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateClassAttributes',
+        'ignoreUnderscoreOnlyClassAttributes',
+        'expectedMissingNames',
+    ),
+    [
+        (True, True, []),
+        (True, False, ['_: bool', '__: float']),
+        (False, True, ['_private: str']),
+        (False, False, ['_private: str', '_: bool', '__: float']),
+    ],
+)
+def testClassAttributeNameOptionsReachVisitor(
+        tmp_path: Path,
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
+        expectedMissingNames: list[str],
+) -> None:
+    sourcePath = tmp_path / 'class_attribute_name_kinds.py'
+    sourcePath.write_text(CLASS_ATTRIBUTE_NAME_KINDS_SRC, encoding='utf-8')
+
+    violations = _checkFile(
+        filename=sourcePath,
+        style='numpy',
+        argTypeHintsInDocstring=False,
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
+        ),
+    )
+    messages = list(map(str, violations))
+    if not expectedMissingNames:
+        assert messages == []
+        return
+
+    assert [violation.fullErrorCode for violation in violations] == [
+        'DOC601',
+        'DOC603',
+    ]
+    actualMissingNames = (
+        messages[1]
+        .split(': [', maxsplit=1)[1]
+        .split('].', maxsplit=1)[0]
+        .split(', ')
+    )
+    assert sorted(actualMissingNames) == sorted(expectedMissingNames)
+
+
+@pytest.mark.parametrize(
+    (
+        'ignorePrivateClassAttributes',
+        'ignoreUnderscoreOnlyClassAttributes',
+        'expectedExtraNames',
+    ),
+    [
+        (
+            True,
+            True,
+            [
+                '_private',
+                '_',
+                '__',
+                '__slots__',
+                '__hash__',
+                '__match_args__',
+            ],
+        ),
+        (
+            True,
+            False,
+            ['_private', '__slots__', '__hash__', '__match_args__'],
+        ),
+        (
+            False,
+            True,
+            ['_', '__', '__slots__', '__hash__', '__match_args__'],
+        ),
+        (False, False, ['__slots__', '__hash__', '__match_args__']),
+    ],
+)
+def testIgnoredClassAttributeNamesAreExactExtras(
+        tmp_path: Path,
+        ignorePrivateClassAttributes: bool,
+        ignoreUnderscoreOnlyClassAttributes: bool,
+        expectedExtraNames: list[str],
+) -> None:
+    sourcePath = tmp_path / 'documented_class_attribute_name_kinds.py'
+    sourcePath.write_text(
+        ALL_CLASS_ATTRIBUTE_NAME_KINDS_DOCUMENTED_SRC,
+        encoding='utf-8',
+    )
+
+    violations = _checkFile(
+        filename=sourcePath,
+        style='numpy',
+        argTypeHintsInDocstring=False,
+        ignorePrivateClassAttributes=ignorePrivateClassAttributes,
+        ignoreUnderscoreOnlyClassAttributes=(
+            ignoreUnderscoreOnlyClassAttributes
+        ),
+    )
+    assert [violation.fullErrorCode for violation in violations] == [
+        'DOC602',
+        'DOC603',
+    ]
+    actualExtraArgs = (
+        str(violations[1])
+        .split(
+            'Arguments in the docstring but not in the actual class attributes: [',
+            maxsplit=1,
+        )[1]
+        .split('].', maxsplit=1)[0]
+        .split(', ')
+    )
+    actualExtraNames = [
+        arg.split(':', maxsplit=1)[0] for arg in actualExtraArgs
+    ]
+    assert sorted(actualExtraNames) == sorted(expectedExtraNames)

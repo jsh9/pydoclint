@@ -569,9 +569,8 @@ class Visitor(ast.NodeVisitor):
 
         if self.ignoreUnderscoreOnlyArgs:
             # Ignore underscore arguments (such as _, __, ___, ...).
-            # This is because these arguments are only placeholders and do not
-            # need to be explained in the docstring.  (This is often used in
-            # functions that must accept a certain number of input arguments.)
+            # These placeholder arguments are excluded from comparison, so
+            # they must not appear in the docstring.
             funcArgs = ArgList([
                 _
                 for _ in funcArgs.infoList
@@ -579,12 +578,10 @@ class Visitor(ast.NodeVisitor):
             ])
 
         if self.ignorePrivateArgs:
-            # "Private arguments" are those whose names have leading
-            # underscores, but whose names are not purely _, __, ___, etc.
+            # Private arguments have leading underscores but are neither
+            # underscore-only placeholders nor special dunder names.
             funcArgs = ArgList([
-                _
-                for _ in funcArgs.infoList
-                if not _.name.startswith('_') or isUnderscoreOnlyName(_.name)
+                _ for _ in funcArgs.infoList if not isPrivateName(_.name)
             ])
 
         if not self.shouldDocumentStarArguments:
