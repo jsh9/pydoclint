@@ -201,14 +201,16 @@ Inline attribute docstrings work with all three supported styles.
 The following options control private, underscore-only, and special-dunder
 names:
 
-| Name and context                             | Option and default                                   |
-| -------------------------------------------- | ---------------------------------------------------- |
-| Private argument (`_value`)                  | `--ignore-private-args` (`False`)                    |
-| Special-dunder argument (`__value__`)        | `--ignore-private-args` (`False`)                    |
-| Underscore-only argument (`_`)               | `--ignore-underscore-only-args` (`True`)             |
-| Private class attribute (`_value`)           | `--ignore-private-class-attributes` (`True`)         |
-| Underscore-only class attribute (`_`)        | `--ignore-underscore-only-class-attributes` (`True`) |
-| Special-dunder class attribute (`__slots__`) | `--ignore-special-dunder-class-attributes` (`True`)  |
+- Class attributes
+  - Private (`_value`): `--ignore-private-class-attributes` (default: `True`)
+  - Underscore-only (`_`): `--ignore-underscore-only-class-attributes`
+    (default: `True`)
+  - Special-dunder (`__slots__`): `--ignore-special-dunder-class-attributes`
+    (default: `True`)
+- Function arguments
+  - Private (`_value`): `--ignore-private-args` (default: `False`)
+  - Special-dunder (`__value__`): `--ignore-private-args` (default: `False`)
+  - Underscore-only (`_`): `--ignore-underscore-only-args` (default: `True`)
 
 "Ignore" means exclude from comparison, not make optional. An ignored name must
 not appear in the docstring; documenting it produces an extra-name violation
