@@ -1,6 +1,6 @@
 # Change Log
 
-## Unreleased
+## [0.10.0] - 2026-09-27
 
 - Added
   - `--ignore-underscore-only-args` (`-iuoa`, default: `True`)
@@ -47,6 +47,8 @@
     as an external hook
   - Made `tox -e muff-lint` a non-mutating check that fails instead of
     rewriting files
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.9.1...0.10.0
 
 ## [0.9.1] - 2026-07-03
 
