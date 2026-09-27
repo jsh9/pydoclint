@@ -2014,6 +2014,10 @@ def testClassAttributeNameCategoryOptions(
     assert list(map(str, violations)) == expectedViolationMessages
 
 
+# Only 4 cases (not 8 like the class-attribute matrix): there is no separate
+# special-dunder option for arguments. Special dunder arguments, such as
+# `__special__` and `**__special__` in the fixture, are controlled by
+# `ignorePrivateArgs` for backward compatibility.
 @pytest.mark.parametrize(
     (
         'ignorePrivateArgs',
