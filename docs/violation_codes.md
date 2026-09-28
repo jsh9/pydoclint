@@ -45,6 +45,8 @@ ______________________________________________________________________
 | `DOC110` | The option `--arg-type-hints-in-docstring` is `True` but not all args in the docstring arg list have type hints                                                         |
 | `DOC111` | The option `--arg-type-hints-in-docstring` is `False` but there are type hints in the docstring arg list                                                                |
 
+<a id="notes-on-doc103"></a>
+
 ### 2.1. Notes on `DOC103`
 
 Other potential causes to `DOC103` include:
@@ -80,12 +82,13 @@ on the top) do not need to have a return section.
 
 ## 5. `DOC4xx`: Violations about "yield" statements
 
-| Code     | Explanation                                                                                                                                                 |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DOC401` | (Deprecated; this violation code no longer appears)                                                                                                         |
-| `DOC402` | Function/method has "yield" statements, but the docstring does not have a "Yields" section                                                                  |
-| `DOC403` | Function/method has a "Yields" section in the docstring, but there are no "yield" statements, or the return annotation is not a Generator/Iterator/Iterable |
-| `DOC404` | The types in the docstring's Yields section and the return annotation in the signature are not consistent                                                   |
+| Code     | Explanation                                                                                                                                                                                                                   |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DOC401` | (Deprecated; this violation code no longer appears)                                                                                                                                                                           |
+| `DOC402` | Function/method has "yield" statements, but the docstring does not have a "Yields" section                                                                                                                                    |
+| `DOC403` | Function/method has a "Yields" section in the docstring, but there are no "yield" statements, or the return annotation is not a Generator/Iterator/Iterable                                                                   |
+| `DOC404` | The types in the docstring's Yields section and the return annotation in the signature are not consistent                                                                                                                     |
+| `DOC405` | Function/method has both "return" and "yield" statements; please use `Generator[YieldType, SendType, ReturnType]` as the return annotation ([explanation](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html)) |
 
 ## 6. `DOC5xx`: Violations about "raise" and "assert" statements
 

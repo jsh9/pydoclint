@@ -1,0 +1,25 @@
+# pydoclint
+
+> pydoclint is a fast Python docstring linter that checks whether docstrings
+> (numpy, Google, or Sphinx style) match the function signatures and
+> implementations: arguments, return values, yields, raises, class attributes,
+> and type hints. It runs as a native CLI, a flake8 plugin, or a pre-commit
+> hook, and reports violations as `DOCxxx` codes.
+
+## Docs
+
+- [Overview (README)](https://jsh9.github.io/pydoclint/index.html): why use pydoclint, comparison with Ruff's DOC rules, installation, usage, pre-commit setup, and adoption tips (baseline mode, pairing with format-docstring)
+- [How to configure pydoclint](https://jsh9.github.io/pydoclint/how_to_config.html): setting options on the command line, in pyproject.toml, or in .pre-commit-config.yaml
+- [Configuration options](https://jsh9.github.io/pydoclint/config_options.html): every option, with its default value
+- [How to ignore certain violations](https://jsh9.github.io/pydoclint/how_to_ignore.html): inline `# noqa` comments in native mode, with flake8, and with Ruff
+- [Style violation codes](https://jsh9.github.io/pydoclint/violation_codes.html): what each DOCxxx code means
+- [Minor style deviations](https://jsh9.github.io/pydoclint/style_deviations.html): where pydoclint differs from the numpy, Google, and Sphinx style guides (type hints, default values, yield types)
+- [Docstring style mismatch (DOC003)](https://jsh9.github.io/pydoclint/style_mismatch.html): how pydoclint detects the style of a docstring
+- [Checking class attributes](https://jsh9.github.io/pydoclint/checking_class_attributes.html): how to document class attributes so that DOC6xx checks pass
+- [Names with leading underscores](https://jsh9.github.io/pydoclint/leading_underscore_names.html): which private, underscore-only, and dunder names are checked or ignored
+- [Generator vs Iterator (DOC405)](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html): annotating functions that both yield and return
+- [Notes for users](https://jsh9.github.io/pydoclint/notes_for_users.html): cases pydoclint is not designed to handle, notes on type hints, and editor integration
+
+## Optional
+
+- [Notes for developers](https://jsh9.github.io/pydoclint/notes_for_developers.html): code structure and debugging tips for contributors

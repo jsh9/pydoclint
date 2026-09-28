@@ -1,5 +1,14 @@
 # Change Log
 
+## [Unreleased]
+
+- Changed
+  - Rewrote the README and restructured the docs
+- Fixed
+  - Stale docs content and the broken `DOC103`/`DOC603` docs link
+- Added
+  - `docs/llms.txt` and a pre-commit check for orphan docs and broken links
+
 ## [0.10.0] - 2026-09-27
 
 - Added

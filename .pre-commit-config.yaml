@@ -100,7 +100,14 @@ repos:
         name: copy_readme
         entry: python .pre_commit_helper_scripts/copy_readme.py
         language: system
-        types: [python]
+        files: ^README\.md$
+        pass_filenames: false
+      - id: check_docs_links
+        name: check_docs_links
+        entry: python .pre_commit_helper_scripts/check_docs_links.py
+        language: system
+        files: ^(README\.md|docs/.*|pydoclint/.*\.py)$
+        pass_filenames: false
   - repo: https://github.com/jsh9/pre-commit-changelog-full-diff-check
     rev: 0.1.0
     hooks:
