@@ -247,10 +247,7 @@ def testClassAttributes(
     assert list(map(str, violations)) == expectedViolations[checkClassAttr]
 
 
-@pytest.mark.parametrize(
-    'style',
-    ALL_STYLES,
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/class_attributes/init_docstring.py',
@@ -523,10 +520,7 @@ def testSkipCheckingShortDocstrings(
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    'style',
-    ALL_STYLES,
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testInit(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/init/init.py',
@@ -552,10 +546,7 @@ def testInit(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    'style',
-    ALL_STYLES,
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testAllowInitDocstring(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/allow_init_docstring/cases.py',
@@ -711,10 +702,7 @@ def testYieldsPy310plus(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    'style',
-    ALL_STYLES,
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testReturnAndYield(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/return_and_yield/cases.py',
@@ -1158,10 +1146,7 @@ def testDocstringStyleMismatch(
     assert list(map(str, violations)) == expectedViolations
 
 
-@pytest.mark.parametrize(
-    'style',
-    ALL_STYLES,
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testStyleMismatchIgnoresInlineSphinxKeywords(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'style_mismatch/this_can_be_any_style.py',
@@ -1290,10 +1275,7 @@ def testNoYieldSection(
     )
 
 
-@pytest.mark.parametrize(
-    'style',
-    ALL_STYLES,
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testPropertyMethod(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/property_method/cases.py',
@@ -1494,9 +1476,8 @@ def testNonAscii() -> None:
 
 
 @pytest.mark.parametrize('checkArgDefaults', [False, True])
-@pytest.mark.parametrize(
-    'style', ['google', 'numpy']
-)  # no Sphinx style for now
+# no Sphinx style for now
+@pytest.mark.parametrize('style', ['google', 'numpy'])
 def testArgDefaults(
         style: str,
         checkArgDefaults: bool,
