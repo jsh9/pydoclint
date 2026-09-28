@@ -4,6 +4,8 @@
 
 - Changed
   - Rewrote the README and restructured the docs
+  - Replaced `itertools.product` with stacked `@pytest.mark.parametrize`
+    decorators in `tests/test_main.py`
 - Fixed
   - Stale docs content and the broken `DOC103`/`DOC603` docs link
 - Added
