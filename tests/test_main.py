@@ -1,10 +1,13 @@
 import copy
+import shutil
 import sys
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 
-from pydoclint.main import _checkFile
+from pydoclint.main import _checkFile, _checkPaths
+from pydoclint.main import main as cliMain
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
@@ -1313,6 +1316,115 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
         ]
 
     assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
+@pytest.mark.parametrize('style', ALL_STYLES)
+def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
+    # The file suffix decides whether a file is a stub file, so the same
+    # content is checked under both suffixes
+    filename = tmp_path / f'cases{suffix}'
+    shutil.copyfile(DATA_DIR / f'{style}/stub_file/cases.pyi', filename)
+    violations = _checkFile(filename=filename, style=style)
+    expectedLookup = {
+        '.py': [
+            'DOC502: Method `StubClass.documentsRaises` has a "Raises" section in the '
+            'docstring, but there are not "raise" statements in the body',
+            'DOC403: Method `StubClass.documentsYields` has a "Yields" section in the '
+            'docstring, but there are no "yield" statements, or the return annotation is '
+            'not a Generator/Iterator/Iterable. (Or it could be because the function '
+            'lacks a return annotation.)',
+            'DOC201: Method `StubClass.documentsYieldsWithIterator` does not have a '
+            'return section in docstring',
+            'DOC403: Method `StubClass.documentsYieldsWithIterator` has a "Yields" '
+            'section in the docstring, but there are no "yield" statements, or the '
+            'return annotation is not a Generator/Iterator/Iterable. (Or it could be '
+            'because the function lacks a return annotation.)',
+            'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type '
+            'hints in these args do not match: var1',
+        ],
+        '.pyi': [
+            'DOC201: Method `StubClass.documentsYieldsWithIterator` does not have a '
+            'return section in docstring',
+            'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type '
+            'hints in these args do not match: var1',
+        ],
+    }
+    assert list(map(str, violations)) == expectedLookup[suffix]
+
+
+@pytest.mark.parametrize(
+    ('includeStubFiles', 'expected'),
+    [
+        (False, ['pkg/a.py', 'pkg/sub/c.py']),
+        (True, ['pkg/a.py', 'pkg/a.pyi', 'pkg/b.pyi', 'pkg/sub/c.py']),
+    ],
+)
+def testCheckPathsIncludeStubFiles(
+        tmp_path: Path,
+        includeStubFiles: bool,
+        expected: list[str],
+) -> None:
+    for name in ['a.py', 'a.pyi', 'b.pyi', 'sub/c.py']:
+        filename = tmp_path / 'pkg' / name
+        filename.parent.mkdir(parents=True, exist_ok=True)
+        filename.write_text('', encoding='utf-8')
+
+    violations = _checkPaths(
+        (str(tmp_path / 'pkg'),),
+        quiet=True,
+        exclude=r'\.git|\.tox',  # the default ('') would exclude every file
+        includeStubFiles=includeStubFiles,
+    )
+    checkedFiles = [
+        Path(_).relative_to(tmp_path).as_posix() for _ in violations
+    ]
+    assert checkedFiles == expected
+
+
+@pytest.mark.parametrize(
+    ('cliOptions', 'pyprojectContent', 'stubFileIsChecked'),
+    [
+        pytest.param([], None, False, id='default'),
+        pytest.param(
+            ['--include-stub-files=True'],
+            None,
+            True,
+            id='command-line',
+        ),
+        pytest.param(
+            [],
+            '[tool.pydoclint]\ninclude-stub-files = true\n',
+            True,
+            id='pyproject-toml',
+        ),
+    ],
+)
+def testIncludeStubFilesOption(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        cliOptions: list[str],
+        pyprojectContent: str | None,
+        stubFileIsChecked: bool,
+) -> None:
+    # Run from `tmp_path` so that this repo's pyproject.toml isn't loaded
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / 'pkg').mkdir()
+    shutil.copyfile(
+        DATA_DIR / 'numpy/stub_file/cases.pyi',
+        tmp_path / 'pkg/cases.pyi',
+    )
+    if pyprojectContent is not None:
+        (tmp_path / 'pyproject.toml').write_text(
+            pyprojectContent,
+            encoding='utf-8',
+        )
+
+    result = CliRunner().invoke(cliMain, [*cliOptions, 'pkg'])
+
+    # The stub file has violations, so it fails the run if it's checked
+    assert result.exit_code == (1 if stubFileIsChecked else 0), result.output
+    assert ('pkg/cases.pyi' in result.output) is stubFileIsChecked
 
 
 @pytest.mark.parametrize('style', ALL_STYLES)

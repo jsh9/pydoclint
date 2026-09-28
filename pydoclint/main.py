@@ -89,6 +89,17 @@ def validateNativeModeNoqaLocation(
     ),
 )
 @click.option(
+    '-isf',
+    '--include-stub-files',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, also check stub (.pyi) files when scanning folders. Stub'
+        ' files passed explicitly are always checked.'
+    ),
+)
+@click.option(
     '--style',
     type=str,
     show_default=True,
@@ -532,6 +543,7 @@ def main(  # noqa: C901, PLR0915
         *,
         quiet: bool,
         exclude: str,
+        include_stub_files: bool,
         style: str,
         paths: tuple[str, ...],
         type_hints_in_signature: str,
@@ -675,6 +687,7 @@ def main(  # noqa: C901, PLR0915
     violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(
         quiet=quiet,
         exclude=exclude,
+        includeStubFiles=include_stub_files,
         style=style,
         paths=paths,
         argTypeHintsInSignature=arg_type_hints_in_signature,
@@ -875,6 +888,7 @@ def _checkPaths(
         nativeModeNoqaLocation: str = 'docstring',
         quiet: bool = False,
         exclude: str = '',
+        includeStubFiles: bool = False,
 ) -> dict[str, list[Violation]]:
     filenames: list[Path] = []
 
@@ -885,13 +899,18 @@ def _checkPaths(
         )
 
     excludePattern = re.compile(exclude)
+    patterns = ('*.py', '*.pyi') if includeStubFiles else ('*.py',)
 
     for path_ in paths:
         path = Path(path_)
         if path.is_file():
             filenames.append(path)
         elif path.is_dir():
-            filenames.extend(sorted(path.rglob('*.py')))
+            # Sort all matches together so that `foo.pyi` comes right after
+            # `foo.py` in the output
+            filenames.extend(
+                sorted(_ for pattern in patterns for _ in path.rglob(pattern))
+            )
 
     allViolations: dict[str, list[Violation]] = {}
 
@@ -1054,6 +1073,7 @@ def _checkFile(
         ),
         checkStyleMismatch=checkStyleMismatch,
         checkArgDefaults=checkArgDefaults,
+        isStubFile=filename.suffix == '.pyi',
     )
     visitor.visit(tree)
 

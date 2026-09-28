@@ -59,9 +59,10 @@ def runRealFlake8(
         *,
         sourcePath: Path,
         configLines: list[str],
+        targetName: str = 'sample.py',
 ) -> subprocess.CompletedProcess[str]:
     """Run real Flake8 on a copied fixture with a temporary ``.flake8``."""
-    shutil.copyfile(sourcePath, directory / 'sample.py')
+    shutil.copyfile(sourcePath, directory / targetName)
     (directory / '.flake8').write_text(
         '[flake8]\nselect = DOC\n' + '\n'.join(configLines) + '\n',
         encoding='utf-8',
@@ -74,8 +75,8 @@ def runRealFlake8(
         str(PYDOCLINT_IMPORT_ROOT),
         *filter(None, [env.get('PYTHONPATH')]),
     ])
-    return subprocess.run(
-        [sys.executable, '-m', 'flake8', 'sample.py'],
+    return subprocess.run(  # noqa: S603
+        [sys.executable, '-m', 'flake8', targetName],
         cwd=directory,
         env=env,
         capture_output=True,
@@ -347,3 +348,35 @@ def testRealFlake8AppliesLowercaseMigrationReplacements(
             'but not in the docstring: [',
         )
         assert sorted(actualMissingNames) == sorted(expectedMissingNames)
+
+
+@pytest.mark.parametrize(
+    ('targetName', 'expectedCodes'),
+    [
+        ('sample.py', ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC105']),
+        ('sample.pyi', ['DOC201', 'DOC105']),
+    ],
+)
+def testRealFlake8ChecksStubFilesLikeAbstractMethods(
+        tmp_path: Path,
+        targetName: str,
+        expectedCodes: list[str],
+) -> None:
+    """
+    Ensure Flake8 passes the file name in, so stub files get DOC403 and DOC502
+    leniency.
+    """
+    result = runRealFlake8(
+        tmp_path,
+        sourcePath=DATA_DIR / 'numpy/stub_file/cases.pyi',
+        configLines=['style = numpy'],
+        targetName=targetName,
+    )
+    output = result.stdout + result.stderr
+    violationLines = [
+        line
+        for line in result.stdout.splitlines()
+        if line.startswith('sample')
+    ]
+    assert [line.split()[1] for line in violationLines] == expectedCodes
+    assert result.returncode == 1, output

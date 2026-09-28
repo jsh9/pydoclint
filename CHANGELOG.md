@@ -1,5 +1,17 @@
 # Change Log
 
+## [0.10.2] - 2026-09-28
+
+- Added
+  - A new config option `--include-stub-files` (shortform: `-isf`, default:
+    `False`), so that scanning a folder also checks stub (`.pyi`) files (#303)
+- Fixed
+  - False-positive `DOC403` and `DOC502` violations in stub (`.pyi`) files.
+    Functions in stub files are now checked like abstract methods, in both the
+    native mode and _flake8_ (#303)
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.10.1...0.10.2
+
 ## [0.10.1] - 2026-09-27
 
 - Changed

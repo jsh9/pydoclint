@@ -99,6 +99,7 @@ class Visitor(ast.NodeVisitor):
             shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
             checkStyleMismatch: bool = False,
             checkArgDefaults: bool = False,
+            isStubFile: bool = False,
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -143,6 +144,7 @@ class Visitor(ast.NodeVisitor):
         )
         self.checkStyleMismatch: bool = checkStyleMismatch
         self.checkArgDefaults: bool = checkArgDefaults
+        self.isStubFile: bool = isStubFile
 
         # Validate incompatible option combination
         if self.style == 'sphinx' and self.checkArgDefaults:
@@ -225,7 +227,12 @@ class Visitor(ast.NodeVisitor):
 
         docstring: str = getDocstring(node)
 
-        self.isAbstractMethod = checkIsAbstractMethod(node)
+        # Abstract methods and functions in stub (.pyi) files have placeholder
+        # bodies, so a body without "raise" or "yield" statements doesn't mean
+        # that the function doesn't raise or yield.
+        self.hasPlaceholderBody = self.isStubFile or checkIsAbstractMethod(
+            node
+        )
 
         if isClassConstructor and parentClass is not None:
             docstring = self._checkClassDocstringAndConstructorDocstrings(
@@ -845,7 +852,7 @@ class Visitor(ast.NodeVisitor):
 
         if docstringHasYieldsSection:  # noqa: SIM102
             if not hasYieldStmt or noGenNorIterAsRetAnno:  # noqa: SIM102
-                if not self.isAbstractMethod:
+                if not self.hasPlaceholderBody:
                     violations.append(v403)
 
         if hasYieldStmt and self.checkYieldTypes:
@@ -1037,13 +1044,13 @@ class Visitor(ast.NodeVisitor):
                 not hasAssertStmt
                 and not hasRaiseStmt
                 and docstringHasRaisesSection
-                and not self.isAbstractMethod
+                and not self.hasPlaceholderBody
             ):
                 violations.append(v502)
         elif (
             not hasRaiseStmt
             and docstringHasRaisesSection
-            and not self.isAbstractMethod
+            and not self.hasPlaceholderBody
         ):
             violations.append(v502)
 

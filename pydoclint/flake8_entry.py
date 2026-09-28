@@ -20,8 +20,12 @@ class Plugin:
     name = 'pydoclint'
     version = importlib_metadata.version(name)
 
-    def __init__(self, tree: ast.AST) -> None:
+    def __init__(self, tree: ast.AST, filename: str = '') -> None:
+        # Flake8 fills in `filename` because it's a parameter here. It only
+        # fills in positional-or-keyword parameters, so don't make `filename`
+        # keyword-only.
         self._tree = tree
+        self._filename = filename
 
     @classmethod
     def add_options(cls, parser: Any) -> None:  # noqa: D102
@@ -644,6 +648,7 @@ class Plugin:
             checkStyleMismatch=checkStyleMismatch,
             checkArgDefaults=checkArgDefaults,
             style=self.style,
+            isStubFile=self._filename.endswith('.pyi'),
         )
         v.visit(self._tree)
         violationInfo = [_.getInfoForFlake8() for _ in v.violations]

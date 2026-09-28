@@ -45,7 +45,8 @@ ______________________________________________________________________
 - [30. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#30---auto-regenerate-baseline-shortform--arb-default-true)
 - [31. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#31---show-filenames-in-every-violation-message-shortform--sfn-default-false)
 - [32. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)](#32---native-mode-noqa-location-shortform--nmnl-default-docstring)
-- [33. `--config` (default: `pyproject.toml`)](#33---config-default-pyprojecttoml)
+- [33. `--include-stub-files` (shortform: `-isf`, default: `False`)](#33---include-stub-files-shortform--isf-default-false)
+- [34. `--config` (default: `pyproject.toml`)](#34---config-default-pyprojecttoml)
 
 ______________________________________________________________________
 
@@ -493,7 +494,43 @@ Only DOC-prefixed violation codes are honored; other codes are ignored by the
 native parser. This setting has no effect in Flake8 mode, which is controlled
 by Flake8's own `noqa` handling.
 
-## 33. `--config` (default: `pyproject.toml`)
+## 33. `--include-stub-files` (shortform: `-isf`, default: `False`)
+
+If True, _pydoclint_ also checks stub (`.pyi`) files when it scans folders. If
+False, it only checks `.py` files in folders. Stub files that you pass in
+explicitly are always checked, whatever this option is set to.
+
+```
+pydoclint --include-stub-files=True <FOLDER_NAME>
+```
+
+The body of a function in a stub file is a placeholder (usually `...`), so
+_pydoclint_ checks functions in stub files the same way it checks abstract
+methods: it doesn't report `DOC403` or `DOC502` for them, because a placeholder
+body without `yield` or `raise` statements doesn't mean that the function
+doesn't yield or raise. All the other checks work as usual. This applies
+whenever a `.pyi` file is checked, including in _flake8_.
+
+This option is only available in the native command-line mode. If you use
+_pydoclint_ within _flake8_, you can use _flake8_'s
+[`--filename` option](https://flake8.pycqa.org/en/latest/user/options.html#cmdoption-flake8-filename)
+instead (for example, `--filename=*.py,*.pyi`).
+
+If you use the `pydoclint` pre-commit hook, pre-commit doesn't pass stub files
+to it by default. To check them, override the hook's file types in your
+`.pre-commit-config.yaml` (you don't need `--include-stub-files` here, because
+pre-commit passes files in explicitly):
+
+```yaml
+- repo: https://github.com/jsh9/pydoclint
+  rev: <latest_tag>
+  hooks:
+    - id: pydoclint
+      types: [file]
+      types_or: [python, pyi]
+```
+
+## 34. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this
