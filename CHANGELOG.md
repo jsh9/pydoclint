@@ -1,15 +1,18 @@
 # Change Log
 
-## [Unreleased]
+## [0.10.1] - 2026-09-27
 
 - Changed
   - Rewrote the README and restructured the docs
-  - Replaced `itertools.product` with stacked `@pytest.mark.parametrize`
-    decorators in `tests/test_main.py`
 - Fixed
   - Stale docs content and the broken `DOC103`/`DOC603` docs link
 - Added
   - `docs/llms.txt` and a pre-commit check for orphan docs and broken links
+- Maintenance
+  - Replaced `itertools.product` with stacked `@pytest.mark.parametrize`
+    decorators in `tests/test_main.py`
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.10.0...0.10.1
 
 ## [0.10.0] - 2026-09-27
 
