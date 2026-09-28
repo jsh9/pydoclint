@@ -1,5 +1,26 @@
 # Change Log
 
+## [Unreleased]
+
+- Changed
+  - Rebranded the README: a shorter intro, a new "Why pydoclint?" section
+    (including a comparison with Ruff's `DOC` rules and pairing with
+    [format-docstring](https://github.com/jsh9/format-docstring)), and a
+    documentation map that links every docs page; removed the darglint
+    comparison
+- Fixed
+  - Stale and inaccurate documentation: the supported Python version (3.10+),
+    the scope of `--check-arg-defaults` (numpy and Google styles), default
+    values in docstrings, and the missing `DOC405` entry in the violation codes
+  - The broken `violation_codes.html#notes-on-doc103` link printed in `DOC103`
+    and `DOC603` violation messages
+- Added
+  - `docs/llms.txt`, an index of all documentation pages for AI agents
+- Maintenance
+  - Added a pre-commit hook that checks for orphan docs pages and broken links
+    to the documentation site
+  - The `copy_readme` pre-commit hook now runs whenever `README.md` changes
+
 ## [0.10.0] - 2026-09-27
 
 - Added
