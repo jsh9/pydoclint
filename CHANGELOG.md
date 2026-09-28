@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 - Changed
-  - Rebranded the README and restructured the docs
+  - Rewrote the README and restructured the docs
 - Fixed
   - Stale docs content and the broken `DOC103`/`DOC603` docs link
 - Added
