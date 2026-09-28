@@ -1,5 +1,4 @@
 import copy
-import itertools
 import sys
 from pathlib import Path
 
@@ -9,6 +8,7 @@ from pydoclint.main import _checkFile
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
+ALL_STYLES: list[str] = ['google', 'numpy', 'sphinx']
 
 
 def pythonVersionBelow310() -> bool:
@@ -103,16 +103,12 @@ expectedViolationsLookup: dict[bool, list[str]] = {
 }
 
 
+@pytest.mark.parametrize('checkArgOrder', [False, True])
 @pytest.mark.parametrize(
-    ('style', 'filename', 'checkArgOrder'),
-    list(
-        itertools.product(
-            ['google', 'numpy', 'sphinx'],
-            ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
-            [True, False],
-        ),
-    ),
+    'filename',
+    ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
 )
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testArguments(
         style: str,
         filename: str,
@@ -133,15 +129,8 @@ def testArguments(
     assert list(map(str, violations)) == expectedViolationsCopy
 
 
-@pytest.mark.parametrize(
-    ('style', 'checkClassAttr'),
-    list(
-        itertools.product(
-            ['google', 'numpy', 'sphinx'],
-            [True, False],
-        ),
-    ),
-)
+@pytest.mark.parametrize('checkClassAttr', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testClassAttributes(
         style: str,
         checkClassAttr: bool,
@@ -258,10 +247,7 @@ def testClassAttributes(
     assert list(map(str, violations)) == expectedViolations[checkClassAttr]
 
 
-@pytest.mark.parametrize(
-    'style',
-    ['google', 'numpy', 'sphinx'],
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/class_attributes/init_docstring.py',
@@ -289,14 +275,10 @@ def testClassAttributesWithSeparatedDocstrings(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ('style', 'filename'),
-    list(
-        itertools.product(
-            ['google', 'numpy', 'sphinx'],
-            ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
-        ),
-    ),
+    'filename',
+    ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
 )
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testReturns(style: str, filename: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returns/{filename}',
@@ -374,14 +356,10 @@ def testReturns(style: str, filename: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ('style', 'filename'),
-    list(
-        itertools.product(
-            ['google', 'numpy', 'sphinx'],
-            ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
-        ),
-    ),
+    'filename',
+    ['function.py', 'classmethod.py', 'method.py', 'staticmethod.py'],
 )
+@pytest.mark.parametrize('style', ALL_STYLES)
 @pytest.mark.skipif(
     pythonVersionBelow310(),
     reason='Python 3.9 does not support match-case syntax',
@@ -408,15 +386,8 @@ def testReturnsPy310plus(style: str, filename: str) -> None:
     assert list(map(str, violations)) == expectedViolationsCopy
 
 
-@pytest.mark.parametrize(
-    ('style', 'require'),
-    list(
-        itertools.product(
-            ['google', 'numpy', 'sphinx'],
-            [True, False],
-        ),
-    ),
-)
+@pytest.mark.parametrize('require', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testReturns_returningNone(style: str, require: bool) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returning_none/cases.py',
@@ -437,15 +408,8 @@ def testReturns_returningNone(style: str, require: bool) -> None:
     assert list(map(str, violations)) == expectedViolationsCopy
 
 
-@pytest.mark.parametrize(
-    ('style', 'require'),
-    list(
-        itertools.product(
-            ['google', 'numpy', 'sphinx'],
-            [True, False],
-        ),
-    ),
-)
+@pytest.mark.parametrize('require', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testReturns_returningNoReturn(style: str, require: bool) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/returning_noreturn/cases.py',
@@ -556,10 +520,7 @@ def testSkipCheckingShortDocstrings(
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    'style',
-    ['google', 'numpy', 'sphinx'],
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testInit(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/init/init.py',
@@ -585,10 +546,7 @@ def testInit(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    'style',
-    ['google', 'numpy', 'sphinx'],
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testAllowInitDocstring(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/allow_init_docstring/cases.py',
@@ -636,7 +594,7 @@ def testAllowInitDocstring(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testYields(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/yields/cases.py',
@@ -723,7 +681,7 @@ def testYields(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.parametrize('style', ALL_STYLES)
 @pytest.mark.skipif(
     pythonVersionBelow310(),
     reason='Python 3.8 and 3.9 do not support match-case syntax',
@@ -744,10 +702,7 @@ def testYieldsPy310plus(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    'style',
-    ['google', 'numpy', 'sphinx'],
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testReturnAndYield(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/return_and_yield/cases.py',
@@ -804,14 +759,9 @@ def testReturnAndYield(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    ('style', 'skipRaisesCheck', 'shouldDeclareAssertErr'),
-    itertools.product(
-        ['google', 'numpy', 'sphinx'],
-        [False, True],
-        [False, True],
-    ),
-)
+@pytest.mark.parametrize('shouldDeclareAssertErr', [False, True])
+@pytest.mark.parametrize('skipRaisesCheck', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testRaises(
         style: str,
         skipRaisesCheck: bool,
@@ -890,13 +840,8 @@ def testRaises(
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    ('style', 'skipRaisesCheck'),
-    itertools.product(
-        ['google', 'numpy', 'sphinx'],
-        [False, True],
-    ),
-)
+@pytest.mark.parametrize('skipRaisesCheck', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 @pytest.mark.skipif(
     pythonVersionBelow310(),
     reason='Python 3.8 and 3.9 do not support match-case syntax',
@@ -922,7 +867,7 @@ def testRaisesPy310plus(style: str, skipRaisesCheck: bool) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testStarsInArgumentList(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/star_args/cases.py',
@@ -960,7 +905,7 @@ def testStarsInArgumentList(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testStarsInArgumentList2(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/star_args/cases2.py',
@@ -973,7 +918,7 @@ def testStarsInArgumentList2(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testStarsInArgumentList3(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/star_args/cases3.py',
@@ -1201,10 +1146,7 @@ def testDocstringStyleMismatch(
     assert list(map(str, violations)) == expectedViolations
 
 
-@pytest.mark.parametrize(
-    'style',
-    ['google', 'numpy', 'sphinx'],
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testStyleMismatchIgnoresInlineSphinxKeywords(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'style_mismatch/this_can_be_any_style.py',
@@ -1234,7 +1176,7 @@ def testStyleMismatchAcceptsPureStyles(
     assert not any('DOC003' in str(violation) for violation in violations)
 
 
-@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testStyleMismatchFlagsMixedStyles(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'style_mismatch/mixed_styles.py',
@@ -1245,23 +1187,22 @@ def testStyleMismatchFlagsMixedStyles(style: str) -> None:
 
 
 @pytest.mark.parametrize(
-    ('style', 'rrs'),
-    itertools.product(
-        ['google', 'numpy', 'sphinx'],
-        [False, True],
-    ),
+    'requireReturnSectionWhenReturningNothing', [False, True]
 )
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testNoReturnSection(
         style: str,
-        rrs: bool,
+        requireReturnSectionWhenReturningNothing: bool,
 ) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/no_return_section/cases.py',
         style=style,
         checkReturnTypes=False,
-        requireReturnSectionWhenReturningNothing=rrs,
+        requireReturnSectionWhenReturningNothing=(
+            requireReturnSectionWhenReturningNothing
+        ),
     )
-    expected_lookup = {
+    expectedLookup = {
         True: [
             'DOC201: Function `func1` does not have a return section in docstring',
             'DOC201: Function `func2` does not have a return section in docstring',
@@ -1281,23 +1222,28 @@ def testNoReturnSection(
             'DOC201: Function `func10` does not have a return section in docstring',
         ],
     }
-    assert list(map(str, violations)) == expected_lookup[rrs]
+    assert (
+        list(map(str, violations))
+        == expectedLookup[requireReturnSectionWhenReturningNothing]
+    )
 
 
 @pytest.mark.parametrize(
-    ('style', 'rys'),
-    itertools.product(
-        ['google', 'numpy', 'sphinx'],
-        [False, True],
-    ),
+    'requireYieldSectionWhenYieldingNothing', [False, True]
 )
-def testNoYieldSection(style: str, rys: bool) -> None:
+@pytest.mark.parametrize('style', ALL_STYLES)
+def testNoYieldSection(
+        style: str,
+        requireYieldSectionWhenYieldingNothing: bool,
+) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/no_yield_section/cases.py',
         style=style,
-        requireYieldSectionWhenYieldingNothing=rys,
+        requireYieldSectionWhenYieldingNothing=(
+            requireYieldSectionWhenYieldingNothing
+        ),
     )
-    expected_lookup = {
+    expectedLookup = {
         True: [
             'DOC402: Function `func1` has "yield" statements, but the docstring does not '
             'have a "Yields" section',
@@ -1323,13 +1269,13 @@ def testNoYieldSection(style: str, rys: bool) -> None:
             'does not exist or has 0 type(s).',
         ],
     }
-    assert list(map(str, violations)) == expected_lookup[rys]
+    assert (
+        list(map(str, violations))
+        == expectedLookup[requireYieldSectionWhenYieldingNothing]
+    )
 
 
-@pytest.mark.parametrize(
-    'style',
-    ['google', 'numpy', 'sphinx'],
-)
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testPropertyMethod(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/property_method/cases.py',
@@ -1340,13 +1286,8 @@ def testPropertyMethod(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    ('style', 'checkReturnTypes'),
-    itertools.product(
-        ['google', 'numpy', 'sphinx'],
-        [False, True],
-    ),
-)
+@pytest.mark.parametrize('checkReturnTypes', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/abstract_method/cases.py',
@@ -1374,7 +1315,7 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize('style', ['google', 'numpy', 'sphinx'])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testNoReturnSectionInPropertyMethod(style: str) -> None:
     violations = _checkFile(
         filename=DATA_DIR / 'common/property_method.py',
@@ -1397,14 +1338,9 @@ def testNoReturnSectionInPropertyMethod(style: str) -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    ('style', 'argTypeHintsInDocstring', 'argTypeHintsInSignature'),
-    itertools.product(
-        ['google', 'numpy', 'sphinx'],
-        [False, True],
-        [False, True],
-    ),
-)
+@pytest.mark.parametrize('argTypeHintsInSignature', [False, True])
+@pytest.mark.parametrize('argTypeHintsInDocstring', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testTypeHintChecking(
         style: str,
         argTypeHintsInDocstring: bool,
@@ -1417,7 +1353,7 @@ def testTypeHintChecking(
         argTypeHintsInSignature=argTypeHintsInSignature,
     )
 
-    expected_lookup = {
+    expectedLookup = {
         (False, False): [
             'DOC108: Method `MyClass.func2`: The option `--arg-type-hints-in-signature` is '
             '`False` but there are argument type hints in the signature',
@@ -1524,9 +1460,7 @@ def testTypeHintChecking(
         ],
     }
 
-    expected = expected_lookup[
-        argTypeHintsInDocstring, argTypeHintsInSignature
-    ]
+    expected = expectedLookup[argTypeHintsInDocstring, argTypeHintsInSignature]
     assert list(map(str, violations)) == expected
 
 
@@ -1541,15 +1475,9 @@ def testNonAscii() -> None:
     assert list(map(str, violations)) == expected
 
 
-@pytest.mark.parametrize(
-    ('style', 'checkArgDefaults'),
-    list(
-        itertools.product(
-            ['google', 'numpy'],  # no Sphinx style for now
-            [True, False],
-        ),
-    ),
-)
+@pytest.mark.parametrize('checkArgDefaults', [False, True])
+# no Sphinx style for now
+@pytest.mark.parametrize('style', ['google', 'numpy'])
 def testArgDefaults(
         style: str,
         checkArgDefaults: bool,
@@ -1629,14 +1557,9 @@ def testArgDefaults(
     )
 
 
-@pytest.mark.parametrize(
-    ('style', 'requireInlineClassVarDocs', 'argTypeHintsInDocstring'),
-    list(
-        itertools.product(
-            ['google', 'numpy', 'sphinx'], [False, True], [False, True]
-        )
-    ),
-)
+@pytest.mark.parametrize('argTypeHintsInDocstring', [False, True])
+@pytest.mark.parametrize('requireInlineClassVarDocs', [False, True])
+@pytest.mark.parametrize('style', ALL_STYLES)
 def testInlineClassAttributeDocs(
         style: str,
         requireInlineClassVarDocs: bool,
