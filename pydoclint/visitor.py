@@ -61,7 +61,7 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getReturnTypeToDocument,
-    ignorePlaceholderDefaults,
+    removePlaceholderDefaults,
     shouldIgnoreArgumentName,
     shouldSkipCheckingPrivateFunction,
 )
@@ -616,7 +616,7 @@ class Visitor(ast.NodeVisitor):
             )
 
         if self.isStubFile:
-            docArgs, funcArgs = ignorePlaceholderDefaults(
+            docArgs, funcArgs = removePlaceholderDefaults(
                 docArgs=docArgs,
                 actualArgs=funcArgs,
             )

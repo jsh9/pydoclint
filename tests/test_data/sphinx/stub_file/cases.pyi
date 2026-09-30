@@ -1,3 +1,7 @@
+# Default-value fixtures use checkArgDefaults=True, which Visitor.__init__
+# rejects for Sphinx style. There is therefore no Sphinx defaults.pyi fixture.
+# This file covers stub-body behavior and argument types with that check off.
+
 from collections.abc import Generator, Iterator
 
 class StubClass:

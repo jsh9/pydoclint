@@ -1353,8 +1353,11 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
     assert list(map(str, violations)) == expectedLookup[suffix]
 
 
+# These fixtures enable checkArgDefaults=True, which Visitor.__init__ rejects
+# for Sphinx style. Only NumPy and Google can exercise default comparison;
+# testStubFile covers Sphinx stub-body behavior and argument types instead.
 @pytest.mark.parametrize('suffix', ['.py', '.pyi'])
-@pytest.mark.parametrize('style', ['google', 'numpy'])  # no Sphinx support
+@pytest.mark.parametrize('style', ['google', 'numpy'])
 def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
     # In stub files, `...` defaults can be documented with any default or none
     filename = tmp_path / f'defaults{suffix}'
@@ -1374,6 +1377,15 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
             'DOC105: Function `connect`: Argument names match, but type hints in these '
             'args do not match: port, verbose, label . (Note: docstring arg defaults '
             'should look like: `, default=XXX`)',
+            'DOC605: Class `AnnotationDefaults`: Attribute names match, but type hints '
+            'in these attributes do not match: literal, wrongAnnotated, wrongLiteral, '
+            'customDefault  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC105: Function `preserveAnnotationDefaults`: Argument names match, but '
+            'type hints in these args do not match: literal, wrongAnnotated, '
+            'wrongLiteral, customDefault . (Note: docstring arg defaults should look '
+            'like: `, default=XXX`)',
         ],
         '.pyi': [
             'DOC605: Class `Config`: Attribute names match, but type hints in these '
@@ -1383,9 +1395,30 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
             'DOC105: Function `connect`: Argument names match, but type hints in these '
             'args do not match: label . (Note: docstring arg defaults should look '
             'like: `, default=XXX`)',
+            'DOC605: Class `AnnotationDefaults`: Attribute names match, but type hints '
+            'in these attributes do not match: wrongAnnotated, wrongLiteral  (Please '
+            'read https://jsh9.github.io/pydoclint/checking_class_attributes.html on how '
+            'to correctly document class attributes.)',
+            'DOC105: Function `preserveAnnotationDefaults`: Argument names match, but '
+            'type hints in these args do not match: wrongAnnotated, wrongLiteral . '
+            '(Note: docstring arg defaults should look like: `, default=XXX`)',
         ],
     }
     assert list(map(str, violations)) == expectedLookup[suffix]
+
+
+@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
+def testSphinxRejectsCheckingStubArgDefaults(
+        tmp_path: Path,
+        suffix: str,
+) -> None:
+    filename = tmp_path / f'cases{suffix}'
+    shutil.copyfile(DATA_DIR / 'sphinx/stub_file/cases.pyi', filename)
+    with pytest.raises(
+        ValueError,
+        match=r'--check-arg-defaults is not compatible with --style=sphinx',
+    ):
+        _checkFile(filename=filename, style='sphinx', checkArgDefaults=True)
 
 
 @pytest.mark.parametrize(

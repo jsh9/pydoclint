@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import ast
 import re
+import tokenize
+from io import StringIO
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -135,7 +137,7 @@ def checkClassAttributesAgainstClassDocstring(
     docArgs, actualArgs = docuemntedAndClassArgs
 
     if isStubFile:
-        docArgs, actualArgs = ignorePlaceholderDefaults(
+        docArgs, actualArgs = removePlaceholderDefaults(
             docArgs=docArgs,
             actualArgs=actualArgs,
         )
@@ -798,16 +800,61 @@ def addStarsToDocstringArgsWhenApplicable(
 # This is how `Arg.fromAstArgWithMapping()` and `Arg.fromArgWithMapping()`
 # write a `...` default into the type hint when checking arg defaults
 PLACEHOLDER_DEFAULT_SUFFIX = ', default=...'
-DOCSTRING_DEFAULT_PATTERN = re.compile(r',\s*default\s*=.*$')
+DOCSTRING_DEFAULT_PREFIX_PATTERN = re.compile(r',\s*default\s*=')
 
 
-def ignorePlaceholderDefaults(
+def _removeDocstringDefault(typeHint: str) -> str:
+    """Remove an outer default suffix while preserving annotation text."""
+    lineOffsets = [0]
+    for line in typeHint.split('\n'):
+        lineOffsets.append(lineOffsets[-1] + len(line) + 1)
+
+    brackets: list[str] = []
+    openingBrackets = {')': '(', ']': '[', '}': '{'}
+    tokens = tokenize.generate_tokens(StringIO(typeHint).readline)
+    while True:
+        try:
+            token = next(tokens)
+        except (StopIteration, tokenize.TokenError, SyntaxError):
+            return typeHint
+
+        if token.type == tokenize.ERRORTOKEN:
+            return typeHint
+        if token.type != tokenize.OP:
+            continue
+
+        if token.string in '([{':
+            brackets.append(token.string)
+            continue
+        if token.string in openingBrackets:
+            if not brackets or brackets.pop() != openingBrackets[token.string]:
+                return typeHint
+            continue
+        if token.string != ',' or brackets:
+            continue
+
+        row, column = token.start
+        offset = lineOffsets[row - 1] + column
+        if DOCSTRING_DEFAULT_PREFIX_PATTERN.match(typeHint, offset) is None:
+            continue
+
+        annotation = typeHint[:offset].rstrip()
+        # Validate only the type; the default may be arbitrary text.
+        try:
+            if annotation:
+                ast.parse(annotation.strip(), mode='eval')
+        except SyntaxError:
+            return typeHint
+        return annotation
+
+
+def removePlaceholderDefaults(
         *,
         docArgs: ArgList,
         actualArgs: ArgList,
 ) -> tuple[ArgList, ArgList]:
     """
-    Ignore the defaults of args whose default is the ``...`` placeholder.
+    Remove the defaults of args whose default is the ``...`` placeholder.
 
     In stub (.pyi) files, ``= ...`` means that there is a default value but
     doesn't say what it is. So for these args, the docstring may give any
@@ -848,7 +895,7 @@ def ignorePlaceholderDefaults(
     newDocArgs = ArgList([
         Arg(
             name=_.name,
-            typeHint=DOCSTRING_DEFAULT_PATTERN.sub('', _.typeHint),
+            typeHint=_removeDocstringDefault(_.typeHint),
         )
         if _.name in placeholderNames
         else _

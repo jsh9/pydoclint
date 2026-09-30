@@ -20,7 +20,7 @@ from pydoclint.utils.visitor_helper import (
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getDocumentedAndActualClassArgLists,
     getReturnTypeToDocument,
-    ignorePlaceholderDefaults,
+    removePlaceholderDefaults,
     shouldIgnoreArgumentName,
     shouldSkipCheckingPrivateFunction,
     updateDocumentedArgListWithInlineDocstrings,
@@ -749,9 +749,26 @@ def testAddStarsToDocstringArgsWhenApplicable(
             ['a: int'],
             id='no-placeholder-defaults',
         ),
+        *[
+            pytest.param(
+                [f'a: {typeHint}'],
+                ['a: int, default=...'],
+                [f'a: {typeHint}'],
+                ['a: int'],
+                id=f'malformed-{caseName}',
+            )
+            for caseName, typeHint in [
+                ('quote', "Literal['unterminated, default=3"),
+                ('bracket', 'list[int, default=3'),
+                ('mismatched-brackets', 'list[int), default=3'),
+                ('extra-bracket', 'int], default=3'),
+                ('incomplete-expression', 'int +, default=3'),
+                ('indentation', 'list[\n int\n]\n  str, default=3'),
+            ]
+        ],
     ],
 )
-def testIgnorePlaceholderDefaults(
+def testRemovePlaceholderDefaults(
         docArgs: list[str],
         actualArgs: list[str],
         expectedDocArgs: list[str],
@@ -763,13 +780,56 @@ def testIgnorePlaceholderDefaults(
             for _ in args
         ])
 
-    newDocArgs, newActualArgs = ignorePlaceholderDefaults(
+    newDocArgs, newActualArgs = removePlaceholderDefaults(
         docArgs=toArgList(docArgs),
         actualArgs=toArgList(actualArgs),
     )
     # Compare the text, because `Arg` equality is lenient about type hints
     assert [str(_) for _ in newDocArgs.infoList] == expectedDocArgs
     assert [str(_) for _ in newActualArgs.infoList] == expectedActualArgs
+
+
+@pytest.mark.parametrize(
+    'typeHint',
+    [
+        "Annotated[int, 'units, default=3']",
+        'Literal["text, default=3"]',
+        r"Annotated[int, 'can\'t, default=3']",
+        r'Literal["quoted \"value\", default=3"]',
+        "Annotated[int, '''units, default=3''']",
+        "Annotated[int, {'label': 'units, default=3'}]",
+        "Annotated[int, metadata(label='units', default=3)]",
+        "tuple[Annotated[int, 'units, default=3'], Callable[[int, str], str]]",
+        "tuple[\n    int,\n    Literal['text, default=3'],\n]",
+    ],
+)
+@pytest.mark.parametrize(
+    'docDefault',
+    [
+        '',
+        ', default=...',
+        ', default = 5',
+        ',\n\tdefault\t= arbitrary text',
+        ', default=[unclosed',
+        ", default='unclosed",
+    ],
+)
+def testPlaceholderDefaultsPreserveAnnotations(
+        typeHint: str,
+        docDefault: str,
+) -> None:
+    docArgs = ArgList([Arg(name='a', typeHint=typeHint + docDefault)])
+    actualArgs = ArgList([
+        Arg(name='a', typeHint=typeHint + ', default=...'),
+    ])
+    newDocArgs, newActualArgs = removePlaceholderDefaults(
+        docArgs=docArgs,
+        actualArgs=actualArgs,
+    )
+    assert newDocArgs.infoList[0].typeHint == typeHint
+    assert newActualArgs.infoList[0].typeHint == typeHint
+    assert docArgs.infoList[0].typeHint == typeHint + docDefault
+    assert actualArgs.infoList[0].typeHint == typeHint + ', default=...'
 
 
 @pytest.mark.parametrize(

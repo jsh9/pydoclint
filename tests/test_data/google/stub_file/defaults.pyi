@@ -1,3 +1,6 @@
+from typing import Annotated, Literal
+
+
 class Config:
     """
     Class whose attributes have placeholder defaults.
@@ -31,5 +34,52 @@ def connect(
         verbose (bool): Whether to log. (No documented default is also fine.)
         label (int): Wrong type: the argument is a ``str``, so the linter will
             complain about the type mismatch.
+    """
+    ...
+
+class AnnotationDefaults:
+    """
+    Attributes whose type annotations contain default text.
+
+    Attributes:
+        annotated (Annotated[int, 'units, default=3'], default=...): The
+            metadata must remain part of the type.
+        literal (Literal['text, default=3']): The literal must remain intact
+            even without a documented default.
+        wrongAnnotated (Annotated[str, 'units, default=3'], default=...):
+            Wrong type: the actual annotation uses int.
+        wrongLiteral (Literal['other, default=3'], default=...): Wrong type:
+            the actual literal starts with text.
+        customDefault (Annotated[int, 'units, default=3'], default=5): Any
+            documented default is allowed only in a stub file.
+    """
+
+    annotated: Annotated[int, 'units, default=3'] = ...
+    literal: Literal['text, default=3'] = ...
+    wrongAnnotated: Annotated[int, 'units, default=3'] = ...
+    wrongLiteral: Literal['text, default=3'] = ...
+    customDefault: Annotated[int, 'units, default=3'] = ...
+
+def preserveAnnotationDefaults(
+    annotated: Annotated[int, 'units, default=3'] = ...,
+    literal: Literal['text, default=3'] = ...,
+    wrongAnnotated: Annotated[int, 'units, default=3'] = ...,
+    wrongLiteral: Literal['text, default=3'] = ...,
+    customDefault: Annotated[int, 'units, default=3'] = ...,
+) -> None:
+    """
+    Arguments whose type annotations contain default text.
+
+    Args:
+        annotated (Annotated[int, 'units, default=3'], default=...): The
+            metadata must remain part of the type.
+        literal (Literal['text, default=3']): The literal must remain intact
+            even without a documented default.
+        wrongAnnotated (Annotated[str, 'units, default=3'], default=...):
+            Wrong type: the actual annotation uses int.
+        wrongLiteral (Literal['other, default=3'], default=...): Wrong type:
+            the actual literal starts with text.
+        customDefault (Annotated[int, 'units, default=3'], default=5): Any
+            documented default is allowed only in a stub file.
     """
     ...

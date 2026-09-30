@@ -380,3 +380,51 @@ def testRealFlake8ChecksStubFilesLikeAbstractMethods(
     ]
     assert [line.split()[1] for line in violationLines] == expectedCodes
     assert result.returncode == 1, output
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    ('targetName', 'mismatchedNames'),
+    [
+        (
+            'sample.py',
+            'literal, wrongAnnotated, wrongLiteral, customDefault',
+        ),
+        ('sample.pyi', 'wrongAnnotated, wrongLiteral'),
+    ],
+)
+def testRealFlake8ChecksStubArgDefaults(
+        tmp_path: Path,
+        style: str,
+        targetName: str,
+        mismatchedNames: str,
+) -> None:
+    result = runRealFlake8(
+        tmp_path,
+        sourcePath=DATA_DIR / f'{style}/stub_file/defaults.pyi',
+        configLines=[
+            f'style = {style}',
+            'check-arg-defaults = True',
+            'check-class-attributes = True',
+        ],
+        targetName=targetName,
+    )
+    output = result.stdout + result.stderr
+    violationLines = [
+        line
+        for line in result.stdout.splitlines()
+        if line.startswith('sample')
+    ]
+    assert [line.split()[1] for line in violationLines] == [
+        'DOC605',
+        'DOC105',
+        'DOC605',
+        'DOC105',
+    ], output
+    assert (
+        f'attributes do not match: {mismatchedNames}  (' in violationLines[2]
+    ), output
+    assert f'args do not match: {mismatchedNames} . (' in violationLines[3], (
+        output
+    )
+    assert result.returncode == 1, output
