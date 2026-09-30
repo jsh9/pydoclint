@@ -1353,27 +1353,74 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
     assert list(map(str, violations)) == expectedLookup[suffix]
 
 
+@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
+@pytest.mark.parametrize('style', ['google', 'numpy'])  # no Sphinx support
+def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
+    # In stub files, `...` defaults can be documented with any default or none
+    filename = tmp_path / f'defaults{suffix}'
+    shutil.copyfile(DATA_DIR / f'{style}/stub_file/defaults.pyi', filename)
+    violations = _checkFile(
+        filename=filename,
+        style=style,
+        checkArgDefaults=True,
+        checkClassAttributes=True,
+    )
+    expectedLookup = {
+        '.py': [
+            'DOC605: Class `Config`: Attribute names match, but type hints in these '
+            'attributes do not match: retries, timeout, name  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC105: Function `connect`: Argument names match, but type hints in these '
+            'args do not match: port, verbose, label . (Note: docstring arg defaults '
+            'should look like: `, default=XXX`)',
+        ],
+        '.pyi': [
+            'DOC605: Class `Config`: Attribute names match, but type hints in these '
+            'attributes do not match: name  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC105: Function `connect`: Argument names match, but type hints in these '
+            'args do not match: label . (Note: docstring arg defaults should look '
+            'like: `, default=XXX`)',
+        ],
+    }
+    assert list(map(str, violations)) == expectedLookup[suffix]
+
+
 @pytest.mark.parametrize(
-    ('includeStubFiles', 'expected'),
+    ('path', 'includeStubFiles', 'expected'),
     [
-        (False, ['pkg/a.py', 'pkg/sub/c.py']),
-        (True, ['pkg/a.py', 'pkg/a.pyi', 'pkg/b.pyi', 'pkg/sub/c.py']),
+        ('pkg', False, ['pkg/a.py', 'pkg/sub/c.py']),
+        ('pkg', True, ['pkg/a.py', 'pkg/a.pyi', 'pkg/b.pyi', 'pkg/sub/c.py']),
+        # Stub files passed explicitly are always checked
+        ('pkg/b.pyi', False, ['pkg/b.pyi']),
     ],
 )
 def testCheckPathsIncludeStubFiles(
         tmp_path: Path,
+        path: str,
         includeStubFiles: bool,
         expected: list[str],
 ) -> None:
-    for name in ['a.py', 'a.pyi', 'b.pyi', 'sub/c.py']:
+    for name in [
+        'a.py',
+        'a.pyi',
+        'b.pyi',
+        'sub/c.py',
+        '__pycache__/a.cpython-313.pyc',  # should never be checked
+    ]:
         filename = tmp_path / 'pkg' / name
         filename.parent.mkdir(parents=True, exist_ok=True)
         filename.write_text('', encoding='utf-8')
 
     violations = _checkPaths(
-        (str(tmp_path / 'pkg'),),
+        (str(tmp_path / path),),
         quiet=True,
-        exclude=r'\.git|\.tox',  # the default ('') would exclude every file
+        # A pattern that matches no file path. (The default, '', would
+        # exclude every file, and a pattern such as `\.tox` could match the
+        # temporary folder's own path.)
+        exclude='^$',
         includeStubFiles=includeStubFiles,
     )
     checkedFiles = [

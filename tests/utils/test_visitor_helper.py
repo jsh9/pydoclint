@@ -20,6 +20,7 @@ from pydoclint.utils.visitor_helper import (
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getDocumentedAndActualClassArgLists,
     getReturnTypeToDocument,
+    ignorePlaceholderDefaults,
     shouldIgnoreArgumentName,
     shouldSkipCheckingPrivateFunction,
     updateDocumentedArgListWithInlineDocstrings,
@@ -701,6 +702,74 @@ def testAddStarsToDocstringArgsWhenApplicable(
     )
 
     assert normalized.infoList == expected.infoList
+
+
+@pytest.mark.parametrize(
+    ('docArgs', 'actualArgs', 'expectedDocArgs', 'expectedActualArgs'),
+    [
+        pytest.param(
+            ['a: int, default=3'],
+            ['a: int, default=...'],
+            ['a: int'],
+            ['a: int'],
+            id='any-docstring-default-is-removed',
+        ),
+        pytest.param(
+            ['a: int'],
+            ['a: int, default=...'],
+            ['a: int'],
+            ['a: int'],
+            id='no-docstring-default',
+        ),
+        pytest.param(
+            ['a: str, default=3'],
+            ['a: int, default=...'],
+            ['a: str'],
+            ['a: int'],
+            id='type-mismatch-is-kept',
+        ),
+        pytest.param(
+            ['a: int, default=3', 'b: int, default=1'],
+            ['a: int, default=2', 'b: int, default=...'],
+            ['a: int, default=3', 'b: int'],
+            ['a: int, default=2', 'b: int'],
+            id='only-placeholder-defaults-are-ignored',
+        ),
+        pytest.param(
+            ['a: int, optional'],
+            ['a: int, default=...'],
+            ['a: int, optional'],
+            ['a: int'],
+            id='optional-is-not-a-default',
+        ),
+        pytest.param(
+            ['a: int, default=3'],
+            ['a: int'],
+            ['a: int, default=3'],
+            ['a: int'],
+            id='no-placeholder-defaults',
+        ),
+    ],
+)
+def testIgnorePlaceholderDefaults(
+        docArgs: list[str],
+        actualArgs: list[str],
+        expectedDocArgs: list[str],
+        expectedActualArgs: list[str],
+) -> None:
+    def toArgList(args: list[str]) -> ArgList:
+        return ArgList([
+            Arg(name=_.split(': ', 1)[0], typeHint=_.split(': ', 1)[1])
+            for _ in args
+        ])
+
+    newDocArgs, newActualArgs = ignorePlaceholderDefaults(
+        docArgs=toArgList(docArgs),
+        actualArgs=toArgList(actualArgs),
+    )
+    # Compare the text, because `Arg` equality is lenient about type hints
+    assert [str(_) for _ in newDocArgs.infoList] == expectedDocArgs
+    assert [str(_) for _ in newActualArgs.infoList] == expectedActualArgs
 
 
 @pytest.mark.parametrize(

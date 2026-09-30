@@ -9,6 +9,10 @@
   - False-positive `DOC403` and `DOC502` violations in stub (`.pyi`) files.
     Functions in stub files are now checked like abstract methods, in both the
     native mode and _flake8_ (#303)
+  - False-positive `DOC105` and `DOC605` violations in stub files when
+    `--check-arg-defaults` is `True`: an argument or class attribute whose
+    default is the `...` placeholder can now be documented with any default
+    value or none
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.10.1...0.10.2
 

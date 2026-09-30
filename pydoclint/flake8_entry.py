@@ -7,6 +7,7 @@ from pydoclint.utils.config_option_removal_messages import (
     getIgnoreUnderscoreArgsRemovedMessage,
     getShouldDocumentPrivateClassAttributesRemovedMessage,
 )
+from pydoclint.utils.generic import isStubFilename
 from pydoclint.visitor import Visitor
 
 if TYPE_CHECKING:
@@ -648,7 +649,7 @@ class Plugin:
             checkStyleMismatch=checkStyleMismatch,
             checkArgDefaults=checkArgDefaults,
             style=self.style,
-            isStubFile=self._filename.endswith('.pyi'),
+            isStubFile=isStubFilename(self._filename),
         )
         v.visit(self._tree)
         violationInfo = [_.getInfoForFlake8() for _ in v.violations]

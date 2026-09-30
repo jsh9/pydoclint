@@ -408,6 +408,11 @@ function signature. If False, docstring type hints should not contain default
 values. (Only applies to numpy and Google styles; not compatible with Sphinx
 style.)
 
+In stub (`.pyi`) files, a default of `...` is a placeholder that doesn't say
+what the default value is. So an argument or class attribute with that default
+can be documented with any default value (such as `int, default=3`) or with no
+default (such as `int`). Its type is still checked.
+
 <a id="baseline"></a>
 
 ## 28. `--baseline`
@@ -508,24 +513,27 @@ The body of a function in a stub file is a placeholder (usually `...`), so
 _pydoclint_ checks functions in stub files the same way it checks abstract
 methods: it doesn't report `DOC403` or `DOC502` for them, because a placeholder
 body without `yield` or `raise` statements doesn't mean that the function
-doesn't yield or raise. All the other checks work as usual. This applies
-whenever a `.pyi` file is checked, including in _flake8_.
+doesn't yield or raise. `DOC402` and `DOC404` aren't reported for them either,
+because these checks only run when there are `yield` statements in the body
+(see [issue 309](https://github.com/jsh9/pydoclint/issues/309)). The other
+checks work as usual. This applies whenever a `.pyi` file is checked, including
+in _flake8_.
 
 This option is only available in the native command-line mode. If you use
 _pydoclint_ within _flake8_, you can use _flake8_'s
 [`--filename` option](https://flake8.pycqa.org/en/latest/user/options.html#cmdoption-flake8-filename)
 instead (for example, `--filename=*.py,*.pyi`).
 
-If you use the `pydoclint` pre-commit hook, pre-commit doesn't pass stub files
-to it by default. To check them, override the hook's file types in your
-`.pre-commit-config.yaml` (you don't need `--include-stub-files` here, because
-pre-commit passes files in explicitly):
+If you use the `pydoclint` or `pydoclint-flake8` pre-commit hook, pre-commit
+doesn't pass stub files to it by default. To check them, override the hook's
+file types in your `.pre-commit-config.yaml` (you don't need
+`--include-stub-files` here, because pre-commit passes files in explicitly):
 
 ```yaml
 - repo: https://github.com/jsh9/pydoclint
   rev: <latest_tag>
   hooks:
-    - id: pydoclint
+    - id: pydoclint  # or pydoclint-flake8
       types: [file]
       types_or: [python, pyi]
 ```

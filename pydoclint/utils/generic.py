@@ -4,6 +4,7 @@ import ast
 import copy
 import re
 from enum import Enum, auto
+from pathlib import Path
 from re import Match
 from typing import TYPE_CHECKING, overload
 
@@ -482,3 +483,8 @@ def isPrivateName(name: str) -> bool:
 def isUnderscoreOnlyName(name: str) -> bool:
     """Return whether ``name`` consists only of underscore characters."""
     return classifyName(name) is NameKind.UNDERSCORE_ONLY
+
+
+def isStubFilename(filename: str | Path) -> bool:
+    """Return whether ``filename`` is a stub (.pyi) file."""
+    return Path(filename).suffix == '.pyi'

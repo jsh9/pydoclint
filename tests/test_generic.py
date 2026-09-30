@@ -1,4 +1,5 @@
 import ast
+from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
@@ -9,6 +10,7 @@ from pydoclint.utils.generic import (
     buildFuncArgToDefaultMapping,
     doList1ItemsStartWithList2Items,
     isLastConstructor,
+    isStubFilename,
     stripQuotes,
 )
 
@@ -284,3 +286,18 @@ def testIsLastConstructor(
     targetConstructor = constructors[constructorIndex]
     output = isLastConstructor(node=targetConstructor, parentClass=classDef)
     assert output == expected
+
+
+@pytest.mark.parametrize(
+    ('filename', 'expected'),
+    [
+        ('a.pyi', True),
+        ('pkg/a.pyi', True),
+        (Path('pkg/a.pyi'), True),
+        ('a.py', False),
+        ('a.pyi.bak', False),
+        ('.pyi', False),  # a hidden file named ".pyi" has no suffix
+    ],
+)
+def testIsStubFilename(filename: str | Path, expected: bool) -> None:
+    assert isStubFilename(filename) is expected

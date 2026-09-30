@@ -21,6 +21,7 @@ from pydoclint.utils.config_option_removal_messages import (
     getIgnoreUnderscoreArgsRemovedMessage,
     getShouldDocumentPrivateClassAttributesRemovedMessage,
 )
+from pydoclint.utils.generic import isStubFilename
 from pydoclint.utils.invisible_chars import replaceInvisibleChars
 from pydoclint.utils.noqa import (
     codeIsSuppressed,
@@ -899,17 +900,17 @@ def _checkPaths(
         )
 
     excludePattern = re.compile(exclude)
-    patterns = ('*.py', '*.pyi') if includeStubFiles else ('*.py',)
+    suffixes = {'.py', '.pyi'} if includeStubFiles else {'.py'}
 
     for path_ in paths:
         path = Path(path_)
         if path.is_file():
             filenames.append(path)
         elif path.is_dir():
-            # Sort all matches together so that `foo.pyi` comes right after
-            # `foo.py` in the output
+            # Walk the folder only once, and sort all matches together so that
+            # `foo.pyi` comes right after `foo.py` in the output
             filenames.extend(
-                sorted(_ for pattern in patterns for _ in path.rglob(pattern))
+                sorted(_ for _ in path.rglob('*.py*') if _.suffix in suffixes)
             )
 
     allViolations: dict[str, list[Violation]] = {}
@@ -1073,7 +1074,7 @@ def _checkFile(
         ),
         checkStyleMismatch=checkStyleMismatch,
         checkArgDefaults=checkArgDefaults,
-        isStubFile=filename.suffix == '.pyi',
+        isStubFile=isStubFilename(filename),
     )
     visitor.visit(tree)
 

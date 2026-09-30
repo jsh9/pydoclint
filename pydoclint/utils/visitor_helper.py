@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import re
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -55,6 +56,7 @@ def checkClassAttributesAgainstClassDocstring(
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         requireInlineClassVarDocs: bool,
         checkArgDefaults: bool,
+        isStubFile: bool,
 ) -> None:
     """
     Check class attribute list against the attribute list in docstring.
@@ -99,6 +101,8 @@ def checkClassAttributesAgainstClassDocstring(
         Whether to require inline class attribute docs.
     checkArgDefaults : bool
         Whether to check argument defaults.
+    isStubFile : bool
+        Whether the class is in a stub (.pyi) file.
 
     Returns
     -------
@@ -129,6 +133,12 @@ def checkClassAttributesAgainstClassDocstring(
         return
 
     docArgs, actualArgs = docuemntedAndClassArgs
+
+    if isStubFile:
+        docArgs, actualArgs = ignorePlaceholderDefaults(
+            docArgs=docArgs,
+            actualArgs=actualArgs,
+        )
 
     checkDocArgsLengthAgainstActualArgs(
         docArgs=docArgs,
@@ -783,6 +793,68 @@ def addStarsToDocstringArgsWhenApplicable(
             normalizedDocArgs.append(docArg)
 
     return ArgList(normalizedDocArgs)
+
+
+# This is how `Arg.fromAstArgWithMapping()` and `Arg.fromArgWithMapping()`
+# write a `...` default into the type hint when checking arg defaults
+PLACEHOLDER_DEFAULT_SUFFIX = ', default=...'
+DOCSTRING_DEFAULT_PATTERN = re.compile(r',\s*default\s*=.*$')
+
+
+def ignorePlaceholderDefaults(
+        *,
+        docArgs: ArgList,
+        actualArgs: ArgList,
+) -> tuple[ArgList, ArgList]:
+    """
+    Ignore the defaults of args whose default is the ``...`` placeholder.
+
+    In stub (.pyi) files, ``= ...`` means that there is a default value but
+    doesn't say what it is. So for these args, the docstring may give any
+    default value or none, and only the types are compared.
+
+    Parameters
+    ----------
+    docArgs : ArgList
+        Arguments parsed from the docstring
+    actualArgs : ArgList
+        Arguments (or class attributes) collected from the code, with their
+        defaults written into the type hints
+
+    Returns
+    -------
+    tuple[ArgList, ArgList]
+        The docstring args and the actual args. For args with a ``...``
+        default, the defaults are removed from both type hints. All other args
+        are left untouched.
+    """
+    placeholderNames: set[str] = {
+        _.name
+        for _ in actualArgs.infoList
+        if _.typeHint.endswith(PLACEHOLDER_DEFAULT_SUFFIX)
+    }
+    if len(placeholderNames) == 0:
+        return docArgs, actualArgs
+
+    newActualArgs = ArgList([
+        Arg(
+            name=_.name,
+            typeHint=_.typeHint.removesuffix(PLACEHOLDER_DEFAULT_SUFFIX),
+        )
+        if _.name in placeholderNames
+        else _
+        for _ in actualArgs.infoList
+    ])
+    newDocArgs = ArgList([
+        Arg(
+            name=_.name,
+            typeHint=DOCSTRING_DEFAULT_PATTERN.sub('', _.typeHint),
+        )
+        if _.name in placeholderNames
+        else _
+        for _ in docArgs.infoList
+    ])
+    return newDocArgs, newActualArgs
 
 
 def checkReturnTypesForViolations(

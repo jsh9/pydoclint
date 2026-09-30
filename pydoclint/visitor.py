@@ -61,6 +61,7 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getReturnTypeToDocument,
+    ignorePlaceholderDefaults,
     shouldIgnoreArgumentName,
     shouldSkipCheckingPrivateFunction,
 )
@@ -190,6 +191,7 @@ class Visitor(ast.NodeVisitor):
                 ),
                 requireInlineClassVarDocs=self.requireInlineClassVarDocs,
                 checkArgDefaults=self.checkArgDefaults,
+                isStubFile=self.isStubFile,
             )
 
         self.generic_visit(node)
@@ -498,7 +500,7 @@ class Visitor(ast.NodeVisitor):
 
         return initDocstring
 
-    def checkArguments(  # noqa: PLR0915
+    def checkArguments(  # noqa: C901, PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
@@ -611,6 +613,12 @@ class Visitor(ast.NodeVisitor):
             docArgs = addStarsToDocstringArgsWhenApplicable(
                 docArgs=docArgs,
                 funcArgs=funcArgs,
+            )
+
+        if self.isStubFile:
+            docArgs, funcArgs = ignorePlaceholderDefaults(
+                docArgs=docArgs,
+                actualArgs=funcArgs,
             )
 
         if docArgs.length == 0 and funcArgs.length == 0:
