@@ -820,16 +820,20 @@ def _removeDocstringDefault(typeHint: str) -> str:
 
         if token.type == tokenize.ERRORTOKEN:
             return typeHint
+
         if token.type != tokenize.OP:
             continue
 
         if token.string in '([{':
             brackets.append(token.string)
             continue
+
         if token.string in openingBrackets:
             if not brackets or brackets.pop() != openingBrackets[token.string]:
                 return typeHint
+
             continue
+
         if token.string != ',' or brackets:
             continue
 
@@ -845,6 +849,7 @@ def _removeDocstringDefault(typeHint: str) -> str:
                 ast.parse(annotation.strip(), mode='eval')
         except SyntaxError:
             return typeHint
+
         return annotation
 
 
