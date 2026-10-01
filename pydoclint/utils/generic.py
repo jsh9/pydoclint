@@ -231,6 +231,16 @@ def stripQuotes(string: str | None) -> str | None:
     if string is None:
         return None
 
+    string = stripBacktickWrapper(string)
+    return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)
+
+
+def stripBacktickWrapper(string: str) -> str:
+    """
+    Strip backticks (`) or double backticks (``) that wrap the whole string,
+    such as in ``int``. (Some people use backticks around type hints so that
+    they show up more nicely on the HTML documentation page.)
+    """
     min_length_of_4_backticks: int = 4
     min_length_of_2_backticks: int = 2
 
@@ -239,15 +249,16 @@ def stripQuotes(string: str | None) -> str | None:
         and string.endswith('``')
         and len(string) >= min_length_of_4_backticks
     ):
-        string = string[2:-2]
-    elif (
+        return string[2:-2]
+
+    if (
         string.startswith('`')
         and string.endswith('`')
         and len(string) >= min_length_of_2_backticks
     ):
-        string = string[1:-1]
+        return string[1:-1]
 
-    return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)
+    return string
 
 
 def _replacer(match: Match[str]) -> str:

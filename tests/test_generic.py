@@ -11,6 +11,7 @@ from pydoclint.utils.generic import (
     doList1ItemsStartWithList2Items,
     isLastConstructor,
     isStubFilename,
+    stripBacktickWrapper,
     stripQuotes,
 )
 
@@ -301,3 +302,19 @@ def testIsLastConstructor(
 )
 def testIsStubFilename(filename: str | Path, expected: bool) -> None:
     assert isStubFilename(filename) is expected
+
+
+@pytest.mark.parametrize(
+    ('string', 'expected'),
+    [
+        ('``int``', 'int'),
+        ('`int`', 'int'),
+        ('``int, default=3``', 'int, default=3'),
+        ("``Literal['a', 'b']``", "Literal['a', 'b']"),
+        ('int', 'int'),
+        ('``int``, default=3', '``int``, default=3'),  # not wrapping it all
+        ('', ''),
+    ],
+)
+def testStripBacktickWrapper(string: str, expected: str) -> None:
+    assert stripBacktickWrapper(string) == expected

@@ -384,13 +384,14 @@ def testRealFlake8ChecksStubFilesLikeAbstractMethods(
 
 @pytest.mark.parametrize('style', ['google', 'numpy'])
 @pytest.mark.parametrize(
-    ('targetName', 'mismatchedNames'),
+    ('targetName', 'mismatchedNames', 'mismatchedBacktickNames'),
     [
         (
             'sample.py',
             'literal, wrongAnnotated, wrongLiteral, customDefault',
+            'placeholder, customDefault, wrongType',
         ),
-        ('sample.pyi', 'wrongAnnotated, wrongLiteral'),
+        ('sample.pyi', 'wrongAnnotated, wrongLiteral', 'wrongType'),
     ],
 )
 def testRealFlake8ChecksStubArgDefaults(
@@ -398,6 +399,7 @@ def testRealFlake8ChecksStubArgDefaults(
         style: str,
         targetName: str,
         mismatchedNames: str,
+        mismatchedBacktickNames: str,
 ) -> None:
     result = runRealFlake8(
         tmp_path,
@@ -420,6 +422,8 @@ def testRealFlake8ChecksStubArgDefaults(
         'DOC105',
         'DOC605',
         'DOC105',
+        'DOC605',
+        'DOC105',
     ], output
     assert (
         f'attributes do not match: {mismatchedNames}  (' in violationLines[2]
@@ -427,4 +431,13 @@ def testRealFlake8ChecksStubArgDefaults(
     assert f'args do not match: {mismatchedNames} . (' in violationLines[3], (
         output
     )
+    # The last two come from the backtick-wrapped types
+    assert (
+        f'attributes do not match: {mismatchedBacktickNames}  ('
+        in violationLines[4]
+    ), output
+    assert (
+        f'args do not match: {mismatchedBacktickNames} . ('
+        in violationLines[5]
+    ), output
     assert result.returncode == 1, output

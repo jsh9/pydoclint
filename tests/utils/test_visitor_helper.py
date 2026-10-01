@@ -771,6 +771,42 @@ def testAddStarsToDocstringArgsWhenApplicable(
             ['a: '],
             id='untyped-no-docstring-default',
         ),
+        # Backticks wrapping the type and the default together
+        pytest.param(
+            ['a: ``int, default=...``'],
+            ['a: int, default=...'],
+            ['a: int'],
+            ['a: int'],
+            id='double-backticks-placeholder-default',
+        ),
+        pytest.param(
+            ['a: ``int, default=3``'],
+            ['a: int, default=...'],
+            ['a: int'],
+            ['a: int'],
+            id='double-backticks-real-default',
+        ),
+        pytest.param(
+            ['a: `int, default=3`'],
+            ['a: int, default=...'],
+            ['a: int'],
+            ['a: int'],
+            id='single-backticks-real-default',
+        ),
+        pytest.param(
+            ["a: ``Annotated[int, 'units, default=3'], default=5``"],
+            ["a: Annotated[int, 'units, default=3'], default=..."],
+            ["a: Annotated[int, 'units, default=3']"],
+            ["a: Annotated[int, 'units, default=3']"],
+            id='double-backticks-annotated-type',
+        ),
+        pytest.param(
+            ['a: ``int``'],
+            ['a: int, default=...'],
+            ['a: ``int``'],  # type comparison removes the backticks later
+            ['a: int'],
+            id='double-backticks-no-docstring-default',
+        ),
         *[
             pytest.param(
                 [f'a: {typeHint}'],

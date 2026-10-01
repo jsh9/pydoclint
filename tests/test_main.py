@@ -1386,6 +1386,17 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
             'type hints in these args do not match: literal, wrongAnnotated, '
             'wrongLiteral, customDefault . (Note: docstring arg defaults should look '
             'like: `, default=XXX`)',
+            # `placeholder` (documented as ``int, default=...``) matches, but it's
+            # still listed: the names in these messages come from a comparison that
+            # doesn't remove backticks. This also happens on `main`.
+            'DOC605: Class `BacktickDefaults`: Attribute names match, but type hints in '
+            'these attributes do not match: placeholder, customDefault, wrongType  '
+            '(Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC105: Function `backtickDefaults`: Argument names match, but type hints in '
+            'these args do not match: placeholder, customDefault, wrongType . (Note: '
+            'docstring arg defaults should look like: `, default=XXX`)',
         ],
         '.pyi': [
             'DOC605: Class `Config`: Attribute names match, but type hints in these '
@@ -1402,6 +1413,13 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
             'DOC105: Function `preserveAnnotationDefaults`: Argument names match, but '
             'type hints in these args do not match: wrongAnnotated, wrongLiteral . '
             '(Note: docstring arg defaults should look like: `, default=XXX`)',
+            'DOC605: Class `BacktickDefaults`: Attribute names match, but type hints in '
+            'these attributes do not match: wrongType  (Please read '
+            'https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to '
+            'correctly document class attributes.)',
+            'DOC105: Function `backtickDefaults`: Argument names match, but type hints in '
+            'these args do not match: wrongType . (Note: docstring arg defaults should '
+            'look like: `, default=XXX`)',
         ],
     }
     assert list(map(str, violations)) == expectedLookup[suffix]
@@ -1482,6 +1500,50 @@ def testCheckPathsIncludeStubFiles(
         Path(_).relative_to(tmp_path).as_posix() for _ in violations
     ]
     assert checkedFiles == expected
+
+
+@pytest.mark.parametrize('includeStubFiles', [False, True])
+def testCheckPathsMatchesExtensionsLikeRglob(
+        tmp_path: Path,
+        includeStubFiles: bool,
+) -> None:
+    # Extensions are matched with the platform's case rules, the same way as
+    # `rglob('*.py')` (and `rglob('*.pyi')`) did before: on Windows, `B.PY` is
+    # a Python file; on macOS and Linux, it isn't.
+    folder = tmp_path / 'pkg'
+    folder.mkdir()
+    for name in [
+        'a.py',
+        'B.PY',
+        'c.Py',
+        'd.pyi',
+        'E.PYI',
+        'f.pyc',
+        'G.PYW',
+        'h.pyw',
+    ]:
+        (folder / name).write_text('', encoding='utf-8')
+
+    violations = _checkPaths(
+        (str(folder),),
+        quiet=True,
+        exclude='^$',  # a pattern that matches no file path
+        includeStubFiles=includeStubFiles,
+    )
+    checkedFiles = [
+        Path(_).relative_to(tmp_path).as_posix() for _ in violations
+    ]
+
+    patterns = ['*.py', '*.pyi'] if includeStubFiles else ['*.py']
+    expected = sorted({_ for p in patterns for _ in folder.rglob(p)})
+    assert checkedFiles == [
+        _.relative_to(tmp_path).as_posix() for _ in expected
+    ]
+
+    if sys.platform == 'win32':
+        assert 'pkg/B.PY' in checkedFiles
+        assert 'pkg/c.Py' in checkedFiles
+        assert ('pkg/E.PYI' in checkedFiles) is includeStubFiles
 
 
 @pytest.mark.parametrize(

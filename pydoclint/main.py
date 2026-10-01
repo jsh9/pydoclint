@@ -900,7 +900,7 @@ def _checkPaths(
         )
 
     excludePattern = re.compile(exclude)
-    suffixes = {'.py', '.pyi'} if includeStubFiles else {'.py'}
+    patterns = ('*.py', '*.pyi') if includeStubFiles else ('*.py',)
 
     for path_ in paths:
         path = Path(path_)
@@ -908,9 +908,15 @@ def _checkPaths(
             filenames.append(path)
         elif path.is_dir():
             # Walk the folder only once, and sort all matches together so that
-            # `foo.pyi` comes right after `foo.py` in the output
+            # `foo.pyi` comes right after `foo.py` in the output. Matching with
+            # `Path.match()` follows the platform's case rules, just like
+            # `rglob()` does: on Windows, `API.PY` is a Python file too.
             filenames.extend(
-                sorted(_ for _ in path.rglob('*.py*') if _.suffix in suffixes)
+                sorted(
+                    _
+                    for _ in path.rglob('*.py*')
+                    if any(_.match(pattern) for pattern in patterns)
+                )
             )
 
     allViolations: dict[str, list[Violation]] = {}

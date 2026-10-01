@@ -91,3 +91,40 @@ def preserveAnnotationDefaults(
         Any documented default is allowed only in a stub file.
     """
     ...
+
+class BacktickDefaults:
+    """
+    Attributes whose documented types are wrapped in backticks.
+
+    Attributes
+    ----------
+    placeholder : ``int, default=...``
+        Matches the class attribute exactly.
+    customDefault : ``int, default=3``
+        Any documented default is allowed only in a stub file.
+    wrongType : `str, default=3`
+        Wrong type: the class attribute is an ``int``.
+    """
+
+    placeholder: int = ...
+    customDefault: int = ...
+    wrongType: int = ...
+
+def backtickDefaults(
+    placeholder: int = ...,
+    customDefault: int = ...,
+    wrongType: int = ...,
+) -> None:
+    """
+    Arguments whose documented types are wrapped in backticks.
+
+    Parameters
+    ----------
+    placeholder : ``int, default=...``
+        Matches the argument exactly.
+    customDefault : ``int, default=3``
+        Any documented default is allowed only in a stub file.
+    wrongType : `str, default=3`
+        Wrong type: the argument is an ``int``.
+    """
+    ...
