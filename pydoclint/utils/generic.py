@@ -496,6 +496,15 @@ def isUnderscoreOnlyName(name: str) -> bool:
     return classifyName(name) is NameKind.UNDERSCORE_ONLY
 
 
+PYTHON_FILE_PATTERN = '*.py'
+STUB_FILE_PATTERN = '*.pyi'
+
+
 def isStubFilename(filename: str | Path) -> bool:
-    """Return whether ``filename`` is a stub (.pyi) file."""
-    return Path(filename).suffix == '.pyi'
+    """
+    Return whether ``filename`` is a stub (.pyi) file.
+
+    This uses the same matching as folder scans in ``main.py``, which follows
+    the platform's case rules: on Windows, ``API.PYI`` is a stub file too.
+    """
+    return Path(filename).match(STUB_FILE_PATTERN)

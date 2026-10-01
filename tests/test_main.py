@@ -1512,6 +1512,9 @@ def testCheckPathsMatchesExtensionsLikeRglob(
     # a Python file; on macOS and Linux, it isn't.
     folder = tmp_path / 'pkg'
     folder.mkdir()
+    stubContent = (DATA_DIR / 'numpy/stub_file/cases.pyi').read_text(
+        encoding='utf-8',
+    )
     for name in [
         'a.py',
         'B.PY',
@@ -1522,7 +1525,8 @@ def testCheckPathsMatchesExtensionsLikeRglob(
         'G.PYW',
         'h.pyw',
     ]:
-        (folder / name).write_text('', encoding='utf-8')
+        isStub = name.lower().endswith('.pyi')
+        (folder / name).write_text(stubContent if isStub else '', 'utf-8')
 
     violations = _checkPaths(
         (str(folder),),
@@ -1540,10 +1544,50 @@ def testCheckPathsMatchesExtensionsLikeRglob(
         _.relative_to(tmp_path).as_posix() for _ in expected
     ]
 
+    # Every stub file that a folder scan finds must also be checked as a stub
+    # file: its placeholder bodies must not cause DOC403 or DOC502
+    stubFileCodes = {
+        Path(name).relative_to(tmp_path).as_posix(): [
+            _.fullErrorCode for _ in fileViolations
+        ]
+        for name, fileViolations in violations.items()
+        if Path(name).match('*.pyi')
+    }
+    for codes in stubFileCodes.values():
+        assert codes == ['DOC201', 'DOC105']
+
     if sys.platform == 'win32':
         assert 'pkg/B.PY' in checkedFiles
         assert 'pkg/c.Py' in checkedFiles
         assert ('pkg/E.PYI' in checkedFiles) is includeStubFiles
+        assert ('pkg/E.PYI' in stubFileCodes) is includeStubFiles
+
+
+def testExplicitUppercaseStubFileFollowsPlatformCaseRules(
+        tmp_path: Path,
+) -> None:
+    # `API.PYI` is a stub file on Windows, but not on macOS and Linux, just as
+    # folder scans only find it on Windows. The files go in separate folders
+    # because file names on macOS and Windows ignore case.
+    results: dict[str, list[str]] = {}
+    for folder, name in [
+        ('lower', 'api.pyi'),
+        ('upper', 'API.PYI'),
+        ('python', 'api.py'),
+    ]:
+        filename = tmp_path / folder / name
+        filename.parent.mkdir()
+        shutil.copyfile(DATA_DIR / 'numpy/stub_file/cases.pyi', filename)
+        violations = _checkFile(filename=filename, style='numpy')
+        results[folder] = list(map(str, violations))
+
+    # Make sure that stub files and Python files really get different results
+    assert results['lower'] != results['python']
+
+    if sys.platform == 'win32':
+        assert results['upper'] == results['lower']
+    else:
+        assert results['upper'] == results['python']
 
 
 @pytest.mark.parametrize(

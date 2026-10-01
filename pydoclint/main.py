@@ -21,7 +21,11 @@ from pydoclint.utils.config_option_removal_messages import (
     getIgnoreUnderscoreArgsRemovedMessage,
     getShouldDocumentPrivateClassAttributesRemovedMessage,
 )
-from pydoclint.utils.generic import isStubFilename
+from pydoclint.utils.generic import (
+    PYTHON_FILE_PATTERN,
+    STUB_FILE_PATTERN,
+    isStubFilename,
+)
 from pydoclint.utils.invisible_chars import replaceInvisibleChars
 from pydoclint.utils.noqa import (
     codeIsSuppressed,
@@ -900,7 +904,11 @@ def _checkPaths(
         )
 
     excludePattern = re.compile(exclude)
-    patterns = ('*.py', '*.pyi') if includeStubFiles else ('*.py',)
+    patterns = (
+        (PYTHON_FILE_PATTERN, STUB_FILE_PATTERN)
+        if includeStubFiles
+        else (PYTHON_FILE_PATTERN,)
+    )
 
     for path_ in paths:
         path = Path(path_)

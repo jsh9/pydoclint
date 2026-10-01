@@ -355,6 +355,13 @@ def testRealFlake8AppliesLowercaseMigrationReplacements(
     [
         ('sample.py', ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC105']),
         ('sample.pyi', ['DOC201', 'DOC105']),
+        # Stub detection follows the platform's case rules, like folder scans
+        (
+            'sample.PYI',
+            ['DOC201', 'DOC105']
+            if sys.platform == 'win32'
+            else ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC105'],
+        ),
     ],
 )
 def testRealFlake8ChecksStubFilesLikeAbstractMethods(

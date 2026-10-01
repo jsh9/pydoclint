@@ -1,4 +1,5 @@
 import ast
+import sys
 from pathlib import Path
 from textwrap import dedent
 from typing import Any
@@ -297,7 +298,11 @@ def testIsLastConstructor(
         (Path('pkg/a.pyi'), True),
         ('a.py', False),
         ('a.pyi.bak', False),
-        ('.pyi', False),  # a hidden file named ".pyi" has no suffix
+        # Folder scans also find a file named just ".pyi"
+        ('.pyi', True),
+        # Like folder scans, this follows the platform's case rules
+        ('API.PYI', sys.platform == 'win32'),
+        ('pkg/x.Pyi', sys.platform == 'win32'),
     ],
 )
 def testIsStubFilename(filename: str | Path, expected: bool) -> None:
