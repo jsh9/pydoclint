@@ -1407,6 +1407,28 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
     assert list(map(str, violations)) == expectedLookup[suffix]
 
 
+# Like testStubFileArgDefaults, but for untyped arguments, with both type-hint
+# options off. Only the .pyi version is tested: as a .py file, the same content
+# gets DOC108/DOC111 because default values are treated as type hints
+# (https://github.com/jsh9/pydoclint/issues/313), and this test shouldn't lock
+# that bug in.
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
+    filename = tmp_path / 'untyped_defaults.pyi'
+    shutil.copyfile(
+        DATA_DIR / f'{style}/stub_file/untyped_defaults.pyi',
+        filename,
+    )
+    violations = _checkFile(
+        filename=filename,
+        style=style,
+        checkArgDefaults=True,
+        argTypeHintsInSignature=False,
+        argTypeHintsInDocstring=False,
+    )
+    assert list(map(str, violations)) == []
+
+
 @pytest.mark.parametrize('suffix', ['.py', '.pyi'])
 def testSphinxRejectsCheckingStubArgDefaults(
         tmp_path: Path,

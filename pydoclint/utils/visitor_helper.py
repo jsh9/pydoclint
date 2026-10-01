@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import ast
 import re
-import tokenize
-from io import StringIO
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -805,52 +803,23 @@ DOCSTRING_DEFAULT_PREFIX_PATTERN = re.compile(r',\s*default\s*=')
 
 def _removeDocstringDefault(typeHint: str) -> str:
     """Remove an outer default suffix while preserving annotation text."""
-    lineOffsets = [0]
-    for line in typeHint.split('\n'):
-        lineOffsets.append(lineOffsets[-1] + len(line) + 1)
+    # A `, default=` can also appear inside the type itself, such as in
+    # `Annotated[int, 'units, default=3']`. There, the text before it is not a
+    # complete expression (it has an unclosed string or bracket). So the outer
+    # default starts at the first match whose preceding text parses.
+    for match in DOCSTRING_DEFAULT_PREFIX_PATTERN.finditer(typeHint):
+        annotation = typeHint[: match.start()].rstrip()
+        if not annotation:  # an untyped arg, such as `value (, default=3)`
+            return ''
 
-    brackets: list[str] = []
-    openingBrackets = {')': '(', ']': '[', '}': '{'}
-    tokens = tokenize.generate_tokens(StringIO(typeHint).readline)
-    while True:
         try:
-            token = next(tokens)
-        except (StopIteration, tokenize.TokenError, SyntaxError):
-            return typeHint
-
-        if token.type == tokenize.ERRORTOKEN:
-            return typeHint
-
-        if token.type != tokenize.OP:
-            continue
-
-        if token.string in '([{':
-            brackets.append(token.string)
-            continue
-
-        if token.string in openingBrackets:
-            if not brackets or brackets.pop() != openingBrackets[token.string]:
-                return typeHint
-
-            continue
-
-        if token.string != ',' or brackets:
-            continue
-
-        row, column = token.start
-        offset = lineOffsets[row - 1] + column
-        if DOCSTRING_DEFAULT_PREFIX_PATTERN.match(typeHint, offset) is None:
-            continue
-
-        annotation = typeHint[:offset].rstrip()
-        # Validate only the type; the default may be arbitrary text.
-        try:
-            if annotation:
-                ast.parse(annotation.strip(), mode='eval')
+            ast.parse(annotation.strip(), mode='eval')
         except SyntaxError:
-            return typeHint
+            continue
 
         return annotation
+
+    return typeHint
 
 
 def removePlaceholderDefaults(

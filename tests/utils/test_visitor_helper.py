@@ -749,6 +749,28 @@ def testAddStarsToDocstringArgsWhenApplicable(
             ['a: int'],
             id='no-placeholder-defaults',
         ),
+        # Untyped args: there's no type before `, default=`
+        pytest.param(
+            ['a: , default=3'],
+            ['a: , default=...'],
+            ['a: '],
+            ['a: '],
+            id='untyped-docstring-default',
+        ),
+        pytest.param(
+            ['a: ,  default = 3'],
+            ['a: , default=...'],
+            ['a: '],
+            ['a: '],
+            id='untyped-docstring-default-with-spaces',
+        ),
+        pytest.param(
+            ['a: '],
+            ['a: , default=...'],
+            ['a: '],
+            ['a: '],
+            id='untyped-no-docstring-default',
+        ),
         *[
             pytest.param(
                 [f'a: {typeHint}'],
@@ -801,6 +823,7 @@ def testRemovePlaceholderDefaults(
         "Annotated[int, metadata(label='units', default=3)]",
         "tuple[Annotated[int, 'units, default=3'], Callable[[int, str], str]]",
         "tuple[\n    int,\n    Literal['text, default=3'],\n]",
+        pytest.param('', id='untyped'),
     ],
 )
 @pytest.mark.parametrize(
