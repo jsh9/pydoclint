@@ -23,6 +23,7 @@ from pydoclint.utils.generic import (
     generateFuncMsgPrefix,
     getDocstring,
     isLastConstructor,
+    isPlaceholderDefault,
 )
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.parse_docstring import (
@@ -61,7 +62,7 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getReturnTypeToDocument,
-    removePlaceholderDefaults,
+    removeDocstringDefaults,
     shouldIgnoreArgumentName,
     shouldSkipCheckingPrivateFunction,
 )
@@ -533,10 +534,25 @@ class Visitor(ast.NodeVisitor):
         """
         astArgList: list[ast.arg] = collectFuncArgs(node)
 
+        # In stub files, a `...` default is a placeholder that doesn't say
+        # what the default is. Such defaults aren't written into the type
+        # hints, and the docstring may give any default (or none) for them.
+        placeholderDefaultNames: frozenset[str] = frozenset()
         if self.checkArgDefaults:
             argToDefaultMapping: dict[ast.arg, ast.expr] = (
                 buildFuncArgToDefaultMapping(node)
             )
+            if self.isStubFile:
+                placeholderDefaultNames = frozenset(
+                    arg.arg
+                    for arg, default in argToDefaultMapping.items()
+                    if isPlaceholderDefault(default)
+                )
+                argToDefaultMapping = {
+                    arg: default
+                    for arg, default in argToDefaultMapping.items()
+                    if arg.arg not in placeholderDefaultNames
+                }
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)
         msgPrefix: str = generateFuncMsgPrefix(node, parent_, appendColon=True)
@@ -615,11 +631,10 @@ class Visitor(ast.NodeVisitor):
                 funcArgs=funcArgs,
             )
 
-        if self.isStubFile:
-            docArgs, funcArgs = removePlaceholderDefaults(
-                docArgs=docArgs,
-                actualArgs=funcArgs,
-            )
+        docArgs = removeDocstringDefaults(
+            docArgs=docArgs,
+            argNames=placeholderDefaultNames,
+        )
 
         if docArgs.length == 0 and funcArgs.length == 0:
             return []

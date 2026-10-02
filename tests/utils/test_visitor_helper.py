@@ -20,7 +20,7 @@ from pydoclint.utils.visitor_helper import (
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getDocumentedAndActualClassArgLists,
     getReturnTypeToDocument,
-    removePlaceholderDefaults,
+    removeDocstringDefaults,
     shouldIgnoreArgumentName,
     shouldSkipCheckingPrivateFunction,
     updateDocumentedArgListWithInlineDocstrings,
@@ -705,171 +705,148 @@ def testAddStarsToDocstringArgsWhenApplicable(
 
 
 @pytest.mark.parametrize(
-    ('docArgs', 'actualArgs', 'expectedDocArgs', 'expectedActualArgs'),
+    ('docArgs', 'argNames', 'expectedDocArgs'),
     [
         pytest.param(
             ['a: int, default=3'],
-            ['a: int, default=...'],
-            ['a: int'],
+            frozenset({'a'}),
             ['a: int'],
             id='any-docstring-default-is-removed',
         ),
         pytest.param(
             ['a: int'],
-            ['a: int, default=...'],
-            ['a: int'],
+            frozenset({'a'}),
             ['a: int'],
             id='no-docstring-default',
         ),
         pytest.param(
             ['a: str, default=3'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: str'],
-            ['a: int'],
             id='type-mismatch-is-kept',
         ),
-        # `b`'s default in the code is the `...` placeholder, so its default is
-        # removed from both the docstring and the code, and only its type is
-        # compared later. `a` has a real default, so its default is kept in
-        # both, and the later comparison still catches the wrong documented
-        # default (3 vs 2).
+        # Only `b`'s default in the code is the `...` placeholder, so only its
+        # documented default is removed, and only its type is compared later.
+        # `a` has a real default, so its documented default is kept, and the
+        # later comparison still catches it if it's wrong.
         pytest.param(
             ['a: int, default=3', 'b: int, default=1'],
-            ['a: int, default=2', 'b: int, default=...'],
+            frozenset({'b'}),
             ['a: int, default=3', 'b: int'],
-            ['a: int, default=2', 'b: int'],
             id='only-placeholder-defaults-are-removed',
         ),
         pytest.param(
             ['a: int, optional'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: int, optional'],
-            ['a: int'],
             id='optional-is-not-a-default',
         ),
         pytest.param(
             ['a: int, default=3'],
-            ['a: int'],
+            frozenset(),
             ['a: int, default=3'],
-            ['a: int'],
             id='no-placeholder-defaults',
         ),
         # Untyped args: there's no type before `, default=`
         pytest.param(
             ['a: , default=3'],
-            ['a: , default=...'],
-            ['a: '],
+            frozenset({'a'}),
             ['a: '],
             id='untyped-docstring-default',
         ),
         pytest.param(
             ['a: ,  default = 3'],
-            ['a: , default=...'],
-            ['a: '],
+            frozenset({'a'}),
             ['a: '],
             id='untyped-docstring-default-with-spaces',
         ),
         pytest.param(
             ['a: '],
-            ['a: , default=...'],
-            ['a: '],
+            frozenset({'a'}),
             ['a: '],
             id='untyped-no-docstring-default',
         ),
         # Backticks wrapping the type and the default together
         pytest.param(
             ['a: ``int, default=...``'],
-            ['a: int, default=...'],
-            ['a: int'],
+            frozenset({'a'}),
             ['a: int'],
             id='double-backticks-placeholder-default',
         ),
         pytest.param(
             ['a: ``int, default=3``'],
-            ['a: int, default=...'],
-            ['a: int'],
+            frozenset({'a'}),
             ['a: int'],
             id='double-backticks-real-default',
         ),
         pytest.param(
             ['a: `int, default=3`'],
-            ['a: int, default=...'],
-            ['a: int'],
+            frozenset({'a'}),
             ['a: int'],
             id='single-backticks-real-default',
         ),
         pytest.param(
             ["a: ``Annotated[int, 'units, default=3'], default=5``"],
-            ["a: Annotated[int, 'units, default=3'], default=..."],
-            ["a: Annotated[int, 'units, default=3']"],
+            frozenset({'a'}),
             ["a: Annotated[int, 'units, default=3']"],
             id='double-backticks-annotated-type',
         ),
         pytest.param(
             ['a: ``int``'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: ``int``'],  # type comparison removes the backticks later
-            ['a: int'],
             id='double-backticks-no-docstring-default',
         ),
         # Docstring types that aren't valid Python before `, default=` are left
         # unchanged, so the type comparison reports them later
         pytest.param(
             ["a: Literal['unterminated, default=3"],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ["a: Literal['unterminated, default=3"],
-            ['a: int'],
             id='malformed-quote',
         ),
         pytest.param(
             ['a: list[int, default=3'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: list[int, default=3'],
-            ['a: int'],
             id='malformed-bracket',
         ),
         pytest.param(
             ['a: list[int), default=3'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: list[int), default=3'],
-            ['a: int'],
             id='malformed-mismatched-brackets',
         ),
         pytest.param(
             ['a: int], default=3'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: int], default=3'],
-            ['a: int'],
             id='malformed-extra-bracket',
         ),
         pytest.param(
             ['a: int +, default=3'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: int +, default=3'],
-            ['a: int'],
             id='malformed-incomplete-expression',
         ),
         pytest.param(
             ['a: list[\n int\n]\n  str, default=3'],
-            ['a: int, default=...'],
+            frozenset({'a'}),
             ['a: list[\n int\n]\n  str, default=3'],
-            ['a: int'],
             id='malformed-indentation',
         ),
     ],
 )
-def testRemovePlaceholderDefaults(
+def testRemoveDocstringDefaults(
         docArgs: list[str],
-        actualArgs: list[str],
+        argNames: frozenset[str],
         expectedDocArgs: list[str],
-        expectedActualArgs: list[str],
 ) -> None:
     """
-    Test that, for each argument whose default in the code is the ``...``
-    placeholder, removePlaceholderDefaults() removes the default from both the
-    docstring and the code, so that only the types are compared. Other
-    arguments are left unchanged, and so is a docstring type that isn't valid
-    Python.
+    Test that removeDocstringDefaults() removes the documented defaults of the
+    given args (the ones whose default in the code is the ``...`` placeholder),
+    so that only the types are compared. Other args are left unchanged, and so
+    is a docstring type that isn't valid Python.
     """
 
     def toArgList(args: list[str]) -> ArgList:
@@ -878,13 +855,50 @@ def testRemovePlaceholderDefaults(
             for _ in args
         ])
 
-    newDocArgs, newActualArgs = removePlaceholderDefaults(
+    newDocArgs = removeDocstringDefaults(
         docArgs=toArgList(docArgs),
-        actualArgs=toArgList(actualArgs),
+        argNames=argNames,
     )
     # Compare the text, because `Arg` equality is lenient about type hints
     assert [str(_) for _ in newDocArgs.infoList] == expectedDocArgs
-    assert [str(_) for _ in newActualArgs.infoList] == expectedActualArgs
+
+
+@pytest.mark.parametrize(
+    ('placeholderDefaultNames', 'expected'),
+    [
+        (frozenset(), ['a: int, default=...', 'b: int, default=3', 'c: int']),
+        (frozenset({'a'}), ['a: int', 'b: int, default=3', 'c: int']),
+    ],
+)
+def testExtractClassAttributesFromNodeLeavesOutPlaceholderDefaults(
+        placeholderDefaultNames: frozenset[str],
+        expected: list[str],
+) -> None:
+    """
+    Test that extractClassAttributesFromNode() doesn't add the defaults of the
+    class attributes in ``placeholderDefaultNames`` to their type hints. Other
+    defaults are still added.
+    """
+    node = ast.parse(
+        dedent("""
+            class A:
+                a: int = ...
+                b: int = 3
+                c: int
+        """)
+    ).body[0]
+    assert isinstance(node, ast.ClassDef)
+    classAttributes = extractClassAttributesFromNode(
+        node=node,
+        ignorePrivateClassAttributes=False,
+        ignoreUnderscoreOnlyClassAttributes=False,
+        ignoreSpecialDunderClassAttributes=False,
+        treatPropertyMethodsAsClassAttrs=False,
+        onlyAttrsWithClassVarAreTreatedAsClassAttrs=False,
+        checkArgDefaults=True,
+        placeholderDefaultNames=placeholderDefaultNames,
+    )
+    assert [str(_) for _ in classAttributes.infoList] == expected
 
 
 @pytest.mark.parametrize(
@@ -918,23 +932,18 @@ def testPlaceholderDefaultsPreserveAnnotations(
         docDefault: str,
 ) -> None:
     """
-    Test that removePlaceholderDefaults() only removes the outer default. Text
+    Test that removeDocstringDefaults() only removes the outer default. Text
     such as ``default=3`` inside the type itself (in ``Annotated`` metadata or
     a ``Literal`` string, for example) is kept, whatever form the documented
-    default takes. Also test that the input lists aren't modified.
+    default takes. Also test that the input list isn't modified.
     """
     docArgs = ArgList([Arg(name='a', typeHint=typeHint + docDefault)])
-    actualArgs = ArgList([
-        Arg(name='a', typeHint=typeHint + ', default=...'),
-    ])
-    newDocArgs, newActualArgs = removePlaceholderDefaults(
+    newDocArgs = removeDocstringDefaults(
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        argNames=frozenset({'a'}),
     )
     assert newDocArgs.infoList[0].typeHint == typeHint
-    assert newActualArgs.infoList[0].typeHint == typeHint
     assert docArgs.infoList[0].typeHint == typeHint + docDefault
-    assert actualArgs.infoList[0].typeHint == typeHint + ', default=...'
 
 
 @pytest.mark.parametrize(

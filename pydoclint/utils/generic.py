@@ -433,6 +433,17 @@ def buildClassAttrToDefaultMapping(
     return attrToDefaultMapping
 
 
+def isPlaceholderDefault(default: ast.expr) -> bool:
+    """
+    Return whether ``default`` is the ``...`` placeholder.
+
+    In stub (.pyi) files, ``= ...`` means that there is a default value but
+    doesn't say what it is. Only the literal ``...`` counts; the name
+    ``Ellipsis`` doesn't.
+    """
+    return isinstance(default, ast.Constant) and default.value is Ellipsis
+
+
 def stripCommentsFromTypeHints(typeHint: str) -> str:
     """
     Strip comments from type hints to enable comparison between docstring type

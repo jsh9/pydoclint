@@ -11,6 +11,7 @@ from pydoclint.utils.generic import (
     buildFuncArgToDefaultMapping,
     doList1ItemsStartWithList2Items,
     isLastConstructor,
+    isPlaceholderDefault,
     isStubFilename,
     stripBacktickWrapper,
     stripQuotes,
@@ -334,3 +335,21 @@ def testIsStubFilename(filename: str | Path, expected: bool) -> None:
 )
 def testStripBacktickWrapper(string: str, expected: str) -> None:
     assert stripBacktickWrapper(string) == expected
+
+
+@pytest.mark.parametrize(
+    ('expression', 'expected'),
+    [
+        ('...', True),
+        ('(...)', True),
+        ('Ellipsis', False),
+        ('None', False),
+        ('0', False),
+        ("'...'", False),
+        ('[...]', False),
+    ],
+)
+def testIsPlaceholderDefault(expression: str, expected: bool) -> None:
+    """Test that only the literal ``...`` counts as a placeholder default."""
+    node = ast.parse(expression, mode='eval').body
+    assert isPlaceholderDefault(node) is expected
