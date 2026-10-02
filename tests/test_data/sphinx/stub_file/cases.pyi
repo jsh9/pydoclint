@@ -120,6 +120,22 @@ class StubClass:
         """
         ...
 
+    def documentsReturnsWithoutAnnotation(self, var1: str):
+        """Method that documents what it returns, without a return annotation.
+
+        The linter will complain that the "Returns" section doesn't match the
+        missing return annotation (DOC203), but not that there are no "return"
+        statements (DOC202): the body is a placeholder. (In a .py file, this
+        method would also get DOC202.)
+
+        :param var1: Variable.
+        :type var1: str
+
+        :return: The result.
+        :rtype: int
+        """
+        ...
+
     def hasWrongArgType(self, var1: str) -> None:
         """Method whose docstring has the wrong argument type.
 

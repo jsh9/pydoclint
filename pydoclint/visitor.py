@@ -744,7 +744,15 @@ class Visitor(ast.NodeVisitor):
                 ):
                     violations.append(v201)
 
-        if docstringHasReturnSection and not (hasReturnStmt or hasReturnAnno):
+        # A placeholder body has no "return" statements to look for, so a
+        # "Returns" section without a return annotation isn't evidence that
+        # the function returns nothing. (DOC203 still reports the missing
+        # annotation when return types are checked.)
+        if (
+            docstringHasReturnSection
+            and not (hasReturnStmt or hasReturnAnno)
+            and not self.hasPlaceholderBody
+        ):
             violations.append(v202)
 
         if self.checkReturnTypes:

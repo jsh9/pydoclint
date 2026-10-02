@@ -514,6 +514,9 @@ _pydoclint_ doesn't rely on it when it checks functions in stub files:
 
 - `DOC502` isn't reported, because a body without `raise` statements doesn't
   mean that the function doesn't raise anything.
+- `DOC202` isn't reported, because a body without `return` statements doesn't
+  mean that the function returns nothing. (`DOC203` still reports a "Returns"
+  section without a return annotation.)
 - `DOC403` is only reported when the return annotation isn't a `Generator`,
   `Iterator`, or `Iterable` (or is missing), because then the function can't
   yield anything. A body without `yield` statements doesn't count.

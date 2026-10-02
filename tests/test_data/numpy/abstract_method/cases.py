@@ -165,3 +165,23 @@ class AbstractClass(ABC):
             Paths to the files and directories listed.
         """
         return iter([var1])
+
+    @abstractmethod
+    def abstractMethodWithoutReturnAnnotation(self, var1: str):
+        """Abstract method that documents what it returns, without annotation.
+
+        The linter will complain that the "Returns" section doesn't match the
+        missing return annotation (DOC203) when return types are checked, but
+        not that there are no "return" statements (DOC202): the body is a
+        placeholder.
+
+        Parameters
+        ----------
+        var1 : str
+            Variable.
+
+        Returns
+        -------
+        int
+            The result.
+        """

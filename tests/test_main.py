@@ -1306,6 +1306,9 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
             'type(s); docstring return section has 0 type(s).',
             'DOC201: Method `AbstractClass.abstractIteratorThatReturns` does not have'
             ' a return section in docstring',
+            'DOC203: Method `AbstractClass.abstractMethodWithoutReturnAnnotation` return'
+            ' type(s) in docstring not consistent with the return annotation. Return'
+            ' annotation has 0 type(s); docstring return section has 1 type(s).',
         ]
     else:
         expected = [
@@ -1367,6 +1370,11 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
             ' "Yields" section in the docstring, but there are no "yield" statements, or'
             ' the return annotation is not a Generator/Iterator/Iterable. (Or it could be'
             ' because the function lacks a return annotation.)',
+            'DOC202: Method `StubClass.documentsReturnsWithoutAnnotation` has a return'
+            ' section in docstring, but there are no return statements or annotations',
+            'DOC203: Method `StubClass.documentsReturnsWithoutAnnotation` return type(s)'
+            ' in docstring not consistent with the return annotation. Return annotation'
+            ' has 0 type(s); docstring return section has 1 type(s).',
             'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type'
             ' hints in these args do not match: var1',
         ],
@@ -1377,6 +1385,9 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
             ' "Yields" section in the docstring, but there are no "yield" statements, or'
             ' the return annotation is not a Generator/Iterator/Iterable. (Or it could be'
             ' because the function lacks a return annotation.)',
+            'DOC203: Method `StubClass.documentsReturnsWithoutAnnotation` return type(s)'
+            ' in docstring not consistent with the return annotation. Return annotation'
+            ' has 0 type(s); docstring return section has 1 type(s).',
             'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type'
             ' hints in these args do not match: var1',
         ],
@@ -1609,9 +1620,9 @@ def testCheckPathsMatchesExtensionsLikeRglob(
     ]
 
     # Every stub file that a folder scan finds must also be checked as a stub
-    # file: its placeholder bodies must not cause DOC403 or DOC502. (DOC201
-    # and DOC403 come from methods whose docstrings and return annotations
-    # are wrong even without a body.)
+    # file: its placeholder bodies must not cause DOC202, DOC403 or DOC502.
+    # (DOC201, DOC403 and DOC203 come from methods whose docstrings and return
+    # annotations are wrong even without a body.)
     stubFileCodes = {
         Path(name).relative_to(tmp_path).as_posix(): [
             _.fullErrorCode for _ in fileViolations
@@ -1620,7 +1631,7 @@ def testCheckPathsMatchesExtensionsLikeRglob(
         if Path(name).match('*.pyi')
     }
     for codes in stubFileCodes.values():
-        assert codes == ['DOC201', 'DOC403', 'DOC105']
+        assert codes == ['DOC201', 'DOC403', 'DOC203', 'DOC105']
 
     if sys.platform == 'win32':
         assert 'pkg/B.PY' in checkedFiles

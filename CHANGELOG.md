@@ -24,6 +24,9 @@
     annotated with `Generator[YieldType, SendType, ReturnType]` whose "Returns"
     section documents `ReturnType`, as for a generator that both yields and
     returns. A "Returns" section with the whole annotation is still accepted
+  - False-positive `DOC202` violations for abstract methods and stub functions
+    that have a "Returns" section but no return annotation. (`DOC203` still
+    reports the missing annotation when return types are checked.)
   - A crash (`IndexError`) when `--check-arg-defaults` is `True` and a
     positional-only argument (one before `/`) has a default value. Defaults of
     positional-only arguments were also ignored, so the `...` placeholder in

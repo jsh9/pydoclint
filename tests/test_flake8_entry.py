@@ -362,9 +362,11 @@ STUB_CASES_AS_PY_CODES = [
     'DOC203',
     'DOC403',
     'DOC403',
+    'DOC202',
+    'DOC203',
     'DOC105',
 ]
-STUB_CASES_AS_PYI_CODES = ['DOC201', 'DOC403', 'DOC105']
+STUB_CASES_AS_PYI_CODES = ['DOC201', 'DOC403', 'DOC203', 'DOC105']
 
 
 @pytest.mark.parametrize(

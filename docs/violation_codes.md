@@ -73,6 +73,11 @@ their body has no "return" statements: their bodies are placeholders, so the
 "Yields" section is what shows that they yield (rather than returning an
 iterator).
 
+Note on `DOC202`: It is not reported for abstract methods or for functions in
+stub (`.pyi`) files. Their bodies are placeholders, so a "Returns" section
+without "return" statements or a return annotation doesn't mean that the
+function returns nothing. (`DOC203` still reports the missing annotation.)
+
 Note on `DOC203`: For abstract methods and functions in stub (`.pyi`) files
 with a `Generator[YieldType, SendType, ReturnType]` return annotation, the
 "Returns" section can document either `ReturnType`, as for a generator that has
