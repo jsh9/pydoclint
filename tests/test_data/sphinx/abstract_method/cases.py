@@ -50,7 +50,7 @@ class AbstractClass(ABC):
         """
 
     @abstractmethod
-    def abstract_generator_with_return_value(
+    def abstractGeneratorWithReturnValue(
         self, var1: str
     ) -> Generator[str, None, int]:
         """Abstract generator that returns a value at the end.
@@ -70,7 +70,7 @@ class AbstractClass(ABC):
         """
 
     @abstractmethod
-    def abstract_generator_documented_as_returned(
+    def abstractGeneratorDocumentedAsReturned(
         self, var1: str
     ) -> Generator[str, None, None]:
         """Abstract generator whose "Returns" section has the whole annotation.
