@@ -21,8 +21,8 @@
     what shows that they yield, and they don't need a "Returns" section
   - False-positive `DOC203` violations for abstract methods and stub functions
     annotated with `Generator[YieldType, SendType, ReturnType]` whose "Returns"
-    section documents `ReturnType`. It's now compared with `ReturnType` (unless
-    that's `None`), as for a generator that both yields and returns
+    section documents `ReturnType`, as for a generator that both yields and
+    returns. A "Returns" section with the whole annotation is still accepted
   - A crash (`IndexError`) when `--check-arg-defaults` is `True` and a
     positional-only argument (one before `/`) has a default value. Defaults of
     positional-only arguments were also ignored, so the `...` placeholder in

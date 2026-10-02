@@ -96,6 +96,26 @@ class StubClass:
             int: How many paths were listed.
         """
         ...
+    def documentsGeneratorReturnValueAsWhole(
+        self, var1: str
+    ) -> Generator[str, None, int]:
+        """Method with a `Generator` return value, documented as a whole.
+
+        No violations in this method: the "Returns" section has the whole
+        annotation instead of the generator's return type (`int`). Without a
+        body, nothing shows whether the generator returns a value, so both are
+        accepted. (In a .py file, this method would get DOC403.)
+
+        Args:
+            var1 (str): Variable.
+
+        Yields:
+            str: Paths to the files and directories listed.
+
+        Returns:
+            Generator[str, None, int]: The generator of paths.
+        """
+        ...
 
     def hasWrongArgType(self, var1: str) -> None:
         """Method whose docstring has the wrong argument type.

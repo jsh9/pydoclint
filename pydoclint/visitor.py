@@ -750,21 +750,6 @@ class Visitor(ast.NodeVisitor):
             else:
                 returnAnno = ReturnAnnotation(annotation=None)
 
-            generatorAnnotationKind = getGeneratorAnnotationKind(node)
-            if self.hasPlaceholderBody and generatorAnnotationKind is not None:
-                # A placeholder body has no "return" statements to look for.
-                # If the annotation gives the generator a return type (the R
-                # in Generator[Y, S, R]), the "Returns" section documents R, as
-                # it does for a real generator that also returns (see
-                # `checkReturnAndYield()`). If R is None, the whole annotation
-                # is compared, as for a real generator that only yields.
-                retTypeInGenerator = extractReturnTypeFromGeneratorAnnotation(
-                    returnAnnoText=returnAnno.annotation,
-                    generatorAnnotationKind=generatorAnnotationKind,
-                )
-                if retTypeInGenerator != 'None':
-                    returnAnno = ReturnAnnotation(retTypeInGenerator)
-
             if docstringHasReturnSection:
                 returnSec: list[ReturnArg] = doc.returnSection
             else:
@@ -791,6 +776,30 @@ class Visitor(ast.NodeVisitor):
                 # decorator. This is because it's OK for @property methods
                 # to have no return section in the docstring.
                 return violations
+
+            generatorAnnotationKind = getGeneratorAnnotationKind(node)
+            if self.hasPlaceholderBody and generatorAnnotationKind is not None:
+                # A placeholder body doesn't show whether the generator also
+                # returns a value. So the "Returns" section can document
+                # either the generator's return type (the R in
+                # Generator[Y, S, R]), as for a generator that also returns
+                # (see `checkReturnAndYield()`), or the whole annotation, as
+                # for a generator that only yields (checked below).
+                mismatchesWithReturnType: list[Violation] = []
+                checkReturnTypesForViolations(
+                    style=self.style,
+                    returnAnnotation=ReturnAnnotation(
+                        getReturnTypeToDocument(
+                            returnAnno,
+                            generatorAnnotationKind=generatorAnnotationKind,
+                        )
+                    ),
+                    violationList=mismatchesWithReturnType,
+                    returnSection=returnSec,
+                    violation=v203,
+                )
+                if len(mismatchesWithReturnType) == 0:
+                    return violations
 
             checkReturnTypesForViolations(
                 style=self.style,

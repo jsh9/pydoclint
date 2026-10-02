@@ -74,8 +74,10 @@ yield (rather than returning an iterator).
 
 Note on `DOC203`: For abstract methods and functions in stub (`.pyi`) files
 with a `Generator[YieldType, SendType, ReturnType]` return annotation, the
-"Returns" section is compared with `ReturnType` (unless it's `None`), as it is
-for a generator that has both "yield" and "return" statements.
+"Returns" section can document either `ReturnType`, as for a generator that has
+both "yield" and "return" statements, or the whole annotation, as for a
+generator that only yields. Their bodies are placeholders, so they don't show
+which one applies.
 
 ## 4. `DOC3xx`: Violations about class docstring and class constructor
 

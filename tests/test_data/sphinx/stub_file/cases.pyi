@@ -99,6 +99,26 @@ class StubClass:
         :rtype: int
         """
         ...
+    def documentsGeneratorReturnValueAsWhole(
+        self, var1: str
+    ) -> Generator[str, None, int]:
+        """Method with a `Generator` return value, documented as a whole.
+
+        No violations in this method: the "Returns" section has the whole
+        annotation instead of the generator's return type (`int`). Without a
+        body, nothing shows whether the generator returns a value, so both are
+        accepted. (In a .py file, this method would get DOC403.)
+
+        :param var1: Variable.
+        :type var1: str
+
+        :yield: Paths to the files and directories listed.
+        :ytype: str
+
+        :return: The generator of paths.
+        :rtype: Generator[str, None, int]
+        """
+        ...
 
     def hasWrongArgType(self, var1: str) -> None:
         """Method whose docstring has the wrong argument type.

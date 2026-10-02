@@ -75,9 +75,8 @@ class AbstractClass(ABC):
     ) -> Generator[str, None, None]:
         """Abstract generator whose "Returns" section has the whole annotation.
 
-        No violations in this method: when the generator's return type is
-        `None`, the "Returns" section is compared with the whole annotation,
-        as it is for a real generator that only yields.
+        No violations in this method: the "Returns" section can have the whole
+        annotation, as for a real generator that only yields.
 
         :param var1: Variable.
         :type var1: str
@@ -87,4 +86,25 @@ class AbstractClass(ABC):
 
         :return: The generator of paths.
         :rtype: Generator[str, None, None]
+        """
+
+    @abstractmethod
+    def abstractGeneratorWithReturnValueDocumentedAsReturned(
+        self, var1: str
+    ) -> Generator[str, None, int]:
+        """Abstract generator returning a value, documented as a whole.
+
+        No violations in this method: the "Returns" section has the whole
+        annotation instead of the generator's return type (`int`). Without a
+        body, nothing shows whether the generator returns a value, so both are
+        accepted.
+
+        :param var1: Variable.
+        :type var1: str
+
+        :yield: Paths to the files and directories listed.
+        :ytype: str
+
+        :return: The generator of paths.
+        :rtype: Generator[str, None, int]
         """

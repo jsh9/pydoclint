@@ -521,8 +521,9 @@ _pydoclint_ doesn't rely on it when it checks functions in stub files:
   "Yields" section instead of a "Returns" section (no `DOC201`), because the
   body doesn't show whether it yields or returns an iterator.
 - With a `Generator[YieldType, SendType, ReturnType]` return annotation, the
-  "Returns" section documents `ReturnType` (unless it's `None`), as it does for
-  a generator that both yields and returns.
+  "Returns" section can document either `ReturnType` (as for a generator that
+  both yields and returns) or the whole annotation (as for one that only
+  yields).
 - `DOC402` and `DOC404` aren't reported, because these checks only run when
   there are `yield` statements in the body (see
   [issue 309](https://github.com/jsh9/pydoclint/issues/309)).
