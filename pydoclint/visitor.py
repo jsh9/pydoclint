@@ -713,11 +713,18 @@ class Visitor(ast.NodeVisitor):
 
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
+        # A placeholder body has no "yield" statements to look for, so a
+        # "Yields" section is the evidence that the function yields (rather
+        # than returning an iterator)
+        yieldsWithoutReturning: bool = onlyHasYieldStmt or (
+            self.hasPlaceholderBody and doc.hasYieldsSection
+        )
+
         violations: list[Violation] = []
         if not docstringHasReturnSection and not isPropertyMethod:  # noqa: SIM102
             if (
                 # fmt: off
-                not (onlyHasYieldStmt and hasIterAsRetAnno)
+                not (yieldsWithoutReturning and hasIterAsRetAnno)
                 and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
                 # fmt: on
             ):

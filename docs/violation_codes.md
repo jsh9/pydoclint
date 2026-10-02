@@ -66,7 +66,11 @@ Other potential causes to `DOC103` include:
 | `DOC203` | Return type(s) in the docstring not consistent with the return annotation                            |
 
 Note on `DOC201`: Methods with `@property` as its outer-most decorator (i.e.,
-on the top) do not need to have a return section.
+on the top) do not need to have a return section. Abstract methods and
+functions in stub (`.pyi`) files with an `Iterator` or `Iterable` return
+annotation don't need one either if their docstring has a "Yields" section:
+their bodies are placeholders, so the "Yields" section is what shows that they
+yield (rather than returning an iterator).
 
 ## 4. `DOC3xx`: Violations about class docstring and class constructor
 

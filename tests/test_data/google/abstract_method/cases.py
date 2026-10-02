@@ -29,10 +29,9 @@ class AbstractClass(ABC):
     def another_abstract_method(self, var1: str) -> Iterator[str]:
         """Another abstract method.
 
-        The linter will complain about not having a return section, because
-        if the return type annotation is `Iterator`, it is supposed to be
-        returning something, rather than yielding something.  (To yield
-        something, use `Generator` as the return type annotation.)
+        No violations in this method. Without a body to look at, the "Yields"
+        section shows that the method yields (rather than returning an
+        iterator), so it doesn't need a "Returns" section.
 
         Args:
             var1 (str): Variable.

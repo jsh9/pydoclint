@@ -15,6 +15,10 @@
     `--check-arg-defaults` is `True`: an argument or class attribute whose
     default is the `...` placeholder can now be documented with any default
     value or none
+  - False-positive `DOC201` violations for abstract methods and stub functions
+    annotated with `Iterator[...]` or `Iterable[...]` whose docstrings have a
+    "Yields" section. Their bodies are placeholders, so the "Yields" section is
+    what shows that they yield, and they don't need a "Returns" section
   - A crash (`IndexError`) when `--check-arg-defaults` is `True` and a
     positional-only argument (one before `/`) has a default value. Defaults of
     positional-only arguments were also ignored, so the `...` placeholder in

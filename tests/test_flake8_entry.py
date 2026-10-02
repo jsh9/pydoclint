@@ -350,20 +350,31 @@ def testRealFlake8AppliesLowercaseMigrationReplacements(
         assert sorted(actualMissingNames) == sorted(expectedMissingNames)
 
 
+# Violation codes for `numpy/stub_file/cases.pyi`, checked as a .py file and
+# as a stub file
+STUB_CASES_AS_PY_CODES = [
+    'DOC502',
+    'DOC403',
+    'DOC201',
+    'DOC403',
+    'DOC201',
+    'DOC403',
+    'DOC105',
+]
+STUB_CASES_AS_PYI_CODES = ['DOC201', 'DOC403', 'DOC105']
+
+
 @pytest.mark.parametrize(
     ('targetName', 'expectedCodes'),
     [
-        (
-            'sample.py',
-            ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC403', 'DOC105'],
-        ),
-        ('sample.pyi', ['DOC201', 'DOC403', 'DOC105']),
+        ('sample.py', STUB_CASES_AS_PY_CODES),
+        ('sample.pyi', STUB_CASES_AS_PYI_CODES),
         # Stub detection follows the platform's case rules, like folder scans
         (
             'sample.PYI',
-            ['DOC201', 'DOC403', 'DOC105']
+            STUB_CASES_AS_PYI_CODES
             if sys.platform == 'win32'
-            else ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC403', 'DOC105'],
+            else STUB_CASES_AS_PY_CODES,
         ),
     ],
 )

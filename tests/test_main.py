@@ -1299,8 +1299,6 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     )
     if checkReturnTypes:
         expected = [
-            'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
-            'return section in docstring',
             'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
             'section in docstring',
             'DOC203: Method `AbstractClass.third_abstract_method` return type(s) in '
@@ -1309,8 +1307,6 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
         ]
     else:
         expected = [
-            'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
-            'return section in docstring',
             'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
             'section in docstring',
         ]
@@ -1340,6 +1336,8 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
             'section in the docstring, but there are no "yield" statements, or the '
             'return annotation is not a Generator/Iterator/Iterable. (Or it could be '
             'because the function lacks a return annotation.)',
+            'DOC201: Method `StubClass.documentsNothingWithIterator` does not have a '
+            'return section in docstring',
             'DOC403: Method `StubClass.documentsYieldsWithNonGeneratorAnnotation` has a '
             '"Yields" section in the docstring, but there are no "yield" statements, or '
             'the return annotation is not a Generator/Iterator/Iterable. (Or it could be '
@@ -1348,7 +1346,7 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
             'hints in these args do not match: var1',
         ],
         '.pyi': [
-            'DOC201: Method `StubClass.documentsYieldsWithIterator` does not have a '
+            'DOC201: Method `StubClass.documentsNothingWithIterator` does not have a '
             'return section in docstring',
             'DOC403: Method `StubClass.documentsYieldsWithNonGeneratorAnnotation` has a '
             '"Yields" section in the docstring, but there are no "yield" statements, or '
@@ -1556,8 +1554,9 @@ def testCheckPathsMatchesExtensionsLikeRglob(
     ]
 
     # Every stub file that a folder scan finds must also be checked as a stub
-    # file: its placeholder bodies must not cause DOC403 or DOC502 (DOC403
-    # comes only from a return annotation that can't yield)
+    # file: its placeholder bodies must not cause DOC403 or DOC502. (DOC201
+    # and DOC403 come from methods whose docstrings and return annotations
+    # are wrong even without a body.)
     stubFileCodes = {
         Path(name).relative_to(tmp_path).as_posix(): [
             _.fullErrorCode for _ in fileViolations

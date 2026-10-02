@@ -517,6 +517,9 @@ _pydoclint_ doesn't rely on it when it checks functions in stub files:
 - `DOC403` is only reported when the return annotation isn't a `Generator`,
   `Iterator`, or `Iterable` (or is missing), because then the function can't
   yield anything. A body without `yield` statements doesn't count.
+- A function with an `Iterator` or `Iterable` return annotation can have a
+  "Yields" section instead of a "Returns" section (no `DOC201`), because the
+  body doesn't show whether it yields or returns an iterator.
 - `DOC402` and `DOC404` aren't reported, because these checks only run when
   there are `yield` statements in the body (see
   [issue 309](https://github.com/jsh9/pydoclint/issues/309)).

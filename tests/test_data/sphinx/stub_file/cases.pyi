@@ -40,16 +40,27 @@ class StubClass:
     def documentsYieldsWithIterator(self, var1: str) -> Iterator[str]:
         """Method annotated with `Iterator` that documents what it yields.
 
-        The linter will complain about not having a return section, just like
-        it does for abstract methods: without a body to look at, an `Iterator`
-        annotation means that the method returns an iterator. (In a .py file,
-        this method would also get DOC403.)
+        No violations in this method. Without a body to look at, the "Yields"
+        section shows that the method yields (rather than returning an
+        iterator), so it doesn't need a "Returns" section. (In a .py file, this
+        method would get DOC201 and DOC403.)
 
         :param var1: Variable.
         :type var1: str
 
         :yield: Paths to the files and directories listed.
         :ytype: str
+        """
+        ...
+
+    def documentsNothingWithIterator(self, var1: str) -> Iterator[str]:
+        """Method annotated with `Iterator` that documents neither section.
+
+        The linter will complain about not having a return section: without a
+        "Yields" section, nothing shows that the method yields.
+
+        :param var1: Variable.
+        :type var1: str
         """
         ...
 
