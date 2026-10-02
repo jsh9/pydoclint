@@ -865,7 +865,7 @@ def testRemovePlaceholderDefaults(
         expectedActualArgs: list[str],
 ) -> None:
     """
-    Test that, for each argument whose default in the code is the `...`
+    Test that, for each argument whose default in the code is the ``...``
     placeholder, removePlaceholderDefaults() removes the default from both the
     docstring and the code, so that only the types are compared. Other
     arguments are left unchanged, and so is a docstring type that isn't valid
@@ -918,10 +918,10 @@ def testPlaceholderDefaultsPreserveAnnotations(
         docDefault: str,
 ) -> None:
     """
-    Test that removePlaceholderDefaults() only removes the outer default: a
-    `, default=` inside the type itself (such as in `Annotated` metadata or a
-    `Literal` string) is kept, whatever form the documented default takes.
-    Also test that the input lists aren't modified.
+    Test that removePlaceholderDefaults() only removes the outer default. Text
+    such as ``default=3`` inside the type itself (in ``Annotated`` metadata or
+    a ``Literal`` string, for example) is kept, whatever form the documented
+    default takes. Also test that the input lists aren't modified.
     """
     docArgs = ArgList([Arg(name='a', typeHint=typeHint + docDefault)])
     actualArgs = ArgList([
