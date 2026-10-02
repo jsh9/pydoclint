@@ -17,8 +17,9 @@
     value or none
   - False-positive `DOC201` violations for abstract methods and stub functions
     annotated with `Iterator[...]` or `Iterable[...]` whose docstrings have a
-    "Yields" section. Their bodies are placeholders, so the "Yields" section is
-    what shows that they yield, and they don't need a "Returns" section
+    "Yields" section (and no "return" statements in the body). Their bodies are
+    placeholders, so the "Yields" section is what shows that they yield, and
+    they don't need a "Returns" section
   - False-positive `DOC203` violations for abstract methods and stub functions
     annotated with `Generator[YieldType, SendType, ReturnType]` whose "Returns"
     section documents `ReturnType`, as for a generator that both yields and

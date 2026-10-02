@@ -715,9 +715,12 @@ class Visitor(ast.NodeVisitor):
 
         # A placeholder body has no "yield" statements to look for, so a
         # "Yields" section is the evidence that the function yields (rather
-        # than returning an iterator)
+        # than returning an iterator). An abstract method can still have a
+        # real body, though, and "return" statements in it show otherwise.
         yieldsWithoutReturning: bool = onlyHasYieldStmt or (
-            self.hasPlaceholderBody and doc.hasYieldsSection
+            self.hasPlaceholderBody
+            and doc.hasYieldsSection
+            and not hasReturnStmt
         )
 
         violations: list[Violation] = []

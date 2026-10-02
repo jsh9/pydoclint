@@ -108,3 +108,19 @@ class AbstractClass(ABC):
         :return: The generator of paths.
         :rtype: Generator[str, None, int]
         """
+
+    @abstractmethod
+    def abstractIteratorThatReturns(self, var1: str) -> Iterator[str]:
+        """Abstract method whose body returns an iterator.
+
+        The linter will complain about not having a return section: the body
+        has a "return" statement, so it returns an iterator, and the "Yields"
+        section doesn't change that.
+
+        :param var1: Variable.
+        :type var1: str
+
+        :yield: Paths to the files and directories listed.
+        :ytype: str
+        """
+        return iter([var1])

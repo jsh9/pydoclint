@@ -68,9 +68,10 @@ Other potential causes to `DOC103` include:
 Note on `DOC201`: Methods with `@property` as its outer-most decorator (i.e.,
 on the top) do not need to have a return section. Abstract methods and
 functions in stub (`.pyi`) files with an `Iterator` or `Iterable` return
-annotation don't need one either if their docstring has a "Yields" section:
-their bodies are placeholders, so the "Yields" section is what shows that they
-yield (rather than returning an iterator).
+annotation don't need one either if their docstring has a "Yields" section and
+their body has no "return" statements: their bodies are placeholders, so the
+"Yields" section is what shows that they yield (rather than returning an
+iterator).
 
 Note on `DOC203`: For abstract methods and functions in stub (`.pyi`) files
 with a `Generator[YieldType, SendType, ReturnType]` return annotation, the
