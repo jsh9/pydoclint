@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import logging
 import re
+from itertools import chain
 from pathlib import Path
 
 import click
@@ -20,6 +21,11 @@ from pydoclint.parse_config import (
 from pydoclint.utils.config_option_removal_messages import (
     getIgnoreUnderscoreArgsRemovedMessage,
     getShouldDocumentPrivateClassAttributesRemovedMessage,
+)
+from pydoclint.utils.generic import (
+    PYTHON_FILE_PATTERN,
+    STUB_FILE_PATTERN,
+    isStubFilename,
 )
 from pydoclint.utils.invisible_chars import replaceInvisibleChars
 from pydoclint.utils.noqa import (
@@ -86,6 +92,17 @@ def validateNativeModeNoqaLocation(
         'Regex pattern to exclude files/folders. Please add quotes (both'
         ' double and single quotes are fine) around the regex in the'
         ' command line.'
+    ),
+)
+@click.option(
+    '-isf',
+    '--include-stub-files',
+    type=bool,
+    show_default=True,
+    default=False,
+    help=(
+        'If True, also check stub (.pyi) files when scanning folders. Stub'
+        ' files passed explicitly are always checked.'
     ),
 )
 @click.option(
@@ -532,6 +549,7 @@ def main(  # noqa: C901, PLR0915
         *,
         quiet: bool,
         exclude: str,
+        include_stub_files: bool,
         style: str,
         paths: tuple[str, ...],
         type_hints_in_signature: str,
@@ -675,6 +693,7 @@ def main(  # noqa: C901, PLR0915
     violationsInAllFiles: dict[str, list[Violation]] = _checkPaths(
         quiet=quiet,
         exclude=exclude,
+        includeStubFiles=include_stub_files,
         style=style,
         paths=paths,
         argTypeHintsInSignature=arg_type_hints_in_signature,
@@ -875,6 +894,7 @@ def _checkPaths(
         nativeModeNoqaLocation: str = 'docstring',
         quiet: bool = False,
         exclude: str = '',
+        includeStubFiles: bool = False,
 ) -> dict[str, list[Violation]]:
     filenames: list[Path] = []
 
@@ -891,7 +911,19 @@ def _checkPaths(
         if path.is_file():
             filenames.append(path)
         elif path.is_dir():
-            filenames.extend(sorted(path.rglob('*.py')))
+            # Sort all matches together so that `foo.pyi` comes right after
+            # `foo.py` in the output. (A single `rglob('*.py*')` would also
+            # visit every `.pyc` file, which makes folder scans much slower.)
+            filenames.extend(
+                sorted(
+                    chain(
+                        path.rglob(PYTHON_FILE_PATTERN),
+                        path.rglob(STUB_FILE_PATTERN)
+                        if includeStubFiles
+                        else (),
+                    )
+                )
+            )
 
     allViolations: dict[str, list[Violation]] = {}
 
@@ -1054,6 +1086,7 @@ def _checkFile(
         ),
         checkStyleMismatch=checkStyleMismatch,
         checkArgDefaults=checkArgDefaults,
+        isStubFile=isStubFilename(filename),
     )
     visitor.visit(tree)
 

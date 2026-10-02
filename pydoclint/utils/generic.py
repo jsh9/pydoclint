@@ -4,6 +4,7 @@ import ast
 import copy
 import re
 from enum import Enum, auto
+from pathlib import Path
 from re import Match
 from typing import TYPE_CHECKING, overload
 
@@ -230,6 +231,16 @@ def stripQuotes(string: str | None) -> str | None:
     if string is None:
         return None
 
+    string = stripBacktickWrapper(string)
+    return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)
+
+
+def stripBacktickWrapper(string: str) -> str:
+    """
+    Strip backticks (`) or double backticks (``) that wrap the whole string,
+    such as in ``int``. (Some people use backticks around type hints so that
+    they show up more nicely on the HTML documentation page.)
+    """
     min_length_of_4_backticks: int = 4
     min_length_of_2_backticks: int = 2
 
@@ -238,15 +249,16 @@ def stripQuotes(string: str | None) -> str | None:
         and string.endswith('``')
         and len(string) >= min_length_of_4_backticks
     ):
-        string = string[2:-2]
-    elif (
+        return string[2:-2]
+
+    if (
         string.startswith('`')
         and string.endswith('`')
         and len(string) >= min_length_of_2_backticks
     ):
-        string = string[1:-1]
+        return string[1:-1]
 
-    return re.sub(r'Literal\[[^\]]+\]|[^L]+', _replacer, string)
+    return string
 
 
 def _replacer(match: Match[str]) -> str:
@@ -351,22 +363,24 @@ def buildFuncArgToDefaultMapping(
     """
     argToDefaultMapping: dict[ast.arg, ast.expr] = {}
 
-    regularArgs = funcDef.args.args
+    # Positional-only arguments (the ones before `/`) come first, and they
+    # share `defaults` with the other positional arguments
+    positionalArgs = funcDef.args.posonlyargs + funcDef.args.args
     kwOnlyArgs = funcDef.args.kwonlyargs
     defaults = funcDef.args.defaults
     kwDefaults = funcDef.args.kw_defaults
 
     # Map positional arguments to their defaults
-    # defaults correspond to the LAST len(defaults) regular arguments
+    # defaults correspond to the LAST len(defaults) positional arguments
     if defaults:
-        numArgs = len(regularArgs)
+        numArgs = len(positionalArgs)
         numDefaults = len(defaults)
         argsWithDefaultsStart = numArgs - numDefaults
 
         for i, default in enumerate(defaults):
             argIndex = argsWithDefaultsStart + i
-            if argIndex < len(regularArgs):
-                argToDefaultMapping[regularArgs[argIndex]] = default
+            if argIndex < len(positionalArgs):
+                argToDefaultMapping[positionalArgs[argIndex]] = default
 
     # Map keyword-only arguments to their defaults
     # kwDefaults has one-to-one correspondence with kwOnlyArgs
@@ -417,6 +431,17 @@ def buildClassAttrToDefaultMapping(
                     attrToDefaultMapping[target.id] = node.value
 
     return attrToDefaultMapping
+
+
+def isPlaceholderDefault(default: ast.expr) -> bool:
+    """
+    Return whether ``default`` is the ``...`` placeholder.
+
+    In stub (.pyi) files, ``= ...`` means that there is a default value but
+    doesn't say what it is. Only the literal ``...`` counts; the name
+    ``Ellipsis`` doesn't.
+    """
+    return isinstance(default, ast.Constant) and default.value is Ellipsis
 
 
 def stripCommentsFromTypeHints(typeHint: str) -> str:
@@ -482,3 +507,18 @@ def isPrivateName(name: str) -> bool:
 def isUnderscoreOnlyName(name: str) -> bool:
     """Return whether ``name`` consists only of underscore characters."""
     return classifyName(name) is NameKind.UNDERSCORE_ONLY
+
+
+PYTHON_FILE_PATTERN = '*.py'
+STUB_FILE_PATTERN = '*.pyi'
+
+
+def isStubFilename(filename: str | Path) -> bool:
+    """
+    Return whether ``filename`` is a stub (.pyi) file.
+
+    This follows the same case rules as ``rglob()`` in folder scans in
+    ``main.py`` (the platform's rules): on Windows, ``API.PYI`` is a stub file
+    too.
+    """
+    return Path(filename).match(STUB_FILE_PATTERN)

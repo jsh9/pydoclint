@@ -23,6 +23,7 @@ from pydoclint.utils.generic import (
     generateFuncMsgPrefix,
     getDocstring,
     isLastConstructor,
+    isPlaceholderDefault,
 )
 from pydoclint.utils.method_type import MethodType
 from pydoclint.utils.parse_docstring import (
@@ -61,6 +62,7 @@ from pydoclint.utils.visitor_helper import (
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
     getReturnTypeToDocument,
+    removeDocstringDefaults,
     shouldIgnoreArgumentName,
     shouldSkipCheckingPrivateFunction,
 )
@@ -99,6 +101,7 @@ class Visitor(ast.NodeVisitor):
             shouldDeclareAssertErrorIfAssertStatementExists: bool = False,
             checkStyleMismatch: bool = False,
             checkArgDefaults: bool = False,
+            isStubFile: bool = False,
     ) -> None:
         self.style: str = style
         self.argTypeHintsInSignature: bool = argTypeHintsInSignature
@@ -143,6 +146,7 @@ class Visitor(ast.NodeVisitor):
         )
         self.checkStyleMismatch: bool = checkStyleMismatch
         self.checkArgDefaults: bool = checkArgDefaults
+        self.isStubFile: bool = isStubFile
 
         # Validate incompatible option combination
         if self.style == 'sphinx' and self.checkArgDefaults:
@@ -188,6 +192,7 @@ class Visitor(ast.NodeVisitor):
                 ),
                 requireInlineClassVarDocs=self.requireInlineClassVarDocs,
                 checkArgDefaults=self.checkArgDefaults,
+                isStubFile=self.isStubFile,
             )
 
         self.generic_visit(node)
@@ -225,7 +230,12 @@ class Visitor(ast.NodeVisitor):
 
         docstring: str = getDocstring(node)
 
-        self.isAbstractMethod = checkIsAbstractMethod(node)
+        # Abstract methods and functions in stub (.pyi) files have placeholder
+        # bodies, so a body without "raise" or "yield" statements doesn't mean
+        # that the function doesn't raise or yield.
+        self.hasPlaceholderBody = self.isStubFile or checkIsAbstractMethod(
+            node
+        )
 
         if isClassConstructor and parentClass is not None:
             docstring = self._checkClassDocstringAndConstructorDocstrings(
@@ -491,7 +501,7 @@ class Visitor(ast.NodeVisitor):
 
         return initDocstring
 
-    def checkArguments(  # noqa: PLR0915
+    def checkArguments(  # noqa: C901, PLR0915
             self,
             node: FuncOrAsyncFuncDef,
             parent_: ast.AST,
@@ -524,10 +534,25 @@ class Visitor(ast.NodeVisitor):
         """
         astArgList: list[ast.arg] = collectFuncArgs(node)
 
+        # In stub files, a `...` default is a placeholder that doesn't say
+        # what the default is. Such defaults aren't written into the type
+        # hints, and the docstring may give any default (or none) for them.
+        placeholderDefaultNames: frozenset[str] = frozenset()
         if self.checkArgDefaults:
             argToDefaultMapping: dict[ast.arg, ast.expr] = (
                 buildFuncArgToDefaultMapping(node)
             )
+            if self.isStubFile:
+                placeholderDefaultNames = frozenset(
+                    arg.arg
+                    for arg, default in argToDefaultMapping.items()
+                    if isPlaceholderDefault(default)
+                )
+                argToDefaultMapping = {
+                    arg: default
+                    for arg, default in argToDefaultMapping.items()
+                    if arg.arg not in placeholderDefaultNames
+                }
 
         isMethod: bool = isinstance(parent_, ast.ClassDef)
         msgPrefix: str = generateFuncMsgPrefix(node, parent_, appendColon=True)
@@ -605,6 +630,11 @@ class Visitor(ast.NodeVisitor):
                 docArgs=docArgs,
                 funcArgs=funcArgs,
             )
+
+        docArgs = removeDocstringDefaults(
+            docArgs=docArgs,
+            argNames=placeholderDefaultNames,
+        )
 
         if docArgs.length == 0 and funcArgs.length == 0:
             return []
@@ -698,11 +728,21 @@ class Visitor(ast.NodeVisitor):
 
         docstringHasReturnSection: bool = doc.hasReturnsSection
 
+        # A placeholder body has no "yield" statements to look for, so a
+        # "Yields" section is the evidence that the function yields (rather
+        # than returning an iterator). An abstract method can still have a
+        # real body, though, and "return" statements in it show otherwise.
+        yieldsWithoutReturning: bool = onlyHasYieldStmt or (
+            self.hasPlaceholderBody
+            and doc.hasYieldsSection
+            and not hasReturnStmt
+        )
+
         violations: list[Violation] = []
         if not docstringHasReturnSection and not isPropertyMethod:  # noqa: SIM102
             if (
                 # fmt: off
-                not (onlyHasYieldStmt and hasIterAsRetAnno)
+                not (yieldsWithoutReturning and hasIterAsRetAnno)
                 and (hasReturnStmt or (hasReturnAnno and not hasGenAsRetAnno))
                 # fmt: on
             ):
@@ -719,7 +759,15 @@ class Visitor(ast.NodeVisitor):
                 ):
                     violations.append(v201)
 
-        if docstringHasReturnSection and not (hasReturnStmt or hasReturnAnno):
+        # A placeholder body has no "return" statements to look for, so a
+        # "Returns" section without a return annotation isn't evidence that
+        # the function returns nothing. (DOC203 still reports the missing
+        # annotation when return types are checked.)
+        if (
+            docstringHasReturnSection
+            and not (hasReturnStmt or hasReturnAnno)
+            and not self.hasPlaceholderBody
+        ):
             violations.append(v202)
 
         if self.checkReturnTypes:
@@ -754,6 +802,30 @@ class Visitor(ast.NodeVisitor):
                 # decorator. This is because it's OK for @property methods
                 # to have no return section in the docstring.
                 return violations
+
+            generatorAnnotationKind = getGeneratorAnnotationKind(node)
+            if self.hasPlaceholderBody and generatorAnnotationKind is not None:
+                # A placeholder body doesn't show whether the generator also
+                # returns a value. So the "Returns" section can document
+                # either the generator's return type (the R in
+                # Generator[Y, S, R]), as for a generator that also returns
+                # (see `checkReturnAndYield()`), or the whole annotation, as
+                # for a generator that only yields (checked below).
+                mismatchesWithReturnType: list[Violation] = []
+                checkReturnTypesForViolations(
+                    style=self.style,
+                    returnAnnotation=ReturnAnnotation(
+                        getReturnTypeToDocument(
+                            returnAnno,
+                            generatorAnnotationKind=generatorAnnotationKind,
+                        )
+                    ),
+                    violationList=mismatchesWithReturnType,
+                    returnSection=returnSec,
+                    violation=v203,
+                )
+                if len(mismatchesWithReturnType) == 0:
+                    return violations
 
             checkReturnTypesForViolations(
                 style=self.style,
@@ -843,10 +915,26 @@ class Visitor(ast.NodeVisitor):
                 else:
                     violations.append(v402)
 
-        if docstringHasYieldsSection:  # noqa: SIM102
-            if not hasYieldStmt or noGenNorIterAsRetAnno:  # noqa: SIM102
-                if not self.isAbstractMethod:
-                    violations.append(v403)
+        if docstringHasYieldsSection:
+            if not self.hasPlaceholderBody:
+                isYieldsSectionUnexpected = (
+                    not hasYieldStmt or noGenNorIterAsRetAnno
+                )
+            elif self.isStubFile:
+                # A placeholder body has no "yield" statements to look for, but
+                # in a stub file, the return annotation still shows whether
+                # the function can yield anything
+                isYieldsSectionUnexpected = noGenNorIterAsRetAnno
+            else:
+                # TODO: Decide whether abstract methods should also get DOC403
+                #  when their return annotation isn't a Generator, Iterator,
+                #  or Iterable. (This would add new violations to existing
+                #  code, so it isn't done here yet.) See:
+                #  https://github.com/jsh9/pydoclint/issues/309
+                isYieldsSectionUnexpected = False
+
+            if isYieldsSectionUnexpected:
+                violations.append(v403)
 
         if hasYieldStmt and self.checkYieldTypes:
             if docstringHasYieldsSection:
@@ -1037,13 +1125,13 @@ class Visitor(ast.NodeVisitor):
                 not hasAssertStmt
                 and not hasRaiseStmt
                 and docstringHasRaisesSection
-                and not self.isAbstractMethod
+                and not self.hasPlaceholderBody
             ):
                 violations.append(v502)
         elif (
             not hasRaiseStmt
             and docstringHasRaisesSection
-            and not self.isAbstractMethod
+            and not self.hasPlaceholderBody
         ):
             violations.append(v502)
 

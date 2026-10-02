@@ -59,9 +59,10 @@ def runRealFlake8(
         *,
         sourcePath: Path,
         configLines: list[str],
+        targetName: str = 'sample.py',
 ) -> subprocess.CompletedProcess[str]:
     """Run real Flake8 on a copied fixture with a temporary ``.flake8``."""
-    shutil.copyfile(sourcePath, directory / 'sample.py')
+    shutil.copyfile(sourcePath, directory / targetName)
     (directory / '.flake8').write_text(
         '[flake8]\nselect = DOC\n' + '\n'.join(configLines) + '\n',
         encoding='utf-8',
@@ -74,8 +75,8 @@ def runRealFlake8(
         str(PYDOCLINT_IMPORT_ROOT),
         *filter(None, [env.get('PYTHONPATH')]),
     ])
-    return subprocess.run(
-        [sys.executable, '-m', 'flake8', 'sample.py'],
+    return subprocess.run(  # noqa: S603
+        [sys.executable, '-m', 'flake8', targetName],
         cwd=directory,
         env=env,
         capture_output=True,
@@ -347,3 +348,131 @@ def testRealFlake8AppliesLowercaseMigrationReplacements(
             'but not in the docstring: [',
         )
         assert sorted(actualMissingNames) == sorted(expectedMissingNames)
+
+
+# Violation codes for `numpy/stub_file/cases.pyi`, checked as a .py file and
+# as a stub file
+STUB_CASES_AS_PY_CODES = [
+    'DOC502',
+    'DOC403',
+    'DOC201',
+    'DOC403',
+    'DOC201',
+    'DOC403',
+    'DOC203',
+    'DOC403',
+    'DOC403',
+    'DOC202',
+    'DOC203',
+    'DOC105',
+]
+STUB_CASES_AS_PYI_CODES = ['DOC201', 'DOC403', 'DOC203', 'DOC105']
+
+
+@pytest.mark.parametrize(
+    ('targetName', 'expectedCodes'),
+    [
+        ('sample.py', STUB_CASES_AS_PY_CODES),
+        ('sample.pyi', STUB_CASES_AS_PYI_CODES),
+        # Stub detection follows the platform's case rules, like folder scans
+        (
+            'sample.PYI',
+            STUB_CASES_AS_PYI_CODES
+            if sys.platform == 'win32'
+            else STUB_CASES_AS_PY_CODES,
+        ),
+    ],
+)
+def testRealFlake8ChecksStubFilesLikeAbstractMethods(
+        tmp_path: Path,
+        targetName: str,
+        expectedCodes: list[str],
+) -> None:
+    """
+    Ensure Flake8 passes the file name in, so stub files get DOC403 and DOC502
+    leniency.
+    """
+    result = runRealFlake8(
+        tmp_path,
+        sourcePath=DATA_DIR / 'numpy/stub_file/cases.pyi',
+        configLines=['style = numpy'],
+        targetName=targetName,
+    )
+    output = result.stdout + result.stderr
+    violationLines = [
+        line
+        for line in result.stdout.splitlines()
+        if line.startswith('sample')
+    ]
+    assert [line.split()[1] for line in violationLines] == expectedCodes
+    assert result.returncode == 1, output
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    (
+        'targetName',
+        'mismatchedNames',
+        'mismatchedBacktickNames',
+        'positionalOnlyCodes',
+    ),
+    [
+        (
+            'sample.py',
+            'literal, wrongAnnotated, wrongLiteral, customDefault',
+            'placeholder, customDefault, wrongType',
+            ['DOC105'],
+        ),
+        # The positional-only argument's placeholder default is accepted too
+        ('sample.pyi', 'wrongAnnotated, wrongLiteral', 'wrongType', []),
+    ],
+)
+def testRealFlake8ChecksStubArgDefaults(
+        tmp_path: Path,
+        style: str,
+        targetName: str,
+        mismatchedNames: str,
+        mismatchedBacktickNames: str,
+        positionalOnlyCodes: list[str],
+) -> None:
+    result = runRealFlake8(
+        tmp_path,
+        sourcePath=DATA_DIR / f'{style}/stub_file/defaults.pyi',
+        configLines=[
+            f'style = {style}',
+            'check-arg-defaults = True',
+            'check-class-attributes = True',
+        ],
+        targetName=targetName,
+    )
+    output = result.stdout + result.stderr
+    violationLines = [
+        line
+        for line in result.stdout.splitlines()
+        if line.startswith('sample')
+    ]
+    assert [line.split()[1] for line in violationLines] == [
+        'DOC605',
+        'DOC105',
+        'DOC605',
+        'DOC105',
+        'DOC605',
+        'DOC105',
+        *positionalOnlyCodes,
+    ], output
+    assert (
+        f'attributes do not match: {mismatchedNames}  (' in violationLines[2]
+    ), output
+    assert f'args do not match: {mismatchedNames} . (' in violationLines[3], (
+        output
+    )
+    # The last two come from the backtick-wrapped types
+    assert (
+        f'attributes do not match: {mismatchedBacktickNames}  ('
+        in violationLines[4]
+    ), output
+    assert (
+        f'args do not match: {mismatchedBacktickNames} . ('
+        in violationLines[5]
+    ), output
+    assert result.returncode == 1, output

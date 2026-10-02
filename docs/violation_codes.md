@@ -66,7 +66,24 @@ Other potential causes to `DOC103` include:
 | `DOC203` | Return type(s) in the docstring not consistent with the return annotation                            |
 
 Note on `DOC201`: Methods with `@property` as its outer-most decorator (i.e.,
-on the top) do not need to have a return section.
+on the top) do not need to have a return section. Abstract methods and
+functions in stub (`.pyi`) files with an `Iterator` or `Iterable` return
+annotation don't need one either if their docstring has a "Yields" section and
+their body has no "return" statements: their bodies are placeholders, so the
+"Yields" section is what shows that they yield (rather than returning an
+iterator).
+
+Note on `DOC202`: It is not reported for abstract methods or for functions in
+stub (`.pyi`) files. Their bodies are placeholders, so a "Returns" section
+without "return" statements or a return annotation doesn't mean that the
+function returns nothing. (`DOC203` still reports the missing annotation.)
+
+Note on `DOC203`: For abstract methods and functions in stub (`.pyi`) files
+with a `Generator[YieldType, SendType, ReturnType]` return annotation, the
+"Returns" section can document either `ReturnType`, as for a generator that has
+both "yield" and "return" statements, or the whole annotation, as for a
+generator that only yields. Their bodies are placeholders, so they don't show
+which one applies.
 
 ## 4. `DOC3xx`: Violations about class docstring and class constructor
 
@@ -90,6 +107,13 @@ on the top) do not need to have a return section.
 | `DOC404` | The types in the docstring's Yields section and the return annotation in the signature are not consistent                                                                                                                     |
 | `DOC405` | Function/method has both "return" and "yield" statements; please use `Generator[YieldType, SendType, ReturnType]` as the return annotation ([explanation](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html)) |
 
+Note on `DOC403`: It is not reported for abstract methods (methods with
+`@abstractmethod` as their outer-most decorator). For functions in stub
+(`.pyi`) files, it is only reported when the return annotation isn't a
+Generator/Iterator/Iterable (or is missing). The bodies of both are
+placeholders, so a body without "yield" statements doesn't mean that the
+function doesn't yield anything.
+
 ## 6. `DOC5xx`: Violations about "raise" and "assert" statements
 
 | Code     | Explanation                                                                                                                               |
@@ -98,6 +122,11 @@ on the top) do not need to have a return section.
 | `DOC502` | Function/method has a "Raises" section in the docstring, but there are not "raise" statements in the body                                 |
 | `DOC503` | Exceptions in the "Raises" section in the docstring do not match those in the function body                                               |
 | `DOC504` | Function/method has assert statements, but the docstring does not have a "Raises" section. (Assert statements could raise "AssertError".) |
+
+Note on `DOC502`: It is not reported for abstract methods (methods with
+`@abstractmethod` as their outer-most decorator) or for functions in stub
+(`.pyi`) files. Their bodies are placeholders, so a body without "raise"
+statements doesn't mean that the function doesn't raise anything.
 
 ## 7. `DOC6xx`: Violations about class attributes
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import ast
+import re
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -18,7 +19,9 @@ from pydoclint.utils.generic import (
     buildClassAttrToDefaultMapping,
     classifyName,
     getDocstring,
+    isPlaceholderDefault,
     specialEqual,
+    stripBacktickWrapper,
     stripQuotes,
 )
 from pydoclint.utils.parse_docstring import parseDocstringInGivenStyle
@@ -55,6 +58,7 @@ def checkClassAttributesAgainstClassDocstring(
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         requireInlineClassVarDocs: bool,
         checkArgDefaults: bool,
+        isStubFile: bool,
 ) -> None:
     """
     Check class attribute list against the attribute list in docstring.
@@ -99,11 +103,25 @@ def checkClassAttributesAgainstClassDocstring(
         Whether to require inline class attribute docs.
     checkArgDefaults : bool
         Whether to check argument defaults.
+    isStubFile : bool
+        Whether the class is in a stub (.pyi) file.
 
     Returns
     -------
     None
     """
+    # In stub files, a `...` default is a placeholder that doesn't say what
+    # the default is (see `Visitor.checkArguments()`)
+    placeholderDefaultNames: frozenset[str] = (
+        frozenset(
+            name
+            for name, default in buildClassAttrToDefaultMapping(node).items()
+            if isPlaceholderDefault(default)
+        )
+        if isStubFile and checkArgDefaults
+        else frozenset()
+    )
+
     docuemntedAndClassArgs = getDocumentedAndActualClassArgLists(
         node=node,
         style=style,
@@ -123,12 +141,17 @@ def checkClassAttributesAgainstClassDocstring(
         skipCheckingShortDocstrings=skipCheckingShortDocstrings,
         requireInlineClassVarDocs=requireInlineClassVarDocs,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
+        placeholderDefaultNames=placeholderDefaultNames,
     )
 
     if docuemntedAndClassArgs is None:
         return
 
     docArgs, actualArgs = docuemntedAndClassArgs
+    docArgs = removeDocstringDefaults(
+        docArgs=docArgs,
+        argNames=placeholderDefaultNames,
+    )
 
     checkDocArgsLengthAgainstActualArgs(
         docArgs=docArgs,
@@ -188,6 +211,7 @@ def getDocumentedAndActualClassArgLists(
         skipCheckingShortDocstrings: bool,
         requireInlineClassVarDocs: bool,
         argTypeHintsInDocstring: bool,
+        placeholderDefaultNames: frozenset[str] = frozenset(),
 ) -> tuple[ArgList, ArgList] | None:
     """
     Get documented and actual class attribute lists.
@@ -224,6 +248,9 @@ def getDocumentedAndActualClassArgLists(
         Whether to require inline class attribute docs.
     argTypeHintsInDocstring : bool
         Whether to include type hints in docstring.
+    placeholderDefaultNames : frozenset[str], default=frozenset()
+        Names of the class attributes whose default is the ``...`` placeholder
+        in a stub (.pyi) file. Their defaults aren't added to the type hints.
 
     Returns
     -------
@@ -245,6 +272,7 @@ def getDocumentedAndActualClassArgLists(
             onlyAttrsWithClassVarAreTreatedAsClassAttrs
         ),
         checkArgDefaults=checkArgDefaults,
+        placeholderDefaultNames=placeholderDefaultNames,
     )
 
     classDocstring: str = getDocstring(node)
@@ -481,6 +509,7 @@ def extractClassAttributesFromNode(
         treatPropertyMethodsAsClassAttrs: bool,
         onlyAttrsWithClassVarAreTreatedAsClassAttrs: bool,
         checkArgDefaults: bool,
+        placeholderDefaultNames: frozenset[str] = frozenset(),
 ) -> ArgList:
     """
     Extract class attributes from an AST node.
@@ -512,6 +541,10 @@ def extractClassAttributesFromNode(
     checkArgDefaults : bool
         If True, we should extract the arguments' default values and attach
         them to the type hints.
+    placeholderDefaultNames : frozenset[str], default=frozenset()
+        Names of the class attributes whose default is the ``...`` placeholder
+        in a stub (.pyi) file. Their defaults aren't attached to the type
+        hints.
 
     Returns
     -------
@@ -582,9 +615,11 @@ def extractClassAttributesFromNode(
     if not checkArgDefaults:  # no need to add defaults to type hints
         return astArgList
 
-    argToDefaultMapping: dict[str, ast.expr] = buildClassAttrToDefaultMapping(
-        node,
-    )
+    argToDefaultMapping: dict[str, ast.expr] = {
+        name: default
+        for name, default in buildClassAttrToDefaultMapping(node).items()
+        if name not in placeholderDefaultNames
+    }
 
     return ArgList([
         Arg.fromArgWithMapping(_, argToDefaultMapping)
@@ -783,6 +818,71 @@ def addStarsToDocstringArgsWhenApplicable(
             normalizedDocArgs.append(docArg)
 
     return ArgList(normalizedDocArgs)
+
+
+DOCSTRING_DEFAULT_PREFIX_PATTERN = re.compile(r',\s*default\s*=')
+
+
+def _removeDocstringDefault(typeHint: str) -> str:
+    """Remove an outer default suffix while preserving annotation text."""
+    # Backticks can wrap the type and the default together, such as in
+    # ``int, default=3``, so remove them first (just as type comparison does)
+    unwrapped = stripBacktickWrapper(typeHint)
+
+    # A `, default=` can also appear inside the type itself, such as in
+    # `Annotated[int, 'units, default=3']`. There, the text before it is not a
+    # complete expression (it has an unclosed string or bracket). So the outer
+    # default starts at the first match whose preceding text parses.
+    for match in DOCSTRING_DEFAULT_PREFIX_PATTERN.finditer(unwrapped):
+        annotation = unwrapped[: match.start()].rstrip()
+        if not annotation:  # an untyped arg, such as `value (, default=3)`
+            return ''
+
+        try:
+            ast.parse(annotation.strip(), mode='eval')
+        except SyntaxError:
+            continue
+
+        return annotation
+
+    return typeHint
+
+
+def removeDocstringDefaults(
+        *,
+        docArgs: ArgList,
+        argNames: frozenset[str],
+) -> ArgList:
+    """
+    Remove the documented defaults of the given args.
+
+    This is for args whose default is the ``...`` placeholder in a stub (.pyi)
+    file. ``= ...`` means that there is a default value but doesn't say what it
+    is, so the docstring may give any default value or none, and only the types
+    are compared.
+
+    Parameters
+    ----------
+    docArgs : ArgList
+        Arguments (or class attributes) parsed from the docstring
+    argNames : frozenset[str]
+        Names of the args whose documented defaults are removed
+
+    Returns
+    -------
+    ArgList
+        The docstring args, with the defaults of the given args removed. All
+        other args are left untouched.
+    """
+    if len(argNames) == 0:
+        return docArgs
+
+    return ArgList([
+        Arg(name=_.name, typeHint=_removeDocstringDefault(_.typeHint))
+        if _.name in argNames
+        else _
+        for _ in docArgs.infoList
+    ])
 
 
 def checkReturnTypesForViolations(

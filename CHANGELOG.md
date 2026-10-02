@@ -1,5 +1,38 @@
 # Change Log
 
+## [0.11.0] - 2026-10-02
+
+- Added
+  - A new config option `--include-stub-files` (shortform: `-isf`, default:
+    `False`), so that scanning a folder also checks stub (`.pyi`) files (#303)
+- Fixed
+  - False-positive `DOC403` and `DOC502` violations in stub (`.pyi`) files,
+    whose function bodies are placeholders, in both the native mode and
+    _flake8_ (#303). `DOC403` is still reported in stub files when the return
+    annotation isn't a Generator/Iterator/Iterable (or is missing), because
+    then the function can't yield anything
+  - False-positive `DOC105` and `DOC605` violations in stub files when
+    `--check-arg-defaults` is `True`: an argument or class attribute whose
+    default is the `...` placeholder can now be documented with any default
+    value or none
+  - False-positive `DOC201` violations for abstract methods and stub functions
+    annotated with `Iterator[...]` or `Iterable[...]` whose docstrings have a
+    "Yields" section (and no "return" statements in the body). Their bodies are
+    placeholders, so the "Yields" section is what shows that they yield, and
+    they don't need a "Returns" section
+  - False-positive `DOC203` violations for abstract methods and stub functions
+    annotated with `Generator[YieldType, SendType, ReturnType]` whose "Returns"
+    section documents `ReturnType`, as for a generator that both yields and
+    returns
+  - False-positive `DOC202` violations for abstract methods and stub functions
+    that have a "Returns" section but no return annotation. (`DOC203` still
+    reports the missing annotation when return types are checked.)
+  - A crash (`IndexError`) when `--check-arg-defaults` is `True` and
+    positional-only arguments (the ones before `/`) have default values. When
+    it didn't crash, the defaults of positional-only arguments were ignored
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.10.1...0.11.0
+
 ## [0.10.1] - 2026-09-27
 
 - Changed

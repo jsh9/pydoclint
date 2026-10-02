@@ -45,7 +45,8 @@ ______________________________________________________________________
 - [30. `--auto-regenerate-baseline` (shortform: `-arb`, default: `True`)](#30---auto-regenerate-baseline-shortform--arb-default-true)
 - [31. `--show-filenames-in-every-violation-message` (shortform: `-sfn`, default: `False`)](#31---show-filenames-in-every-violation-message-shortform--sfn-default-false)
 - [32. `--native-mode-noqa-location` (shortform: `-nmnl`, default: `docstring`)](#32---native-mode-noqa-location-shortform--nmnl-default-docstring)
-- [33. `--config` (default: `pyproject.toml`)](#33---config-default-pyprojecttoml)
+- [33. `--include-stub-files` (shortform: `-isf`, default: `False`)](#33---include-stub-files-shortform--isf-default-false)
+- [34. `--config` (default: `pyproject.toml`)](#34---config-default-pyprojecttoml)
 
 ______________________________________________________________________
 
@@ -407,6 +408,11 @@ function signature. If False, docstring type hints should not contain default
 values. (Only applies to numpy and Google styles; not compatible with Sphinx
 style.)
 
+In stub (`.pyi`) files, a default of `...` is a placeholder that doesn't say
+what the default value is. So an argument or class attribute with that default
+can be documented with any default value (such as `int, default=3`) or with no
+default (such as `int`). Its type is still checked.
+
 <a id="baseline"></a>
 
 ## 28. `--baseline`
@@ -493,7 +499,62 @@ Only DOC-prefixed violation codes are honored; other codes are ignored by the
 native parser. This setting has no effect in Flake8 mode, which is controlled
 by Flake8's own `noqa` handling.
 
-## 33. `--config` (default: `pyproject.toml`)
+## 33. `--include-stub-files` (shortform: `-isf`, default: `False`)
+
+If True, _pydoclint_ also checks stub (`.pyi`) files when it scans folders. If
+False, it only checks `.py` files in folders. Stub files that you pass in
+explicitly are always checked, whatever this option is set to.
+
+```
+pydoclint --include-stub-files=True <FOLDER_NAME>
+```
+
+The body of a function in a stub file is a placeholder (usually `...`), so
+_pydoclint_ doesn't rely on it when it checks functions in stub files:
+
+- `DOC502` isn't reported, because a body without `raise` statements doesn't
+  mean that the function doesn't raise anything.
+- `DOC202` isn't reported, because a body without `return` statements doesn't
+  mean that the function returns nothing. (`DOC203` still reports a "Returns"
+  section without a return annotation.)
+- `DOC403` is only reported when the return annotation isn't a `Generator`,
+  `Iterator`, or `Iterable` (or is missing), because then the function can't
+  yield anything. A body without `yield` statements doesn't count.
+- A function with an `Iterator` or `Iterable` return annotation can have a
+  "Yields" section instead of a "Returns" section (no `DOC201`), because the
+  body doesn't show whether it yields or returns an iterator.
+- With a `Generator[YieldType, SendType, ReturnType]` return annotation, the
+  "Returns" section can document either `ReturnType` (as for a generator that
+  both yields and returns) or the whole annotation (as for one that only
+  yields).
+- `DOC402` and `DOC404` aren't reported, because these checks only run when
+  there are `yield` statements in the body (see
+  [issue 309](https://github.com/jsh9/pydoclint/issues/309)).
+
+Abstract methods are checked the same way, except that they don't get `DOC403`
+at all. The other checks work as usual. This applies whenever a `.pyi` file is
+checked, including in _flake8_.
+
+This option is only available in the native command-line mode. If you use
+_pydoclint_ within _flake8_, you can use _flake8_'s
+[`--filename` option](https://flake8.pycqa.org/en/latest/user/options.html#cmdoption-flake8-filename)
+instead (for example, `--filename=*.py,*.pyi`).
+
+If you use the `pydoclint` or `pydoclint-flake8` pre-commit hook, pre-commit
+doesn't pass stub files to it by default. To check them, override the hook's
+file types in your `.pre-commit-config.yaml` (you don't need
+`--include-stub-files` here, because pre-commit passes files in explicitly):
+
+```yaml
+- repo: https://github.com/jsh9/pydoclint
+  rev: <latest_tag>
+  hooks:
+    - id: pydoclint  # or pydoclint-flake8
+      types: [file]
+      types_or: [python, pyi]
+```
+
+## 34. `--config` (default: `pyproject.toml`)
 
 The full path of the .toml config file that contains the config options. Note
 that the command line options take precedence over the .toml file. Look at this

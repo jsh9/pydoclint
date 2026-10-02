@@ -1,4 +1,6 @@
 import ast
+import sys
+from pathlib import Path
 from textwrap import dedent
 from typing import Any
 
@@ -9,6 +11,9 @@ from pydoclint.utils.generic import (
     buildFuncArgToDefaultMapping,
     doList1ItemsStartWithList2Items,
     isLastConstructor,
+    isPlaceholderDefault,
+    isStubFilename,
+    stripBacktickWrapper,
     stripQuotes,
 )
 
@@ -95,6 +100,17 @@ def testDoList1ItemsStartWithList2Items(
             'def func4(a, *args, d: bool=True, e: str="key"): pass',
             {'d': True, 'e': 'key'},
         ),
+        # Case 6: Positional-only and regular arguments share the defaults
+        ('def func5(a=1, /, b=2): pass', {'a': 1, 'b': 2}),
+        # Case 7: Defaults spanning positional-only, regular, and keyword-only
+        (
+            'def func6(a, b=2, /, c=3, *, d=4): pass',
+            {'b': 2, 'c': 3, 'd': 4},
+        ),
+        # Case 8: Only positional-only arguments with defaults
+        ('def func7(a=1, b=2, /): pass', {'a': 1, 'b': 2}),
+        # Case 9: Positional-only argument with a placeholder default (stubs)
+        ('def func8(key, default=..., /): pass', {'default': Ellipsis}),
     ],
 )
 def testBuildFuncArgToDefaultMapping(
@@ -284,3 +300,56 @@ def testIsLastConstructor(
     targetConstructor = constructors[constructorIndex]
     output = isLastConstructor(node=targetConstructor, parentClass=classDef)
     assert output == expected
+
+
+@pytest.mark.parametrize(
+    ('filename', 'expected'),
+    [
+        ('a.pyi', True),
+        ('pkg/a.pyi', True),
+        (Path('pkg/a.pyi'), True),
+        ('a.py', False),
+        ('a.pyi.bak', False),
+        # Folder scans also find a file named just ".pyi"
+        ('.pyi', True),
+        # Like folder scans, this follows the platform's case rules
+        ('API.PYI', sys.platform == 'win32'),
+        ('pkg/x.Pyi', sys.platform == 'win32'),
+    ],
+)
+def testIsStubFilename(filename: str | Path, expected: bool) -> None:
+    assert isStubFilename(filename) is expected
+
+
+@pytest.mark.parametrize(
+    ('string', 'expected'),
+    [
+        ('``int``', 'int'),
+        ('`int`', 'int'),
+        ('``int, default=3``', 'int, default=3'),
+        ("``Literal['a', 'b']``", "Literal['a', 'b']"),
+        ('int', 'int'),
+        ('``int``, default=3', '``int``, default=3'),  # not wrapping it all
+        ('', ''),
+    ],
+)
+def testStripBacktickWrapper(string: str, expected: str) -> None:
+    assert stripBacktickWrapper(string) == expected
+
+
+@pytest.mark.parametrize(
+    ('expression', 'expected'),
+    [
+        ('...', True),
+        ('(...)', True),
+        ('Ellipsis', False),
+        ('None', False),
+        ('0', False),
+        ("'...'", False),
+        ('[...]', False),
+    ],
+)
+def testIsPlaceholderDefault(expression: str, expected: bool) -> None:
+    """Test that only the literal ``...`` counts as a placeholder default."""
+    node = ast.parse(expression, mode='eval').body
+    assert isPlaceholderDefault(node) is expected

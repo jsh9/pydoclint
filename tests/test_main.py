@@ -1,10 +1,13 @@
 import copy
+import shutil
 import sys
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 
-from pydoclint.main import _checkFile
+from pydoclint.main import _checkFile, _checkPaths
+from pydoclint.main import main as cliMain
 
 THIS_DIR = Path(__file__).parent
 DATA_DIR = THIS_DIR / 'test_data'
@@ -1296,23 +1299,426 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
     )
     if checkReturnTypes:
         expected = [
-            'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
-            'return section in docstring',
             'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
             'section in docstring',
             'DOC203: Method `AbstractClass.third_abstract_method` return type(s) in '
             'docstring not consistent with the return annotation. Return annotation has 1 '
             'type(s); docstring return section has 0 type(s).',
+            'DOC201: Method `AbstractClass.abstractIteratorThatReturns` does not have'
+            ' a return section in docstring',
+            'DOC203: Method `AbstractClass.abstractMethodWithoutReturnAnnotation` return'
+            ' type(s) in docstring not consistent with the return annotation. Return'
+            ' annotation has 0 type(s); docstring return section has 1 type(s).',
         ]
     else:
         expected = [
-            'DOC201: Method `AbstractClass.another_abstract_method` does not have a '
-            'return section in docstring',
             'DOC201: Method `AbstractClass.third_abstract_method` does not have a return '
             'section in docstring',
+            'DOC201: Method `AbstractClass.abstractIteratorThatReturns` does not have'
+            ' a return section in docstring',
         ]
 
     assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
+@pytest.mark.parametrize('style', ALL_STYLES)
+def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
+    """
+    Test that functions in stub (.pyi) files are checked without relying on
+    their placeholder bodies (``...``).
+
+    The same fixture is checked twice: as a .py file and as a .pyi file. Only
+    the file suffix differs, so comparing the two expected lists shows what
+    changes for stubs. Violations that come only from the placeholder body
+    (such as DOC502 for a "Raises" section without "raise" statements) are
+    reported for .py but not for .pyi. Violations that don't depend on the body
+    (such as DOC105 for a wrong argument type) are reported for both.
+    """
+    filename = tmp_path / f'cases{suffix}'
+    shutil.copyfile(DATA_DIR / f'{style}/stub_file/cases.pyi', filename)
+    violations = _checkFile(filename=filename, style=style)
+    expectedLookup = {
+        '.py': [
+            'DOC502: Method `StubClass.documentsRaises` has a "Raises" section in the'
+            ' docstring, but there are not "raise" statements in the body',
+            'DOC403: Method `StubClass.documentsYields` has a "Yields" section in the'
+            ' docstring, but there are no "yield" statements, or the return annotation is'
+            ' not a Generator/Iterator/Iterable. (Or it could be because the function'
+            ' lacks a return annotation.)',
+            'DOC201: Method `StubClass.documentsYieldsWithIterator` does not have a'
+            ' return section in docstring',
+            'DOC403: Method `StubClass.documentsYieldsWithIterator` has a "Yields"'
+            ' section in the docstring, but there are no "yield" statements, or the'
+            ' return annotation is not a Generator/Iterator/Iterable. (Or it could be'
+            ' because the function lacks a return annotation.)',
+            'DOC201: Method `StubClass.documentsNothingWithIterator` does not have a'
+            ' return section in docstring',
+            'DOC403: Method `StubClass.documentsYieldsWithNonGeneratorAnnotation` has a'
+            ' "Yields" section in the docstring, but there are no "yield" statements, or'
+            ' the return annotation is not a Generator/Iterator/Iterable. (Or it could be'
+            ' because the function lacks a return annotation.)',
+            'DOC203: Method `StubClass.documentsGeneratorReturnValue` return type(s) in'
+            ' docstring not consistent with the return annotation. Return annotation'
+            " types: ['Generator[str, None, int]']; docstring return section types:"
+            " ['int']",
+            'DOC403: Method `StubClass.documentsGeneratorReturnValue` has a "Yields"'
+            ' section in the docstring, but there are no "yield" statements, or the'
+            ' return annotation is not a Generator/Iterator/Iterable. (Or it could be'
+            ' because the function lacks a return annotation.)',
+            'DOC403: Method `StubClass.documentsGeneratorReturnValueAsWhole` has a'
+            ' "Yields" section in the docstring, but there are no "yield" statements, or'
+            ' the return annotation is not a Generator/Iterator/Iterable. (Or it could be'
+            ' because the function lacks a return annotation.)',
+            'DOC202: Method `StubClass.documentsReturnsWithoutAnnotation` has a return'
+            ' section in docstring, but there are no return statements or annotations',
+            'DOC203: Method `StubClass.documentsReturnsWithoutAnnotation` return type(s)'
+            ' in docstring not consistent with the return annotation. Return annotation'
+            ' has 0 type(s); docstring return section has 1 type(s).',
+            'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type'
+            ' hints in these args do not match: var1',
+        ],
+        '.pyi': [
+            'DOC201: Method `StubClass.documentsNothingWithIterator` does not have a'
+            ' return section in docstring',
+            'DOC403: Method `StubClass.documentsYieldsWithNonGeneratorAnnotation` has a'
+            ' "Yields" section in the docstring, but there are no "yield" statements, or'
+            ' the return annotation is not a Generator/Iterator/Iterable. (Or it could be'
+            ' because the function lacks a return annotation.)',
+            'DOC203: Method `StubClass.documentsReturnsWithoutAnnotation` return type(s)'
+            ' in docstring not consistent with the return annotation. Return annotation'
+            ' has 0 type(s); docstring return section has 1 type(s).',
+            'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type'
+            ' hints in these args do not match: var1',
+        ],
+    }
+    assert list(map(str, violations)) == expectedLookup[suffix]
+
+
+# These fixtures enable checkArgDefaults=True, which Visitor.__init__ rejects
+# for Sphinx style. Only NumPy and Google can exercise default comparison;
+# testStubFile covers Sphinx stub-body behavior and argument types instead.
+@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
+    """
+    Test that, with ``--check-arg-defaults``, a ``...`` default in a stub
+    (.pyi) file is treated as a placeholder: the docstring can give any default
+    value or none, and only the type is compared.
+
+    As in testStubFile(), the same fixture is checked as a .py file and as a
+    .pyi file. In the .py file, ``...`` is a real default value, so docstrings
+    that don't say ``default=...`` get DOC105 (arguments) or DOC605 (class
+    attributes). In the .pyi file, only wrong types are reported. The fixture
+    covers function arguments, class attributes, types whose own text contains
+    ``default=``, types wrapped in backticks, and positional-only arguments.
+    """
+    filename = tmp_path / f'defaults{suffix}'
+    shutil.copyfile(DATA_DIR / f'{style}/stub_file/defaults.pyi', filename)
+    violations = _checkFile(
+        filename=filename,
+        style=style,
+        checkArgDefaults=True,
+        checkClassAttributes=True,
+    )
+    expectedLookup = {
+        '.py': [
+            'DOC605: Class `Config`: Attribute names match, but type hints in these'
+            ' attributes do not match: retries, timeout, name  (Please read'
+            ' https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to'
+            ' correctly document class attributes.)',
+            'DOC105: Function `connect`: Argument names match, but type hints in these'
+            ' args do not match: port, verbose, label . (Note: docstring arg defaults'
+            ' should look like: `, default=XXX`)',
+            'DOC605: Class `AnnotationDefaults`: Attribute names match, but type hints'
+            ' in these attributes do not match: literal, wrongAnnotated, wrongLiteral,'
+            ' customDefault  (Please read'
+            ' https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to'
+            ' correctly document class attributes.)',
+            'DOC105: Function `preserveAnnotationDefaults`: Argument names match, but'
+            ' type hints in these args do not match: literal, wrongAnnotated,'
+            ' wrongLiteral, customDefault . (Note: docstring arg defaults should look'
+            ' like: `, default=XXX`)',
+            # `placeholder` (documented as ``int, default=...``) matches, but it's
+            # still listed: the names in these messages come from a comparison that
+            # doesn't remove backticks. This also happens on `main`.
+            'DOC605: Class `BacktickDefaults`: Attribute names match, but type hints in'
+            ' these attributes do not match: placeholder, customDefault, wrongType'
+            '  (Please read'
+            ' https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to'
+            ' correctly document class attributes.)',
+            'DOC105: Function `backtickDefaults`: Argument names match, but type hints in'
+            ' these args do not match: placeholder, customDefault, wrongType . (Note:'
+            ' docstring arg defaults should look like: `, default=XXX`)',
+            'DOC105: Function `positionalOnlyDefaults`: Argument names match, but type'
+            ' hints in these args do not match: default . (Note: docstring arg defaults'
+            ' should look like: `, default=XXX`)',
+        ],
+        '.pyi': [
+            'DOC605: Class `Config`: Attribute names match, but type hints in these'
+            ' attributes do not match: name  (Please read'
+            ' https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to'
+            ' correctly document class attributes.)',
+            'DOC105: Function `connect`: Argument names match, but type hints in these'
+            ' args do not match: label . (Note: docstring arg defaults should look'
+            ' like: `, default=XXX`)',
+            'DOC605: Class `AnnotationDefaults`: Attribute names match, but type hints'
+            ' in these attributes do not match: wrongAnnotated, wrongLiteral  (Please'
+            ' read https://jsh9.github.io/pydoclint/checking_class_attributes.html on how'
+            ' to correctly document class attributes.)',
+            'DOC105: Function `preserveAnnotationDefaults`: Argument names match, but'
+            ' type hints in these args do not match: wrongAnnotated, wrongLiteral .'
+            ' (Note: docstring arg defaults should look like: `, default=XXX`)',
+            'DOC605: Class `BacktickDefaults`: Attribute names match, but type hints in'
+            ' these attributes do not match: wrongType  (Please read'
+            ' https://jsh9.github.io/pydoclint/checking_class_attributes.html on how to'
+            ' correctly document class attributes.)',
+            'DOC105: Function `backtickDefaults`: Argument names match, but type hints in'
+            ' these args do not match: wrongType . (Note: docstring arg defaults should'
+            ' look like: `, default=XXX`)',
+        ],
+    }
+    assert list(map(str, violations)) == expectedLookup[suffix]
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
+    """
+    Like testStubFileArgDefaults(), but for untyped arguments, with both
+    type-hint options off: their ``...`` defaults in a stub (.pyi) file can
+    also be documented with any default or none.
+
+    Only the .pyi version is tested. As a .py file, the same content gets
+    DOC108/DOC111, because default values are treated as type hints
+    (https://github.com/jsh9/pydoclint/issues/313), and this test shouldn't
+    lock that bug in.
+    """
+    filename = tmp_path / 'untyped_defaults.pyi'
+    shutil.copyfile(
+        DATA_DIR / f'{style}/stub_file/untyped_defaults.pyi',
+        filename,
+    )
+    violations = _checkFile(
+        filename=filename,
+        style=style,
+        checkArgDefaults=True,
+        argTypeHintsInSignature=False,
+        argTypeHintsInDocstring=False,
+    )
+    assert list(map(str, violations)) == []
+
+
+@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
+def testSphinxRejectsCheckingStubArgDefaults(
+        tmp_path: Path,
+        suffix: str,
+) -> None:
+    """
+    Test that ``--check-arg-defaults`` with Sphinx style raises an error for
+    stub (.pyi) files too, as it does for .py files. (This is why there is no
+    Sphinx version of testStubFileArgDefaults().)
+    """
+    filename = tmp_path / f'cases{suffix}'
+    shutil.copyfile(DATA_DIR / 'sphinx/stub_file/cases.pyi', filename)
+    with pytest.raises(
+        ValueError,
+        match=r'--check-arg-defaults is not compatible with --style=sphinx',
+    ):
+        _checkFile(filename=filename, style='sphinx', checkArgDefaults=True)
+
+
+@pytest.mark.parametrize(
+    ('path', 'includeStubFiles', 'expected'),
+    [
+        ('pkg', False, ['pkg/a.py', 'pkg/sub/c.py']),
+        ('pkg', True, ['pkg/a.py', 'pkg/a.pyi', 'pkg/b.pyi', 'pkg/sub/c.py']),
+        # Stub files passed explicitly are always checked
+        ('pkg/b.pyi', False, ['pkg/b.pyi']),
+    ],
+)
+def testCheckPathsIncludeStubFiles(
+        tmp_path: Path,
+        path: str,
+        includeStubFiles: bool,
+        expected: list[str],
+) -> None:
+    """
+    Test which files a folder scan checks: .py files always, stub (.pyi) files
+    only with ``--include-stub-files``, and .pyc files never. The files are
+    sorted together, so ``a.pyi`` comes right after ``a.py``. Also test that a
+    stub file passed explicitly is checked even when the option is off.
+    """
+    for name in [
+        'a.py',
+        'a.pyi',
+        'b.pyi',
+        'sub/c.py',
+        '__pycache__/a.cpython-313.pyc',  # should never be checked
+    ]:
+        filename = tmp_path / 'pkg' / name
+        filename.parent.mkdir(parents=True, exist_ok=True)
+        filename.write_text('', encoding='utf-8')
+
+    violations = _checkPaths(
+        (str(tmp_path / path),),
+        quiet=True,
+        # A pattern that matches no file path. (The default, '', would
+        # exclude every file, and a pattern such as `\.tox` could match the
+        # temporary folder's own path.)
+        exclude='^$',
+        includeStubFiles=includeStubFiles,
+    )
+    checkedFiles = [
+        Path(_).relative_to(tmp_path).as_posix() for _ in violations
+    ]
+    assert checkedFiles == expected
+
+
+@pytest.mark.parametrize('includeStubFiles', [False, True])
+def testCheckPathsMatchesExtensionsLikeRglob(
+        tmp_path: Path,
+        includeStubFiles: bool,
+) -> None:
+    """
+    Test that folder scans match file extensions with the platform's case
+    rules, the same way as ``rglob()``: on Windows, ``B.PY`` is a Python file
+    and ``E.PYI`` is a stub file; on macOS and Linux, they aren't. Also test
+    that every stub file a scan finds is checked as a stub file.
+    """
+    folder = tmp_path / 'pkg'
+    folder.mkdir()
+    stubContent = (DATA_DIR / 'numpy/stub_file/cases.pyi').read_text(
+        encoding='utf-8',
+    )
+    for name in [
+        'a.py',
+        'B.PY',
+        'c.Py',
+        'd.pyi',
+        'E.PYI',
+        'f.pyc',
+        'G.PYW',
+        'h.pyw',
+    ]:
+        isStub = name.lower().endswith('.pyi')
+        (folder / name).write_text(stubContent if isStub else '', 'utf-8')
+
+    violations = _checkPaths(
+        (str(folder),),
+        quiet=True,
+        exclude='^$',  # a pattern that matches no file path
+        includeStubFiles=includeStubFiles,
+    )
+    checkedFiles = [
+        Path(_).relative_to(tmp_path).as_posix() for _ in violations
+    ]
+
+    patterns = ['*.py', '*.pyi'] if includeStubFiles else ['*.py']
+    expected = sorted({_ for p in patterns for _ in folder.rglob(p)})
+    assert checkedFiles == [
+        _.relative_to(tmp_path).as_posix() for _ in expected
+    ]
+
+    # Every stub file that a folder scan finds must also be checked as a stub
+    # file: its placeholder bodies must not cause DOC202, DOC403 or DOC502.
+    # (DOC201, DOC403 and DOC203 come from methods whose docstrings and return
+    # annotations are wrong even without a body.)
+    stubFileCodes = {
+        Path(name).relative_to(tmp_path).as_posix(): [
+            _.fullErrorCode for _ in fileViolations
+        ]
+        for name, fileViolations in violations.items()
+        if Path(name).match('*.pyi')
+    }
+    for codes in stubFileCodes.values():
+        assert codes == ['DOC201', 'DOC403', 'DOC203', 'DOC105']
+
+    if sys.platform == 'win32':
+        assert 'pkg/B.PY' in checkedFiles
+        assert 'pkg/c.Py' in checkedFiles
+        assert ('pkg/E.PYI' in checkedFiles) is includeStubFiles
+        assert ('pkg/E.PYI' in stubFileCodes) is includeStubFiles
+
+
+def testExplicitUppercaseStubFileFollowsPlatformCaseRules(
+        tmp_path: Path,
+) -> None:
+    """
+    Test that a stub file passed explicitly follows the platform's case rules,
+    like folder scans: ``API.PYI`` is checked as a stub file on Windows, but as
+    an ordinary Python file on macOS and Linux.
+    """
+    # The files go in separate folders, because file names on macOS and
+    # Windows ignore case
+    results: dict[str, list[str]] = {}
+    for folder, name in [
+        ('lower', 'api.pyi'),
+        ('upper', 'API.PYI'),
+        ('python', 'api.py'),
+    ]:
+        filename = tmp_path / folder / name
+        filename.parent.mkdir()
+        shutil.copyfile(DATA_DIR / 'numpy/stub_file/cases.pyi', filename)
+        violations = _checkFile(filename=filename, style='numpy')
+        results[folder] = list(map(str, violations))
+
+    # Make sure that stub files and Python files really get different results
+    assert results['lower'] != results['python']
+
+    if sys.platform == 'win32':
+        assert results['upper'] == results['lower']
+    else:
+        assert results['upper'] == results['python']
+
+
+@pytest.mark.parametrize(
+    ('cliOptions', 'pyprojectContent', 'stubFileIsChecked'),
+    [
+        pytest.param([], None, False, id='default'),
+        pytest.param(
+            ['--include-stub-files=True'],
+            None,
+            True,
+            id='command-line',
+        ),
+        pytest.param(
+            [],
+            '[tool.pydoclint]\ninclude-stub-files = true\n',
+            True,
+            id='pyproject-toml',
+        ),
+    ],
+)
+def testIncludeStubFilesOption(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        cliOptions: list[str],
+        pyprojectContent: str | None,
+        stubFileIsChecked: bool,
+) -> None:
+    """
+    Test that ``--include-stub-files`` can be turned on from the command line
+    or from pyproject.toml, and that folder scans skip stub (.pyi) files by
+    default.
+    """
+    # Run from `tmp_path` so that this repo's pyproject.toml isn't loaded
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / 'pkg').mkdir()
+    shutil.copyfile(
+        DATA_DIR / 'numpy/stub_file/cases.pyi',
+        tmp_path / 'pkg/cases.pyi',
+    )
+    if pyprojectContent is not None:
+        (tmp_path / 'pyproject.toml').write_text(
+            pyprojectContent,
+            encoding='utf-8',
+        )
+
+    result = CliRunner().invoke(cliMain, [*cliOptions, 'pkg'])
+
+    # The stub file has violations, so it fails the run if it's checked
+    assert result.exit_code == (1 if stubFileIsChecked else 0), result.output
+    assert ('pkg/cases.pyi' in result.output) is stubFileIsChecked
 
 
 @pytest.mark.parametrize('style', ALL_STYLES)
