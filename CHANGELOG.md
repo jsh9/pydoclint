@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.10.2] - 2026-09-28
+## [0.11.0] - 2026-10-02
 
 - Added
   - A new config option `--include-stub-files` (shortform: `-isf`, default:
@@ -23,16 +23,15 @@
   - False-positive `DOC203` violations for abstract methods and stub functions
     annotated with `Generator[YieldType, SendType, ReturnType]` whose "Returns"
     section documents `ReturnType`, as for a generator that both yields and
-    returns. A "Returns" section with the whole annotation is still accepted
+    returns
   - False-positive `DOC202` violations for abstract methods and stub functions
     that have a "Returns" section but no return annotation. (`DOC203` still
     reports the missing annotation when return types are checked.)
-  - A crash (`IndexError`) when `--check-arg-defaults` is `True` and a
-    positional-only argument (one before `/`) has a default value. Defaults of
-    positional-only arguments were also ignored, so the `...` placeholder in
-    stub files wasn't handled for them
+  - A crash (`IndexError`) when `--check-arg-defaults` is `True` and
+    positional-only arguments (the ones before `/`) have default values. When
+    it didn't crash, the defaults of positional-only arguments were ignored
 - Full diff
-  - https://github.com/jsh9/pydoclint/compare/0.10.1...0.10.2
+  - https://github.com/jsh9/pydoclint/compare/0.10.1...0.11.0
 
 ## [0.10.1] - 2026-09-27
 
