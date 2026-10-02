@@ -504,7 +504,8 @@ def isStubFilename(filename: str | Path) -> bool:
     """
     Return whether ``filename`` is a stub (.pyi) file.
 
-    This uses the same matching as folder scans in ``main.py``, which follows
-    the platform's case rules: on Windows, ``API.PYI`` is a stub file too.
+    This follows the same case rules as ``rglob()`` in folder scans in
+    ``main.py`` (the platform's rules): on Windows, ``API.PYI`` is a stub file
+    too.
     """
     return Path(filename).match(STUB_FILE_PATTERN)

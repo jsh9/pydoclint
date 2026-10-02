@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import logging
 import re
+from itertools import chain
 from pathlib import Path
 
 import click
@@ -904,26 +905,23 @@ def _checkPaths(
         )
 
     excludePattern = re.compile(exclude)
-    patterns = (
-        (PYTHON_FILE_PATTERN, STUB_FILE_PATTERN)
-        if includeStubFiles
-        else (PYTHON_FILE_PATTERN,)
-    )
 
     for path_ in paths:
         path = Path(path_)
         if path.is_file():
             filenames.append(path)
         elif path.is_dir():
-            # Walk the folder only once, and sort all matches together so that
-            # `foo.pyi` comes right after `foo.py` in the output. Matching with
-            # `Path.match()` follows the platform's case rules, just like
-            # `rglob()` does: on Windows, `API.PY` is a Python file too.
+            # Sort all matches together so that `foo.pyi` comes right after
+            # `foo.py` in the output. (A single `rglob('*.py*')` would also
+            # visit every `.pyc` file, which makes folder scans much slower.)
             filenames.extend(
                 sorted(
-                    _
-                    for _ in path.rglob('*.py*')
-                    if any(_.match(pattern) for pattern in patterns)
+                    chain(
+                        path.rglob(PYTHON_FILE_PATTERN),
+                        path.rglob(STUB_FILE_PATTERN)
+                        if includeStubFiles
+                        else (),
+                    )
                 )
             )
 
