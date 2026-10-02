@@ -812,23 +812,50 @@ def testAddStarsToDocstringArgsWhenApplicable(
             ['a: int'],
             id='double-backticks-no-docstring-default',
         ),
-        *[
-            pytest.param(
-                [f'a: {typeHint}'],
-                ['a: int, default=...'],
-                [f'a: {typeHint}'],
-                ['a: int'],
-                id=f'malformed-{caseName}',
-            )
-            for caseName, typeHint in [
-                ('quote', "Literal['unterminated, default=3"),
-                ('bracket', 'list[int, default=3'),
-                ('mismatched-brackets', 'list[int), default=3'),
-                ('extra-bracket', 'int], default=3'),
-                ('incomplete-expression', 'int +, default=3'),
-                ('indentation', 'list[\n int\n]\n  str, default=3'),
-            ]
-        ],
+        # Docstring types that aren't valid Python before `, default=` are left
+        # unchanged, so the type comparison reports them later
+        pytest.param(
+            ["a: Literal['unterminated, default=3"],
+            ['a: int, default=...'],
+            ["a: Literal['unterminated, default=3"],
+            ['a: int'],
+            id='malformed-quote',
+        ),
+        pytest.param(
+            ['a: list[int, default=3'],
+            ['a: int, default=...'],
+            ['a: list[int, default=3'],
+            ['a: int'],
+            id='malformed-bracket',
+        ),
+        pytest.param(
+            ['a: list[int), default=3'],
+            ['a: int, default=...'],
+            ['a: list[int), default=3'],
+            ['a: int'],
+            id='malformed-mismatched-brackets',
+        ),
+        pytest.param(
+            ['a: int], default=3'],
+            ['a: int, default=...'],
+            ['a: int], default=3'],
+            ['a: int'],
+            id='malformed-extra-bracket',
+        ),
+        pytest.param(
+            ['a: int +, default=3'],
+            ['a: int, default=...'],
+            ['a: int +, default=3'],
+            ['a: int'],
+            id='malformed-incomplete-expression',
+        ),
+        pytest.param(
+            ['a: list[\n int\n]\n  str, default=3'],
+            ['a: int, default=...'],
+            ['a: list[\n int\n]\n  str, default=3'],
+            ['a: int'],
+            id='malformed-indentation',
+        ),
     ],
 )
 def testRemovePlaceholderDefaults(
@@ -837,6 +864,14 @@ def testRemovePlaceholderDefaults(
         expectedDocArgs: list[str],
         expectedActualArgs: list[str],
 ) -> None:
+    """
+    Test that, for each argument whose default in the code is the `...`
+    placeholder, removePlaceholderDefaults() removes the default from both the
+    docstring and the code, so that only the types are compared. Other
+    arguments are left unchanged, and so is a docstring type that isn't valid
+    Python.
+    """
+
     def toArgList(args: list[str]) -> ArgList:
         return ArgList([
             Arg(name=_.split(': ', 1)[0], typeHint=_.split(': ', 1)[1])
@@ -882,6 +917,12 @@ def testPlaceholderDefaultsPreserveAnnotations(
         typeHint: str,
         docDefault: str,
 ) -> None:
+    """
+    Test that removePlaceholderDefaults() only removes the outer default: a
+    `, default=` inside the type itself (such as in `Annotated` metadata or a
+    `Literal` string) is kept, whatever form the documented default takes.
+    Also test that the input lists aren't modified.
+    """
     docArgs = ArgList([Arg(name='a', typeHint=typeHint + docDefault)])
     actualArgs = ArgList([
         Arg(name='a', typeHint=typeHint + ', default=...'),
