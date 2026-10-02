@@ -353,14 +353,17 @@ def testRealFlake8AppliesLowercaseMigrationReplacements(
 @pytest.mark.parametrize(
     ('targetName', 'expectedCodes'),
     [
-        ('sample.py', ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC105']),
-        ('sample.pyi', ['DOC201', 'DOC105']),
+        (
+            'sample.py',
+            ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC403', 'DOC105'],
+        ),
+        ('sample.pyi', ['DOC201', 'DOC403', 'DOC105']),
         # Stub detection follows the platform's case rules, like folder scans
         (
             'sample.PYI',
-            ['DOC201', 'DOC105']
+            ['DOC201', 'DOC403', 'DOC105']
             if sys.platform == 'win32'
-            else ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC105'],
+            else ['DOC502', 'DOC403', 'DOC201', 'DOC403', 'DOC403', 'DOC105'],
         ),
     ],
 )

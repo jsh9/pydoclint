@@ -53,6 +53,21 @@ class StubClass:
         """
         ...
 
+    def documentsYieldsWithNonGeneratorAnnotation(self, var1: str) -> None:
+        """Method that documents what it yields, but can't yield anything.
+
+        The linter will complain about the "Yields" section. Without a body to
+        look at, the return annotation is the only evidence of what the method
+        does, and `None` isn't a Generator, Iterator, or Iterable.
+
+        :param var1: Variable.
+        :type var1: str
+
+        :yield: Paths to the files and directories listed.
+        :ytype: str
+        """
+        ...
+
     def hasWrongArgType(self, var1: str) -> None:
         """Method whose docstring has the wrong argument type.
 

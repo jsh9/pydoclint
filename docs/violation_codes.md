@@ -91,9 +91,11 @@ on the top) do not need to have a return section.
 | `DOC405` | Function/method has both "return" and "yield" statements; please use `Generator[YieldType, SendType, ReturnType]` as the return annotation ([explanation](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html)) |
 
 Note on `DOC403`: It is not reported for abstract methods (methods with
-`@abstractmethod` as their outer-most decorator) or for functions in stub
-(`.pyi`) files. Their bodies are placeholders, so a body without "yield"
-statements doesn't mean that the function doesn't yield anything.
+`@abstractmethod` as their outer-most decorator). For functions in stub
+(`.pyi`) files, it is only reported when the return annotation isn't a
+Generator/Iterator/Iterable (or is missing). The bodies of both are
+placeholders, so a body without "yield" statements doesn't mean that the
+function doesn't yield anything.
 
 ## 6. `DOC5xx`: Violations about "raise" and "assert" statements
 

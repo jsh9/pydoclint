@@ -858,10 +858,26 @@ class Visitor(ast.NodeVisitor):
                 else:
                     violations.append(v402)
 
-        if docstringHasYieldsSection:  # noqa: SIM102
-            if not hasYieldStmt or noGenNorIterAsRetAnno:  # noqa: SIM102
-                if not self.hasPlaceholderBody:
-                    violations.append(v403)
+        if docstringHasYieldsSection:
+            if not self.hasPlaceholderBody:
+                isYieldsSectionUnexpected = (
+                    not hasYieldStmt or noGenNorIterAsRetAnno
+                )
+            elif self.isStubFile:
+                # A placeholder body has no "yield" statements to look for, but
+                # in a stub file, the return annotation still shows whether
+                # the function can yield anything
+                isYieldsSectionUnexpected = noGenNorIterAsRetAnno
+            else:
+                # TODO: Decide whether abstract methods should also get DOC403
+                #  when their return annotation isn't a Generator, Iterator,
+                #  or Iterable. (This would add new violations to existing
+                #  code, so it isn't done here yet.) See:
+                #  https://github.com/jsh9/pydoclint/issues/309
+                isYieldsSectionUnexpected = False
+
+            if isYieldsSectionUnexpected:
+                violations.append(v403)
 
         if hasYieldStmt and self.checkYieldTypes:
             if docstringHasYieldsSection:

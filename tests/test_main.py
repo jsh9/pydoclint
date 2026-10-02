@@ -1340,12 +1340,20 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
             'section in the docstring, but there are no "yield" statements, or the '
             'return annotation is not a Generator/Iterator/Iterable. (Or it could be '
             'because the function lacks a return annotation.)',
+            'DOC403: Method `StubClass.documentsYieldsWithNonGeneratorAnnotation` has a '
+            '"Yields" section in the docstring, but there are no "yield" statements, or '
+            'the return annotation is not a Generator/Iterator/Iterable. (Or it could be '
+            'because the function lacks a return annotation.)',
             'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type '
             'hints in these args do not match: var1',
         ],
         '.pyi': [
             'DOC201: Method `StubClass.documentsYieldsWithIterator` does not have a '
             'return section in docstring',
+            'DOC403: Method `StubClass.documentsYieldsWithNonGeneratorAnnotation` has a '
+            '"Yields" section in the docstring, but there are no "yield" statements, or '
+            'the return annotation is not a Generator/Iterator/Iterable. (Or it could be '
+            'because the function lacks a return annotation.)',
             'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type '
             'hints in these args do not match: var1',
         ],
@@ -1548,7 +1556,8 @@ def testCheckPathsMatchesExtensionsLikeRglob(
     ]
 
     # Every stub file that a folder scan finds must also be checked as a stub
-    # file: its placeholder bodies must not cause DOC403 or DOC502
+    # file: its placeholder bodies must not cause DOC403 or DOC502 (DOC403
+    # comes only from a return annotation that can't yield)
     stubFileCodes = {
         Path(name).relative_to(tmp_path).as_posix(): [
             _.fullErrorCode for _ in fileViolations
@@ -1557,7 +1566,7 @@ def testCheckPathsMatchesExtensionsLikeRglob(
         if Path(name).match('*.pyi')
     }
     for codes in stubFileCodes.values():
-        assert codes == ['DOC201', 'DOC105']
+        assert codes == ['DOC201', 'DOC403', 'DOC105']
 
     if sys.platform == 'win32':
         assert 'pkg/B.PY' in checkedFiles

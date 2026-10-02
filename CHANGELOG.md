@@ -6,9 +6,11 @@
   - A new config option `--include-stub-files` (shortform: `-isf`, default:
     `False`), so that scanning a folder also checks stub (`.pyi`) files (#303)
 - Fixed
-  - False-positive `DOC403` and `DOC502` violations in stub (`.pyi`) files.
-    Functions in stub files are now checked like abstract methods, in both the
-    native mode and _flake8_ (#303)
+  - False-positive `DOC403` and `DOC502` violations in stub (`.pyi`) files,
+    whose function bodies are placeholders, in both the native mode and
+    _flake8_ (#303). `DOC403` is still reported in stub files when the return
+    annotation isn't a Generator/Iterator/Iterable (or is missing), because
+    then the function can't yield anything
   - False-positive `DOC105` and `DOC605` violations in stub files when
     `--check-arg-defaults` is `True`: an argument or class attribute whose
     default is the `...` placeholder can now be documented with any default

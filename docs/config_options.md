@@ -510,14 +510,20 @@ pydoclint --include-stub-files=True <FOLDER_NAME>
 ```
 
 The body of a function in a stub file is a placeholder (usually `...`), so
-_pydoclint_ checks functions in stub files the same way it checks abstract
-methods: it doesn't report `DOC403` or `DOC502` for them, because a placeholder
-body without `yield` or `raise` statements doesn't mean that the function
-doesn't yield or raise. `DOC402` and `DOC404` aren't reported for them either,
-because these checks only run when there are `yield` statements in the body
-(see [issue 309](https://github.com/jsh9/pydoclint/issues/309)). The other
-checks work as usual. This applies whenever a `.pyi` file is checked, including
-in _flake8_.
+_pydoclint_ doesn't rely on it when it checks functions in stub files:
+
+- `DOC502` isn't reported, because a body without `raise` statements doesn't
+  mean that the function doesn't raise anything.
+- `DOC403` is only reported when the return annotation isn't a `Generator`,
+  `Iterator`, or `Iterable` (or is missing), because then the function can't
+  yield anything. A body without `yield` statements doesn't count.
+- `DOC402` and `DOC404` aren't reported, because these checks only run when
+  there are `yield` statements in the body (see
+  [issue 309](https://github.com/jsh9/pydoclint/issues/309)).
+
+Abstract methods are checked the same way, except that they don't get `DOC403`
+at all. The other checks work as usual. This applies whenever a `.pyi` file is
+checked, including in _flake8_.
 
 This option is only available in the native command-line mode. If you use
 _pydoclint_ within _flake8_, you can use _flake8_'s
