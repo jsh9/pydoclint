@@ -99,6 +99,17 @@ def testDoList1ItemsStartWithList2Items(
             'def func4(a, *args, d: bool=True, e: str="key"): pass',
             {'d': True, 'e': 'key'},
         ),
+        # Case 6: Positional-only and regular arguments share the defaults
+        ('def func5(a=1, /, b=2): pass', {'a': 1, 'b': 2}),
+        # Case 7: Defaults spanning positional-only, regular, and keyword-only
+        (
+            'def func6(a, b=2, /, c=3, *, d=4): pass',
+            {'b': 2, 'c': 3, 'd': 4},
+        ),
+        # Case 8: Only positional-only arguments with defaults
+        ('def func7(a=1, b=2, /): pass', {'a': 1, 'b': 2}),
+        # Case 9: Positional-only argument with a placeholder default (stubs)
+        ('def func8(key, default=..., /): pass', {'default': Ellipsis}),
     ],
 )
 def testBuildFuncArgToDefaultMapping(

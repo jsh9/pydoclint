@@ -13,6 +13,10 @@
     `--check-arg-defaults` is `True`: an argument or class attribute whose
     default is the `...` placeholder can now be documented with any default
     value or none
+  - A crash (`IndexError`) when `--check-arg-defaults` is `True` and a
+    positional-only argument (one before `/`) has a default value. Defaults of
+    positional-only arguments were also ignored, so the `...` placeholder in
+    stub files wasn't handled for them
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.10.1...0.10.2
 

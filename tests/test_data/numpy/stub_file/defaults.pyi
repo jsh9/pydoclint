@@ -128,3 +128,22 @@ def backtickDefaults(
         Wrong type: the argument is an ``int``.
     """
     ...
+
+def positionalOnlyDefaults(key: str, default: int = ..., /) -> int:
+    """
+    Function whose positional-only argument has a placeholder default.
+
+    Parameters
+    ----------
+    key : str
+        The key.
+    default : int, default=0
+        What to return when the key is missing. (Any documented default is
+        fine for positional-only arguments too.)
+
+    Returns
+    -------
+    int
+        The value.
+    """
+    ...

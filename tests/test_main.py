@@ -1397,6 +1397,9 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
             'DOC105: Function `backtickDefaults`: Argument names match, but type hints in '
             'these args do not match: placeholder, customDefault, wrongType . (Note: '
             'docstring arg defaults should look like: `, default=XXX`)',
+            'DOC105: Function `positionalOnlyDefaults`: Argument names match, but type '
+            'hints in these args do not match: default . (Note: docstring arg defaults '
+            'should look like: `, default=XXX`)',
         ],
         '.pyi': [
             'DOC605: Class `Config`: Attribute names match, but type hints in these '

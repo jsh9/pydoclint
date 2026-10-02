@@ -391,14 +391,21 @@ def testRealFlake8ChecksStubFilesLikeAbstractMethods(
 
 @pytest.mark.parametrize('style', ['google', 'numpy'])
 @pytest.mark.parametrize(
-    ('targetName', 'mismatchedNames', 'mismatchedBacktickNames'),
+    (
+        'targetName',
+        'mismatchedNames',
+        'mismatchedBacktickNames',
+        'positionalOnlyCodes',
+    ),
     [
         (
             'sample.py',
             'literal, wrongAnnotated, wrongLiteral, customDefault',
             'placeholder, customDefault, wrongType',
+            ['DOC105'],
         ),
-        ('sample.pyi', 'wrongAnnotated, wrongLiteral', 'wrongType'),
+        # The positional-only argument's placeholder default is accepted too
+        ('sample.pyi', 'wrongAnnotated, wrongLiteral', 'wrongType', []),
     ],
 )
 def testRealFlake8ChecksStubArgDefaults(
@@ -407,6 +414,7 @@ def testRealFlake8ChecksStubArgDefaults(
         targetName: str,
         mismatchedNames: str,
         mismatchedBacktickNames: str,
+        positionalOnlyCodes: list[str],
 ) -> None:
     result = runRealFlake8(
         tmp_path,
@@ -431,6 +439,7 @@ def testRealFlake8ChecksStubArgDefaults(
         'DOC105',
         'DOC605',
         'DOC105',
+        *positionalOnlyCodes,
     ], output
     assert (
         f'attributes do not match: {mismatchedNames}  (' in violationLines[2]

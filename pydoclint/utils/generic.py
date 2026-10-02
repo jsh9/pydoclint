@@ -363,22 +363,24 @@ def buildFuncArgToDefaultMapping(
     """
     argToDefaultMapping: dict[ast.arg, ast.expr] = {}
 
-    regularArgs = funcDef.args.args
+    # Positional-only arguments (the ones before `/`) come first, and they
+    # share `defaults` with the other positional arguments
+    positionalArgs = funcDef.args.posonlyargs + funcDef.args.args
     kwOnlyArgs = funcDef.args.kwonlyargs
     defaults = funcDef.args.defaults
     kwDefaults = funcDef.args.kw_defaults
 
     # Map positional arguments to their defaults
-    # defaults correspond to the LAST len(defaults) regular arguments
+    # defaults correspond to the LAST len(defaults) positional arguments
     if defaults:
-        numArgs = len(regularArgs)
+        numArgs = len(positionalArgs)
         numDefaults = len(defaults)
         argsWithDefaultsStart = numArgs - numDefaults
 
         for i, default in enumerate(defaults):
             argIndex = argsWithDefaultsStart + i
-            if argIndex < len(regularArgs):
-                argToDefaultMapping[regularArgs[argIndex]] = default
+            if argIndex < len(positionalArgs):
+                argToDefaultMapping[positionalArgs[argIndex]] = default
 
     # Map keyword-only arguments to their defaults
     # kwDefaults has one-to-one correspondence with kwOnlyArgs
