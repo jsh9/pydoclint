@@ -898,13 +898,17 @@ def _checkPaths(
 ) -> dict[str, list[Violation]]:
     filenames: list[Path] = []
 
-    if not quiet:
+    if exclude and not quiet:
         skipMsg = f'Skipping files that match this pattern: {exclude}'
         click.echo(
             click.style(skipMsg, fg='yellow', bold=True), err=echoAsError
         )
 
-    excludePattern = re.compile(exclude)
+    # An empty pattern excludes nothing. (Compiled as is, it would match
+    # every file path and exclude every file.)
+    excludePattern: re.Pattern[str] | None = (
+        re.compile(exclude) if exclude else None
+    )
 
     for path_ in paths:
         path = Path(path_)
@@ -928,7 +932,9 @@ def _checkPaths(
     allViolations: dict[str, list[Violation]] = {}
 
     for filename in filenames:
-        if excludePattern.search(filename.as_posix()):
+        if excludePattern is not None and excludePattern.search(
+            filename.as_posix()
+        ):
             continue
 
         if not quiet:

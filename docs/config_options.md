@@ -79,6 +79,9 @@ For example:
 pydoclint --exclude='\.git|\.tox|tests/data' <FOLDER_NAME>
 ```
 
+The default value is `\.git|\.tox`. An empty pattern (`--exclude=''`, or
+`exclude = ""` in your config file) excludes no files.
+
 This option is only available in the native command-line mode. If you use
 _pydoclint_ within _flake8_, you can use _flake8_'s
 [`--exclude` option](https://flake8.pycqa.org/en/latest/user/options.html#cmdoption-flake8-exclude).
