@@ -1317,8 +1317,17 @@ def testAbstractMethod(style: str, checkReturnTypes: bool) -> None:
 @pytest.mark.parametrize('suffix', ['.py', '.pyi'])
 @pytest.mark.parametrize('style', ALL_STYLES)
 def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
-    # The file suffix decides whether a file is a stub file, so the same
-    # content is checked under both suffixes
+    """
+    Test that functions in stub (.pyi) files are checked without relying on
+    their placeholder bodies (`...`).
+
+    The same fixture is checked twice: as a .py file and as a .pyi file. Only
+    the file suffix differs, so comparing the two expected lists shows what
+    changes for stubs. Violations that come only from the placeholder body
+    (such as DOC502 for a "Raises" section without "raise" statements) are
+    reported for .py but not for .pyi. Violations that don't depend on the
+    body (such as DOC105 for a wrong argument type) are reported for both.
+    """
     filename = tmp_path / f'cases{suffix}'
     shutil.copyfile(DATA_DIR / f'{style}/stub_file/cases.pyi', filename)
     violations = _checkFile(filename=filename, style=style)
@@ -1373,7 +1382,19 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
 @pytest.mark.parametrize('suffix', ['.py', '.pyi'])
 @pytest.mark.parametrize('style', ['google', 'numpy'])
 def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
-    # In stub files, `...` defaults can be documented with any default or none
+    """
+    Test that, with `--check-arg-defaults`, a `...` default in a stub (.pyi)
+    file is treated as a placeholder: the docstring can give any default value
+    or none, and only the type is compared.
+
+    As in testStubFile(), the same fixture is checked as a .py file and as a
+    .pyi file. In the .py file, `...` is a real default value, so docstrings
+    that don't say `default=...` get DOC105 (arguments) or DOC605 (class
+    attributes). In the .pyi file, only wrong types are reported. The fixture
+    covers function arguments, class attributes, types that contain
+    `, default=` themselves, types wrapped in backticks, and positional-only
+    arguments.
+    """
     filename = tmp_path / f'defaults{suffix}'
     shutil.copyfile(DATA_DIR / f'{style}/stub_file/defaults.pyi', filename)
     violations = _checkFile(
@@ -1442,13 +1463,18 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
     assert list(map(str, violations)) == expectedLookup[suffix]
 
 
-# Like testStubFileArgDefaults, but for untyped arguments, with both type-hint
-# options off. Only the .pyi version is tested: as a .py file, the same content
-# gets DOC108/DOC111 because default values are treated as type hints
-# (https://github.com/jsh9/pydoclint/issues/313), and this test shouldn't lock
-# that bug in.
 @pytest.mark.parametrize('style', ['google', 'numpy'])
 def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
+    """
+    Like testStubFileArgDefaults(), but for untyped arguments, with both
+    type-hint options off: their `...` defaults in a stub (.pyi) file can also
+    be documented with any default or none.
+
+    Only the .pyi version is tested. As a .py file, the same content gets
+    DOC108/DOC111, because default values are treated as type hints
+    (https://github.com/jsh9/pydoclint/issues/313), and this test shouldn't
+    lock that bug in.
+    """
     filename = tmp_path / 'untyped_defaults.pyi'
     shutil.copyfile(
         DATA_DIR / f'{style}/stub_file/untyped_defaults.pyi',
@@ -1469,6 +1495,11 @@ def testSphinxRejectsCheckingStubArgDefaults(
         tmp_path: Path,
         suffix: str,
 ) -> None:
+    """
+    Test that `--check-arg-defaults` with Sphinx style raises an error for
+    stub (.pyi) files too, as it does for .py files. (This is why there is no
+    Sphinx version of testStubFileArgDefaults().)
+    """
     filename = tmp_path / f'cases{suffix}'
     shutil.copyfile(DATA_DIR / 'sphinx/stub_file/cases.pyi', filename)
     with pytest.raises(
@@ -1493,6 +1524,12 @@ def testCheckPathsIncludeStubFiles(
         includeStubFiles: bool,
         expected: list[str],
 ) -> None:
+    """
+    Test which files a folder scan checks: .py files always, stub (.pyi)
+    files only with `--include-stub-files`, and .pyc files never. The files
+    are sorted together, so `a.pyi` comes right after `a.py`. Also test that a
+    stub file passed explicitly is checked even when the option is off.
+    """
     for name in [
         'a.py',
         'a.pyi',
@@ -1524,9 +1561,12 @@ def testCheckPathsMatchesExtensionsLikeRglob(
         tmp_path: Path,
         includeStubFiles: bool,
 ) -> None:
-    # Extensions are matched with the platform's case rules, the same way as
-    # `rglob('*.py')` (and `rglob('*.pyi')`) did before: on Windows, `B.PY` is
-    # a Python file; on macOS and Linux, it isn't.
+    """
+    Test that folder scans match file extensions with the platform's case
+    rules, the same way as `rglob()`: on Windows, `B.PY` is a Python file and
+    `E.PYI` is a stub file; on macOS and Linux, they aren't. Also test that
+    every stub file a scan finds is checked as a stub file.
+    """
     folder = tmp_path / 'pkg'
     folder.mkdir()
     stubContent = (DATA_DIR / 'numpy/stub_file/cases.pyi').read_text(
@@ -1585,9 +1625,13 @@ def testCheckPathsMatchesExtensionsLikeRglob(
 def testExplicitUppercaseStubFileFollowsPlatformCaseRules(
         tmp_path: Path,
 ) -> None:
-    # `API.PYI` is a stub file on Windows, but not on macOS and Linux, just as
-    # folder scans only find it on Windows. The files go in separate folders
-    # because file names on macOS and Windows ignore case.
+    """
+    Test that a stub file passed explicitly follows the platform's case
+    rules, like folder scans: `API.PYI` is checked as a stub file on Windows,
+    but as an ordinary Python file on macOS and Linux.
+    """
+    # The files go in separate folders, because file names on macOS and
+    # Windows ignore case
     results: dict[str, list[str]] = {}
     for folder, name in [
         ('lower', 'api.pyi'),
@@ -1634,6 +1678,11 @@ def testIncludeStubFilesOption(
         pyprojectContent: str | None,
         stubFileIsChecked: bool,
 ) -> None:
+    """
+    Test that `--include-stub-files` can be turned on from the command line or
+    from pyproject.toml, and that folder scans skip stub (.pyi) files by
+    default.
+    """
     # Run from `tmp_path` so that this repo's pyproject.toml isn't loaded
     monkeypatch.chdir(tmp_path)
     (tmp_path / 'pkg').mkdir()
