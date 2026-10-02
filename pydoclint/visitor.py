@@ -750,6 +750,21 @@ class Visitor(ast.NodeVisitor):
             else:
                 returnAnno = ReturnAnnotation(annotation=None)
 
+            generatorAnnotationKind = getGeneratorAnnotationKind(node)
+            if self.hasPlaceholderBody and generatorAnnotationKind is not None:
+                # A placeholder body has no "return" statements to look for.
+                # If the annotation gives the generator a return type (the R
+                # in Generator[Y, S, R]), the "Returns" section documents R, as
+                # it does for a real generator that also returns (see
+                # `checkReturnAndYield()`). If R is None, the whole annotation
+                # is compared, as for a real generator that only yields.
+                retTypeInGenerator = extractReturnTypeFromGeneratorAnnotation(
+                    returnAnnoText=returnAnno.annotation,
+                    generatorAnnotationKind=generatorAnnotationKind,
+                )
+                if retTypeInGenerator != 'None':
+                    returnAnno = ReturnAnnotation(retTypeInGenerator)
+
             if docstringHasReturnSection:
                 returnSec: list[ReturnArg] = doc.returnSection
             else:

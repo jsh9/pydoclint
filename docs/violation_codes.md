@@ -72,6 +72,11 @@ annotation don't need one either if their docstring has a "Yields" section:
 their bodies are placeholders, so the "Yields" section is what shows that they
 yield (rather than returning an iterator).
 
+Note on `DOC203`: For abstract methods and functions in stub (`.pyi`) files
+with a `Generator[YieldType, SendType, ReturnType]` return annotation, the
+"Returns" section is compared with `ReturnType` (unless it's `None`), as it is
+for a generator that has both "yield" and "return" statements.
+
 ## 4. `DOC3xx`: Violations about class docstring and class constructor
 
 | Code     | Explanation                                                                                             |

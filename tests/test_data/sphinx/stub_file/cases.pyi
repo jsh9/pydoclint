@@ -79,6 +79,27 @@ class StubClass:
         """
         ...
 
+    def documentsGeneratorReturnValue(
+        self, var1: str
+    ) -> Generator[str, None, int]:
+        """Method annotated with a `Generator` that returns a value at the end.
+
+        No violations in this method: the "Returns" section documents the
+        generator's return type (`int` in `Generator[str, None, int]`), as it
+        would for the real generator. (In a .py file, this method would get
+        DOC203 and DOC403.)
+
+        :param var1: Variable.
+        :type var1: str
+
+        :yield: Paths to the files and directories listed.
+        :ytype: str
+
+        :return: How many paths were listed.
+        :rtype: int
+        """
+        ...
+
     def hasWrongArgType(self, var1: str) -> None:
         """Method whose docstring has the wrong argument type.
 

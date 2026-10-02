@@ -67,3 +67,55 @@ class AbstractClass(ABC):
         ValueError
             Example exception
         """
+
+    @abstractmethod
+    def abstract_generator_with_return_value(
+        self, var1: str
+    ) -> Generator[str, None, int]:
+        """Abstract generator that returns a value at the end.
+
+        No violations in this method: the "Returns" section documents the
+        generator's return type (`int` in `Generator[str, None, int]`), as it
+        would for the real generator.
+
+        Parameters
+        ----------
+        var1 : str
+            Variable.
+
+        Yields
+        ------
+        str
+            Paths to the files and directories listed.
+
+        Returns
+        -------
+        int
+            How many paths were listed.
+        """
+
+    @abstractmethod
+    def abstract_generator_documented_as_returned(
+        self, var1: str
+    ) -> Generator[str, None, None]:
+        """Abstract generator whose "Returns" section has the whole annotation.
+
+        No violations in this method: when the generator's return type is
+        `None`, the "Returns" section is compared with the whole annotation,
+        as it is for a real generator that only yields.
+
+        Parameters
+        ----------
+        var1 : str
+            Variable.
+
+        Yields
+        ------
+        str
+            Paths to the files and directories listed.
+
+        Returns
+        -------
+        Generator[str, None, None]
+            The generator of paths.
+        """

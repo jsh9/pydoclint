@@ -1342,6 +1342,14 @@ def testStubFile(tmp_path: Path, style: str, suffix: str) -> None:
             '"Yields" section in the docstring, but there are no "yield" statements, or '
             'the return annotation is not a Generator/Iterator/Iterable. (Or it could be '
             'because the function lacks a return annotation.)',
+            'DOC203: Method `StubClass.documentsGeneratorReturnValue` return type(s) in '
+            'docstring not consistent with the return annotation. Return annotation '
+            "types: ['Generator[str, None, int]']; docstring return section types: "
+            "['int']",
+            'DOC403: Method `StubClass.documentsGeneratorReturnValue` has a "Yields" '
+            'section in the docstring, but there are no "yield" statements, or the '
+            'return annotation is not a Generator/Iterator/Iterable. (Or it could be '
+            'because the function lacks a return annotation.)',
             'DOC105: Method `StubClass.hasWrongArgType`: Argument names match, but type '
             'hints in these args do not match: var1',
         ],
