@@ -729,9 +729,10 @@ def testAddStarsToDocstringArgsWhenApplicable(
             id='type-mismatch-is-kept',
         ),
         # `b`'s default in the code is the `...` placeholder, so its default is
-        # removed from both lists, and only its type is compared later. `a`
-        # has a real default, so both of its entries are kept, and the later
-        # comparison still catches the wrong documented default (3 vs 2).
+        # removed from both the docstring and the code, and only its type is
+        # compared later. `a` has a real default, so its default is kept in
+        # both, and the later comparison still catches the wrong documented
+        # default (3 vs 2).
         pytest.param(
             ['a: int, default=3', 'b: int, default=1'],
             ['a: int, default=2', 'b: int, default=...'],
