@@ -5,7 +5,8 @@
 - Fixed
   - An empty `--exclude` pattern (such as `--exclude=''` or `exclude = ""` in
     the config file) excluded every file, so nothing was checked and the run
-    passed. An empty pattern now excludes no files (#311)
+    passed. Now an empty pattern means "don't exclude any files", so every
+    file gets checked (#311)
 - Full diff
   - https://github.com/jsh9/pydoclint/compare/0.11.0...0.11.1
 
