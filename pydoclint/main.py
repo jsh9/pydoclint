@@ -898,13 +898,22 @@ def _checkPaths(
 ) -> dict[str, list[Violation]]:
     filenames: list[Path] = []
 
-    if not quiet:
+    if exclude and not quiet:
         skipMsg = f'Skipping files that match this pattern: {exclude}'
         click.echo(
             click.style(skipMsg, fg='yellow', bold=True), err=echoAsError
         )
 
-    excludePattern = re.compile(exclude)
+    # Compile the exclusion regex only when the user gives a non-empty
+    # pattern; otherwise use `None` to mean "do not exclude any files".
+    #
+    # We can't simply compile an empty string, because the empty regex
+    # matches every string: `re.compile('').search(anyPath)` always
+    # succeeds, which would skip every file and make pydoclint report no
+    # violations. Users who pass `--exclude=''` mean the opposite.
+    excludePattern: re.Pattern[str] | None = (
+        re.compile(exclude) if exclude else None
+    )
 
     for path_ in paths:
         path = Path(path_)
@@ -928,7 +937,12 @@ def _checkPaths(
     allViolations: dict[str, list[Violation]] = {}
 
     for filename in filenames:
-        if excludePattern.search(filename.as_posix()):
+        # Skip this file only if there is an exclusion pattern and it matches
+        # the file path. When `excludePattern` is `None` (empty `--exclude`),
+        # this condition is always False, so every file gets checked.
+        if excludePattern is not None and excludePattern.search(
+            filename.as_posix()
+        ):
             continue
 
         if not quiet:

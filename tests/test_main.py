@@ -1562,10 +1562,8 @@ def testCheckPathsIncludeStubFiles(
     violations = _checkPaths(
         (str(tmp_path / path),),
         quiet=True,
-        # A pattern that matches no file path. (The default, '', would
-        # exclude every file, and a pattern such as `\.tox` could match the
-        # temporary folder's own path.)
-        exclude='^$',
+        # No `exclude` here: its default, '', excludes nothing, while a
+        # pattern such as `\.tox` could match the temporary folder's own path
         includeStubFiles=includeStubFiles,
     )
     checkedFiles = [
@@ -1606,7 +1604,6 @@ def testCheckPathsMatchesExtensionsLikeRglob(
     violations = _checkPaths(
         (str(folder),),
         quiet=True,
-        exclude='^$',  # a pattern that matches no file path
         includeStubFiles=includeStubFiles,
     )
     checkedFiles = [
@@ -1719,6 +1716,87 @@ def testIncludeStubFilesOption(
     # The stub file has violations, so it fails the run if it's checked
     assert result.exit_code == (1 if stubFileIsChecked else 0), result.output
     assert ('pkg/cases.pyi' in result.output) is stubFileIsChecked
+
+
+@pytest.mark.parametrize(
+    ('checkPathsOptions', 'expected'),
+    [
+        pytest.param({}, ['pkg/a.py', 'pkg/sub/b.py'], id='default'),
+        pytest.param(
+            {'exclude': ''},
+            ['pkg/a.py', 'pkg/sub/b.py'],
+            id='empty',
+        ),
+        pytest.param({'exclude': 'sub/'}, ['pkg/a.py'], id='folder'),
+        pytest.param({'exclude': r'a\.py$'}, ['pkg/sub/b.py'], id='file'),
+        pytest.param({'exclude': 'pkg'}, [], id='everything'),
+    ],
+)
+def testCheckPathsExclude(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        checkPathsOptions: dict[str, str],
+        expected: list[str],
+) -> None:
+    """
+    Test that ``exclude`` skips the files whose paths match it, and that an
+    empty pattern (the default of ``_checkPaths()``) skips no files (#311).
+    """
+    # Use relative paths so that the patterns can't match `tmp_path` itself
+    monkeypatch.chdir(tmp_path)
+    for name in ['pkg/a.py', 'pkg/sub/b.py']:
+        Path(name).parent.mkdir(parents=True, exist_ok=True)
+        Path(name).write_text('', encoding='utf-8')
+
+    violations = _checkPaths(('pkg',), quiet=True, **checkPathsOptions)
+    assert list(violations) == expected
+
+
+@pytest.mark.parametrize('path', ['pkg', 'pkg/function.py'])
+@pytest.mark.parametrize(
+    ('cliOptions', 'pyprojectContent'),
+    [
+        pytest.param(['--exclude='], None, id='command-line'),
+        pytest.param(
+            [],
+            '[tool.pydoclint]\nexclude = ""\n',
+            id='pyproject-toml',
+        ),
+    ],
+)
+def testEmptyExcludeOptionExcludesNothing(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        cliOptions: list[str],
+        pyprojectContent: str | None,
+        path: str,
+) -> None:
+    """
+    Test that an empty ``--exclude`` pattern, set from the command line or from
+    pyproject.toml, excludes no files, whether they are in a folder or passed
+    explicitly (#311). (An empty regex matches every file path, so it used to
+    exclude every file and pass the run.)
+    """
+    # Run from `tmp_path` so that this repo's pyproject.toml isn't loaded
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / 'pkg').mkdir()
+    shutil.copyfile(
+        DATA_DIR / 'numpy/args/function.py',
+        tmp_path / 'pkg/function.py',
+    )
+    if pyprojectContent is not None:
+        (tmp_path / 'pyproject.toml').write_text(
+            pyprojectContent,
+            encoding='utf-8',
+        )
+
+    result = CliRunner().invoke(cliMain, [*cliOptions, path])
+
+    # The file has violations, so it fails the run when it's checked
+    assert result.exit_code == 1, result.output
+    assert 'pkg/function.py' in result.output
+    # There is no pattern to report
+    assert 'Skipping files' not in result.output
 
 
 @pytest.mark.parametrize('style', ALL_STYLES)
