@@ -1756,11 +1756,25 @@ def testCheckPathsExclude(
 @pytest.mark.parametrize(
     ('cliOptions', 'pyprojectContent'),
     [
+        # The shell removes the quotes in `--exclude=''` and `--exclude=""`,
+        # so pydoclint gets `--exclude=` from both
         pytest.param(['--exclude='], None, id='command-line'),
+        pytest.param(
+            ['--exclude', ''],
+            None,
+            id='command-line-separate-value',
+        ),
+        # TOML allows both single and double quotes for strings, and users
+        # can use either one
+        pytest.param(
+            [],
+            "[tool.pydoclint]\nexclude = ''\n",
+            id='pyproject-toml-single-quotes',
+        ),
         pytest.param(
             [],
             '[tool.pydoclint]\nexclude = ""\n',
-            id='pyproject-toml',
+            id='pyproject-toml-double-quotes',
         ),
     ],
 )
@@ -1773,9 +1787,9 @@ def testEmptyExcludeOptionExcludesNothing(
 ) -> None:
     """
     Test that an empty ``--exclude`` pattern, set from the command line or from
-    pyproject.toml, excludes no files, whether they are in a folder or passed
-    explicitly (#311). (An empty regex matches every file path, so it used to
-    exclude every file and pass the run.)
+    pyproject.toml (with single or double quotes), excludes no files, whether
+    they are in a folder or passed explicitly (#311). (An empty regex matches
+    every file path, so it used to exclude every file and pass the run.)
     """
     # Run from `tmp_path` so that this repo's pyproject.toml isn't loaded
     monkeypatch.chdir(tmp_path)
