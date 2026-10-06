@@ -61,7 +61,7 @@ def testNativeModeCliDocstringNoqa(style: str) -> None:
             '--require-return-section-when-returning-nothing=False',
             f'--style={style}',
             '--native-mode-noqa-location=docstring',
-            '--exclude=^$',
+            '--exclude=',
             str(DATA_DIR / f'sample_{style}.py'),
         ],
     )
@@ -82,7 +82,7 @@ def testNativeModeCliDefinitionNoqa(style: str) -> None:
             '--require-return-section-when-returning-nothing=False',
             f'--style={style}',
             '--native-mode-noqa-location=definition',
-            '--exclude=^$',
+            '--exclude=',
             str(DATA_DIR / f'sample_{style}.py'),
         ],
     )

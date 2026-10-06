@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from click.testing import CliRunner
+from click.testing import CliRunner, Result
 
 from pydoclint.main import _checkFile, _checkPaths
 from pydoclint.main import main as cliMain
@@ -1668,6 +1668,32 @@ def testExplicitUppercaseStubFileFollowsPlatformCaseRules(
         assert results['upper'] == results['python']
 
 
+def _runCliInSandbox(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        *,
+        fixture: Path,
+        cliArgs: list[str],
+        pyprojectContent: str | None = None,
+) -> Result:
+    """
+    Copy ``fixture`` into ``<tmp_path>/pkg/`` and run the pydoclint CLI there.
+
+    Running from ``tmp_path`` makes sure that this repo's own pyproject.toml
+    isn't loaded, and that only ``pyprojectContent`` (if given) is.
+    """
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / 'pkg').mkdir()
+    shutil.copyfile(fixture, tmp_path / 'pkg' / fixture.name)
+    if pyprojectContent is not None:
+        (tmp_path / 'pyproject.toml').write_text(
+            pyprojectContent,
+            encoding='utf-8',
+        )
+
+    return CliRunner().invoke(cliMain, cliArgs)
+
+
 @pytest.mark.parametrize(
     ('cliOptions', 'pyprojectContent', 'stubFileIsChecked'),
     [
@@ -1698,20 +1724,13 @@ def testIncludeStubFilesOption(
     or from pyproject.toml, and that folder scans skip stub (.pyi) files by
     default.
     """
-    # Run from `tmp_path` so that this repo's pyproject.toml isn't loaded
-    monkeypatch.chdir(tmp_path)
-    (tmp_path / 'pkg').mkdir()
-    shutil.copyfile(
-        DATA_DIR / 'numpy/stub_file/cases.pyi',
-        tmp_path / 'pkg/cases.pyi',
+    result = _runCliInSandbox(
+        tmp_path,
+        monkeypatch,
+        fixture=DATA_DIR / 'numpy/stub_file/cases.pyi',
+        cliArgs=[*cliOptions, 'pkg'],
+        pyprojectContent=pyprojectContent,
     )
-    if pyprojectContent is not None:
-        (tmp_path / 'pyproject.toml').write_text(
-            pyprojectContent,
-            encoding='utf-8',
-        )
-
-    result = CliRunner().invoke(cliMain, [*cliOptions, 'pkg'])
 
     # The stub file has violations, so it fails the run if it's checked
     assert result.exit_code == (1 if stubFileIsChecked else 0), result.output
@@ -1791,26 +1810,91 @@ def testEmptyExcludeOptionExcludesNothing(
     they are in a folder or passed explicitly (#311). (An empty regex matches
     every file path, so it used to exclude every file and pass the run.)
     """
-    # Run from `tmp_path` so that this repo's pyproject.toml isn't loaded
-    monkeypatch.chdir(tmp_path)
-    (tmp_path / 'pkg').mkdir()
-    shutil.copyfile(
-        DATA_DIR / 'numpy/args/function.py',
-        tmp_path / 'pkg/function.py',
+    result = _runCliInSandbox(
+        tmp_path,
+        monkeypatch,
+        fixture=DATA_DIR / 'numpy/args/function.py',
+        cliArgs=[*cliOptions, path],
+        pyprojectContent=pyprojectContent,
     )
-    if pyprojectContent is not None:
-        (tmp_path / 'pyproject.toml').write_text(
-            pyprojectContent,
-            encoding='utf-8',
-        )
-
-    result = CliRunner().invoke(cliMain, [*cliOptions, path])
 
     # The file has violations, so it fails the run when it's checked
     assert result.exit_code == 1, result.output
     assert 'pkg/function.py' in result.output
     # There is no pattern to report
     assert 'Skipping files' not in result.output
+
+
+@pytest.mark.parametrize(
+    ('cliOptions', 'pyprojectContent'),
+    [
+        pytest.param(['--exclude=pkg/'], None, id='command-line'),
+        pytest.param(
+            [],
+            "[tool.pydoclint]\nexclude = 'pkg/'\n",
+            id='pyproject-toml',
+        ),
+    ],
+)
+def testNonEmptyExcludeOptionSkipsMatchingFiles(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        cliOptions: list[str],
+        pyprojectContent: str | None,
+) -> None:
+    """
+    Test that a non-empty ``--exclude`` pattern, set from the command line or
+    from pyproject.toml, reports the pattern and skips the files matching it.
+    """
+    result = _runCliInSandbox(
+        tmp_path,
+        monkeypatch,
+        fixture=DATA_DIR / 'numpy/args/function.py',
+        cliArgs=[*cliOptions, '.'],
+        pyprojectContent=pyprojectContent,
+    )
+
+    # The only file with violations is excluded, so the run passes
+    assert result.exit_code == 0, result.output
+    assert 'Skipping files that match this pattern: pkg/' in result.output
+    assert 'pkg/function.py' not in result.output
+
+
+@pytest.mark.parametrize(
+    ('cliOptions', 'pyprojectContent'),
+    [
+        pytest.param(['--exclude=('], None, id='command-line'),
+        pytest.param(
+            [],
+            "[tool.pydoclint]\nexclude = '['\n",
+            id='pyproject-toml',
+        ),
+    ],
+)
+def testInvalidExcludeOptionIsRejected(
+        tmp_path: Path,
+        monkeypatch: pytest.MonkeyPatch,
+        cliOptions: list[str],
+        pyprojectContent: str | None,
+) -> None:
+    """
+    Test that an ``--exclude`` value that isn't a valid regex, set from the
+    command line or from pyproject.toml, is rejected with a clear error message
+    instead of a traceback.
+    """
+    result = _runCliInSandbox(
+        tmp_path,
+        monkeypatch,
+        fixture=DATA_DIR / 'numpy/args/function.py',
+        cliArgs=[*cliOptions, '.'],
+        pyprojectContent=pyprojectContent,
+    )
+
+    # Exit code 2 is what Click uses for usage errors
+    assert result.exit_code == 2, result.output
+    assert "Invalid value for '--exclude'" in result.output
+    assert 'invalid regular expression' in result.output
+    assert 'Traceback' not in result.output
 
 
 @pytest.mark.parametrize('style', ALL_STYLES)
