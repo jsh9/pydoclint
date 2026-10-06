@@ -72,6 +72,24 @@ def validateNativeModeNoqaLocation(
     return value
 
 
+def validateExcludePattern(
+        context: click.Context,  # noqa: ARG001
+        param: click.Parameter,  # noqa: ARG001
+        value: str,
+) -> str:
+    """
+    Validate that the value of the 'exclude' option is a valid regex.
+
+    An empty string is allowed: it means "do not exclude any files".
+    """
+    try:
+        re.compile(value)
+    except re.error as exc:
+        raise click.BadParameter(f'invalid regular expression: {exc}') from exc
+
+    return value
+
+
 @click.command(
     context_settings={'help_option_names': ['-h', '--help']},
     help='Pydoclint, a linter for Python docstring styles',
@@ -88,10 +106,12 @@ def validateNativeModeNoqaLocation(
     type=str,
     show_default=True,
     default=r'\.git|\.tox',
+    callback=validateExcludePattern,
     help=(
         'Regex pattern to exclude files/folders. Please add quotes (both'
         ' double and single quotes are fine) around the regex in the'
-        ' command line.'
+        " command line. Pass an empty string (--exclude='') to exclude"
+        ' no files.'
     ),
 )
 @click.option(
@@ -893,18 +913,29 @@ def _checkPaths(
         checkArgDefaults: bool = False,
         nativeModeNoqaLocation: str = 'docstring',
         quiet: bool = False,
+        # Note: the CLI default is r'\.git|\.tox' (see the `--exclude`
+        # option). An empty string here means "exclude nothing".
         exclude: str = '',
         includeStubFiles: bool = False,
 ) -> dict[str, list[Violation]]:
     filenames: list[Path] = []
 
-    if not quiet:
+    if exclude and not quiet:
         skipMsg = f'Skipping files that match this pattern: {exclude}'
         click.echo(
             click.style(skipMsg, fg='yellow', bold=True), err=echoAsError
         )
 
-    excludePattern = re.compile(exclude)
+    # Compile the exclusion regex only when the user gives a non-empty
+    # pattern; otherwise use `None` to mean "do not exclude any files".
+    #
+    # We can't simply compile an empty string, because the empty regex
+    # matches every string: `re.compile('').search(anyPath)` always
+    # succeeds, which would skip every file and make pydoclint report no
+    # violations. Users who pass `--exclude=''` mean the opposite.
+    excludePattern: re.Pattern[str] | None = (
+        re.compile(exclude) if exclude else None
+    )
 
     for path_ in paths:
         path = Path(path_)
@@ -928,7 +959,12 @@ def _checkPaths(
     allViolations: dict[str, list[Violation]] = {}
 
     for filename in filenames:
-        if excludePattern.search(filename.as_posix()):
+        # Skip this file only if there is an exclusion pattern and it matches
+        # the file path. When `excludePattern` is `None` (empty `--exclude`),
+        # this condition is always False, so every file gets checked.
+        if excludePattern is not None and excludePattern.search(
+            filename.as_posix()
+        ):
             continue
 
         if not quiet:
