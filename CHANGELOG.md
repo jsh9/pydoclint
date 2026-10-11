@@ -1,6 +1,6 @@
 # Change Log
 
-## [0.11.1] - 2026-10-06
+## [0.11.1] - 2026-10-11
 
 - Fixed
   - An empty `--exclude` pattern (such as `--exclude=''` or `exclude = ''` in
