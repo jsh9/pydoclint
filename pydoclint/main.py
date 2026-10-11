@@ -110,8 +110,8 @@ def validateExcludePattern(
     help=(
         'Regex pattern to exclude files/folders. Please add quotes (both'
         ' double and single quotes are fine) around the regex in the'
-        " command line. Pass an empty string (--exclude='') to exclude"
-        ' no files.'
+        " command line. Pass an empty string (--exclude='') to not"
+        ' exclude any files.'
     ),
 )
 @click.option(

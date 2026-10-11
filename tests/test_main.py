@@ -1751,7 +1751,7 @@ def testIncludeStubFilesOption(
         pytest.param({'exclude': 'pkg'}, [], id='everything'),
     ],
 )
-def testCheckPathsExclude(
+def testExcludeParamSkipsMatchingPaths(
         tmp_path: Path,
         monkeypatch: pytest.MonkeyPatch,
         checkPathsOptions: dict[str, str],
