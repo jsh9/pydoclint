@@ -1740,6 +1740,9 @@ def testIncludeStubFilesOption(
 @pytest.mark.parametrize(
     ('checkPathsOptions', 'expected'),
     [
+        # The folder being checked contains exactly these 2 files:
+        # `pkg/a.py` and `pkg/sub/b.py`. `expected` lists the ones that
+        # survive the `exclude` pattern (i.e., the ones that get checked).
         pytest.param({}, ['pkg/a.py', 'pkg/sub/b.py'], id='default'),
         pytest.param(
             {'exclude': ''},
