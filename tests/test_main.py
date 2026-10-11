@@ -1849,6 +1849,9 @@ def testNonEmptyExcludeOptionSkipsMatchingFiles(
     Test that a non-empty ``--exclude`` pattern, set from the command line or
     from pyproject.toml, reports the pattern and skips the files matching it.
     """
+    # `_runCliInSandbox()` copies the fixture to `<tmp_path>/pkg/function.py`
+    # and runs pydoclint from `tmp_path` on `.`, so the only file in the
+    # sandbox is seen as `pkg/function.py`, which matches the `pkg/` pattern
     result = _runCliInSandbox(
         tmp_path,
         monkeypatch,
@@ -1857,7 +1860,8 @@ def testNonEmptyExcludeOptionSkipsMatchingFiles(
         pyprojectContent=pyprojectContent,
     )
 
-    # The only file with violations is excluded, so the run passes
+    # `pkg/function.py` has violations, but it's excluded, so nothing gets
+    # checked and the run passes
     assert result.exit_code == 0, result.output
     assert 'Skipping files that match this pattern: pkg/' in result.output
     assert 'pkg/function.py' not in result.output
