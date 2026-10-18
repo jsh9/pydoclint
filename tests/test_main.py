@@ -1488,10 +1488,8 @@ def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
     type-hint options off: their ``...`` defaults in a stub (.pyi) file can
     also be documented with any default or none.
 
-    Only the .pyi version is tested. As a .py file, the same content gets
-    DOC108/DOC111, because default values are treated as type hints
-    (https://github.com/jsh9/pydoclint/issues/313), and this test shouldn't
-    lock that bug in.
+    Only the .pyi version is tested. A real default in a .py file is not a
+    type hint; that case is testUntypedArgDefaultsAreNotTypeHints (#313).
     """
     filename = tmp_path / 'untyped_defaults.pyi'
     shutil.copyfile(
@@ -1504,6 +1502,184 @@ def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
         checkArgDefaults=True,
         argTypeHintsInSignature=False,
         argTypeHintsInDocstring=False,
+    )
+    assert list(map(str, violations)) == []
+
+
+def _untypedDefaultSource(style: str, *, docstringArg: str) -> str:
+    """Build a one-argument function whose only annotation is a default."""
+    if style == 'numpy':
+        argLine = f'    {docstringArg}'
+        return (
+            'def f(value=3) -> None:\n'
+            '    """Do things.\n'
+            '\n'
+            '    Parameters\n'
+            '    ----------\n'
+            f'{argLine}\n'
+            '        A value.\n'
+            '    """\n'
+        )
+
+    return (
+        'def f(value=3) -> None:\n'
+        '    """Do things.\n'
+        '\n'
+        '    Args:\n'
+        f'        {docstringArg}\n'
+        '    """\n'
+    )
+
+
+_DOC106 = (
+    'DOC106: Function `f`: The option `--arg-type-hints-in-signature` is'
+    ' `True` but there are no argument type hints in the signature'
+)
+_DOC107 = (
+    'DOC107: Function `f`: The option `--arg-type-hints-in-signature` is'
+    ' `True` but not all args in the signature have type hints'
+)
+_DOC109 = (
+    'DOC109: Function `f`: The option `--arg-type-hints-in-docstring` is'
+    ' `True` but there are no type hints in the docstring arg list'
+)
+_DOC110 = (
+    'DOC110: Function `f`: The option `--arg-type-hints-in-docstring` is'
+    ' `True` but not all args in the docstring arg list have type hints'
+)
+_DOC105_WITH_NOTE = (
+    'DOC105: Function `f`: Argument names match, but type hints in these'
+    ' args do not match: value . (Note: docstring arg defaults should look'
+    ' like: `, default=XXX`)'
+)
+_DOC105_PLAIN = (
+    'DOC105: Function `f`: Argument names match, but type hints in these'
+    ' args do not match: value'
+)
+_MISSING_TYPE_HINTS = [_DOC106, _DOC107, _DOC109, _DOC110]
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    ('docArg', 'checkArgDefaults', 'checkTypeHints', 'expected'),
+    [
+        pytest.param(
+            {
+                'numpy': 'value : , default=3',
+                'google': 'value (, default=3): A value.',
+            },
+            True,
+            True,
+            _MISSING_TYPE_HINTS,
+            id='matching-default-still-has-no-type',
+        ),
+        pytest.param(
+            {
+                'numpy': 'value',
+                'google': 'value: A value.',
+            },
+            True,
+            True,
+            [*_MISSING_TYPE_HINTS, _DOC105_WITH_NOTE],
+            id='undocumented-default-is-not-a-type',
+        ),
+        pytest.param(
+            {
+                'numpy': 'value : , default=3',
+                'google': 'value (, default=3): A value.',
+            },
+            True,
+            False,
+            [],
+            id='hints-off-ignores-default-only-text',
+        ),
+        pytest.param(
+            {
+                'numpy': 'value : , default=3',
+                'google': 'value (, default=3): A value.',
+            },
+            False,
+            True,
+            [*_MISSING_TYPE_HINTS, _DOC105_PLAIN],
+            id='defaults-off-still-sees-no-type',
+        ),
+    ],
+)
+def testUntypedArgDefaultsAreNotTypeHints(
+        tmp_path: Path,
+        style: str,
+        docArg: dict[str, str],
+        checkArgDefaults: bool,
+        checkTypeHints: bool,
+        expected: list[str],
+) -> None:
+    """
+    Test that a default value is not a type hint.
+
+    ``value=3`` and ``value : , default=3`` have no type. With
+    ``--check-arg-defaults``, that default must not hide DOC106/DOC107 or
+    DOC109/DOC110, and must not report DOC108/DOC111 when type hints are off.
+    See https://github.com/jsh9/pydoclint/issues/313.
+    """
+    filename = tmp_path / 'untyped_default.py'
+    filename.write_text(
+        _untypedDefaultSource(style, docstringArg=docArg[style]),
+        encoding='utf-8',
+    )
+    violations = _checkFile(
+        filename=filename,
+        style=style,
+        checkArgDefaults=checkArgDefaults,
+        argTypeHintsInSignature=checkTypeHints,
+        argTypeHintsInDocstring=checkTypeHints,
+    )
+    assert list(map(str, violations)) == expected
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testTypedDocstringWithUntypedDefaults(
+        tmp_path: Path,
+        style: str,
+) -> None:
+    """
+    Test the usual untyped-signature setup with types only in the docstring.
+
+    Turning on ``--check-arg-defaults`` must not report DOC108 just because
+    an argument has a default value.
+    """
+    if style == 'numpy':
+        source = (
+            'def bootstrap(values, alpha=0.05) -> None:\n'
+            '    """Return a bootstrap estimate.\n'
+            '\n'
+            '    Parameters\n'
+            '    ----------\n'
+            '    values : numpy.ndarray\n'
+            '        The values to bootstrap.\n'
+            '    alpha : float, default=0.05\n'
+            '        The alpha value.\n'
+            '    """\n'
+        )
+    else:
+        source = (
+            'def bootstrap(values, alpha=0.05) -> None:\n'
+            '    """Return a bootstrap estimate.\n'
+            '\n'
+            '    Args:\n'
+            '        values (numpy.ndarray): The values to bootstrap.\n'
+            '        alpha (float, default=0.05): The alpha value.\n'
+            '    """\n'
+        )
+
+    filename = tmp_path / 'bootstrap.py'
+    filename.write_text(source, encoding='utf-8')
+    violations = _checkFile(
+        filename=filename,
+        style=style,
+        checkArgDefaults=True,
+        argTypeHintsInSignature=False,
+        argTypeHintsInDocstring=True,
+        checkReturnTypes=False,
     )
     assert list(map(str, violations)) == []
 
