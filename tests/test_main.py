@@ -1488,8 +1488,8 @@ def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
     type-hint options off: their ``...`` defaults in a stub (.pyi) file can
     also be documented with any default or none.
 
-    Only the .pyi version is tested. A real default in a .py file is not a
-    type hint; that case is testUntypedArgDefaultsAreNotTypeHints (#313).
+    Only the .pyi version is tested. A real default in a .py file is not a type
+    hint; that case is testUntypedArgDefaultsAreNotTypeHints (#313).
     """
     filename = tmp_path / 'untyped_defaults.pyi'
     shutil.copyfile(
@@ -1644,8 +1644,8 @@ def testTypedDocstringWithUntypedDefaults(
     """
     Test the usual untyped-signature setup with types only in the docstring.
 
-    Turning on ``--check-arg-defaults`` must not report DOC108 just because
-    an argument has a default value.
+    Turning on ``--check-arg-defaults`` must not report DOC108 just because an
+    argument has a default value.
     """
     if style == 'numpy':
         source = (

@@ -268,10 +268,10 @@ def removeOuterDefault(typeHint: str) -> str:
     """
     Return ``typeHint`` without an outer ``, default=`` suffix.
 
-    A default inside the annotation, such as
-    ``Annotated[int, 'units, default=3']``, stays put: the text before that
-    comma is not a complete expression. An untyped argument such as
-    ``, default=3`` becomes an empty string.
+    A default inside the annotation, such as ``Annotated[int, 'units,
+    default=3']``, stays put: the text before that comma is not a complete
+    expression. An untyped argument such as ``, default=3`` becomes an empty
+    string.
     """
     unwrapped = stripBacktickWrapper(typeHint)
     for match in _OUTER_DEFAULT_PREFIX.finditer(unwrapped):
