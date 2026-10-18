@@ -261,6 +261,34 @@ def stripBacktickWrapper(string: str) -> str:
     return string
 
 
+_OUTER_DEFAULT_PREFIX = re.compile(r',\s*default\s*=')
+
+
+def removeOuterDefault(typeHint: str) -> str:
+    """
+    Return ``typeHint`` without an outer ``, default=`` suffix.
+
+    A default inside the annotation, such as
+    ``Annotated[int, 'units, default=3']``, stays put: the text before that
+    comma is not a complete expression. An untyped argument such as
+    ``, default=3`` becomes an empty string.
+    """
+    unwrapped = stripBacktickWrapper(typeHint)
+    for match in _OUTER_DEFAULT_PREFIX.finditer(unwrapped):
+        annotation = unwrapped[: match.start()].rstrip()
+        if not annotation:
+            return ''
+
+        try:
+            ast.parse(annotation.strip(), mode='eval')
+        except SyntaxError:
+            continue
+
+        return annotation
+
+    return typeHint
+
+
 def _replacer(match: Match[str]) -> str:
     # If the matched string starts with 'Literal', return it unmodified
     if match.group(0).startswith('Literal'):

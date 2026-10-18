@@ -8,6 +8,7 @@ if TYPE_CHECKING:
 
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
+    removeOuterDefault,
     specialEqual,
     stripCommentsFromTypeHints,
     stripQuotes,
@@ -67,8 +68,8 @@ class Arg:
         return self.name == other.name
 
     def hasTypeHint(self) -> bool:
-        """Check whether this arg has type hint"""
-        return self.typeHint != ''
+        """Check whether this arg has a type hint, ignoring a default suffix"""
+        return removeOuterDefault(self.typeHint) != ''
 
     def isStarArg(self) -> bool:
         """Check whether this arg is a star arg (such as *args, **kwargs)"""
