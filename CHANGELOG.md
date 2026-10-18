@@ -1,5 +1,12 @@
 # Change Log
 
+## [Unreleased]
+
+- Fixed
+  - `--check-arg-defaults` treated a default on an untyped argument as a type
+    hint. That hid DOC106, DOC107, DOC109, and DOC110, and it reported DOC108
+    or DOC111 when type hints were turned off (#313)
+
 ## [0.11.1] - 2026-10-11
 
 - Fixed

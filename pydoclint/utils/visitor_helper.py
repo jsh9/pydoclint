@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-import re
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -20,8 +19,8 @@ from pydoclint.utils.generic import (
     classifyName,
     getDocstring,
     isPlaceholderDefault,
+    removeOuterDefault,
     specialEqual,
-    stripBacktickWrapper,
     stripQuotes,
 )
 from pydoclint.utils.parse_docstring import parseDocstringInGivenStyle
@@ -820,34 +819,6 @@ def addStarsToDocstringArgsWhenApplicable(
     return ArgList(normalizedDocArgs)
 
 
-DOCSTRING_DEFAULT_PREFIX_PATTERN = re.compile(r',\s*default\s*=')
-
-
-def _removeDocstringDefault(typeHint: str) -> str:
-    """Remove an outer default suffix while preserving annotation text."""
-    # Backticks can wrap the type and the default together, such as in
-    # ``int, default=3``, so remove them first (just as type comparison does)
-    unwrapped = stripBacktickWrapper(typeHint)
-
-    # A `, default=` can also appear inside the type itself, such as in
-    # `Annotated[int, 'units, default=3']`. There, the text before it is not a
-    # complete expression (it has an unclosed string or bracket). So the outer
-    # default starts at the first match whose preceding text parses.
-    for match in DOCSTRING_DEFAULT_PREFIX_PATTERN.finditer(unwrapped):
-        annotation = unwrapped[: match.start()].rstrip()
-        if not annotation:  # an untyped arg, such as `value (, default=3)`
-            return ''
-
-        try:
-            ast.parse(annotation.strip(), mode='eval')
-        except SyntaxError:
-            continue
-
-        return annotation
-
-    return typeHint
-
-
 def removeDocstringDefaults(
         *,
         docArgs: ArgList,
@@ -878,7 +849,7 @@ def removeDocstringDefaults(
         return docArgs
 
     return ArgList([
-        Arg(name=_.name, typeHint=_removeDocstringDefault(_.typeHint))
+        Arg(name=_.name, typeHint=removeOuterDefault(_.typeHint))
         if _.name in argNames
         else _
         for _ in docArgs.infoList
