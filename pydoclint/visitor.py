@@ -936,7 +936,17 @@ class Visitor(ast.NodeVisitor):
             if isYieldsSectionUnexpected:
                 violations.append(v403)
 
-        if hasYieldStmt and self.checkYieldTypes:
+        # For placeholders, an existing Yields section and a recognized
+        # annotation supply both types needed for comparison, without
+        # requiring a new section or a yield statement in the body.
+        canCheckPlaceholderYieldTypes = (
+            self.hasPlaceholderBody
+            and docstringHasYieldsSection
+            and not noGenNorIterAsRetAnno
+        )
+        if self.checkYieldTypes and (
+            hasYieldStmt or canCheckPlaceholderYieldTypes
+        ):
             if docstringHasYieldsSection:
                 yieldSec: list[YieldArg] = doc.yieldSection
             else:

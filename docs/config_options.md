@@ -532,9 +532,12 @@ _pydoclint_ doesn't rely on it when it checks functions in stub files:
   "Returns" section can document either `ReturnType` (as for a generator that
   both yields and returns) or the whole annotation (as for one that only
   yields).
-- `DOC402` and `DOC404` aren't reported, because these checks only run when
-  there are `yield` statements in the body (see
-  [issue 309](https://github.com/jsh9/pydoclint/issues/309)).
+- An existing "Yields" section is checked against a recognized `Generator`,
+  `Iterator`, or `Iterable` annotation (including their async variants). A type
+  mismatch reports `DOC404` when `--check-yield-types` is enabled.
+- A missing "Yields" section doesn't produce `DOC402` or `DOC404`, because
+  those missing-section checks still rely on `yield` statements in the body
+  (see [issue 309](https://github.com/jsh9/pydoclint/issues/309)).
 
 Abstract methods are checked the same way, except that they don't get `DOC403`
 at all. The other checks work as usual. This applies whenever a `.pyi` file is
