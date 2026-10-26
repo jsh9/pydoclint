@@ -18,7 +18,7 @@ from pydoclint.utils.visitor_helper import (
     extractClassAttributesFromNode,
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
-    getDocumentedAndActualClassArgLists,
+    getDocumentedAndCodeClassArgLists,
     getReturnTypeToDocument,
     removeDocstringDefaults,
     shouldIgnoreArgumentName,
@@ -1329,7 +1329,7 @@ def testRequireInlineClassvarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    attrs = getDocumentedAndActualClassArgLists(
+    attrs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1392,7 +1392,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
         'style',
         'attribute_documentation',
         'expected_docargs',
-        'expected_actualargs',
+        'expectedCodeArgs',
         'expected_violations',
     ),
     [
@@ -1501,12 +1501,12 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
         ),
     ],
 )
-def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
+def testGetDocumentedAndCodeClassArgListsWithInlineClassVarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
         expected_docargs: list[Arg],
-        expected_actualargs: list[Arg],
+        expectedCodeArgs: list[Arg],
         expected_violations: list[int],
 ) -> None:
     final_src = src.format(
@@ -1517,7 +1517,7 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+    docArgs, codeArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1534,7 +1534,7 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
 
     assert [v.code for v in violations] == expected_violations
     assert docArgs == ArgList(expected_docargs)
-    assert actualArgs == ArgList(expected_actualargs)
+    assert codeArgs == ArgList(expectedCodeArgs)
 
 
 expected_doc_src3_no_inline = [Arg(name='field2', typeHint='str')]
@@ -1550,7 +1550,7 @@ expected_actual_src3_no_inline = [
         'style',
         'attribute_documentation',
         'expected_docargs',
-        'expected_actualargs',
+        'expectedCodeArgs',
         'expected_violations',
     ),
     [
@@ -1583,12 +1583,12 @@ expected_actual_src3_no_inline = [
         ),
     ],
 )
-def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
+def testGetDocumentedAndCodeClassArgListsWithoutInlinveClassVarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
         expected_docargs: list[Arg],
-        expected_actualargs: list[Arg],
+        expectedCodeArgs: list[Arg],
         expected_violations: list[int],
 ) -> None:
     final_src = src.format(
@@ -1599,7 +1599,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+    docArgs, codeArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1616,7 +1616,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
 
     assert [v.code for v in violations] == expected_violations
     assert docArgs == ArgList(expected_docargs)
-    assert actualArgs == ArgList(expected_actualargs)
+    assert codeArgs == ArgList(expectedCodeArgs)
 
 
 @pytest.mark.parametrize(
@@ -1735,8 +1735,8 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     node = parsed.body[0]
     assert isinstance(node, ast.ClassDef)
 
-    # Extract actual args from the class
-    actualArgs = extractClassAttributesFromNode(
+    # Extract the class attributes from the code
+    codeArgs = extractClassAttributesFromNode(
         node=node,
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
@@ -1754,7 +1754,7 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     updateDocumentedArgListWithInlineDocstrings(
         node=node,
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         requireInlineClassVarDocs=requireInlineClassVarDocs,
         violations=violations,
@@ -1812,7 +1812,7 @@ def testInlineClassAttributeDocsRespectNameKinds(
     )
     node = parsed.body[0]
     assert isinstance(node, ast.ClassDef)
-    actualArgs = extractClassAttributesFromNode(
+    codeArgs = extractClassAttributesFromNode(
         node=node,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(
@@ -1829,13 +1829,13 @@ def testInlineClassAttributeDocsRespectNameKinds(
     updateDocumentedArgListWithInlineDocstrings(
         node=node,
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         argTypeHintsInDocstring=True,
         requireInlineClassVarDocs=True,
         violations=violations,
     )
 
-    assert [arg.name for arg in actualArgs.infoList] == expectedNames
+    assert [arg.name for arg in codeArgs.infoList] == expectedNames
     assert [arg.name for arg in docArgs.infoList] == expectedNames
     assert violations == []
 

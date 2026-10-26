@@ -122,7 +122,7 @@ def checkClassAttributesAgainstClassDocstring(
         else frozenset()
     )
 
-    docuemntedAndClassArgs = getDocumentedAndActualClassArgLists(
+    docuemntedAndClassArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
@@ -147,15 +147,15 @@ def checkClassAttributesAgainstClassDocstring(
     if docuemntedAndClassArgs is None:
         return
 
-    docArgs, actualArgs = docuemntedAndClassArgs
+    docArgs, codeArgs = docuemntedAndClassArgs
     docArgs = removeDocstringDefaults(
         docArgs=docArgs,
         argNames=placeholderDefaultNames,
     )
 
-    checkDocArgsLengthAgainstActualArgs(
+    checkDocArgsLengthAgainstCodeArgs(
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         violations=violations,
         violationForDocArgsLengthShorter=Violation(
             code=601,
@@ -171,11 +171,11 @@ def checkClassAttributesAgainstClassDocstring(
         ),
     )
 
-    checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         violations=violations,
-        actualArgsAreClassAttributes=True,
+        codeArgsAreClassAttributes=True,
         violationForOrderMismatch=Violation(
             code=604,
             line=lineNum,
@@ -197,7 +197,7 @@ def checkClassAttributesAgainstClassDocstring(
     )
 
 
-def getDocumentedAndActualClassArgLists(
+def getDocumentedAndCodeClassArgLists(
         *,
         node: ast.ClassDef,
         style: str,
@@ -214,7 +214,7 @@ def getDocumentedAndActualClassArgLists(
         placeholderDefaultNames: frozenset[str] = frozenset(),
 ) -> tuple[ArgList, ArgList] | None:
     """
-    Get documented and actual class attribute lists.
+    Get the class attribute lists from the docstring and from the code.
 
     Parameters
     ----------
@@ -255,10 +255,11 @@ def getDocumentedAndActualClassArgLists(
     Returns
     -------
     tuple[ArgList, ArgList] | None
-        A tuple containing the documented and actual class attribute lists, or
-        None if the class has no docstring or should be skipped.
+        A tuple containing the class attribute lists from the docstring and
+        from the code, or None if the class has no docstring or should be
+        skipped.
     """
-    actualArgs: ArgList = extractClassAttributesFromNode(
+    codeArgs: ArgList = extractClassAttributesFromNode(
         node=node,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(
@@ -319,20 +320,20 @@ def getDocumentedAndActualClassArgLists(
     updateDocumentedArgListWithInlineDocstrings(
         node=node,
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         requireInlineClassVarDocs=requireInlineClassVarDocs,
         violations=violations,
     )
 
-    return docArgs, actualArgs
+    return docArgs, codeArgs
 
 
 def updateDocumentedArgListWithInlineDocstrings(
         *,
         node: ast.ClassDef,
         docArgs: ArgList,
-        actualArgs: ArgList,
+        codeArgs: ArgList,
         argTypeHintsInDocstring: bool,
         requireInlineClassVarDocs: bool,
         violations: list[Violation],
@@ -350,8 +351,8 @@ def updateDocumentedArgListWithInlineDocstrings(
         The class definition node.
     docArgs : ArgList
         The argument list parsed from the class docstring.
-    actualArgs : ArgList
-        The actual class attributes extracted from the class definition and
+    codeArgs : ArgList
+        The class attributes extracted from the class definition (the code) and
         already filtered according to the class-attribute name options.
     argTypeHintsInDocstring : bool
         Whether argument type hints are expected to be in the docstring.
@@ -393,9 +394,9 @@ def updateDocumentedArgListWithInlineDocstrings(
                 if len(args.infoList) == 1:
                     arg = args.infoList[0]
 
-            # only add if the var is in the actualArgs and
+            # only add if the var is in the codeArgs and
             # not already in docArgs, otherwise, it is a violation
-            if arg is not None and actualArgs.contains(arg):
+            if arg is not None and codeArgs.contains(arg):
                 if not requireInlineClassVarDocs:
                     violations.append(
                         Violation(
@@ -627,28 +628,28 @@ def extractClassAttributesFromNode(
     ])
 
 
-def checkDocArgsLengthAgainstActualArgs(
+def checkDocArgsLengthAgainstCodeArgs(
         *,
         docArgs: ArgList,
-        actualArgs: ArgList,
+        codeArgs: ArgList,
         violations: list[Violation],
         violationForDocArgsLengthShorter: Violation,  # such as V101, V601
         violationForDocArgsLengthLonger: Violation,  # such as V102, V602
 ) -> None:
-    """Check lengths of doc arg list against actual arg list"""
-    if docArgs.length < actualArgs.length:
+    """Check lengths of doc arg list against code arg list"""
+    if docArgs.length < codeArgs.length:
         violations.append(violationForDocArgsLengthShorter)
 
-    if docArgs.length > actualArgs.length:
+    if docArgs.length > codeArgs.length:
         violations.append(violationForDocArgsLengthLonger)
 
 
-def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
+def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         *,
         docArgs: ArgList,
-        actualArgs: ArgList,
+        codeArgs: ArgList,
         violations: list[Violation],
-        actualArgsAreClassAttributes: bool,
+        codeArgsAreClassAttributes: bool,
         violationForOrderMismatch: Violation,  # such as V104, V604
         violationForTypeHintMismatch: Violation,  # such as V105, V605
         shouldCheckArgOrder: bool,
@@ -659,50 +660,50 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
         msgPrefix: str,
 ) -> None:
     """
-    Check the arg/attr list in the docstring against the actual arg/attr list
-    (either the function arguments or class attributes).
+    Check the arg/attr list in the docstring against the arg/attr list in the
+    code (either the function arguments or class attributes).
     """
     if not docArgs.equals(
-        actualArgs,
+        codeArgs,
         checkTypeHint=True,
         orderMatters=shouldCheckArgOrder,
     ):
         if docArgs.equals(
-            actualArgs,
+            codeArgs,
             checkTypeHint=True,
             orderMatters=False,
         ):
             violations.append(violationForOrderMismatch)
         elif docArgs.equals(
-            actualArgs,
+            codeArgs,
             checkTypeHint=False,
             orderMatters=shouldCheckArgOrder,
         ):
             if argTypeHintsInSignature and argTypeHintsInDocstring:
                 v105new = appendArgsToCheckToV105(
                     original_v105=violationForTypeHintMismatch,
-                    funcArgs=actualArgs,
+                    funcArgs=codeArgs,
                     docArgs=docArgs,
                 )
                 violations.append(v105new)
         elif docArgs.equals(
-            actualArgs,
+            codeArgs,
             checkTypeHint=False,
             orderMatters=False,
         ):
             v105new = appendArgsToCheckToV105(
                 original_v105=violationForTypeHintMismatch,
-                funcArgs=actualArgs,
+                funcArgs=codeArgs,
                 docArgs=docArgs,
             )
             violations.extend([violationForOrderMismatch, v105new])
         else:
-            argsInFuncNotInDoc: set[Arg] = actualArgs.subtract(
+            argsInFuncNotInDoc: set[Arg] = codeArgs.subtract(
                 docArgs,
                 checkTypeHint=False,
             )
             argsInDocNotInFunc: set[Arg] = docArgs.subtract(
-                actualArgs,
+                codeArgs,
                 checkTypeHint=False,
             )
 
@@ -710,12 +711,12 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
 
             string0 = (
                 'Attributes in the class definition but not '
-                if actualArgsAreClassAttributes
+                if codeArgsAreClassAttributes
                 else 'Arguments in the function signature but not '
             )
 
             if argsInFuncNotInDoc:
-                if requireInlineClassVarDocs and actualArgsAreClassAttributes:
+                if requireInlineClassVarDocs and codeArgsAreClassAttributes:
                     string0 += 'documented inline:'
                 else:
                     string0 += 'in the docstring:'
@@ -726,7 +727,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
 
             string1 = (
                 ' actual class attributes:'
-                if actualArgsAreClassAttributes
+                if codeArgsAreClassAttributes
                 else ' function signature:'
             )
 
@@ -739,12 +740,12 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
 
             msgPostfixTemp: str = ' '.join(msgPostfixParts)
 
-            if actualArgsAreClassAttributes:
+            if codeArgsAreClassAttributes:
                 msgPostfixTemp += SPHINX_MSG_POSTFIX
 
             violations.append(
                 Violation(
-                    code=603 if actualArgsAreClassAttributes else 103,
+                    code=603 if codeArgsAreClassAttributes else 103,
                     line=lineNum,
                     msgPrefix=msgPrefix,
                     msgPostfix=msgPostfixTemp,
