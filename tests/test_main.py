@@ -2817,3 +2817,62 @@ def testIgnoredClassAttributeNamesAreExactExtras(
         arg.split(':', maxsplit=1)[0] for arg in actualExtraArgs
     ]
     assert sorted(actualExtraNames) == sorted(expectedExtraNames)
+
+
+@pytest.mark.parametrize('style', ALL_STYLES)
+@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
+def testQualifiedAnnotations(style: str, suffix: str) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/qualified_annotations/cases{suffix}',
+        style=style,
+    )
+    assert list(map(str, violations)) == []
+
+
+@pytest.mark.parametrize('style', ALL_STYLES)
+def testQualifiedAnnotationsStillCheckBodies(
+        tmp_path: Path, style: str
+) -> None:
+    filename = tmp_path / 'cases.py'
+    shutil.copyfile(
+        DATA_DIR / f'{style}/qualified_annotations/cases.pyi', filename
+    )
+    violations = _checkFile(filename=filename, style=style)
+    assert [violation.code for violation in violations] == [
+        203,
+        403,  # yieldAndReturn: no yield body to unwrap its return type
+        403,  # shortGenerator
+        403,  # asyncGenerator
+        201,
+        403,  # iterator: neither a return nor a yield body
+    ]
+
+
+@pytest.mark.parametrize('style', ALL_STYLES)
+@pytest.mark.parametrize(
+    'requireYieldSectionWhenYieldingNothing', [False, True]
+)
+def testQualifiedAnnotationsYieldingNothing(
+        style: str,
+        requireYieldSectionWhenYieldingNothing: bool,
+) -> None:
+    violations = _checkFile(
+        filename=DATA_DIR / f'{style}/qualified_annotations/cases.py',
+        style=style,
+        skipCheckingShortDocstrings=False,
+        requireYieldSectionWhenYieldingNothing=(
+            requireYieldSectionWhenYieldingNothing
+        ),
+    )
+    expected = (
+        [
+            'DOC402: Function `noneIterable` has "yield" statements, but the '
+            'docstring does not have a "Yields" section',
+            'DOC404: Function `noneIterable` yield type(s) in docstring not '
+            'consistent with the return annotation. Return annotation exists, '
+            'but docstring "yields" section does not exist or has 0 type(s).',
+        ]
+        if requireYieldSectionWhenYieldingNothing
+        else []
+    )
+    assert list(map(str, violations)) == expected

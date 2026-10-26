@@ -10,6 +10,7 @@ from pydoclint.utils.return_yield_raise import (
     getRaisedExceptions,
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
+    hasIteratorOrIterableAsReturnAnnotation,
     hasRaiseStatements,
     hasReturnAnnotation,
     hasReturnStatements,
@@ -266,9 +267,6 @@ def testHasReturnStatements_nestedFunction() -> None:
             'def func() -> AsyncGenerator[int, str, bool]:\n  pass',
             GeneratorAnnotationKind.ASYNC_GENERATOR,
         ),
-        # Only bare generator annotations are recognized by design.
-        ('def func() -> typing.Generator[int]:\n  pass', None),
-        ('def func() -> typing.AsyncGenerator[int]:\n  pass', None),
     ],
 )
 def testGetGeneratorAnnotationKind(
@@ -635,3 +633,61 @@ def testWhichRaiseStatements() -> None:
     }
 
     assert result == expected
+
+
+@pytest.mark.parametrize('prefix', ['', 'typing.', 'collections.abc.', 't.'])
+@pytest.mark.parametrize('subscript', ['', '[int]'])
+@pytest.mark.parametrize(
+    ('name', 'kind'),
+    [
+        ('Generator', GeneratorAnnotationKind.GENERATOR),
+        ('AsyncGenerator', GeneratorAnnotationKind.ASYNC_GENERATOR),
+        ('Iterator', None),
+        ('Iterable', None),
+        ('AsyncIterator', None),
+        ('AsyncIterable', None),
+    ],
+)
+def testQualifiedReturnAnnotations(
+        prefix: str,
+        subscript: str,
+        name: str,
+        kind: GeneratorAnnotationKind | None,
+) -> None:
+    node = ast.parse(f'def func() -> {prefix}{name}{subscript}: ...').body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert getGeneratorAnnotationKind(node) is kind
+    assert hasGeneratorAsReturnAnnotation(node) == (kind is not None)
+    assert hasIteratorOrIterableAsReturnAnnotation(node) == (kind is None)
+
+
+@pytest.mark.parametrize(
+    'annotation',
+    [
+        '',
+        'None',
+        'IterableDataset[int]',
+        'IteratorResult',
+        'AsyncIterableDataset[int]',
+        'AsyncIteratorResult',
+        'GeneratorResult[int]',
+        'AsyncGeneratorResult',
+        'typing.IterableDataset[int]',
+        'typing.GeneratorResult[int]',
+        'list[typing.Iterator[int]]',
+        'typing.Generator[int] | None',
+        'typing.Iterator[int][str]',
+        'typing.Iterator(int)',
+        'factory().Generator[int]',
+        'wrapper[int].Iterator',
+        '"typing.Generator[int]"',
+        '"typing.Iterator[int]"',
+    ],
+)
+def testUnrelatedReturnAnnotations(annotation: str) -> None:
+    returnAnnotation = f' -> {annotation}' if annotation else ''
+    node = ast.parse(f'def func(){returnAnnotation}: ...').body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert getGeneratorAnnotationKind(node) is None
+    assert not hasGeneratorAsReturnAnnotation(node)
+    assert not hasIteratorOrIterableAsReturnAnnotation(node)

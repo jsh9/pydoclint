@@ -1908,3 +1908,58 @@ def testShouldIgnoreArgumentName(
     }
     expected = controllingOption is not None and options[controllingOption]
     assert shouldIgnoreArgumentName(name=name, **options) is expected
+
+
+@pytest.mark.parametrize('prefix', ['typing.', 'collections.abc.', 't.'])
+@pytest.mark.parametrize(
+    ('annotation', 'kind', 'yieldType', 'returnType'),
+    [
+        ('Generator[int]', GeneratorAnnotationKind.GENERATOR, 'int', 'None'),
+        (
+            'Generator[int, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            'int',
+            'None',
+        ),
+        (
+            'Generator[int, None, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            'int',
+            'str',
+        ),
+        (
+            'AsyncGenerator[int]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            'int',
+            'None',
+        ),
+        (
+            'AsyncGenerator[int, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            'int',
+            'None',
+        ),
+        ('Iterator[dict[str, int]]', None, 'dict[str, int]', None),
+        ('AsyncIterable[None]', None, 'None', None),
+    ],
+)
+def testExtractQualifiedAnnotationTypes(
+        prefix: str,
+        annotation: str,
+        kind: GeneratorAnnotationKind | None,
+        yieldType: str,
+        returnType: str | None,
+) -> None:
+    qualifiedAnnotation = prefix + annotation
+    assert (
+        extractYieldTypeFromGeneratorOrIteratorAnnotation(
+            returnAnnoText=qualifiedAnnotation,
+            generatorAnnotationKind=kind,
+            hasIteratorOrIterableAsReturnAnnotation=kind is None,
+        )
+        == yieldType
+    )
+    assert getReturnTypeToDocument(
+        returnAnnotation=ReturnAnnotation(qualifiedAnnotation),
+        generatorAnnotationKind=kind,
+    ) == (qualifiedAnnotation if kind is None else returnType)
