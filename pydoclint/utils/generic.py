@@ -205,14 +205,6 @@ def getNodeName(node: ast.AST) -> str:
     return getattr(node, 'name', '')
 
 
-def stringStartsWith(string: str | None, substrings: tuple[str, ...]) -> bool:
-    """Check whether the string starts with any of the substrings"""
-    if string is None:
-        return False
-
-    return any(string.startswith(substring) for substring in substrings)
-
-
 @overload
 def stripQuotes(string: str) -> str: ...
 
