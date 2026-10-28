@@ -2,6 +2,8 @@
 
 ## [0.12.0] - 2026-10-28
 
+- Added
+  - A docs section on which return annotations count as generators or iterators
 - Changed
   - Generator, Iterator, and Iterable return annotations are now recognized by
     the last name in the annotation's AST instead of by matching the annotation
