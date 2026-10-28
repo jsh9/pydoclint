@@ -122,7 +122,7 @@ def checkClassAttributesAgainstClassDocstring(
         else frozenset()
     )
 
-    docuemntedAndClassArgs = getDocumentedAndCodeClassArgLists(
+    documentedAndCodeArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
@@ -144,10 +144,10 @@ def checkClassAttributesAgainstClassDocstring(
         placeholderDefaultNames=placeholderDefaultNames,
     )
 
-    if docuemntedAndClassArgs is None:
+    if documentedAndCodeArgs is None:
         return
 
-    docArgs, codeArgs = docuemntedAndClassArgs
+    docArgs, codeArgs = documentedAndCodeArgs
     docArgs = removeDocstringDefaults(
         docArgs=docArgs,
         argNames=placeholderDefaultNames,
@@ -682,7 +682,7 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
             if argTypeHintsInSignature and argTypeHintsInDocstring:
                 v105new = appendArgsToCheckToV105(
                     original_v105=violationForTypeHintMismatch,
-                    funcArgs=codeArgs,
+                    codeArgs=codeArgs,
                     docArgs=docArgs,
                 )
                 violations.append(v105new)
@@ -693,16 +693,16 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         ):
             v105new = appendArgsToCheckToV105(
                 original_v105=violationForTypeHintMismatch,
-                funcArgs=codeArgs,
+                codeArgs=codeArgs,
                 docArgs=docArgs,
             )
             violations.extend([violationForOrderMismatch, v105new])
         else:
-            argsInFuncNotInDoc: set[Arg] = codeArgs.subtract(
+            argsInCodeNotInDoc: set[Arg] = codeArgs.subtract(
                 docArgs,
                 checkTypeHint=False,
             )
-            argsInDocNotInFunc: set[Arg] = docArgs.subtract(
+            argsInDocNotInCode: set[Arg] = docArgs.subtract(
                 codeArgs,
                 checkTypeHint=False,
             )
@@ -715,14 +715,14 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
                 else 'Arguments in the function signature but not '
             )
 
-            if argsInFuncNotInDoc:
+            if argsInCodeNotInDoc:
                 if requireInlineClassVarDocs and codeArgsAreClassAttributes:
                     string0 += 'documented inline:'
                 else:
                     string0 += 'in the docstring:'
 
                 msgPostfixParts.append(
-                    string0 + f' {sorted(argsInFuncNotInDoc)}.'
+                    string0 + f' {sorted(argsInCodeNotInDoc)}.'
                 )
 
             string1 = (
@@ -731,11 +731,11 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
                 else ' function signature:'
             )
 
-            if argsInDocNotInFunc:
+            if argsInDocNotInCode:
                 msgPostfixParts.append(
                     'Arguments in the docstring but not in the'
                     + string1
-                    + f' {sorted(argsInDocNotInFunc)}.'
+                    + f' {sorted(argsInDocNotInCode)}.'
                 )
 
             msgPostfixTemp: str = ' '.join(msgPostfixParts)
