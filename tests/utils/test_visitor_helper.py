@@ -1912,41 +1912,52 @@ def testShouldIgnoreArgumentName(
 
 @pytest.mark.parametrize('prefix', ['typing.', 'collections.abc.', 't.'])
 @pytest.mark.parametrize(
-    ('annotation', 'kind', 'yieldType', 'returnType'),
+    ('annotation', 'kind', 'isIterator', 'yieldType', 'returnType'),
     [
-        ('Generator[int]', GeneratorAnnotationKind.GENERATOR, 'int', 'None'),
+        (
+            'Generator[int]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
         (
             'Generator[int, str]',
             GeneratorAnnotationKind.GENERATOR,
+            False,
             'int',
             'None',
         ),
         (
             'Generator[int, None, str]',
             GeneratorAnnotationKind.GENERATOR,
+            False,
             'int',
             'str',
         ),
         (
             'AsyncGenerator[int]',
             GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
             'int',
             'None',
         ),
         (
             'AsyncGenerator[int, str]',
             GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
             'int',
             'None',
         ),
-        ('Iterator[dict[str, int]]', None, 'dict[str, int]', None),
-        ('AsyncIterable[None]', None, 'None', None),
+        ('Iterator[dict[str, int]]', None, True, 'dict[str, int]', None),
+        ('AsyncIterable[None]', None, True, 'None', None),
     ],
 )
 def testExtractQualifiedAnnotationTypes(
         prefix: str,
         annotation: str,
         kind: GeneratorAnnotationKind | None,
+        isIterator: bool,
         yieldType: str,
         returnType: str | None,
 ) -> None:
@@ -1960,18 +1971,20 @@ def testExtractQualifiedAnnotationTypes(
     ``None`` when it is omitted. ``AsyncGenerator`` has no return-type
     argument, so its return type is always ``None``. ``Iterator`` and
     ``Iterable`` have no return-type argument either, so the whole annotation
-    is the type to document.
+    is the type to document. ``kind`` and ``isIterator`` are what the detectors
+    report for the annotation; the visitor passes the same values to these
+    helpers.
     """
     qualifiedAnnotation = prefix + annotation
     assert (
         extractYieldTypeFromGeneratorOrIteratorAnnotation(
             returnAnnoText=qualifiedAnnotation,
             generatorAnnotationKind=kind,
-            hasIteratorOrIterableAsReturnAnnotation=kind is None,
+            hasIteratorOrIterableAsReturnAnnotation=isIterator,
         )
         == yieldType
     )
     assert getReturnTypeToDocument(
         returnAnnotation=ReturnAnnotation(qualifiedAnnotation),
         generatorAnnotationKind=kind,
-    ) == (qualifiedAnnotation if kind is None else returnType)
+    ) == (qualifiedAnnotation if isIterator else returnType)
