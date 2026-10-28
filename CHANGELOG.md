@@ -1,5 +1,12 @@
 # Change Log
 
+## [Unreleased]
+
+- Maintenance
+  - Renamed the internal `actualArgs` to `codeArgs` (and the helper functions,
+    parameters and tests that use it), so that it pairs with `docArgs`. No
+    behavior changes (#314)
+
 ## [0.12.0] - 2026-10-28
 
 - Added

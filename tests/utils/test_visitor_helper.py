@@ -22,7 +22,7 @@ from pydoclint.utils.visitor_helper import (
     extractClassAttributesFromNode,
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
-    getDocumentedAndActualClassArgLists,
+    getDocumentedAndCodeClassArgLists,
     getReturnTypeToDocument,
     removeDocstringDefaults,
     shouldIgnoreArgumentName,
@@ -1333,7 +1333,7 @@ def testRequireInlineClassvarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    attrs = getDocumentedAndActualClassArgLists(
+    attrs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1358,7 +1358,7 @@ expected_src2 = [
     Arg(name='field3', typeHint='int'),
 ]
 expected_doc_src3 = [Arg(name='field1', typeHint='int')]
-expected_actual_src3 = [
+expected_code_src3 = [
     Arg(name='field1', typeHint='int'),
     Arg(name='field2', typeHint='str'),
 ]
@@ -1382,12 +1382,12 @@ class DocstringTypeMismatch:
 '''
 
 src4_expected_doc = [Arg(name='field2', typeHint='')]
-src4_expected_actual = [
+src4_expected_code = [
     Arg(name='field1', typeHint='int'),
     Arg(name='field2', typeHint='str'),
 ]
 src5_expected_doc = [Arg(name='field1', typeHint='str')]
-src5_expected_actual = [Arg(name='field1', typeHint='int')]
+src5_expected_code = [Arg(name='field1', typeHint='int')]
 
 
 @pytest.mark.parametrize(
@@ -1396,7 +1396,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
         'style',
         'attribute_documentation',
         'expected_docargs',
-        'expected_actualargs',
+        'expected_codeargs',
         'expected_violations',
     ),
     [
@@ -1432,7 +1432,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'sphinx',
             sphinx_attr_doc,
             expected_doc_src3,
-            expected_actual_src3,
+            expected_code_src3,
             # expect DOC607 because inline docs are required in this mode
             [607],
         ),
@@ -1441,7 +1441,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'google',
             google_attr_doc,
             expected_doc_src3,
-            expected_actual_src3,
+            expected_code_src3,
             [607],
         ),
         (
@@ -1449,7 +1449,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'numpy',
             numpy_attr_doc,
             expected_doc_src3,
-            expected_actual_src3,
+            expected_code_src3,
             [607],
         ),
         (
@@ -1457,7 +1457,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'sphinx',
             None,
             src4_expected_doc,
-            src4_expected_actual,
+            src4_expected_code,
             [],
         ),
         (
@@ -1465,7 +1465,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'google',
             None,
             src4_expected_doc,
-            src4_expected_actual,
+            src4_expected_code,
             [],
         ),
         (
@@ -1473,7 +1473,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'numpy',
             None,
             src4_expected_doc,
-            src4_expected_actual,
+            src4_expected_code,
             [],
         ),
         (
@@ -1481,7 +1481,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'sphinx',
             None,
             src5_expected_doc,
-            src5_expected_actual,
+            src5_expected_code,
             # a violation is not thrown at this level for mismatched types
             [],
         ),
@@ -1490,7 +1490,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'google',
             None,
             src5_expected_doc,
-            src5_expected_actual,
+            src5_expected_code,
             # a violation is not thrown at this level for mismatched types
             [],
         ),
@@ -1499,18 +1499,18 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'numpy',
             None,
             src5_expected_doc,
-            src5_expected_actual,
+            src5_expected_code,
             # a violation is not thrown at this level for mismatched types
             [],
         ),
     ],
 )
-def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
+def testGetDocumentedAndCodeClassArgListsWithInlineClassVarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
         expected_docargs: list[Arg],
-        expected_actualargs: list[Arg],
+        expected_codeargs: list[Arg],
         expected_violations: list[int],
 ) -> None:
     final_src = src.format(
@@ -1521,7 +1521,7 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+    docArgs, codeArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1538,11 +1538,11 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
 
     assert [v.code for v in violations] == expected_violations
     assert docArgs == ArgList(expected_docargs)
-    assert actualArgs == ArgList(expected_actualargs)
+    assert codeArgs == ArgList(expected_codeargs)
 
 
 expected_doc_src3_no_inline = [Arg(name='field2', typeHint='str')]
-expected_actual_src3_no_inline = [
+expected_code_src3_no_inline = [
     Arg(name='field1', typeHint='int'),
     Arg(name='field2', typeHint='str'),
 ]
@@ -1554,7 +1554,7 @@ expected_actual_src3_no_inline = [
         'style',
         'attribute_documentation',
         'expected_docargs',
-        'expected_actualargs',
+        'expected_codeargs',
         'expected_violations',
     ),
     [
@@ -1563,7 +1563,7 @@ expected_actual_src3_no_inline = [
             'sphinx',
             sphinx_attr_doc,
             expected_doc_src3_no_inline,
-            expected_actual_src3_no_inline,
+            expected_code_src3_no_inline,
             # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
@@ -1572,7 +1572,7 @@ expected_actual_src3_no_inline = [
             'google',
             google_attr_doc,
             expected_doc_src3_no_inline,
-            expected_actual_src3_no_inline,
+            expected_code_src3_no_inline,
             # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
@@ -1581,18 +1581,18 @@ expected_actual_src3_no_inline = [
             'numpy',
             numpy_attr_doc,
             expected_doc_src3_no_inline,
-            expected_actual_src3_no_inline,
+            expected_code_src3_no_inline,
             # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
     ],
 )
-def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
+def testGetDocumentedAndCodeClassArgListsWithoutInlineClassVarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
         expected_docargs: list[Arg],
-        expected_actualargs: list[Arg],
+        expected_codeargs: list[Arg],
         expected_violations: list[int],
 ) -> None:
     final_src = src.format(
@@ -1603,7 +1603,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+    docArgs, codeArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1620,7 +1620,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
 
     assert [v.code for v in violations] == expected_violations
     assert docArgs == ArgList(expected_docargs)
-    assert actualArgs == ArgList(expected_actualargs)
+    assert codeArgs == ArgList(expected_codeargs)
 
 
 @pytest.mark.parametrize(
@@ -1739,8 +1739,8 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     node = parsed.body[0]
     assert isinstance(node, ast.ClassDef)
 
-    # Extract actual args from the class
-    actualArgs = extractClassAttributesFromNode(
+    # Extract the class attributes from the code
+    codeArgs = extractClassAttributesFromNode(
         node=node,
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
@@ -1758,7 +1758,7 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     updateDocumentedArgListWithInlineDocstrings(
         node=node,
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         requireInlineClassVarDocs=requireInlineClassVarDocs,
         violations=violations,
@@ -1816,7 +1816,7 @@ def testInlineClassAttributeDocsRespectNameKinds(
     )
     node = parsed.body[0]
     assert isinstance(node, ast.ClassDef)
-    actualArgs = extractClassAttributesFromNode(
+    codeArgs = extractClassAttributesFromNode(
         node=node,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(
@@ -1833,13 +1833,13 @@ def testInlineClassAttributeDocsRespectNameKinds(
     updateDocumentedArgListWithInlineDocstrings(
         node=node,
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         argTypeHintsInDocstring=True,
         requireInlineClassVarDocs=True,
         violations=violations,
     )
 
-    assert [arg.name for arg in actualArgs.infoList] == expectedNames
+    assert [arg.name for arg in codeArgs.infoList] == expectedNames
     assert [arg.name for arg in docArgs.infoList] == expectedNames
     assert violations == []
 
