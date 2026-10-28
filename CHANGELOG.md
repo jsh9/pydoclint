@@ -1,5 +1,32 @@
 # Change Log
 
+## [0.12.0] - 2026-10-28
+
+- Fixed
+  - False-positive `DOC201`, `DOC203`, `DOC402`, `DOC403`, `DOC404`, and
+    `DOC405` violations for return annotations written with a module or a
+    module alias, such as `typing.Generator[...]`,
+    `collections.abc.Iterator[...]`, or `t.Iterable[...]` after
+    `import typing as t`. They are now recognized the same way as
+    `Generator[...]` and `Iterator[...]`, in both `.py` and stub (`.pyi`) files
+    (#317)
+- Changed
+  - Iterator and Iterable return annotations are now recognized by their exact
+    name instead of by prefix. Names that merely start with `Iterator` or
+    `Iterable`, such as `IterableDataset` or `IteratorResult`, are no longer
+    treated as iterators, so functions annotated with them may get new
+    violations
+  - A union with `None`, such as `Iterator[int] | None` or
+    `Generator[int, None, None] | None`, is no longer treated as an iterator or
+    generator annotation. A function with "yield" statements always returns a
+    generator object and never `None`, so drop `| None` from its annotation
+  - Imports are not resolved, so any qualified name that ends in `Generator`,
+    such as `np.random.Generator`, is treated like `typing.Generator`. Renamed
+    imports, such as `from typing import Iterator as It`, are still not
+    recognized
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.11.1...0.12.0
+
 ## [0.11.1] - 2026-10-11
 
 - Fixed
