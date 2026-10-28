@@ -2924,3 +2924,93 @@ def testQualifiedAnnotationsYieldingNothing(
         else []
     )
     assert list(map(str, violations)) == expected
+
+
+_REORDERED_TYPES_NUMPY = '''
+def reordered(b: int, a: str):
+    """
+    Do something.
+
+    Parameters
+    ----------
+    a : int
+        A.
+    b : str
+        B.
+    """
+
+
+def sameOrder(a: str, b: int):
+    """
+    Do something.
+
+    Parameters
+    ----------
+    a : str
+        A.
+    b : int
+        B.
+    """
+
+
+class Config:
+    """
+    A config.
+
+    Attributes
+    ----------
+    a : int
+        A.
+    b : str
+        B.
+    """
+
+    b: int = 1
+    a: str = 'x'
+'''
+
+
+@pytest.mark.parametrize(
+    ('argTypeHintsInSignature', 'argTypeHintsInDocstring', 'expectTypeHints'),
+    [
+        (True, True, True),
+        (False, True, False),
+        (True, False, False),
+        (False, False, False),
+    ],
+)
+def testTypeHintMismatchWithReorderedArgs(
+        tmp_path: Path,
+        argTypeHintsInSignature: bool,
+        argTypeHintsInDocstring: bool,
+        expectTypeHints: bool,
+) -> None:
+    """
+    Test that DOC105 (and DOC605) are not reported with reordered arguments (or
+    attributes) when a type-hint check is turned off.
+
+    ``reordered`` and ``Config`` list the same names in a different order than
+    the docstring, with type hints that differ from the docstring's. Whether
+    the type hints are compared must not depend on the order, so DOC105 and
+    DOC605 appear only when both ``--arg-type-hints-in-signature`` and
+    ``--arg-type-hints-in-docstring`` are on. ``sameOrder`` is the control.
+    """
+    filename = tmp_path / 'reordered.py'
+    filename.write_text(_REORDERED_TYPES_NUMPY, encoding='utf-8')
+    violations = _checkFile(
+        filename=filename,
+        style='numpy',
+        argTypeHintsInSignature=argTypeHintsInSignature,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        checkClassAttributes=True,
+    )
+    # Only look at order and type-hint-mismatch violations; other DOC10x codes
+    # (e.g. DOC108, DOC111) just reflect which of the two flags is turned off.
+    codes = [
+        (v.line, v.code) for v in violations if v.code in {104, 105, 604, 605}
+    ]
+    expected = [(2, 104), (28, 604)]
+    if expectTypeHints:
+        expected = [(2, 104), (2, 105), (28, 604), (28, 605)]
+
+    assert codes == expected

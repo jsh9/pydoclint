@@ -691,12 +691,14 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
             checkTypeHint=False,
             orderMatters=False,
         ):
-            v105new = appendArgsToCheckToV105(
-                original_v105=violationForTypeHintMismatch,
-                codeArgs=codeArgs,
-                docArgs=docArgs,
-            )
-            violations.extend([violationForOrderMismatch, v105new])
+            violations.append(violationForOrderMismatch)
+            if argTypeHintsInSignature and argTypeHintsInDocstring:
+                v105new = appendArgsToCheckToV105(
+                    original_v105=violationForTypeHintMismatch,
+                    codeArgs=codeArgs,
+                    docArgs=docArgs,
+                )
+                violations.append(v105new)
         else:
             argsInCodeNotInDoc: set[Arg] = codeArgs.subtract(
                 docArgs,
