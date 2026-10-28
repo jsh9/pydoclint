@@ -639,14 +639,14 @@ def testWhichRaiseStatements() -> None:
 @pytest.mark.parametrize('prefix', ['', 'typing.', 'collections.abc.', 't.'])
 @pytest.mark.parametrize('subscript', ['', '[int]'])
 @pytest.mark.parametrize(
-    ('name', 'kind'),
+    ('name', 'kind', 'isIterator'),
     [
-        ('Generator', GeneratorAnnotationKind.GENERATOR),
-        ('AsyncGenerator', GeneratorAnnotationKind.ASYNC_GENERATOR),
-        ('Iterator', None),
-        ('Iterable', None),
-        ('AsyncIterator', None),
-        ('AsyncIterable', None),
+        ('Generator', GeneratorAnnotationKind.GENERATOR, False),
+        ('AsyncGenerator', GeneratorAnnotationKind.ASYNC_GENERATOR, False),
+        ('Iterator', None, True),
+        ('Iterable', None, True),
+        ('AsyncIterator', None, True),
+        ('AsyncIterable', None, True),
     ],
 )
 def testQualifiedReturnAnnotations(
@@ -654,6 +654,7 @@ def testQualifiedReturnAnnotations(
         subscript: str,
         name: str,
         kind: GeneratorAnnotationKind | None,
+        isIterator: bool,
 ) -> None:
     """
     Test that the generator and iterator detectors recognize all six names,
@@ -662,13 +663,15 @@ def testQualifiedReturnAnnotations(
     The prefixes cover a bare name, ``typing.``, ``collections.abc.``, and a
     module alias (``t.``). Each name must land in exactly one family:
     ``Generator`` and ``AsyncGenerator`` are generator annotations, and the
-    four ``Iterator``/``Iterable`` names are iterator annotations.
+    four ``Iterator``/``Iterable`` names are iterator annotations. ``kind`` is
+    the expected result of getGeneratorAnnotationKind(), and ``isIterator`` is
+    the expected result of hasIteratorOrIterableAsReturnAnnotation().
     """
     node = ast.parse(f'def func() -> {prefix}{name}{subscript}: ...').body[0]
     assert isinstance(node, ast.FunctionDef)
     assert getGeneratorAnnotationKind(node) is kind
     assert hasGeneratorAsReturnAnnotation(node) == (kind is not None)
-    assert hasIteratorOrIterableAsReturnAnnotation(node) == (kind is None)
+    assert hasIteratorOrIterableAsReturnAnnotation(node) == isIterator
 
 
 @pytest.mark.parametrize(
@@ -725,6 +728,9 @@ def testUnrelatedReturnAnnotations(annotation: str) -> None:
         ('typing.Iterator(int)', None),
         ('factory().Generator[int]', None),
         ('wrapper[int].Iterator', None),
+        ('None.Generator', None),
+        ('...', None),
+        ('[int]', None),
         # Bare names, with or without a subscript
         ('int', 'int'),
         ('Generator', 'Generator'),
@@ -735,12 +741,18 @@ def testUnrelatedReturnAnnotations(annotation: str) -> None:
         ('collections.abc.Iterator[int]', 'Iterator'),
         ('t.Iterable', 'Iterable'),
         ('a.b.c.d.AsyncGenerator[int]', 'AsyncGenerator'),
+        ('hello.world.good.morning', 'morning'),
+        ('Generator.Iterator', 'Iterator'),
+        # The AST does not keep parentheses or spacing
+        ('(typing.Generator)[int]', 'Generator'),
+        ('typing . Generator [ int ]', 'Generator'),
         # Imports are not resolved, so a non-typing class named
         # `Generator` looks the same as `typing.Generator`
         ('np.random.Generator', 'Generator'),
         # Only the outermost name is returned; callers match it exactly
         ('Optional[Iterator[int]]', 'Optional'),
         ('list[typing.Iterator[int]]', 'list'),
+        ("typing.Annotated[Iterator[int], 'meta']", 'Annotated'),
         ('IterableDataset[int]', 'IterableDataset'),
         ('typing.GeneratorResult[int]', 'GeneratorResult'),
     ],
@@ -759,7 +771,9 @@ def testGetReturnAnnotationName(
     ``np.random.Generator`` gives ``Generator``, just like ``typing.Generator``
     does. It also does not look inside other types, so
     ``Optional[Iterator[int]]`` gives ``Optional``; the callers then compare
-    the name exactly. Each case runs for both ``def`` and ``async def``.
+    the name exactly. Because it reads the AST rather than the source text,
+    parentheses and spacing make no difference. Each case runs for both ``def``
+    and ``async def``.
     """
     returnAnnotation = f' -> {annotation}' if annotation else ''
     node = ast.parse(f'{funcKeyword} func(){returnAnnotation}: ...').body[0]
