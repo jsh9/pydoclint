@@ -2822,6 +2822,14 @@ def testIgnoredClassAttributeNamesAreExactExtras(
 @pytest.mark.parametrize('style', ALL_STYLES)
 @pytest.mark.parametrize('suffix', ['.py', '.pyi'])
 def testQualifiedAnnotations(style: str, suffix: str) -> None:
+    """
+    Test that correctly documented functions with qualified generator and
+    iterator annotations produce no violations.
+
+    The fixture uses ``typing.``, ``collections.abc.``, and a ``t.`` module
+    alias. It is checked both as a .py file with real bodies and as a .pyi stub
+    file with placeholder bodies (``...``).
+    """
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/qualified_annotations/cases{suffix}',
         style=style,
@@ -2833,6 +2841,19 @@ def testQualifiedAnnotations(style: str, suffix: str) -> None:
 def testQualifiedAnnotationsStillCheckBodies(
         tmp_path: Path, style: str
 ) -> None:
+    """
+    Test that recognizing a qualified annotation does not skip body checks in
+    .py files.
+
+    The stub fixture is copied to a .py file, so its placeholder bodies
+    (``...``) are checked as real code. Every function that documents a
+    "Yields" section but never yields gets DOC403. ``yieldAndReturn`` also gets
+    DOC203: without "yield" statements, its documented return type ``str`` is
+    compared against the whole ``collections.abc.Generator[int, None, str]``
+    annotation. ``iterator`` also gets DOC201: without "yield" statements, an
+    ``Iterator`` annotation means the function returns an iterator object,
+    which needs a "Returns" section. A ``Generator`` annotation doesn't.
+    """
     filename = tmp_path / 'cases.py'
     shutil.copyfile(
         DATA_DIR / f'{style}/qualified_annotations/cases.pyi', filename
@@ -2856,6 +2877,16 @@ def testQualifiedAnnotationsYieldingNothing(
         style: str,
         requireYieldSectionWhenYieldingNothing: bool,
 ) -> None:
+    """
+    Test that ``--require-yield-section-when-yielding-nothing`` works with a
+    qualified ``Iterable[None]`` annotation.
+
+    ``noneIterable`` is annotated ``t.Iterable[None]``, yields ``None``, and
+    has no "Yields" section. The missing section is reported (DOC402 and
+    DOC404) only when the option is on. Short-docstring skipping is turned off
+    because the docstring of ``noneIterable`` has no sections and would
+    otherwise be skipped.
+    """
     violations = _checkFile(
         filename=DATA_DIR / f'{style}/qualified_annotations/cases.py',
         style=style,

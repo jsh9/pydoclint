@@ -655,6 +655,15 @@ def testQualifiedReturnAnnotations(
         name: str,
         kind: GeneratorAnnotationKind | None,
 ) -> None:
+    """
+    Test that the generator and iterator detectors recognize all six names,
+    bare or qualified, with or without a subscript.
+
+    The prefixes cover a bare name, ``typing.``, ``collections.abc.``, and a
+    module alias (``t.``). Each name must land in exactly one family:
+    ``Generator`` and ``AsyncGenerator`` are generator annotations, and the
+    four ``Iterator``/``Iterable`` names are iterator annotations.
+    """
     node = ast.parse(f'def func() -> {prefix}{name}{subscript}: ...').body[0]
     assert isinstance(node, ast.FunctionDef)
     assert getGeneratorAnnotationKind(node) is kind
@@ -686,6 +695,15 @@ def testQualifiedReturnAnnotations(
     ],
 )
 def testUnrelatedReturnAnnotations(annotation: str) -> None:
+    """
+    Test that annotations that only resemble a generator or iterator are not
+    recognized by any of the detectors.
+
+    The cases cover a missing annotation, ``None``, names that merely start
+    with one of the six names (such as ``IterableDataset``), a matching name
+    nested inside another type or a union, a double subscript, a call, a
+    qualifier whose root is not a plain name, and string forward references.
+    """
     returnAnnotation = f' -> {annotation}' if annotation else ''
     node = ast.parse(f'def func(){returnAnnotation}: ...').body[0]
     assert isinstance(node, ast.FunctionDef)
@@ -732,6 +750,17 @@ def testGetReturnAnnotationName(
         annotation: str,
         expected: str | None,
 ) -> None:
+    """
+    Test that _getReturnAnnotationName() returns the last name of the return
+    annotation, or None when the annotation has no name to extract.
+
+    The helper only removes one outer subscript and walks an attribute chain
+    down to a plain-name root. It does not resolve imports, so
+    ``np.random.Generator`` gives ``Generator``, just like ``typing.Generator``
+    does. It also does not look inside other types, so
+    ``Optional[Iterator[int]]`` gives ``Optional``; the callers then compare
+    the name exactly. Each case runs for both ``def`` and ``async def``.
+    """
     returnAnnotation = f' -> {annotation}' if annotation else ''
     node = ast.parse(f'{funcKeyword} func(){returnAnnotation}: ...').body[0]
     assert isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))

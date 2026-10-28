@@ -1950,6 +1950,18 @@ def testExtractQualifiedAnnotationTypes(
         yieldType: str,
         returnType: str | None,
 ) -> None:
+    """
+    Test that yield and return types are extracted correctly from qualified
+    generator and iterator annotations.
+
+    Each annotation is tried with ``typing.``, ``collections.abc.``, and a
+    ``t.`` module alias. The yield type is the first subscript argument. For
+    ``Generator``, the return type to document is the third argument, or
+    ``None`` when it is omitted. ``AsyncGenerator`` has no return-type
+    argument, so its return type is always ``None``. ``Iterator`` and
+    ``Iterable`` have no return-type argument either, so the whole annotation
+    is the type to document.
+    """
     qualifiedAnnotation = prefix + annotation
     assert (
         extractYieldTypeFromGeneratorOrIteratorAnnotation(
