@@ -6,7 +6,11 @@ import pytest
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
+from pydoclint.utils.return_yield_raise import (
+    GeneratorAnnotationKind,
+    getGeneratorAnnotationKind,
+    hasIteratorOrIterableAsReturnAnnotation,
+)
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.visitor_helper import (
     _extractAnnotationSubscriptArgs,
@@ -1971,11 +1975,15 @@ def testExtractQualifiedAnnotationTypes(
     ``None`` when it is omitted. ``AsyncGenerator`` has no return-type
     argument, so its return type is always ``None``. ``Iterator`` and
     ``Iterable`` have no return-type argument either, so the whole annotation
-    is the type to document. ``kind`` and ``isIterator`` are what the detectors
-    report for the annotation; the visitor passes the same values to these
-    helpers.
+    is the type to document. The visitor passes the detectors' results to these
+    helpers, so the test first checks that the detectors report ``kind`` and
+    ``isIterator`` for the annotation.
     """
     qualifiedAnnotation = prefix + annotation
+    node = ast.parse(f'def func() -> {qualifiedAnnotation}: ...').body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert getGeneratorAnnotationKind(node) is kind
+    assert hasIteratorOrIterableAsReturnAnnotation(node) == isIterator
     assert (
         extractYieldTypeFromGeneratorOrIteratorAnnotation(
             returnAnnoText=qualifiedAnnotation,
