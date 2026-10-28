@@ -6,6 +6,7 @@ from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
     GeneratorAnnotationKind,
+    _getReturnAnnotationName,
     getGeneratorAnnotationKind,
     getRaisedExceptions,
     hasBareReturnStatements,
@@ -691,3 +692,47 @@ def testUnrelatedReturnAnnotations(annotation: str) -> None:
     assert getGeneratorAnnotationKind(node) is None
     assert not hasGeneratorAsReturnAnnotation(node)
     assert not hasIteratorOrIterableAsReturnAnnotation(node)
+
+
+@pytest.mark.parametrize('funcKeyword', ['def', 'async def'])
+@pytest.mark.parametrize(
+    ('annotation', 'expected'),
+    [
+        # No return annotation, or one with no name to extract
+        ('', None),
+        ('None', None),
+        ('"typing.Iterator[int]"', None),
+        ('Iterator[int] | None', None),
+        ('typing.Iterator[int][str]', None),
+        ('typing.Iterator(int)', None),
+        ('factory().Generator[int]', None),
+        ('wrapper[int].Iterator', None),
+        # Bare names, with or without a subscript
+        ('int', 'int'),
+        ('Generator', 'Generator'),
+        ('Generator[int, None, str]', 'Generator'),
+        ('AsyncIterable[int]', 'AsyncIterable'),
+        # Qualified names: only the last component is returned
+        ('typing.Generator[int]', 'Generator'),
+        ('collections.abc.Iterator[int]', 'Iterator'),
+        ('t.Iterable', 'Iterable'),
+        ('a.b.c.d.AsyncGenerator[int]', 'AsyncGenerator'),
+        # Imports are not resolved, so a non-typing class named
+        # `Generator` looks the same as `typing.Generator`
+        ('np.random.Generator', 'Generator'),
+        # Only the outermost name is returned; callers match it exactly
+        ('Optional[Iterator[int]]', 'Optional'),
+        ('list[typing.Iterator[int]]', 'list'),
+        ('IterableDataset[int]', 'IterableDataset'),
+        ('typing.GeneratorResult[int]', 'GeneratorResult'),
+    ],
+)
+def testGetReturnAnnotationName(
+        funcKeyword: str,
+        annotation: str,
+        expected: str | None,
+) -> None:
+    returnAnnotation = f' -> {annotation}' if annotation else ''
+    node = ast.parse(f'{funcKeyword} func(){returnAnnotation}: ...').body[0]
+    assert isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    assert _getReturnAnnotationName(node) == expected
