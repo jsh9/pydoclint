@@ -1,5 +1,26 @@
 # Change Log
 
+## [0.12.0] - 2026-10-28
+
+- Added
+  - A docs section on which return annotations count as generators or iterators
+- Changed
+  - Generator, Iterator, and Iterable return annotations are now recognized by
+    the last name in the annotation's AST instead of by matching the annotation
+    text, so qualified names such as `typing.Generator[...]`,
+    `collections.abc.Iterator[...]`, and `t.Iterable[...]` are recognized too
+    (#317)
+  - Iterator and Iterable annotations are matched by exact name instead of by
+    prefix, so names like `IterableDataset` are no longer treated as iterators
+  - Union annotations, such as `Iterator[int] | None` or
+    `Iterator[int] | list[int]`, are no longer recognized as iterator or
+    generator annotations
+  - Imports are not resolved: `np.random.Generator` is treated like
+    `typing.Generator`, and renamed imports such as
+    `from typing import Iterator as It` are still not recognized
+- Full diff
+  - https://github.com/jsh9/pydoclint/compare/0.11.1...0.12.0
+
 ## [0.11.1] - 2026-10-11
 
 - Fixed

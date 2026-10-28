@@ -6,7 +6,11 @@ import pytest
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
+from pydoclint.utils.return_yield_raise import (
+    GeneratorAnnotationKind,
+    getGeneratorAnnotationKind,
+    hasIteratorOrIterableAsReturnAnnotation,
+)
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.visitor_helper import (
     _extractAnnotationSubscriptArgs,
@@ -1908,3 +1912,87 @@ def testShouldIgnoreArgumentName(
     }
     expected = controllingOption is not None and options[controllingOption]
     assert shouldIgnoreArgumentName(name=name, **options) is expected
+
+
+@pytest.mark.parametrize('prefix', ['typing.', 'collections.abc.', 't.'])
+@pytest.mark.parametrize(
+    ('annotation', 'kind', 'isIterator', 'yieldType', 'returnType'),
+    [
+        (
+            'Generator[int]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        (
+            'Generator[int, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        (
+            'Generator[int, None, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+            'str',
+        ),
+        (
+            'AsyncGenerator[int]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        (
+            'AsyncGenerator[int, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        ('Iterator[dict[str, int]]', None, True, 'dict[str, int]', None),
+        ('AsyncIterable[None]', None, True, 'None', None),
+    ],
+)
+def testExtractQualifiedAnnotationTypes(
+        prefix: str,
+        annotation: str,
+        kind: GeneratorAnnotationKind | None,
+        isIterator: bool,
+        yieldType: str,
+        returnType: str | None,
+) -> None:
+    """
+    Test that yield and return types are extracted correctly from qualified
+    generator and iterator annotations.
+
+    Each annotation is tried with ``typing.``, ``collections.abc.``, and a
+    ``t.`` module alias. The yield type is the first subscript argument. For
+    ``Generator``, the return type to document is the third argument, or
+    ``None`` when it is omitted. ``AsyncGenerator`` has no return-type
+    argument, so its return type is always ``None``. ``Iterator`` and
+    ``Iterable`` have no return-type argument either, so the whole annotation
+    is the type to document. The visitor passes the detectors' results to these
+    helpers, so the test first checks that the detectors report ``kind`` and
+    ``isIterator`` for the annotation.
+    """
+    qualifiedAnnotation = prefix + annotation
+    node = ast.parse(f'def func() -> {qualifiedAnnotation}: ...').body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert getGeneratorAnnotationKind(node) is kind
+    assert hasIteratorOrIterableAsReturnAnnotation(node) == isIterator
+    assert (
+        extractYieldTypeFromGeneratorOrIteratorAnnotation(
+            returnAnnoText=qualifiedAnnotation,
+            generatorAnnotationKind=kind,
+            hasIteratorOrIterableAsReturnAnnotation=isIterator,
+        )
+        == yieldType
+    )
+    assert getReturnTypeToDocument(
+        returnAnnotation=ReturnAnnotation(qualifiedAnnotation),
+        generatorAnnotationKind=kind,
+    ) == (qualifiedAnnotation if isIterator else returnType)

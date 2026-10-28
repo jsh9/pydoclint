@@ -50,7 +50,7 @@ def testBaselineCreation(baselineFile: Path, style: str) -> None:
         len(violations) == 0
         for violations in remainingViolationsInAllFiles.values()
     )
-    assert len(unfixedBaselineViolationsInAllFiles) == 35
+    assert len(unfixedBaselineViolationsInAllFiles) == 36
 
 
 badDocstringFunction = '''
