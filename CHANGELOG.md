@@ -2,15 +2,17 @@
 
 ## [0.12.0] - 2026-10-28
 
-- Fixed
-  - False positives (`DOC201`, `DOC203`, `DOC402`, `DOC403`, `DOC404`,
-    `DOC405`) for qualified return annotations such as `typing.Generator[...]`,
-    `collections.abc.Iterator[...]`, and `t.Iterable[...]` (#317)
 - Changed
+  - Generator, Iterator, and Iterable return annotations are now recognized by
+    the last name in the annotation's AST instead of by matching the annotation
+    text, so qualified names such as `typing.Generator[...]`,
+    `collections.abc.Iterator[...]`, and `t.Iterable[...]` are recognized too
+    (#317)
   - Iterator and Iterable annotations are matched by exact name instead of by
     prefix, so names like `IterableDataset` are no longer treated as iterators
-  - Unions with `None`, such as `Iterator[int] | None`, are no longer
-    recognized as iterator or generator annotations
+  - Union annotations, such as `Iterator[int] | None` or
+    `Iterator[int] | list[int]`, are no longer recognized as iterator or
+    generator annotations
   - Imports are not resolved: `np.random.Generator` is treated like
     `typing.Generator`, and renamed imports such as
     `from typing import Iterator as It` are still not recognized
