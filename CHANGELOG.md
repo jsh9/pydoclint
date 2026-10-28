@@ -3,8 +3,8 @@
 ## [Unreleased]
 
 - Fixed
-  - DOC105 (and DOC605) were reported together with DOC104 (and DOC604)
-    when arguments (or attributes) were in a different order, even if
+  - DOC105 (and DOC605) were reported together with DOC104 (and DOC604) when
+    arguments (or attributes) were in a different order, even if
     `--arg-type-hints-in-signature` or `--arg-type-hints-in-docstring` was
     turned off (#325)
 - Maintenance

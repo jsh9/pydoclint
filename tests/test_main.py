@@ -2986,8 +2986,8 @@ def testTypeHintMismatchWithReorderedArgs(
         expectTypeHints: bool,
 ) -> None:
     """
-    Test that DOC105 (and DOC605) are not reported with reordered arguments
-    (or attributes) when a type-hint check is turned off.
+    Test that DOC105 (and DOC605) are not reported with reordered arguments (or
+    attributes) when a type-hint check is turned off.
 
     ``reordered`` and ``Config`` list the same names in a different order than
     the docstring, with type hints that differ from the docstring's. Whether
@@ -3012,4 +3012,5 @@ def testTypeHintMismatchWithReorderedArgs(
     expected = [(2, 104), (28, 604)]
     if expectTypeHints:
         expected = [(2, 104), (2, 105), (28, 604), (28, 605)]
+
     assert codes == expected
