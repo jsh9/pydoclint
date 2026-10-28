@@ -9,7 +9,6 @@ if TYPE_CHECKING:
 
 from pydoclint.utils import walk
 from pydoclint.utils.ast_types import BlockType, FuncOrAsyncFuncDef
-from pydoclint.utils.generic import stringStartsWith
 from pydoclint.utils.unparser_custom import unparseName
 
 ReturnType = type[ast.Return]
@@ -58,18 +57,11 @@ def getGeneratorAnnotationKind(
         node: FuncOrAsyncFuncDef,
 ) -> GeneratorAnnotationKind | None:
     """Return the generator-like annotation kind for ``node`` if present."""
-    if node.returns is None:
-        return None
-
-    returnAnno: str | None = unparseName(node.returns)
-    if returnAnno == 'AsyncGenerator' or stringStartsWith(
-        returnAnno, ('AsyncGenerator[',)
-    ):
+    returnAnno = _getReturnAnnotationName(node)
+    if returnAnno == 'AsyncGenerator':
         return GeneratorAnnotationKind.ASYNC_GENERATOR
 
-    if returnAnno == 'Generator' or stringStartsWith(
-        returnAnno, ('Generator[',)
-    ):
+    if returnAnno == 'Generator':
         return GeneratorAnnotationKind.GENERATOR
 
     return None
@@ -79,19 +71,37 @@ def hasIteratorOrIterableAsReturnAnnotation(node: FuncOrAsyncFuncDef) -> bool:
     """
     Check whether ``node`` has a 'Iterator' or 'Iterable' return annotation
     """
-    if node.returns is None:
-        return False
-
-    returnAnnotation: str | None = unparseName(node.returns)
-    return returnAnnotation in {
+    return _getReturnAnnotationName(node) in {
         'Iterator',
         'Iterable',
         'AsyncIterator',
         'AsyncIterable',
-    } or stringStartsWith(
-        returnAnnotation,
-        ('Iterator', 'Iterable', 'AsyncIterator', 'AsyncIterable'),
-    )
+    }
+
+
+def _getReturnAnnotationName(node: FuncOrAsyncFuncDef) -> str | None:
+    """
+    Get the terminal name of a bare or subscripted return annotation.
+
+    Qualified names are recognized syntactically without resolving imports.
+    Other expressions, including string forward references, are not unwrapped.
+    """
+    annotation = node.returns
+    if isinstance(annotation, ast.Subscript):
+        annotation = annotation.value
+
+    if isinstance(annotation, ast.Name):
+        return annotation.id
+
+    if isinstance(annotation, ast.Attribute):
+        name = annotation.attr
+        while isinstance(annotation, ast.Attribute):
+            annotation = annotation.value
+
+        if isinstance(annotation, ast.Name):
+            return name
+
+    return None
 
 
 def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:

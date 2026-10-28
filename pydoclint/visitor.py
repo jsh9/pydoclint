@@ -55,8 +55,8 @@ from pydoclint.utils.visitor_helper import (
     addMismatchedRaisesExceptionViolation,
     addStarsToDocstringArgsWhenApplicable,
     checkClassAttributesAgainstClassDocstring,
-    checkDocArgsLengthAgainstActualArgs,
-    checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs,
+    checkDocArgsLengthAgainstCodeArgs,
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs,
     checkReturnTypesForViolations,
     checkYieldTypesForViolations,
     extractReturnTypeFromGeneratorAnnotation,
@@ -641,9 +641,9 @@ class Visitor(ast.NodeVisitor):
 
         violations: list[Violation] = []
 
-        checkDocArgsLengthAgainstActualArgs(
+        checkDocArgsLengthAgainstCodeArgs(
             docArgs=docArgs,
-            actualArgs=funcArgs,
+            codeArgs=funcArgs,
             violations=violations,
             violationForDocArgsLengthShorter=v101,
             violationForDocArgsLengthLonger=v102,
@@ -687,11 +687,11 @@ class Visitor(ast.NodeVisitor):
         ):
             violations.append(v111)
 
-        checkNameOrderAndTypeHintsOfDocArgsAgainstActualArgs(
+        checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
             docArgs=docArgs,
-            actualArgs=funcArgs,
+            codeArgs=funcArgs,
             violations=violations,
-            actualArgsAreClassAttributes=False,  # they are function args
+            codeArgsAreClassAttributes=False,  # they are function args
             violationForOrderMismatch=v104,
             violationForTypeHintMismatch=v105,
             shouldCheckArgOrder=self.checkArgOrder,

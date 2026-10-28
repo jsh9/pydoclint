@@ -205,14 +205,6 @@ def getNodeName(node: ast.AST) -> str:
     return getattr(node, 'name', '')
 
 
-def stringStartsWith(string: str | None, substrings: tuple[str, ...]) -> bool:
-    """Check whether the string starts with any of the substrings"""
-    if string is None:
-        return False
-
-    return any(string.startswith(substring) for substring in substrings)
-
-
 @overload
 def stripQuotes(string: str) -> str: ...
 
@@ -277,11 +269,11 @@ def _replacer(match: Match[str]) -> str:
 def appendArgsToCheckToV105(
         *,
         original_v105: Violation,
-        funcArgs: ArgList,
+        codeArgs: ArgList,
         docArgs: ArgList,
 ) -> Violation:
     """Append the arg names to check to the error message of v105 or v605"""
-    argsToCheck: list[Arg] = funcArgs.findArgsWithDifferentTypeHints(docArgs)
+    argsToCheck: list[Arg] = codeArgs.findArgsWithDifferentTypeHints(docArgs)
     argNames: str = ', '.join(_.name for _ in argsToCheck)
     return original_v105.appendMoreMsg(moreMsg=argNames)
 

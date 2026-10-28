@@ -6,7 +6,11 @@ import pytest
 
 from pydoclint.utils.arg import Arg, ArgList
 from pydoclint.utils.return_anno import ReturnAnnotation
-from pydoclint.utils.return_yield_raise import GeneratorAnnotationKind
+from pydoclint.utils.return_yield_raise import (
+    GeneratorAnnotationKind,
+    getGeneratorAnnotationKind,
+    hasIteratorOrIterableAsReturnAnnotation,
+)
 from pydoclint.utils.unparser_custom import unparseName
 from pydoclint.utils.visitor_helper import (
     _extractAnnotationSubscriptArgs,
@@ -18,7 +22,7 @@ from pydoclint.utils.visitor_helper import (
     extractClassAttributesFromNode,
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
-    getDocumentedAndActualClassArgLists,
+    getDocumentedAndCodeClassArgLists,
     getReturnTypeToDocument,
     removeDocstringDefaults,
     shouldIgnoreArgumentName,
@@ -1329,7 +1333,7 @@ def testRequireInlineClassvarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    attrs = getDocumentedAndActualClassArgLists(
+    attrs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1354,7 +1358,7 @@ expected_src2 = [
     Arg(name='field3', typeHint='int'),
 ]
 expected_doc_src3 = [Arg(name='field1', typeHint='int')]
-expected_actual_src3 = [
+expected_code_src3 = [
     Arg(name='field1', typeHint='int'),
     Arg(name='field2', typeHint='str'),
 ]
@@ -1378,12 +1382,12 @@ class DocstringTypeMismatch:
 '''
 
 src4_expected_doc = [Arg(name='field2', typeHint='')]
-src4_expected_actual = [
+src4_expected_code = [
     Arg(name='field1', typeHint='int'),
     Arg(name='field2', typeHint='str'),
 ]
 src5_expected_doc = [Arg(name='field1', typeHint='str')]
-src5_expected_actual = [Arg(name='field1', typeHint='int')]
+src5_expected_code = [Arg(name='field1', typeHint='int')]
 
 
 @pytest.mark.parametrize(
@@ -1392,7 +1396,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
         'style',
         'attribute_documentation',
         'expected_docargs',
-        'expected_actualargs',
+        'expected_codeargs',
         'expected_violations',
     ),
     [
@@ -1428,7 +1432,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'sphinx',
             sphinx_attr_doc,
             expected_doc_src3,
-            expected_actual_src3,
+            expected_code_src3,
             # expect DOC607 because inline docs are required in this mode
             [607],
         ),
@@ -1437,7 +1441,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'google',
             google_attr_doc,
             expected_doc_src3,
-            expected_actual_src3,
+            expected_code_src3,
             [607],
         ),
         (
@@ -1445,7 +1449,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'numpy',
             numpy_attr_doc,
             expected_doc_src3,
-            expected_actual_src3,
+            expected_code_src3,
             [607],
         ),
         (
@@ -1453,7 +1457,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'sphinx',
             None,
             src4_expected_doc,
-            src4_expected_actual,
+            src4_expected_code,
             [],
         ),
         (
@@ -1461,7 +1465,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'google',
             None,
             src4_expected_doc,
-            src4_expected_actual,
+            src4_expected_code,
             [],
         ),
         (
@@ -1469,7 +1473,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'numpy',
             None,
             src4_expected_doc,
-            src4_expected_actual,
+            src4_expected_code,
             [],
         ),
         (
@@ -1477,7 +1481,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'sphinx',
             None,
             src5_expected_doc,
-            src5_expected_actual,
+            src5_expected_code,
             # a violation is not thrown at this level for mismatched types
             [],
         ),
@@ -1486,7 +1490,7 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'google',
             None,
             src5_expected_doc,
-            src5_expected_actual,
+            src5_expected_code,
             # a violation is not thrown at this level for mismatched types
             [],
         ),
@@ -1495,18 +1499,18 @@ src5_expected_actual = [Arg(name='field1', typeHint='int')]
             'numpy',
             None,
             src5_expected_doc,
-            src5_expected_actual,
+            src5_expected_code,
             # a violation is not thrown at this level for mismatched types
             [],
         ),
     ],
 )
-def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
+def testGetDocumentedAndCodeClassArgListsWithInlineClassVarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
         expected_docargs: list[Arg],
-        expected_actualargs: list[Arg],
+        expected_codeargs: list[Arg],
         expected_violations: list[int],
 ) -> None:
     final_src = src.format(
@@ -1517,7 +1521,7 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+    docArgs, codeArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1534,11 +1538,11 @@ def testGetDocumentedAndActualClassArgListsWithInlineClassVarDocs(
 
     assert [v.code for v in violations] == expected_violations
     assert docArgs == ArgList(expected_docargs)
-    assert actualArgs == ArgList(expected_actualargs)
+    assert codeArgs == ArgList(expected_codeargs)
 
 
 expected_doc_src3_no_inline = [Arg(name='field2', typeHint='str')]
-expected_actual_src3_no_inline = [
+expected_code_src3_no_inline = [
     Arg(name='field1', typeHint='int'),
     Arg(name='field2', typeHint='str'),
 ]
@@ -1550,7 +1554,7 @@ expected_actual_src3_no_inline = [
         'style',
         'attribute_documentation',
         'expected_docargs',
-        'expected_actualargs',
+        'expected_codeargs',
         'expected_violations',
     ),
     [
@@ -1559,7 +1563,7 @@ expected_actual_src3_no_inline = [
             'sphinx',
             sphinx_attr_doc,
             expected_doc_src3_no_inline,
-            expected_actual_src3_no_inline,
+            expected_code_src3_no_inline,
             # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
@@ -1568,7 +1572,7 @@ expected_actual_src3_no_inline = [
             'google',
             google_attr_doc,
             expected_doc_src3_no_inline,
-            expected_actual_src3_no_inline,
+            expected_code_src3_no_inline,
             # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
@@ -1577,18 +1581,18 @@ expected_actual_src3_no_inline = [
             'numpy',
             numpy_attr_doc,
             expected_doc_src3_no_inline,
-            expected_actual_src3_no_inline,
+            expected_code_src3_no_inline,
             # Expect DOC606 because inline docstrings are not accepted here
             [606],
         ),
     ],
 )
-def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
+def testGetDocumentedAndCodeClassArgListsWithoutInlineClassVarDocs(
         src: str,
         style: str,
         attribute_documentation: str | None,
         expected_docargs: list[Arg],
-        expected_actualargs: list[Arg],
+        expected_codeargs: list[Arg],
         expected_violations: list[int],
 ) -> None:
     final_src = src.format(
@@ -1599,7 +1603,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
     assert isinstance(node, ast.ClassDef)
 
     violations: list[Violation] = []
-    docArgs, actualArgs = getDocumentedAndActualClassArgLists(
+    docArgs, codeArgs = getDocumentedAndCodeClassArgLists(
         node=node,
         style=style,
         ignorePrivateClassAttributes=True,
@@ -1616,7 +1620,7 @@ def testGetDocumentedAndActualClassArgListsWithoutInlinveClassVarDocs(
 
     assert [v.code for v in violations] == expected_violations
     assert docArgs == ArgList(expected_docargs)
-    assert actualArgs == ArgList(expected_actualargs)
+    assert codeArgs == ArgList(expected_codeargs)
 
 
 @pytest.mark.parametrize(
@@ -1735,8 +1739,8 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     node = parsed.body[0]
     assert isinstance(node, ast.ClassDef)
 
-    # Extract actual args from the class
-    actualArgs = extractClassAttributesFromNode(
+    # Extract the class attributes from the code
+    codeArgs = extractClassAttributesFromNode(
         node=node,
         ignorePrivateClassAttributes=True,
         ignoreUnderscoreOnlyClassAttributes=True,
@@ -1754,7 +1758,7 @@ def testUpdateDocumentedArgListWithInlineDocstrings(
     updateDocumentedArgListWithInlineDocstrings(
         node=node,
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         requireInlineClassVarDocs=requireInlineClassVarDocs,
         violations=violations,
@@ -1812,7 +1816,7 @@ def testInlineClassAttributeDocsRespectNameKinds(
     )
     node = parsed.body[0]
     assert isinstance(node, ast.ClassDef)
-    actualArgs = extractClassAttributesFromNode(
+    codeArgs = extractClassAttributesFromNode(
         node=node,
         ignorePrivateClassAttributes=ignorePrivateClassAttributes,
         ignoreUnderscoreOnlyClassAttributes=(
@@ -1829,13 +1833,13 @@ def testInlineClassAttributeDocsRespectNameKinds(
     updateDocumentedArgListWithInlineDocstrings(
         node=node,
         docArgs=docArgs,
-        actualArgs=actualArgs,
+        codeArgs=codeArgs,
         argTypeHintsInDocstring=True,
         requireInlineClassVarDocs=True,
         violations=violations,
     )
 
-    assert [arg.name for arg in actualArgs.infoList] == expectedNames
+    assert [arg.name for arg in codeArgs.infoList] == expectedNames
     assert [arg.name for arg in docArgs.infoList] == expectedNames
     assert violations == []
 
@@ -1908,3 +1912,87 @@ def testShouldIgnoreArgumentName(
     }
     expected = controllingOption is not None and options[controllingOption]
     assert shouldIgnoreArgumentName(name=name, **options) is expected
+
+
+@pytest.mark.parametrize('prefix', ['typing.', 'collections.abc.', 't.'])
+@pytest.mark.parametrize(
+    ('annotation', 'kind', 'isIterator', 'yieldType', 'returnType'),
+    [
+        (
+            'Generator[int]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        (
+            'Generator[int, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        (
+            'Generator[int, None, str]',
+            GeneratorAnnotationKind.GENERATOR,
+            False,
+            'int',
+            'str',
+        ),
+        (
+            'AsyncGenerator[int]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        (
+            'AsyncGenerator[int, str]',
+            GeneratorAnnotationKind.ASYNC_GENERATOR,
+            False,
+            'int',
+            'None',
+        ),
+        ('Iterator[dict[str, int]]', None, True, 'dict[str, int]', None),
+        ('AsyncIterable[None]', None, True, 'None', None),
+    ],
+)
+def testExtractQualifiedAnnotationTypes(
+        prefix: str,
+        annotation: str,
+        kind: GeneratorAnnotationKind | None,
+        isIterator: bool,
+        yieldType: str,
+        returnType: str | None,
+) -> None:
+    """
+    Test that yield and return types are extracted correctly from qualified
+    generator and iterator annotations.
+
+    Each annotation is tried with ``typing.``, ``collections.abc.``, and a
+    ``t.`` module alias. The yield type is the first subscript argument. For
+    ``Generator``, the return type to document is the third argument, or
+    ``None`` when it is omitted. ``AsyncGenerator`` has no return-type
+    argument, so its return type is always ``None``. ``Iterator`` and
+    ``Iterable`` have no return-type argument either, so the whole annotation
+    is the type to document. The visitor passes the detectors' results to these
+    helpers, so the test first checks that the detectors report ``kind`` and
+    ``isIterator`` for the annotation.
+    """
+    qualifiedAnnotation = prefix + annotation
+    node = ast.parse(f'def func() -> {qualifiedAnnotation}: ...').body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert getGeneratorAnnotationKind(node) is kind
+    assert hasIteratorOrIterableAsReturnAnnotation(node) == isIterator
+    assert (
+        extractYieldTypeFromGeneratorOrIteratorAnnotation(
+            returnAnnoText=qualifiedAnnotation,
+            generatorAnnotationKind=kind,
+            hasIteratorOrIterableAsReturnAnnotation=isIterator,
+        )
+        == yieldType
+    )
+    assert getReturnTypeToDocument(
+        returnAnnotation=ReturnAnnotation(qualifiedAnnotation),
+        generatorAnnotationKind=kind,
+    ) == (qualifiedAnnotation if isIterator else returnType)

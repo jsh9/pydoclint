@@ -89,6 +89,14 @@ def myFunc(arg1: hello[int], arg2: world[str]) -> None:
 The authors of _pydoclint_ feel that this is a sensible design choice to
 achieve and maintain _pydoclint_'s speed.
 
+Module aliases are a different case. When _pydoclint_ decides whether a
+function is a generator or an iterator, it only looks at the last name of the
+return annotation, so `typing.Iterator[...]`, `collections.abc.Iterator[...]`,
+and `t.Iterator[...]` (after `import typing as t`) are all recognized. Renamed
+types, such as `It[...]` after `from typing import Iterator as It`, are not.
+See
+[which return annotations count as generators or iterators](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html#2-which-return-annotations-count-as-generators-or-iterators).
+
 ## 2. Notes on writing type hints
 
 As mentioned in Section 1 above, _pydoclint_ uses static syntax analysis. As a

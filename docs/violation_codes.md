@@ -114,6 +114,10 @@ Generator/Iterator/Iterable (or is missing). The bodies of both are
 placeholders, so a body without "yield" statements doesn't mean that the
 function doesn't yield anything.
 
+Which return annotations count as a Generator/Iterator/Iterable is explained
+[here](https://jsh9.github.io/pydoclint/notes_generator_vs_iterator.html#2-which-return-annotations-count-as-generators-or-iterators).
+For example, `typing.Iterator[int]` counts, but `Iterator[int] | None` doesn't.
+
 ## 6. `DOC5xx`: Violations about "raise" and "assert" statements
 
 | Code     | Explanation                                                                                                                               |

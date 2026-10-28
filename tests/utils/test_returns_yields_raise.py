@@ -6,10 +6,12 @@ from pydoclint.utils.ast_types import FuncOrAsyncFuncDef
 from pydoclint.utils.generic import getFunctionId
 from pydoclint.utils.return_yield_raise import (
     GeneratorAnnotationKind,
+    _getReturnAnnotationName,
     getGeneratorAnnotationKind,
     getRaisedExceptions,
     hasBareReturnStatements,
     hasGeneratorAsReturnAnnotation,
+    hasIteratorOrIterableAsReturnAnnotation,
     hasRaiseStatements,
     hasReturnAnnotation,
     hasReturnStatements,
@@ -266,9 +268,6 @@ def testHasReturnStatements_nestedFunction() -> None:
             'def func() -> AsyncGenerator[int, str, bool]:\n  pass',
             GeneratorAnnotationKind.ASYNC_GENERATOR,
         ),
-        # Only bare generator annotations are recognized by design.
-        ('def func() -> typing.Generator[int]:\n  pass', None),
-        ('def func() -> typing.AsyncGenerator[int]:\n  pass', None),
     ],
 )
 def testGetGeneratorAnnotationKind(
@@ -635,3 +634,148 @@ def testWhichRaiseStatements() -> None:
     }
 
     assert result == expected
+
+
+@pytest.mark.parametrize('prefix', ['', 'typing.', 'collections.abc.', 't.'])
+@pytest.mark.parametrize('subscript', ['', '[int]'])
+@pytest.mark.parametrize(
+    ('name', 'kind', 'isIterator'),
+    [
+        ('Generator', GeneratorAnnotationKind.GENERATOR, False),
+        ('AsyncGenerator', GeneratorAnnotationKind.ASYNC_GENERATOR, False),
+        ('Iterator', None, True),
+        ('Iterable', None, True),
+        ('AsyncIterator', None, True),
+        ('AsyncIterable', None, True),
+    ],
+)
+def testQualifiedReturnAnnotations(
+        prefix: str,
+        subscript: str,
+        name: str,
+        kind: GeneratorAnnotationKind | None,
+        isIterator: bool,
+) -> None:
+    """
+    Test that the generator and iterator detectors recognize all six names,
+    bare or qualified, with or without a subscript.
+
+    The prefixes cover a bare name, ``typing.``, ``collections.abc.``, and a
+    module alias (``t.``). Each name must land in exactly one family:
+    ``Generator`` and ``AsyncGenerator`` are generator annotations, and the
+    four ``Iterator``/``Iterable`` names are iterator annotations. ``kind`` is
+    the expected result of getGeneratorAnnotationKind(), and ``isIterator`` is
+    the expected result of hasIteratorOrIterableAsReturnAnnotation().
+    """
+    node = ast.parse(f'def func() -> {prefix}{name}{subscript}: ...').body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert getGeneratorAnnotationKind(node) is kind
+    assert hasGeneratorAsReturnAnnotation(node) == (kind is not None)
+    assert hasIteratorOrIterableAsReturnAnnotation(node) == isIterator
+
+
+@pytest.mark.parametrize(
+    'annotation',
+    [
+        '',
+        'None',
+        'IterableDataset[int]',
+        'IteratorResult',
+        'AsyncIterableDataset[int]',
+        'AsyncIteratorResult',
+        'GeneratorResult[int]',
+        'AsyncGeneratorResult',
+        'typing.IterableDataset[int]',
+        'typing.GeneratorResult[int]',
+        'list[typing.Iterator[int]]',
+        'typing.Generator[int] | None',
+        'typing.Iterator[int][str]',
+        'typing.Iterator(int)',
+        'factory().Generator[int]',
+        'wrapper[int].Iterator',
+        '"typing.Generator[int]"',
+        '"typing.Iterator[int]"',
+    ],
+)
+def testUnrelatedReturnAnnotations(annotation: str) -> None:
+    """
+    Test that annotations that only resemble a generator or iterator are not
+    recognized by any of the detectors.
+
+    The cases cover a missing annotation, ``None``, names that merely start
+    with one of the six names (such as ``IterableDataset``), a matching name
+    nested inside another type or a union, a double subscript, a call, a
+    qualifier whose root is not a plain name, and string forward references.
+    """
+    returnAnnotation = f' -> {annotation}' if annotation else ''
+    node = ast.parse(f'def func(){returnAnnotation}: ...').body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert getGeneratorAnnotationKind(node) is None
+    assert not hasGeneratorAsReturnAnnotation(node)
+    assert not hasIteratorOrIterableAsReturnAnnotation(node)
+
+
+@pytest.mark.parametrize('funcKeyword', ['def', 'async def'])
+@pytest.mark.parametrize(
+    ('annotation', 'expected'),
+    [
+        # No return annotation, or one with no name to extract
+        ('', None),
+        ('None', None),
+        ('"typing.Iterator[int]"', None),
+        ('Iterator[int] | None', None),
+        ('typing.Iterator[int][str]', None),
+        ('typing.Iterator(int)', None),
+        ('factory().Generator[int]', None),
+        ('wrapper[int].Iterator', None),
+        ('None.Generator', None),
+        ('...', None),
+        ('[int]', None),
+        # Bare names, with or without a subscript
+        ('int', 'int'),
+        ('Generator', 'Generator'),
+        ('Generator[int, None, str]', 'Generator'),
+        ('AsyncIterable[int]', 'AsyncIterable'),
+        # Qualified names: only the last component is returned
+        ('typing.Generator[int]', 'Generator'),
+        ('collections.abc.Iterator[int]', 'Iterator'),
+        ('t.Iterable', 'Iterable'),
+        ('a.b.c.d.AsyncGenerator[int]', 'AsyncGenerator'),
+        ('hello.world.good.morning', 'morning'),
+        ('Generator.Iterator', 'Iterator'),
+        # The AST does not keep parentheses or spacing
+        ('(typing.Generator)[int]', 'Generator'),
+        ('typing . Generator [ int ]', 'Generator'),
+        # Imports are not resolved, so a non-typing class named
+        # `Generator` looks the same as `typing.Generator`
+        ('np.random.Generator', 'Generator'),
+        # Only the outermost name is returned; callers match it exactly
+        ('Optional[Iterator[int]]', 'Optional'),
+        ('list[typing.Iterator[int]]', 'list'),
+        ("typing.Annotated[Iterator[int], 'meta']", 'Annotated'),
+        ('IterableDataset[int]', 'IterableDataset'),
+        ('typing.GeneratorResult[int]', 'GeneratorResult'),
+    ],
+)
+def testGetReturnAnnotationName(
+        funcKeyword: str,
+        annotation: str,
+        expected: str | None,
+) -> None:
+    """
+    Test that _getReturnAnnotationName() returns the last name of the return
+    annotation, or None when the annotation has no name to extract.
+
+    The helper only removes one outer subscript and walks an attribute chain
+    down to a plain-name root. It does not resolve imports, so
+    ``np.random.Generator`` gives ``Generator``, just like ``typing.Generator``
+    does. It also does not look inside other types, so
+    ``Optional[Iterator[int]]`` gives ``Optional``; the callers then compare
+    the name exactly. Because it reads the AST rather than the source text,
+    parentheses and spacing make no difference. Each case runs for both ``def``
+    and ``async def``.
+    """
+    returnAnnotation = f' -> {annotation}' if annotation else ''
+    node = ast.parse(f'{funcKeyword} func(){returnAnnotation}: ...').body[0]
+    assert isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    assert _getReturnAnnotationName(node) == expected
