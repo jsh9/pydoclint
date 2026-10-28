@@ -2859,13 +2859,29 @@ def testQualifiedAnnotationsStillCheckBodies(
         DATA_DIR / f'{style}/qualified_annotations/cases.pyi', filename
     )
     violations = _checkFile(filename=filename, style=style)
-    assert [violation.code for violation in violations] == [
-        203,
-        403,  # yieldAndReturn: no yield body to unwrap its return type
-        403,  # shortGenerator
-        403,  # asyncGenerator
-        201,
-        403,  # iterator: neither a return nor a yield body
+    assert list(map(str, violations)) == [
+        'DOC203: Function `yieldAndReturn` return type(s) in docstring not'
+        ' consistent with the return annotation. Return annotation types:'
+        " ['collections.abc.Generator[int, None, str]']; docstring return"
+        " section types: ['str']",
+        'DOC403: Function `yieldAndReturn` has a "Yields" section in the'
+        ' docstring, but there are no "yield" statements, or the return'
+        ' annotation is not a Generator/Iterator/Iterable. (Or it could be'
+        ' because the function lacks a return annotation.)',
+        'DOC403: Function `shortGenerator` has a "Yields" section in the'
+        ' docstring, but there are no "yield" statements, or the return'
+        ' annotation is not a Generator/Iterator/Iterable. (Or it could be'
+        ' because the function lacks a return annotation.)',
+        'DOC403: Function `asyncGenerator` has a "Yields" section in the'
+        ' docstring, but there are no "yield" statements, or the return'
+        ' annotation is not a Generator/Iterator/Iterable. (Or it could be'
+        ' because the function lacks a return annotation.)',
+        'DOC201: Function `iterator` does not have a return section in'
+        ' docstring',
+        'DOC403: Function `iterator` has a "Yields" section in the docstring,'
+        ' but there are no "yield" statements, or the return annotation is'
+        ' not a Generator/Iterator/Iterable. (Or it could be because the'
+        ' function lacks a return annotation.)',
     ]
 
 
@@ -2897,11 +2913,12 @@ def testQualifiedAnnotationsYieldingNothing(
     )
     expected = (
         [
-            'DOC402: Function `noneIterable` has "yield" statements, but the '
-            'docstring does not have a "Yields" section',
-            'DOC404: Function `noneIterable` yield type(s) in docstring not '
-            'consistent with the return annotation. Return annotation exists, '
-            'but docstring "yields" section does not exist or has 0 type(s).',
+            'DOC402: Function `noneIterable` has "yield" statements, but the'
+            ' docstring does not have a "Yields" section',
+            'DOC404: Function `noneIterable` yield type(s) in docstring not'
+            ' consistent with the return annotation. Return annotation'
+            ' exists, but docstring "yields" section does not exist or has 0'
+            ' type(s).',
         ]
         if requireYieldSectionWhenYieldingNothing
         else []
