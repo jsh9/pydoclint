@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- Fixed
+  - Files saved as UTF-8 with a byte order mark (BOM) were reported as `DOC002`
+    (syntax error: "unexpected indent") and not checked when their first line
+    was code, such as a module docstring or an import. Now the BOM is dropped
+    when reading the file, as Python does
 - Maintenance
   - Renamed the internal `actualArgs` to `codeArgs` (and the helper functions,
     parameters and tests that use it), so that it pairs with `docArgs`. No

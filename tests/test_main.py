@@ -2064,6 +2064,51 @@ def testNonAscii() -> None:
     assert list(map(str, violations)) == expected
 
 
+@pytest.mark.parametrize(
+    'firstLine',
+    ['"""Module docstring."""', 'import os', '# A comment'],
+)
+def testUtf8ByteOrderMark(tmp_path: Path, firstLine: str) -> None:
+    """
+    Test that a file saved as UTF-8 with a byte order mark (BOM) is checked
+    like the same file without the BOM. Python itself accepts such files.
+    """
+    source = (
+        f'{firstLine}\n'
+        '\n'
+        '\n'
+        'def func(arg1: int) -> int:\n'
+        '    """\n'
+        '    Do something.\n'
+        '\n'
+        '    Returns\n'
+        '    -------\n'
+        '    int\n'
+        '        The result\n'
+        '    """\n'
+        '    return arg1\n'
+    )
+    withoutBom = tmp_path / 'without_bom.py'
+    withoutBom.write_bytes(source.encode('utf-8'))
+    withBom = tmp_path / 'with_bom.py'
+    withBom.write_bytes(b'\xef\xbb\xbf' + source.encode('utf-8'))
+
+    expected = list(map(str, _checkFile(filename=withoutBom, style='numpy')))
+    violations = _checkFile(filename=withBom, style='numpy')
+
+    assert expected == [
+        'DOC101: Function `func`: Docstring contains fewer arguments than in '
+        'function signature.',
+        'DOC103: Function `func`: Docstring arguments are different from '
+        'function arguments. (Or could be other formatting issues: '
+        'https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103 ).'
+        ' Arguments in the function signature but not in the docstring: '
+        '[arg1: int].',
+    ]
+    assert list(map(str, violations)) == expected
+    assert [v.line for v in violations] == [4, 4]
+
+
 @pytest.mark.parametrize('checkArgDefaults', [False, True])
 # no Sphinx style for now
 @pytest.mark.parametrize('style', ['google', 'numpy'])
