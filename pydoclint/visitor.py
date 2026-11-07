@@ -233,9 +233,7 @@ class Visitor(ast.NodeVisitor):
         # Abstract methods and functions in stub (.pyi) files have placeholder
         # bodies, so a body without "raise" or "yield" statements doesn't mean
         # that the function doesn't raise or yield.
-        self.hasPlaceholderBody = self.isStubFile or checkIsAbstractMethod(
-            node
-        )
+        hasPlaceholderBody = self.isStubFile or checkIsAbstractMethod(node)
 
         if isClassConstructor and parentClass is not None:
             docstring = self._checkClassDocstringAndConstructorDocstrings(
@@ -341,18 +339,32 @@ class Visitor(ast.NodeVisitor):
                         yieldViolations = []
                         if not self.skipCheckingRaises:
                             raiseViolations = self.checkRaises(
-                                node, parent_, doc
+                                node,
+                                parent_,
+                                doc,
+                                hasPlaceholderBody=hasPlaceholderBody,
                             )
                         else:
                             raiseViolations = []
                     else:
                         returnViolations = self.checkReturns(
-                            node, parent_, doc
+                            node,
+                            parent_,
+                            doc,
+                            hasPlaceholderBody=hasPlaceholderBody,
                         )
-                        yieldViolations = self.checkYields(node, parent_, doc)
+                        yieldViolations = self.checkYields(
+                            node,
+                            parent_,
+                            doc,
+                            hasPlaceholderBody=hasPlaceholderBody,
+                        )
                         if not self.skipCheckingRaises:
                             raiseViolations = self.checkRaises(
-                                node, parent_, doc
+                                node,
+                                parent_,
+                                doc,
+                                hasPlaceholderBody=hasPlaceholderBody,
                             )
                         else:
                             raiseViolations = []
@@ -709,6 +721,8 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
+            *,
+            hasPlaceholderBody: bool,
     ) -> list[Violation]:
         """Check return statement & return type annotation of this function"""
         lineNum: int = node.lineno
@@ -733,9 +747,7 @@ class Visitor(ast.NodeVisitor):
         # than returning an iterator). An abstract method can still have a
         # real body, though, and "return" statements in it show otherwise.
         yieldsWithoutReturning: bool = onlyHasYieldStmt or (
-            self.hasPlaceholderBody
-            and doc.hasYieldsSection
-            and not hasReturnStmt
+            hasPlaceholderBody and doc.hasYieldsSection and not hasReturnStmt
         )
 
         violations: list[Violation] = []
@@ -766,7 +778,7 @@ class Visitor(ast.NodeVisitor):
         if (
             docstringHasReturnSection
             and not (hasReturnStmt or hasReturnAnno)
-            and not self.hasPlaceholderBody
+            and not hasPlaceholderBody
         ):
             violations.append(v202)
 
@@ -804,7 +816,7 @@ class Visitor(ast.NodeVisitor):
                 return violations
 
             generatorAnnotationKind = getGeneratorAnnotationKind(node)
-            if self.hasPlaceholderBody and generatorAnnotationKind is not None:
+            if hasPlaceholderBody and generatorAnnotationKind is not None:
                 # A placeholder body doesn't show whether the generator also
                 # returns a value. So the "Returns" section can document
                 # either the generator's return type (the R in
@@ -870,6 +882,8 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
+            *,
+            hasPlaceholderBody: bool,
     ) -> list[Violation]:
         """Check violations on 'yield' statements or 'Generator' annotation"""
         violations: list[Violation] = []
@@ -916,7 +930,7 @@ class Visitor(ast.NodeVisitor):
                     violations.append(v402)
 
         if docstringHasYieldsSection:
-            if not self.hasPlaceholderBody:
+            if not hasPlaceholderBody:
                 isYieldsSectionUnexpected = (
                     not hasYieldStmt or noGenNorIterAsRetAnno
                 )
@@ -1101,6 +1115,8 @@ class Visitor(ast.NodeVisitor):
             node: FuncOrAsyncFuncDef,
             parent: ast.AST,
             doc: Doc,
+            *,
+            hasPlaceholderBody: bool,
     ) -> list[Violation]:
         """Check violations on 'raise' statements"""
         violations: list[Violation] = []
@@ -1125,13 +1141,13 @@ class Visitor(ast.NodeVisitor):
                 not hasAssertStmt
                 and not hasRaiseStmt
                 and docstringHasRaisesSection
-                and not self.hasPlaceholderBody
+                and not hasPlaceholderBody
             ):
                 violations.append(v502)
         elif (
             not hasRaiseStmt
             and docstringHasRaisesSection
-            and not self.hasPlaceholderBody
+            and not hasPlaceholderBody
         ):
             violations.append(v502)
 
