@@ -131,7 +131,7 @@ def validateExcludePattern(
     show_default=True,
     default='numpy',
     callback=validateStyleValue,
-    help='',
+    help='Docstring style to check against: "numpy", "google", or "sphinx".',
 )
 @click.option(
     '-ths',
