@@ -21,3 +21,17 @@ def testMain() -> None:
 
     assert result.exit_code != 0  # we expect DOC violations to happen
     assert 'Error: ' not in result.output
+
+
+def testStyleOptionHasHelpText() -> None:
+    """
+    The --style option should document the accepted values in --help,
+    like every other option documents itself.
+    """
+    runner = CliRunner()
+    result = runner.invoke(cliMain, ['--help'], catch_exceptions=False)
+
+    assert result.exit_code == 0
+    assert '--style' in result.output
+    for validStyle in ('numpy', 'google', 'sphinx'):
+        assert validStyle in result.output
