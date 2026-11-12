@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+- Fixed
+  - Underlined text in doctest output no longer triggers `DOC001` as an
+    unsupported NumPy docstring section (#300)
 - Maintenance
   - Renamed the internal `actualArgs` to `codeArgs` (and the helper functions,
     parameters and tests that use it), so that it pairs with `docArgs`. No

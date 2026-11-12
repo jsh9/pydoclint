@@ -341,3 +341,64 @@ def testValidateNumpySectionHeaders_ignoresNonSectionUnderlines() -> None:
     """
 
     _validateNumpySectionHeaders(docstring)
+
+
+@pytest.mark.parametrize(
+    'example',
+    [
+        '>>> report()\nFirst\n-----\n<BLANKLINE>\nSecond\n------',
+        '>>> for name in names:\n...     print(name)\nFirst\n-----',
+        '>>> report()\nFirst\n-----\n>>> report()\nSecond\n------',
+        '    >>> report()\n    First\n    -----',
+    ],
+)
+def testValidateNumpySectionHeaders_ignoresDoctestOutput(
+        example: str,
+) -> None:
+    """Doctest output is not a section, even when it has an underline."""
+    docstring = 'A report.\n\nExamples\n--------\n' + example
+    _validateNumpySectionHeaders(docstring)
+
+
+def testValidateNumpySectionHeaders_checksSectionsAfterDoctest() -> None:
+    """A blank line ends output, so following headings are still checked."""
+    docstring = """
+    A report.
+
+    Examples
+    --------
+    >>> report()
+    First
+    -----
+    <BLANKLINE>
+    Second
+    ------
+
+    Outputs
+    -------
+    This is an unsupported section.
+    """
+    with pytest.raises(
+        ParseError, match=r'^Unsupported numpy docstring section: "Outputs"$'
+    ):
+        _validateNumpySectionHeaders(docstring)
+
+
+def testValidateNumpySectionHeaders_handlesInvalidDoctest() -> None:
+    """Invalid doctest indentation must not crash the section check."""
+    docstring = """
+    A report.
+
+    Examples
+    --------
+        >>> report()
+    This output has inconsistent indentation.
+
+    Outputs
+    -------
+    This is an unsupported section.
+    """
+    with pytest.raises(
+        ParseError, match=r'^Unsupported numpy docstring section: "Outputs"$'
+    ):
+        _validateNumpySectionHeaders(docstring)

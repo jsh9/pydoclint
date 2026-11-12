@@ -179,3 +179,23 @@ class MyOp:
             raise ValueError(f"scale must be positive, got {scale}")
 
         self.scale = scale
+
+
+def report() -> str:
+    """Return a report with underlined headings.
+
+    Returns
+    -------
+    str
+        The report.
+
+    Examples
+    --------
+    >>> print(report())
+    First
+    -----
+    <BLANKLINE>
+    Second
+    ------
+    """
+    return 'First\n-----\n\nSecond\n------'
