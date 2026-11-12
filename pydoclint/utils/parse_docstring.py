@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from doctest import DocTestParser
 
 from docstring_parser import ParseError
 from docstring_parser.numpydoc import DEFAULT_SECTIONS
@@ -219,6 +220,7 @@ def _validateNumpySectionHeaders(docstring: str) -> None:
     """
     Reject unsupported numpy-style section headers before parser fallback.
     """
+    docstring = _withoutDoctestOutput(docstring)
     unsupportedSectionNames: list[str] = []
     for match in _NUMPY_SECTION_HEADER_PATTERN.finditer(docstring):
         sectionName = match.group(1)
@@ -241,3 +243,23 @@ def _validateNumpySectionHeaders(docstring: str) -> None:
         raise ParseError(
             f'Unsupported numpy docstring sections: {sectionNames}'
         )
+
+
+def _withoutDoctestOutput(docstring: str) -> str:
+    """Hide expected output only while checking for section headers."""
+    if '>>>' not in docstring:
+        return docstring
+
+    try:
+        examples = DocTestParser().get_examples(docstring)
+    except ValueError:
+        # Leave malformed examples to the existing docstring checks.
+        return docstring
+
+    lines = docstring.split('\n')
+    for example in examples:
+        start = example.lineno + example.source.count('\n')
+        end = start + example.want.count('\n')
+        lines[start:end] = [''] * (end - start)
+
+    return '\n'.join(lines)
