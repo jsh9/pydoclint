@@ -21,3 +21,25 @@ def wrongDefault(x: int = 3) -> None:
     x : , default=4
         The x value.
     """
+
+
+def missingDefault(x: int = 3) -> None:
+    """
+    The default is not documented.
+
+    Parameters
+    ----------
+    x
+        The x value.
+    """
+
+
+def spuriousDefault(x: int) -> None:
+    """
+    A default is documented, but the argument doesn't have one.
+
+    Parameters
+    ----------
+    x : , default=3
+        The x value.
+    """

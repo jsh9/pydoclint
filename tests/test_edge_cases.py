@@ -843,6 +843,12 @@ def testDefaultAloneIsNotATypeHint(
                 'DOC105: Function `wrongDefault`: Argument names match, but type'
                 ' hints in these args do not match: x . (Note: docstring arg'
                 ' defaults should look like: `, default=XXX`)',
+                'DOC105: Function `missingDefault`: Argument names match, but'
+                ' type hints in these args do not match: x . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `spuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: x . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
             ],
             id='types-only-in-signature',
         ),
@@ -857,6 +863,12 @@ def testDefaultAloneIsNotATypeHint(
                 'DOC105: Function `wrongDefault`: Argument names match, but type'
                 ' hints in these args do not match: value . (Note: docstring arg'
                 ' defaults should look like: `, default=XXX`)',
+                'DOC105: Function `missingDefault`: Argument names match, but'
+                ' type hints in these args do not match: value . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `spuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: value . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
             ],
             id='no-types',
         ),
