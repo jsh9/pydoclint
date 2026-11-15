@@ -669,17 +669,14 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
     Check the arg/attr list in the docstring against the arg/attr list in the
     code (either the function arguments or class attributes).
 
-    When the arg names match (and so does their order, if
-    ``shouldCheckArgOrder`` is True), type hints are only compared when both
+    When the arg names match, type hints are only compared when both
     ``argTypeHintsInSignature`` and ``argTypeHintsInDocstring`` are True.
     Otherwise, if ``compareDefaultsWithoutTypes`` is True, the default values
     (such as ``3`` in ``int, default=3``) are still compared, except for the
     args in ``placeholderDefaultNames``, whose documented default can be
-    anything.
-
-    (When ``shouldCheckArgOrder`` is True and the names match but the order
-    doesn't, DOC104 is reported, and DOC105 lists the args whose whole type
-    hints differ, whatever the type-hint options are.)
+    anything. This is the same whether or not the args are in the same order.
+    (A different order is reported on its own, if ``shouldCheckArgOrder`` is
+    True.)
     """
     if not docArgs.equals(
         codeArgs,
@@ -695,8 +692,17 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         elif docArgs.equals(
             codeArgs,
             checkTypeHint=False,
-            orderMatters=shouldCheckArgOrder,
+            orderMatters=False,
         ):
+            # The arg names match, but the type hints don't (and the order
+            # may not either)
+            if shouldCheckArgOrder and not docArgs.equals(
+                codeArgs,
+                checkTypeHint=False,
+                orderMatters=True,
+            ):
+                violations.append(violationForOrderMismatch)
+
             if argTypeHintsInSignature and argTypeHintsInDocstring:
                 v105new = appendArgsToCheckToV105(
                     original_v105=violationForTypeHintMismatch,
@@ -716,17 +722,6 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
                             moreMsg=argNames,
                         )
                     )
-        elif docArgs.equals(
-            codeArgs,
-            checkTypeHint=False,
-            orderMatters=False,
-        ):
-            v105new = appendArgsToCheckToV105(
-                original_v105=violationForTypeHintMismatch,
-                codeArgs=codeArgs,
-                docArgs=docArgs,
-            )
-            violations.extend([violationForOrderMismatch, v105new])
         else:
             argsInCodeNotInDoc: set[Arg] = codeArgs.subtract(
                 docArgs,

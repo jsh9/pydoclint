@@ -1138,6 +1138,87 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
 
 
 @pytest.mark.parametrize(
+    (
+        'shouldCheckArgOrder',
+        'argTypeHintsInSignature',
+        'argTypeHintsInDocstring',
+        'compareDefaultsWithoutTypes',
+        'reportsDoc104',
+        'argNamesInDoc105',
+    ),
+    [
+        # Both type-hint options on: the whole type hints are compared
+        (True, True, True, True, True, 'a, b'),
+        # Either type-hint option off: only the defaults are compared
+        (True, False, True, True, True, 'b'),
+        (True, True, False, True, True, 'b'),
+        # ... unless that's turned off too: only the order is reported (#325)
+        (True, False, True, False, True, None),
+        # Without checking the order, DOC104 isn't reported
+        (False, False, True, True, False, 'b'),
+        (False, True, True, True, False, 'a, b'),
+    ],
+)
+def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs_differentOrder(
+        shouldCheckArgOrder: bool,
+        argTypeHintsInSignature: bool,
+        argTypeHintsInDocstring: bool,
+        compareDefaultsWithoutTypes: bool,
+        reportsDoc104: bool,
+        argNamesInDoc105: str | None,
+) -> None:
+    """
+    Test checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs() when the
+    docstring lists the args in a different order from the signature.
+
+    The order gets DOC104 (if ``shouldCheckArgOrder``), and the type hints are
+    checked for DOC105 just as when the order is right: whole type hints with
+    both type-hint options on, otherwise only the defaults (if
+    ``compareDefaultsWithoutTypes``). ``argNamesInDoc105`` has the arg names
+    listed in DOC105, or None if no DOC105 is expected.
+    """
+    # The args in the signature: `a` has no type and no default, `b` has a
+    # default but no type, and `c` has both
+    codeArgs = ArgList([
+        Arg('a', ''),
+        Arg('b', ', default=3'),
+        Arg('c', 'int, default=1'),
+    ])
+    # In reverse order: `a` has a type, `b` has a type and a wrong default, and
+    # `c` matches
+    docArgs = ArgList([
+        Arg('c', 'int, default=1'),
+        Arg('b', 'float, default=4'),
+        Arg('a', 'list of int'),
+    ])
+    violations: list[Violation] = []
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
+        docArgs=docArgs,
+        codeArgs=codeArgs,
+        violations=violations,
+        codeArgsAreClassAttributes=False,
+        violationForOrderMismatch=Violation(code=104, line=1),
+        violationForTypeHintMismatch=Violation(code=105, line=1),
+        shouldCheckArgOrder=shouldCheckArgOrder,
+        argTypeHintsInSignature=argTypeHintsInSignature,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        compareDefaultsWithoutTypes=compareDefaultsWithoutTypes,
+        placeholderDefaultNames=frozenset(),
+        requireInlineClassVarDocs=False,
+        lineNum=1,
+        msgPrefix='',
+    )
+    expected: list[str] = []
+    if reportsDoc104:
+        expected.append(f'DOC104: {VIOLATION_CODES[104]}')
+
+    if argNamesInDoc105 is not None:
+        expected.append(f'DOC105: {VIOLATION_CODES[105]} {argNamesInDoc105}')
+
+    assert [str(_) for _ in violations] == expected
+
+
+@pytest.mark.parametrize(
     ('ignorePriv', 'treatProp', 'expected'),
     [
         (

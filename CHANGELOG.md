@@ -6,6 +6,9 @@
   - A default value alone (`value=3` in the signature, `value : , default=3` in
     the docstring) is no longer treated as a type hint, so it no longer hides
     `DOC106`/`DOC107`/`DOC109`/`DOC110` or causes `DOC108`/`DOC111` (#313)
+  - Arguments documented in a different order no longer get `DOC105` (or
+    `DOC605` for class attributes) when a type-hint option is off. They get
+    only `DOC104` (`DOC604`), as type hints aren't compared (#325)
 - Changed
   - With `--check-arg-defaults=True`, documented defaults of function arguments
     are compared with the signature even when a type-hint option is off, and
