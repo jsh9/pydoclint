@@ -1489,7 +1489,7 @@ def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
     also be documented with any default or none.
 
     Only the .pyi version is tested. Untyped defaults in .py files are tested
-    in test_edge_cases.py (testUntypedArgDefaults).
+    in test_edge_cases.py.
     """
     filename = tmp_path / 'untyped_defaults.pyi'
     shutil.copyfile(

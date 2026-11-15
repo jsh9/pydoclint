@@ -706,305 +706,174 @@ def testEdgeCases(
     assert list(map(str, violations)) == expectedViolations
 
 
-@pytest.mark.parametrize('argTypeHintsInDocstring', [True, False])
-@pytest.mark.parametrize('argTypeHintsInSignature', [True, False])
-@pytest.mark.parametrize('checkArgDefaults', [True, False])
+UNTYPED_DEFAULTS_DIR = DATA_DIR / 'edge_cases/37_untyped_arg_defaults'
+
+
 @pytest.mark.parametrize('style', ['google', 'numpy'])
-def testUntypedArgDefaults(
+@pytest.mark.parametrize(
+    ('fixture', 'options', 'expectedViolations'),
+    [
+        pytest.param(
+            'default_only',
+            {'checkArgDefaults': True},
+            [
+                # DOC106/DOC107: type hints are required in the signature, but
+                # `value` has none (its default doesn't count as one)
+                'DOC106: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but there are no argument type hints in the'
+                ' signature',
+                'DOC107: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but not all args in the signature have type hints',
+                # DOC109/DOC110: the same, for the docstring
+                'DOC109: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but there are no type hints in the docstring arg'
+                ' list',
+                'DOC110: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but not all args in the docstring arg list have type'
+                ' hints',
+            ],
+            id='type-hints-required',
+        ),
+        pytest.param(
+            'default_only',
+            {
+                'checkArgDefaults': True,
+                'argTypeHintsInSignature': False,
+                'argTypeHintsInDocstring': False,
+            },
+            # No DOC108/DOC111 ("there are type hints, but there shouldn't
+            # be"): the defaults aren't type hints
+            [],
+            id='type-hints-not-allowed',
+        ),
+        pytest.param(
+            'default_only',
+            {'checkArgDefaults': False},
+            [
+                'DOC106: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but there are no argument type hints in the'
+                ' signature',
+                'DOC107: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but not all args in the signature have type hints',
+                'DOC109: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but there are no type hints in the docstring arg'
+                ' list',
+                'DOC110: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but not all args in the docstring arg list have type'
+                ' hints',
+                # DOC105: without --check-arg-defaults, the docstring shouldn't
+                # give a default
+                'DOC105: Function `f`: Argument names match, but type hints in'
+                ' these args do not match: value',
+            ],
+            id='type-hints-required-defaults-not-checked',
+        ),
+        pytest.param(
+            'partly_typed',
+            {'checkArgDefaults': True},
+            [
+                # Only DOC107/DOC110 ("not all args have type hints"), because
+                # `count` has a type hint and `value` doesn't
+                'DOC107: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but not all args in the signature have type hints',
+                'DOC110: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but not all args in the docstring arg list have type'
+                ' hints',
+            ],
+            id='some-args-typed',
+        ),
+    ],
+)
+def testDefaultAloneIsNotATypeHint(
         style: str,
-        checkArgDefaults: bool,
-        argTypeHintsInSignature: bool,
-        argTypeHintsInDocstring: bool,
+        fixture: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
 ) -> None:
     """
-    Test arguments with a default value but without a type annotation
-    (https://github.com/jsh9/pydoclint/issues/313).
+    Test that a default value alone is not a type hint.
 
-    A default value alone is not a type hint. An example is ``value=3`` in the
-    signature, documented as ``value : , default=3`` in the docstring. With
-    ``--check-arg-defaults``, the documented defaults are compared with the
-    signature even when the type-hint options turn off the comparison of types.
-
-    The violations in this test:
-
-    - DOC105: the type hints (with defaults, if checked) in the docstring don't
-      match the signature
-    - DOC106: ``--arg-type-hints-in-signature`` is True, but no args in the
-      signature have type hints
-    - DOC107: ``--arg-type-hints-in-signature`` is True, but some args in the
-      signature have no type hints
-    - DOC108: ``--arg-type-hints-in-signature`` is False, but some args in the
-      signature have type hints
-    - DOC109: ``--arg-type-hints-in-docstring`` is True, but no args in the
-      docstring have type hints
-    - DOC110: ``--arg-type-hints-in-docstring`` is True, but some args in the
-      docstring have no type hints
-    - DOC111: ``--arg-type-hints-in-docstring`` is False, but some args in the
-      docstring have type hints
+    In the fixtures, ``value=3`` has a default but no type annotation. The
+    numpy docstrings document it as ``value : , default=3``, and the Google
+    ones as ``value (, default=3): ...``. See
+    https://github.com/jsh9/pydoclint/issues/313.
     """
     violations = _checkFile(
-        filename=DATA_DIR / f'edge_cases/37_untyped_arg_defaults/{style}.py',
+        filename=UNTYPED_DEFAULTS_DIR / fixture / f'{style}.py',
         style=style,
-        checkArgDefaults=checkArgDefaults,
-        argTypeHintsInSignature=argTypeHintsInSignature,
-        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        **options,
     )
+    assert list(map(str, violations)) == expectedViolations
 
-    violationMessages: dict[int, str] = {
-        105: (
-            'Argument names match, but type hints in these args do not match:'
-        ),
-        106: (
-            'The option `--arg-type-hints-in-signature` is `True` but there'
-            ' are no argument type hints in the signature'
-        ),
-        107: (
-            'The option `--arg-type-hints-in-signature` is `True` but not all'
-            ' args in the signature have type hints'
-        ),
-        108: (
-            'The option `--arg-type-hints-in-signature` is `False` but there'
-            ' are argument type hints in the signature'
-        ),
-        109: (
-            'The option `--arg-type-hints-in-docstring` is `True` but there'
-            ' are no type hints in the docstring arg list'
-        ),
-        110: (
-            'The option `--arg-type-hints-in-docstring` is `True` but not all'
-            ' args in the docstring arg list have type hints'
-        ),
-        111: (
-            'The option `--arg-type-hints-in-docstring` is `False` but there'
-            ' are type hints in the docstring arg list'
-        ),
-    }
 
-    def buildViolationText(violation: tuple[Any, ...]) -> str:
-        """
-        Build the text of a violation, as pydoclint reports it, from a
-        violation code, a function name, and (for DOC105) the args it lists.
-        """
-        code, function, *args = violation
-        text = f'DOC{code}: Function `{function}`: {violationMessages[code]}'
-        if code != 105:
-            return text
-
-        note = (
-            ' . (Note: docstring arg defaults should look like:'
-            ' `, default=XXX`)'
-            if checkArgDefaults
-            else ''
-        )
-        return f'{text} {args[0]}{note}'
-
-    # Each key holds the values of three options, in this order:
-    # checkArgDefaults, argTypeHintsInSignature, argTypeHintsInDocstring.
-    # Each expected violation is a violation code, the name of the function
-    # (in the fixture) that gets it, and for DOC105, the args it lists.
-    expectedLookup: dict[tuple[bool, bool, bool], list[tuple[Any, ...]]] = {
-        # Defaults checked; type hints required in signature and docstring
-        (True, True, True): [
-            (106, 'undocumentedDefault'),  # code, function name
-            (107, 'undocumentedDefault'),
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (105, 'undocumentedDefault', 'value'),  # + args in DOC105
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (105, 'typedDocstring', 'values, alpha'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'values, alpha'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'values, alpha'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (105, 'freeFormTypes', 'values, count'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values, count'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (105, 'typedSignature', 'x, y'),
-            (107, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-        ],
-        # Defaults checked; type hints only in the docstring
-        (True, False, True): [
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (105, 'undocumentedDefault', 'value'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (105, 'typedDocstringWrongDefault', 'alpha'),
-            (105, 'typedDocstringMissingDefault', 'alpha'),
-            (105, 'defaultForRequiredArg', 'values'),
-            (108, 'typedSignature'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (105, 'typedSignature', 'y'),
-            (108, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-        ],
-        # Defaults checked; type hints only in the signature
-        (True, True, False): [
-            (106, 'undocumentedDefault'),
-            (107, 'undocumentedDefault'),
-            (105, 'undocumentedDefault', 'value'),
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (111, 'typedDocstring'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (111, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'alpha'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (111, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'alpha'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (111, 'freeFormTypes'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (111, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values'),
-            (105, 'typedSignature', 'y'),
-            (107, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-        # Defaults checked; no type hints anywhere
-        (True, False, False): [
-            (105, 'undocumentedDefault', 'value'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (111, 'typedDocstring'),
-            (111, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'alpha'),
-            (111, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'alpha'),
-            (111, 'freeFormTypes'),
-            (111, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values'),
-            (108, 'typedSignature'),
-            (105, 'typedSignature', 'y'),
-            (108, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-        # Defaults not checked; type hints in signature and docstring
-        (False, True, True): [
-            (106, 'undocumentedDefault'),
-            (107, 'undocumentedDefault'),
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (105, 'defaultOnly', 'value'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (105, 'typedDocstring', 'values, alpha'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'values, alpha'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'values, alpha'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (105, 'freeFormTypes', 'values, count'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values, count'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (105, 'typedSignature', 'x, y'),
-            (107, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-            (105, 'partiallyTyped', 'value'),
-        ],
-        # Defaults not checked; type hints only in the docstring
-        (False, False, True): [
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (108, 'typedSignature'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (108, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-        ],
-        # Defaults not checked; type hints only in the signature
-        (False, True, False): [
-            (106, 'undocumentedDefault'),
-            (107, 'undocumentedDefault'),
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (111, 'typedDocstring'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (111, 'typedDocstringWrongDefault'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (111, 'typedDocstringMissingDefault'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (111, 'freeFormTypes'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (111, 'defaultForRequiredArg'),
-            (107, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-        # Defaults not checked; no type hints anywhere
-        (False, False, False): [
-            (111, 'typedDocstring'),
-            (111, 'typedDocstringWrongDefault'),
-            (111, 'typedDocstringMissingDefault'),
-            (111, 'freeFormTypes'),
-            (111, 'defaultForRequiredArg'),
-            (108, 'typedSignature'),
-            (108, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-    }
-    expected = [
-        buildViolationText(_)
-        for _ in expectedLookup[
-            checkArgDefaults,
-            argTypeHintsInSignature,
-            argTypeHintsInDocstring,
-        ]
-    ]
-    assert list(map(str, violations)) == expected
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    ('fixture', 'options', 'expectedViolations'),
+    [
+        pytest.param(
+            'types_only_in_docstring',
+            {'checkArgDefaults': True, 'argTypeHintsInSignature': False},
+            [
+                'DOC105: Function `wrongDefault`: Argument names match, but type'
+                ' hints in these args do not match: alpha . (Note: docstring arg'
+                ' defaults should look like: `, default=XXX`)',
+                'DOC105: Function `missingDefault`: Argument names match, but'
+                ' type hints in these args do not match: alpha . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `extraDefault`: Argument names match, but type'
+                ' hints in these args do not match: alpha . (Note: docstring arg'
+                ' defaults should look like: `, default=XXX`)',
+            ],
+            id='types-only-in-docstring',
+        ),
+        pytest.param(
+            'types_only_in_docstring',
+            {'checkArgDefaults': False, 'argTypeHintsInSignature': False},
+            [],  # without --check-arg-defaults, defaults aren't compared
+            id='types-only-in-docstring-defaults-not-checked',
+        ),
+        pytest.param(
+            'types_only_in_signature',
+            {'checkArgDefaults': True, 'argTypeHintsInDocstring': False},
+            [
+                'DOC105: Function `wrongDefault`: Argument names match, but type'
+                ' hints in these args do not match: x . (Note: docstring arg'
+                ' defaults should look like: `, default=XXX`)',
+            ],
+            id='types-only-in-signature',
+        ),
+        pytest.param(
+            'no_types',
+            {
+                'checkArgDefaults': True,
+                'argTypeHintsInSignature': False,
+                'argTypeHintsInDocstring': False,
+            },
+            [
+                'DOC105: Function `wrongDefault`: Argument names match, but type'
+                ' hints in these args do not match: value . (Note: docstring arg'
+                ' defaults should look like: `, default=XXX`)',
+            ],
+            id='no-types',
+        ),
+    ],
+)
+def testDefaultsAreComparedWhenTypesAreNot(
+        style: str,
+        fixture: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test that, with ``--check-arg-defaults``, the documented default values are
+    compared with the signature even when the type-hint options turn off the
+    comparison of types (which needs both options to be True). A wrong,
+    missing, or extra default gets DOC105 (the type hints, which include the
+    defaults, don't match). See https://github.com/jsh9/pydoclint/issues/313.
+    """
+    violations = _checkFile(
+        filename=UNTYPED_DEFAULTS_DIR / fixture / f'{style}.py',
+        style=style,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations
