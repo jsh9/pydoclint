@@ -1,6 +1,5 @@
 import ast
 from textwrap import dedent
-from typing import TYPE_CHECKING
 
 import pytest
 
@@ -12,13 +11,16 @@ from pydoclint.utils.return_yield_raise import (
     hasIteratorOrIterableAsReturnAnnotation,
 )
 from pydoclint.utils.unparser_custom import unparseName
+from pydoclint.utils.violation import VIOLATION_CODES, Violation
 from pydoclint.utils.visitor_helper import (
     _extractAnnotationSubscriptArgs,
     _extractAnnotationSubscriptSlice,
     _extractAsyncGeneratorAnnotationSubscriptArgs,
     _extractGeneratorAnnotationSubscriptArgs,
     _extractGeneratorOrAsyncGeneratorAnnotationArgs,
+    _removeDocstringDefault,
     addStarsToDocstringArgsWhenApplicable,
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs,
     extractClassAttributesFromNode,
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
@@ -29,9 +31,6 @@ from pydoclint.utils.visitor_helper import (
     shouldSkipCheckingPrivateFunction,
     updateDocumentedArgListWithInlineDocstrings,
 )
-
-if TYPE_CHECKING:
-    from pydoclint.utils.violation import Violation
 
 
 @pytest.mark.parametrize(
@@ -948,6 +947,194 @@ def testPlaceholderDefaultsPreserveAnnotations(
     )
     assert newDocArgs.infoList[0].typeHint == typeHint
     assert docArgs.infoList[0].typeHint == typeHint + docDefault
+
+
+@pytest.mark.parametrize(
+    ('typeHint', 'expected'),
+    [
+        ('int, default=3', 'int'),
+        ('int , default = 3', 'int'),
+        (', default=3', ''),
+        ('``int, default=3``', 'int'),
+        ('`int, default=3`', 'int'),
+        (
+            "Annotated[int, 'units, default=3'], default=5",
+            "Annotated[int, 'units, default=3']",
+        ),
+        # No outer default: unchanged, including the backticks
+        ('int', 'int'),
+        ('``int``', '``int``'),
+        (
+            "Annotated[int, 'units, default=3']",
+            "Annotated[int, 'units, default=3']",
+        ),
+        # Not valid Python before `, default=`: unchanged
+        ('list of int, default=3', 'list of int, default=3'),
+        ('list[int, default=3', 'list[int, default=3'),
+        # TODO: Recognize other ways of writing a default, so that these are
+        #  removed too. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md), so these are unchanged. See:
+        #  https://github.com/jsh9/pydoclint/issues/336
+        ('int, default is 3', 'int, default is 3'),
+        ('int, default: 3', 'int, default: 3'),
+        ('int, default 3', 'int, default 3'),
+        ('int default=3', 'int default=3'),  # no comma before `default`
+    ],
+)
+def testRemoveDocstringDefault(typeHint: str, expected: str) -> None:
+    assert _removeDocstringDefault(typeHint) == expected
+
+
+@pytest.mark.parametrize(
+    (
+        'docArgs',
+        'argTypeHintsInSignature',
+        'argTypeHintsInDocstring',
+        'compareDefaultsWithoutTypes',
+        'placeholderDefaultNames',
+        'argNamesInEachDoc105',
+    ),
+    [
+        # Types and defaults differ: with both type-hint options on, the whole
+        # type hints are compared
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            True,
+            True,
+            True,
+            frozenset(),
+            ['a, b, c'],
+        ),
+        # With either type-hint option off, only the defaults are compared
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            True,
+            True,
+            frozenset(),
+            ['b'],
+        ),
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            True,
+            False,
+            True,
+            frozenset(),
+            ['b'],
+        ),
+        (
+            ArgList([
+                Arg('a', 'list of int, default=None'),
+                Arg('b', 'float'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            False,
+            True,
+            frozenset(),
+            ['a, b'],
+        ),
+        # ... unless that's turned off (as without --check-arg-defaults)
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            True,
+            False,
+            frozenset(),
+            [],
+        ),
+        # Placeholder defaults are not compared
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            False,
+            True,
+            frozenset({'b'}),
+            [],
+        ),
+        # Matching defaults
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=3'),
+                Arg('c', ', default=1  # noqa'),
+            ]),
+            False,
+            True,
+            True,
+            frozenset(),
+            [],
+        ),
+    ],
+)
+def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
+        docArgs: ArgList,
+        argTypeHintsInSignature: bool,
+        argTypeHintsInDocstring: bool,
+        compareDefaultsWithoutTypes: bool,
+        placeholderDefaultNames: frozenset[str],
+        argNamesInEachDoc105: list[str],
+) -> None:
+    """
+    Test checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs().
+
+    That function compares the args documented in a docstring with the args in
+    the code (the function signature). It reports wrong arg names (DOC103),
+    wrong order (DOC104), and type hints that don't match (DOC105). With
+    ``compareDefaultsWithoutTypes``, it still compares the default values when
+    the type-hint options turn off the comparison of types.
+
+    Here the arg names and their order always match, so this tests which args
+    are listed in DOC105. ``argNamesInEachDoc105`` has the arg names listed in
+    each DOC105 that is expected.
+    """
+    # The args in the signature: `a` has no type and no default, `b` has a
+    # default but no type, and `c` has both
+    codeArgs = ArgList([
+        Arg('a', ''),
+        Arg('b', ', default=3'),
+        Arg('c', 'int, default=1'),
+    ])
+    violations: list[Violation] = []
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
+        docArgs=docArgs,
+        codeArgs=codeArgs,
+        violations=violations,
+        codeArgsAreClassAttributes=False,
+        violationForOrderMismatch=Violation(code=104, line=1),
+        violationForTypeHintMismatch=Violation(code=105, line=1),
+        shouldCheckArgOrder=True,
+        argTypeHintsInSignature=argTypeHintsInSignature,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        compareDefaultsWithoutTypes=compareDefaultsWithoutTypes,
+        placeholderDefaultNames=placeholderDefaultNames,
+        requireInlineClassVarDocs=False,
+        lineNum=1,
+        msgPrefix='',
+    )
+    assert [str(_) for _ in violations] == [
+        f'DOC105: {VIOLATION_CODES[105]} {_}' for _ in argNamesInEachDoc105
+    ]
 
 
 @pytest.mark.parametrize(

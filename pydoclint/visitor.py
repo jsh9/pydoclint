@@ -574,6 +574,10 @@ class Visitor(ast.NodeVisitor):
         v102 = Violation(code=102, line=lineNum, msgPrefix=msgPrefix)
         v104 = Violation(code=104, line=lineNum, msgPrefix=msgPrefix)
 
+        # TODO: A default written in another way, such as `default: 3`, gets
+        #  this DOC105 even when only its format is wrong. Recognize it, and
+        #  report its format with a separate code (DOC112). See:
+        #  https://github.com/jsh9/pydoclint/issues/336
         if self.checkArgDefaults:
             v105 = Violation(
                 code=105,
@@ -697,6 +701,13 @@ class Visitor(ast.NodeVisitor):
             shouldCheckArgOrder=self.checkArgOrder,
             argTypeHintsInSignature=considerArgTypeHintsInSignature,
             argTypeHintsInDocstring=considerArgTypeHintsInDocstring,
+            # When the type-hint options turn type comparison off, documented
+            # defaults are still checked against the signature. (But not when
+            # the docstring may be in another style; see `styleMismatch`.)
+            compareDefaultsWithoutTypes=(
+                self.checkArgDefaults and not styleMismatch
+            ),
+            placeholderDefaultNames=placeholderDefaultNames,
             requireInlineClassVarDocs=self.requireInlineClassVarDocs,
             lineNum=lineNum,
             msgPrefix=msgPrefix,
