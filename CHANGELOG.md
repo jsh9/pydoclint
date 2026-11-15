@@ -3,26 +3,13 @@
 ## [Unreleased]
 
 - Fixed
-  - A default value alone, such as `value=3` in the signature or
-    `value : , default=3` in the docstring, no longer counts as a type hint
-    (#313):
-    - With `--check-arg-defaults=True`, arguments with a default value but no
-      type annotation are no longer exempt from `DOC106`/`DOC107`, and no
-      longer get `DOC108`
-    - In any style, and whatever `--check-arg-defaults` is, docstring arguments
-      with a default but no type (such as `value : , default=3`) get
-      `DOC109`/`DOC110` and no longer get `DOC111`. So with
-      `--check-arg-defaults=False` and `--arg-type-hints-in-docstring=False`,
-      such a default in the docstring is no longer reported at all
+  - A default value alone (`value=3` in the signature, `value : , default=3` in
+    the docstring) is no longer treated as a type hint, so it no longer hides
+    `DOC106`/`DOC107`/`DOC109`/`DOC110` or causes `DOC108`/`DOC111` (#313)
 - Changed
-  - With `--check-arg-defaults=True`, the documented default values of function
-    arguments are now compared with the signature even when
-    `--arg-type-hints-in-signature` or `--arg-type-hints-in-docstring` is
-    False. A wrong, missing, or spurious default gets `DOC105`. Before, nothing
-    was compared in that case. This makes `--check-arg-defaults` usable for
-    code without type annotations, but code that passed before can now get
-    `DOC105` (#313). Class attributes are unchanged: their defaults are still
-    only compared together with their types
+  - With `--check-arg-defaults=True`, documented defaults of function arguments
+    are compared with the signature even when a type-hint option is off, and
+    mismatches get `DOC105` (#313)
 - Maintenance
   - Renamed the internal `actualArgs` to `codeArgs` (and the helper functions,
     parameters and tests that use it), so that it pairs with `docArgs`. No
