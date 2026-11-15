@@ -63,7 +63,10 @@ class Arg:
         return self < other or self == other
 
     def __hash__(self) -> int:
-        return hash((self.name, stripQuotes(self.typeHint)))
+        # Only the name is hashed. Equal args must have equal hashes, but
+        # __eq__ normalizes the type hints (`Dict[str, int]` equals
+        # `Dict[str,int]`), so hashing the type hint text would break that.
+        return hash(self.name)
 
     def nameEquals(self, other: Arg) -> bool:
         """More lenient equality: only compare names"""

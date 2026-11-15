@@ -199,10 +199,25 @@ def testArg_str(arg: Arg, string_repr: str) -> None:
         (Arg(name='**kw', typeHint=''), Arg(name='\\**kw', typeHint='')),
         (Arg(name='\\*args', typeHint=''), Arg(name='*args', typeHint='')),
         (Arg(name='*args', typeHint=''), Arg(name='\\*args', typeHint='')),
+        # Type hints written differently but equal (#339): equal args must have
+        # equal hashes, or sets of args (used when the order differs) fail
+        (
+            Arg(name='a', typeHint='Dict[str, int]'),
+            Arg(name='a', typeHint='Dict[str,int]'),
+        ),
+        (
+            Arg(name='a', typeHint="Optional['Foo']"),
+            Arg(name='a', typeHint='Optional[Foo]'),
+        ),
+        (
+            Arg(name='a', typeHint="Literal['x', 'y']"),
+            Arg(name='a', typeHint='Literal[\n    "x",\n    "y",\n]'),
+        ),
     ],
 )
 def testArg_equal(arg1: Arg, arg2: Arg) -> None:
     assert arg1 == arg2
+    assert hash(arg1) == hash(arg2)
     assert arg1 in {arg1}  # noqa: FURB171
     assert arg1 in {arg2}  # noqa: FURB171
     assert arg2 in {arg1}  # noqa: FURB171

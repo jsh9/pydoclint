@@ -10,6 +10,9 @@
     `DOC605` for class attributes) for their type hints when type hints aren't
     compared (a type-hint option is off, or the docstring is in another style),
     just as in the right order (#325)
+  - Arguments documented in a different order, with type hints that are equal
+    but written differently (such as `Dict[str, int]` and `Dict[str,int]`), no
+    longer get an empty `DOC105` next to `DOC104` (#339)
 - Changed
   - With `--check-arg-defaults=True`, documented defaults of function arguments
     are compared with the signature even when a type-hint option is off, and
