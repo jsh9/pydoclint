@@ -706,9 +706,6 @@ def testEdgeCases(
     assert list(map(str, violations)) == expectedViolations
 
 
-UNTYPED_DEFAULTS_DIR = DATA_DIR / 'edge_cases/37_untyped_arg_defaults'
-
-
 @pytest.mark.parametrize('style', ['google', 'numpy'])
 @pytest.mark.parametrize(
     ('fixture', 'options', 'expectedViolations'),
@@ -798,8 +795,9 @@ def testDefaultAloneIsNotATypeHint(
     ones as ``value (, default=3): ...``. See
     https://github.com/jsh9/pydoclint/issues/313.
     """
+    fixtureDir = DATA_DIR / 'edge_cases/37_untyped_arg_defaults' / fixture
     violations = _checkFile(
-        filename=UNTYPED_DEFAULTS_DIR / fixture / f'{style}.py',
+        filename=fixtureDir / f'{style}.py',
         style=style,
         **options,
     )
@@ -871,8 +869,9 @@ def testDefaultsAreComparedWhenTypesAreNot(
     missing, or extra default gets DOC105 (the type hints, which include the
     defaults, don't match). See https://github.com/jsh9/pydoclint/issues/313.
     """
+    fixtureDir = DATA_DIR / 'edge_cases/37_untyped_arg_defaults' / fixture
     violations = _checkFile(
-        filename=UNTYPED_DEFAULTS_DIR / fixture / f'{style}.py',
+        filename=fixtureDir / f'{style}.py',
         style=style,
         **options,
     )
