@@ -706,55 +706,6 @@ def testEdgeCases(
     assert list(map(str, violations)) == expectedViolations
 
 
-_ARG_VIOLATION_MESSAGES: dict[int, str] = {
-    105: 'Argument names match, but type hints in these args do not match:',
-    106: (
-        'The option `--arg-type-hints-in-signature` is `True` but there are no'
-        ' argument type hints in the signature'
-    ),
-    107: (
-        'The option `--arg-type-hints-in-signature` is `True` but not all args'
-        ' in the signature have type hints'
-    ),
-    108: (
-        'The option `--arg-type-hints-in-signature` is `False` but there are'
-        ' argument type hints in the signature'
-    ),
-    109: (
-        'The option `--arg-type-hints-in-docstring` is `True` but there are no'
-        ' type hints in the docstring arg list'
-    ),
-    110: (
-        'The option `--arg-type-hints-in-docstring` is `True` but not all args'
-        ' in the docstring arg list have type hints'
-    ),
-    111: (
-        'The option `--arg-type-hints-in-docstring` is `False` but there are'
-        ' type hints in the docstring arg list'
-    ),
-}
-
-
-def _argViolation(
-        code: int,
-        function: str,
-        args: str = '',
-        *,
-        checkArgDefaults: bool,
-) -> str:
-    """Build the text of an argument violation (DOC105 to DOC111)."""
-    msg = f'DOC{code}: Function `{function}`: {_ARG_VIOLATION_MESSAGES[code]}'
-    if code != 105:
-        return msg
-
-    note = (
-        ' . (Note: docstring arg defaults should look like: `, default=XXX`)'
-        if checkArgDefaults
-        else ''
-    )
-    return f'{msg} {args}{note}'
-
-
 @pytest.mark.parametrize('argTypeHintsInDocstring', [True, False])
 @pytest.mark.parametrize('argTypeHintsInSignature', [True, False])
 @pytest.mark.parametrize('checkArgDefaults', [True, False])
@@ -770,11 +721,26 @@ def testUntypedArgDefaults(
     (https://github.com/jsh9/pydoclint/issues/313).
 
     A default value alone is not a type hint. An example is ``value=3`` in the
-    signature, documented as ``value : , default=3`` in the docstring. It
-    doesn't hide DOC106/DOC107/DOC109/DOC110, and doesn't cause DOC108/DOC111.
-    With ``--check-arg-defaults``, the documented defaults are compared with
-    the signature (DOC105) even when the type-hint options turn off the
-    comparison of types.
+    signature, documented as ``value : , default=3`` in the docstring. With
+    ``--check-arg-defaults``, the documented defaults are compared with the
+    signature even when the type-hint options turn off the comparison of types.
+
+    The violations in this test:
+
+    - DOC105: the type hints (with defaults, if checked) in the docstring don't
+      match the signature
+    - DOC106: ``--arg-type-hints-in-signature`` is True, but no args in the
+      signature have type hints
+    - DOC107: ``--arg-type-hints-in-signature`` is True, but some args in the
+      signature have no type hints
+    - DOC108: ``--arg-type-hints-in-signature`` is False, but some args in the
+      signature have type hints
+    - DOC109: ``--arg-type-hints-in-docstring`` is True, but no args in the
+      docstring have type hints
+    - DOC110: ``--arg-type-hints-in-docstring`` is True, but some args in the
+      docstring have no type hints
+    - DOC111: ``--arg-type-hints-in-docstring`` is False, but some args in the
+      docstring have type hints
     """
     violations = _checkFile(
         filename=DATA_DIR / f'edge_cases/37_untyped_arg_defaults/{style}.py',
@@ -784,16 +750,66 @@ def testUntypedArgDefaults(
         argTypeHintsInDocstring=argTypeHintsInDocstring,
     )
 
-    # Keys are the values of checkArgDefaults, argTypeHintsInSignature, and
-    # argTypeHintsInDocstring. Each expected violation is a violation code, a
-    # function name, and (for DOC105) the args listed in the message.
+    violationMessages: dict[int, str] = {
+        105: (
+            'Argument names match, but type hints in these args do not match:'
+        ),
+        106: (
+            'The option `--arg-type-hints-in-signature` is `True` but there'
+            ' are no argument type hints in the signature'
+        ),
+        107: (
+            'The option `--arg-type-hints-in-signature` is `True` but not all'
+            ' args in the signature have type hints'
+        ),
+        108: (
+            'The option `--arg-type-hints-in-signature` is `False` but there'
+            ' are argument type hints in the signature'
+        ),
+        109: (
+            'The option `--arg-type-hints-in-docstring` is `True` but there'
+            ' are no type hints in the docstring arg list'
+        ),
+        110: (
+            'The option `--arg-type-hints-in-docstring` is `True` but not all'
+            ' args in the docstring arg list have type hints'
+        ),
+        111: (
+            'The option `--arg-type-hints-in-docstring` is `False` but there'
+            ' are type hints in the docstring arg list'
+        ),
+    }
+
+    def buildViolationText(violation: tuple[Any, ...]) -> str:
+        """
+        Build the text of a violation, as pydoclint reports it, from a
+        violation code, a function name, and (for DOC105) the args it lists.
+        """
+        code, function, *args = violation
+        text = f'DOC{code}: Function `{function}`: {violationMessages[code]}'
+        if code != 105:
+            return text
+
+        note = (
+            ' . (Note: docstring arg defaults should look like:'
+            ' `, default=XXX`)'
+            if checkArgDefaults
+            else ''
+        )
+        return f'{text} {args[0]}{note}'
+
+    # Each key holds the values of three options, in this order:
+    # checkArgDefaults, argTypeHintsInSignature, argTypeHintsInDocstring.
+    # Each expected violation is a violation code, the name of the function
+    # (in the fixture) that gets it, and for DOC105, the args it lists.
     expectedLookup: dict[tuple[bool, bool, bool], list[tuple[Any, ...]]] = {
+        # Defaults checked; type hints required in signature and docstring
         (True, True, True): [
-            (106, 'undocumentedDefault'),
+            (106, 'undocumentedDefault'),  # code, function name
             (107, 'undocumentedDefault'),
             (109, 'undocumentedDefault'),
             (110, 'undocumentedDefault'),
-            (105, 'undocumentedDefault', 'value'),
+            (105, 'undocumentedDefault', 'value'),  # + args in DOC105
             (106, 'defaultOnly'),
             (107, 'defaultOnly'),
             (109, 'defaultOnly'),
@@ -824,7 +840,7 @@ def testUntypedArgDefaults(
             (107, 'partiallyTyped'),
             (110, 'partiallyTyped'),
         ],
-        # Types only in the docstring: the defaults are still compared
+        # Defaults checked; type hints only in the docstring
         (True, False, True): [
             (109, 'undocumentedDefault'),
             (110, 'undocumentedDefault'),
@@ -844,6 +860,7 @@ def testUntypedArgDefaults(
             (108, 'partiallyTyped'),
             (110, 'partiallyTyped'),
         ],
+        # Defaults checked; type hints only in the signature
         (True, True, False): [
             (106, 'undocumentedDefault'),
             (107, 'undocumentedDefault'),
@@ -875,6 +892,7 @@ def testUntypedArgDefaults(
             (107, 'partiallyTyped'),
             (111, 'partiallyTyped'),
         ],
+        # Defaults checked; no type hints anywhere
         (True, False, False): [
             (105, 'undocumentedDefault', 'value'),
             (105, 'wrongDefaultOnly', 'value'),
@@ -891,8 +909,7 @@ def testUntypedArgDefaults(
             (108, 'partiallyTyped'),
             (111, 'partiallyTyped'),
         ],
-        # Without --check-arg-defaults, defaults are only compared along with
-        # the types, and a documented default alone is still not a type hint
+        # Defaults not checked; type hints in signature and docstring
         (False, True, True): [
             (106, 'undocumentedDefault'),
             (107, 'undocumentedDefault'),
@@ -930,6 +947,7 @@ def testUntypedArgDefaults(
             (110, 'partiallyTyped'),
             (105, 'partiallyTyped', 'value'),
         ],
+        # Defaults not checked; type hints only in the docstring
         (False, False, True): [
             (109, 'undocumentedDefault'),
             (110, 'undocumentedDefault'),
@@ -943,6 +961,7 @@ def testUntypedArgDefaults(
             (108, 'partiallyTyped'),
             (110, 'partiallyTyped'),
         ],
+        # Defaults not checked; type hints only in the signature
         (False, True, False): [
             (106, 'undocumentedDefault'),
             (107, 'undocumentedDefault'),
@@ -968,6 +987,7 @@ def testUntypedArgDefaults(
             (107, 'partiallyTyped'),
             (111, 'partiallyTyped'),
         ],
+        # Defaults not checked; no type hints anywhere
         (False, False, False): [
             (111, 'typedDocstring'),
             (111, 'typedDocstringWrongDefault'),
@@ -980,7 +1000,7 @@ def testUntypedArgDefaults(
         ],
     }
     expected = [
-        _argViolation(*_, checkArgDefaults=checkArgDefaults)
+        buildViolationText(_)
         for _ in expectedLookup[
             checkArgDefaults,
             argTypeHintsInSignature,

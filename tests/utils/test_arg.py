@@ -331,6 +331,13 @@ def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
         ('``, default=3``', False),
         ('`, default=3`', False),
         (", default=', default=3'", False),
+        # Only `, default=` starts a default (see docs/style_deviations.md).
+        # Other ways of writing it aren't recognized, so the whole text is
+        # treated as a type hint.
+        (', default is 3', True),
+        (', default: 3', True),
+        (', default 3', True),
+        ('default=3', True),  # no comma before `default`
     ],
 )
 def testArg_hasTypeHint(typeHint: str, expected: bool) -> None:
@@ -340,6 +347,8 @@ def testArg_hasTypeHint(typeHint: str, expected: bool) -> None:
 @pytest.mark.parametrize(
     ('typeHints', 'expected'),
     [
+        # With no args, "all args have type hints" is vacuously True (as with
+        # Python's `all([])`), so a function without args gets no DOC107/DOC110
         ([], (False, True)),
         (['int', 'str'], (True, True)),
         (['int', ', default=3'], (True, False)),

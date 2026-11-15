@@ -971,17 +971,16 @@ def testPlaceholderDefaultsPreserveAnnotations(
         # Not valid Python before `, default=`: unchanged
         ('list of int, default=3', 'list of int, default=3'),
         ('list[int, default=3', 'list[int, default=3'),
+        # Only `, default=` starts a default (see docs/style_deviations.md).
+        # Other ways of writing it aren't recognized: unchanged
+        ('int, default is 3', 'int, default is 3'),
+        ('int, default: 3', 'int, default: 3'),
+        ('int, default 3', 'int, default 3'),
+        ('int default=3', 'int default=3'),  # no comma before `default`
     ],
 )
 def testRemoveDocstringDefault(typeHint: str, expected: str) -> None:
     assert _removeDocstringDefault(typeHint) == expected
-
-
-_CODE_ARGS = ArgList([
-    Arg('a', ''),
-    Arg('b', ', default=3'),
-    Arg('c', 'int, default=1'),
-])
 
 
 @pytest.mark.parametrize(
@@ -991,7 +990,7 @@ _CODE_ARGS = ArgList([
         'argTypeHintsInDocstring',
         'compareDefaultsWithoutTypes',
         'placeholderDefaultNames',
-        'expected',
+        'argNamesInEachDoc105',
     ),
     [
         # Types and defaults differ: with both type-hint options on, the whole
@@ -1092,17 +1091,32 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         argTypeHintsInDocstring: bool,
         compareDefaultsWithoutTypes: bool,
         placeholderDefaultNames: frozenset[str],
-        expected: list[str],
+        argNamesInEachDoc105: list[str],
 ) -> None:
     """
-    Test which args checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs() lists
-    in DOC105 when the arg names and their order match. (``expected`` has the
-    arg names of each DOC105.)
+    Test checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs().
+
+    That function compares the args documented in a docstring with the args in
+    the code (the function signature). It reports wrong arg names (DOC103),
+    wrong order (DOC104), and type hints that don't match (DOC105). With
+    ``compareDefaultsWithoutTypes``, it still compares the default values when
+    the type-hint options turn off the comparison of types.
+
+    Here the arg names and their order always match, so this tests which args
+    are listed in DOC105. ``argNamesInEachDoc105`` has the arg names listed in
+    each DOC105 that is expected.
     """
+    # The args in the signature: `a` has no type and no default, `b` has a
+    # default but no type, and `c` has both
+    codeArgs = ArgList([
+        Arg('a', ''),
+        Arg('b', ', default=3'),
+        Arg('c', 'int, default=1'),
+    ])
     violations: list[Violation] = []
     checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         docArgs=docArgs,
-        codeArgs=_CODE_ARGS,
+        codeArgs=codeArgs,
         violations=violations,
         codeArgsAreClassAttributes=False,
         violationForOrderMismatch=Violation(code=104, line=1),
@@ -1117,7 +1131,7 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         msgPrefix='',
     )
     assert [str(_) for _ in violations] == [
-        f'DOC105: {VIOLATION_CODES[105]} {_}' for _ in expected
+        f'DOC105: {VIOLATION_CODES[105]} {_}' for _ in argNamesInEachDoc105
     ]
 
 
