@@ -904,3 +904,81 @@ def testDefaultsAreComparedWhenTypesAreNot(
         **options,
     )
     assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize(
+    ('fixtureFile', 'options', 'expectedViolations'),
+    [
+        # `...` in a stub file is a placeholder, so any documented default is
+        # fine for `x`, even after a type that isn't valid Python
+        pytest.param(
+            'stub_placeholders/numpy.pyi',
+            {'style': 'numpy'},
+            [],
+            id='stub-placeholders-numpy',
+        ),
+        pytest.param(
+            'stub_placeholders/google.pyi',
+            {'style': 'google'},
+            [],
+            id='stub-placeholders-google',
+        ),
+        # Class attribute defaults are only compared together with the types
+        # (both type-hint options on), so the wrong default isn't reported
+        pytest.param(
+            'class_attributes/numpy.py',
+            {'style': 'numpy', 'checkClassAttributes': True},
+            [],
+            id='class-attributes-numpy',
+        ),
+        pytest.param(
+            'class_attributes/google.py',
+            {'style': 'google', 'checkClassAttributes': True},
+            [],
+            id='class-attributes-google',
+        ),
+        # A docstring in another style only gets DOC003 (style mismatch), not
+        # DOC105 for its wrong default
+        pytest.param(
+            'style_mismatch/numpy.py',
+            {'style': 'numpy', 'checkStyleMismatch': True},
+            [
+                'DOC003: Function/method `f`: Docstring style mismatch. (Please'
+                ' read more at https://jsh9.github.io/pydoclint/style_mismatch.html'
+                ' ). You specified "numpy" style, but the docstring is likely not'
+                ' written in this style.',
+            ],
+            id='style-mismatch-numpy',
+        ),
+        pytest.param(
+            'style_mismatch/google.py',
+            {'style': 'google', 'checkStyleMismatch': True},
+            [
+                'DOC003: Function/method `f`: Docstring style mismatch. (Please'
+                ' read more at https://jsh9.github.io/pydoclint/style_mismatch.html'
+                ' ). You specified "google" style, but the docstring is likely'
+                ' not written in this style.',
+            ],
+            id='style-mismatch-google',
+        ),
+    ],
+)
+def testDefaultsAreNotComparedInTheseCases(
+        fixtureFile: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test the cases where, with ``--check-arg-defaults``, the documented
+    defaults are not compared with the code even though the type-hint options
+    turn off the comparison of types. (In all of them, the signature has no
+    types and ``--arg-type-hints-in-signature`` is False.)
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/37_untyped_arg_defaults'
+    violations = _checkFile(
+        filename=fixtureDir / fixtureFile,
+        checkArgDefaults=True,
+        argTypeHintsInSignature=False,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations

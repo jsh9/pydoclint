@@ -669,11 +669,16 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
     Check the arg/attr list in the docstring against the arg/attr list in the
     code (either the function arguments or class attributes).
 
-    Type hints are only compared when both ``argTypeHintsInSignature`` and
-    ``argTypeHintsInDocstring`` are True. Otherwise, if
-    ``compareDefaultsWithoutTypes`` is True, the default values (such as ``3``
-    in ``int, default=3``) are still compared, except for the args in
-    ``placeholderDefaultNames``, whose documented default can be anything.
+    When the arg names and their order match, type hints are only compared when
+    both ``argTypeHintsInSignature`` and ``argTypeHintsInDocstring`` are True.
+    Otherwise, if ``compareDefaultsWithoutTypes`` is True, the default values
+    (such as ``3`` in ``int, default=3``) are still compared, except for the
+    args in ``placeholderDefaultNames``, whose documented default can be
+    anything.
+
+    (When the names match but the order doesn't, DOC104 is reported, and DOC105
+    lists the args whose whole type hints differ, whatever the type-hint
+    options are.)
     """
     if not docArgs.equals(
         codeArgs,

@@ -412,6 +412,14 @@ def testSplitOuterDefault(
         ('list of int, default=None', 'None'),
         ('array-like of shape (n,), default=None', 'None'),
         ('``int``, default=3', '3'),
+        ('``list of int, default=3``', '3'),  # backticks around it all
+        # The default itself contains `, default=`: after a type that isn't
+        # valid Python, the default starts at the first `, default=`
+        (
+            'dict of str to int, default=dict(a=1, default=2)',
+            'dict(a=1, default=2)',
+        ),
+        ("list of str, default=', default=y'", "', default=y'"),
         # TODO: Recognize other ways of writing a default, and update these
         #  cases. For now, only `, default=` starts a default (see
         #  docs/style_deviations.md). See:
@@ -440,6 +448,7 @@ def testGetDefaultValue(typeHint: str, expected: str | None) -> None:
         ('42  # noqa: E501', '42', True),
         ('all rows', 'all  rows', False),  # not valid Python: compare as text
         ('all rows', 'all rows', True),
+        ('all rows  # noqa', 'all rows', True),  # comments are ignored
     ],
 )
 def testDefaultValuesEqual(

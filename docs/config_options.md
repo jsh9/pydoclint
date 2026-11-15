@@ -413,11 +413,13 @@ function signature. If False, docstring type hints should not contain default
 values. (Only applies to numpy and Google styles; not compatible with Sphinx
 style.)
 
-The default values are checked even when `--arg-type-hints-in-signature` or
-`--arg-type-hints-in-docstring` is False, and a wrong or missing default is
-reported as `DOC105`. So code without type annotations can still have the
-defaults in its docstrings checked. An argument without a type is documented
-with only its default, such as `value : , default=3` (numpy) or
+The default values of function arguments are checked even when
+`--arg-type-hints-in-signature` or `--arg-type-hints-in-docstring` is False,
+and a wrong, missing, or spurious default is reported as `DOC105`. So code
+without type annotations can still have the defaults in its docstrings checked.
+(The default values of class attributes are only checked when both options are
+True, together with their types.) An argument without a type is documented with
+only its default, such as `value : , default=3` (numpy) or
 `value (, default=3): ...` (Google). A default value alone is not a type hint,
 so it doesn't count as one for `DOC106` to `DOC111`.
 

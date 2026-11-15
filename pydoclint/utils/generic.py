@@ -262,7 +262,6 @@ def stripBacktickWrapper(string: str) -> str:
 #  For now, they are treated as part of the type. See:
 #  https://github.com/jsh9/pydoclint/issues/336
 _DEFAULT_SEPARATOR_PATTERN = re.compile(r',\s*default\s*=')
-_DEFAULT_ONLY_PATTERN = re.compile(r'\s*,\s*default\s*=')
 
 
 def isDefaultOnly(typeHint: str) -> bool:
@@ -273,8 +272,8 @@ def isDefaultOnly(typeHint: str) -> bool:
     value but no type annotation, gets this from the function signature. Its
     docstring can document it as ``value : , default=3``.
     """
-    unwrapped = stripBacktickWrapper(typeHint)
-    return _DEFAULT_ONLY_PATTERN.match(unwrapped) is not None
+    unwrapped = stripBacktickWrapper(typeHint).lstrip()
+    return _DEFAULT_SEPARATOR_PATTERN.match(unwrapped) is not None
 
 
 def splitOuterDefault(typeHint: str) -> tuple[str, str] | None:
@@ -336,13 +335,16 @@ def getDefaultValue(typeHint: str) -> str | None:
         return split[1]
 
     unwrapped = stripBacktickWrapper(typeHint)
-    matches = list(_DEFAULT_SEPARATOR_PATTERN.finditer(unwrapped))
-    if not matches or _isPythonExpression(unwrapped):
+    firstMatch = _DEFAULT_SEPARATOR_PATTERN.search(unwrapped)
+    if firstMatch is None or _isPythonExpression(unwrapped):
         # A complete type such as `Annotated[int, 'units, default=3']` only
         # has a `, default=` inside the type, so it has no default value
         return None
 
-    return unwrapped[matches[-1].end() :].strip()
+    # The type isn't valid Python, so we can't tell where it ends. Assume the
+    # default starts at the first `, default=`, because the default value
+    # itself can contain `, default=`, as in `default=dict(a=1, default=2)`.
+    return unwrapped[firstMatch.end() :].strip()
 
 
 def defaultValuesEqual(default1: str | None, default2: str | None) -> bool:
@@ -352,8 +354,11 @@ def defaultValuesEqual(default1: str | None, default2: str | None) -> bool:
     ``"a"``, or ``1e-05`` and ``0.00001``, are considered the same, and so are
     two missing default values (None).
     """
+    if default1 == default2:
+        return True  # a shortcut, which also covers two None values
+
     if default1 is None or default2 is None:
-        return default1 is None and default2 is None
+        return False
 
     normalized1 = _normalizeExpression(default1)
     normalized2 = _normalizeExpression(default2)
