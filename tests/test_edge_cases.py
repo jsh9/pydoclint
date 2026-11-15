@@ -982,3 +982,145 @@ def testDefaultsAreNotComparedInTheseCases(
         **options,
     )
     assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    ('fixture', 'options', 'expectedViolations'),
+    [
+        pytest.param(
+            'function_args',
+            {'argTypeHintsInSignature': False},
+            [
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+            ],
+            id='function-args',
+        ),
+        pytest.param(
+            'function_args',
+            {'argTypeHintsInSignature': False, 'checkArgDefaults': True},
+            [
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+                # The defaults are still compared, as when the order is right
+                'DOC105: Function `wrongOrderAndDefault`: Argument names match,'
+                ' but type hints in these args do not match: b . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+            ],
+            id='function-args-check-defaults',
+        ),
+        pytest.param(
+            'class_attributes',
+            {'argTypeHintsInSignature': False, 'checkClassAttributes': True},
+            [
+                'DOC604: Class `A`: Attributes are the same in docstring and'
+                ' class def, but are in a different order.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+            id='class-attributes',
+        ),
+    ],
+)
+def testReorderedArgsWithTypeHintCheckOff(
+        style: str,
+        fixture: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test args (or class attributes) documented in a different order, with
+    ``--arg-type-hints-in-signature`` turned off.
+
+    They get DOC104 (DOC604) for the order, but no DOC105 (DOC605) for their
+    type hints, which aren't compared, just as when the order is right. See
+    https://github.com/jsh9/pydoclint/issues/325.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/38_reordered_args' / fixture
+    violations = _checkFile(
+        filename=fixtureDir / f'{style}.py',
+        style=style,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize(
+    ('fixtureFile', 'style', 'expectedViolations'),
+    [
+        pytest.param(
+            'numpy.py',
+            'google',
+            [
+                'DOC003: Function/method `wrongOrder`: Docstring style mismatch.'
+                ' (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "google" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC003: Function/method `wrongOrderAndDefault`: Docstring style'
+                ' mismatch. (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "google" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+            ],
+            id='numpy-docstrings-checked-as-google',
+        ),
+        pytest.param(
+            'google.py',
+            'numpy',
+            [
+                'DOC003: Function/method `wrongOrder`: Docstring style mismatch.'
+                ' (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "numpy" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC003: Function/method `wrongOrderAndDefault`: Docstring style'
+                ' mismatch. (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "numpy" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+            ],
+            id='google-docstrings-checked-as-numpy',
+        ),
+    ],
+)
+def testReorderedArgsInAnotherStyle(
+        fixtureFile: str,
+        style: str,
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test args documented in a different order, in a docstring written in
+    another style (DOC003). Type hints aren't compared for such a docstring,
+    even with both type-hint options on, so there's DOC104 for the order but no
+    DOC105, just as when the order is right. See
+    https://github.com/jsh9/pydoclint/issues/325.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/38_reordered_args/function_args'
+    violations = _checkFile(
+        filename=fixtureDir / fixtureFile,
+        style=style,
+        checkStyleMismatch=True,
+    )
+    assert list(map(str, violations)) == expectedViolations

@@ -1138,6 +1138,158 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
 
 
 @pytest.mark.parametrize(
+    (
+        'shouldCheckArgOrder',
+        'argTypeHintsInSignature',
+        'argTypeHintsInDocstring',
+        'compareDefaultsWithoutTypes',
+        'placeholderDefaultNames',
+        'expectedViolations',
+    ),
+    [
+        # Both type-hint options on: the whole type hints are compared
+        (
+            True,
+            True,
+            True,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} a, b',
+            ],
+        ),
+        # A type-hint option off: only the defaults are compared
+        (
+            True,
+            False,
+            True,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} b',
+            ],
+        ),
+        (
+            True,
+            True,
+            False,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} b',
+            ],
+        ),
+        (
+            True,
+            False,
+            False,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} b',
+            ],
+        ),
+        # ... and the placeholder default of `b` (in a stub) isn't compared
+        (
+            True,
+            False,
+            True,
+            True,
+            frozenset({'b'}),
+            [f'DOC104: {VIOLATION_CODES[104]}'],
+        ),
+        # Without comparing defaults either, only the order is reported (#325)
+        (
+            True,
+            False,
+            True,
+            False,
+            frozenset(),
+            [f'DOC104: {VIOLATION_CODES[104]}'],
+        ),
+        (
+            True,
+            False,
+            False,
+            False,
+            frozenset(),
+            [f'DOC104: {VIOLATION_CODES[104]}'],
+        ),
+        # Without checking the order, DOC104 isn't reported
+        (
+            False,
+            False,
+            True,
+            True,
+            frozenset(),
+            [f'DOC105: {VIOLATION_CODES[105]} b'],
+        ),
+        (
+            False,
+            True,
+            True,
+            True,
+            frozenset(),
+            [f'DOC105: {VIOLATION_CODES[105]} a, b'],
+        ),
+    ],
+)
+def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs_differentOrder(
+        shouldCheckArgOrder: bool,
+        argTypeHintsInSignature: bool,
+        argTypeHintsInDocstring: bool,
+        compareDefaultsWithoutTypes: bool,
+        placeholderDefaultNames: frozenset[str],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs() when the
+    docstring lists the args in a different order from the signature.
+
+    The order gets DOC104 (if ``shouldCheckArgOrder``), and the type hints are
+    checked for DOC105 just as when the order is right: whole type hints with
+    both type-hint options on, otherwise only the defaults (if
+    ``compareDefaultsWithoutTypes``), except for ``placeholderDefaultNames``.
+    """
+    # The args in the signature: `a` has no type and no default, `b` has a
+    # default but no type, and `c` has both
+    codeArgs = ArgList([
+        Arg('a', ''),
+        Arg('b', ', default=3'),
+        Arg('c', 'int, default=1'),
+    ])
+    # In reverse order: `a` has a type, `b` has a type and a wrong default, and
+    # `c` matches
+    docArgs = ArgList([
+        Arg('c', 'int, default=1'),
+        Arg('b', 'float, default=4'),
+        Arg('a', 'list of int'),
+    ])
+    violations: list[Violation] = []
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
+        docArgs=docArgs,
+        codeArgs=codeArgs,
+        violations=violations,
+        codeArgsAreClassAttributes=False,
+        violationForOrderMismatch=Violation(code=104, line=1),
+        violationForTypeHintMismatch=Violation(code=105, line=1),
+        shouldCheckArgOrder=shouldCheckArgOrder,
+        argTypeHintsInSignature=argTypeHintsInSignature,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        compareDefaultsWithoutTypes=compareDefaultsWithoutTypes,
+        placeholderDefaultNames=placeholderDefaultNames,
+        requireInlineClassVarDocs=False,
+        lineNum=1,
+        msgPrefix='',
+    )
+    assert [str(_) for _ in violations] == expectedViolations
+
+
+@pytest.mark.parametrize(
     ('ignorePriv', 'treatProp', 'expected'),
     [
         (
