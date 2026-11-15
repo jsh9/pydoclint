@@ -256,6 +256,11 @@ def stripBacktickWrapper(string: str) -> str:
 # With `--check-arg-defaults`, a default value is written after the type hint,
 # as in `int, default=3`. This is how docstrings give defaults, and it's also
 # how the type hints built from the function signature carry them.
+#
+# TODO: Recognize other ways of writing a default in docstrings, such as
+#  `default: 3`, `default is 3`, `default 3`, and `default=3` without a comma.
+#  For now, they are treated as part of the type. See:
+#  https://github.com/jsh9/pydoclint/issues/336
 _DEFAULT_SEPARATOR_PATTERN = re.compile(r',\s*default\s*=')
 _DEFAULT_ONLY_PATTERN = re.compile(r'\s*,\s*default\s*=')
 

@@ -331,9 +331,11 @@ def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
         ('``, default=3``', False),
         ('`, default=3`', False),
         (", default=', default=3'", False),
-        # Only `, default=` starts a default (see docs/style_deviations.md).
-        # Other ways of writing it aren't recognized, so the whole text is
-        # treated as a type hint.
+        # TODO: Recognize other ways of writing a default, so that these
+        #  aren't type hints. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md), so the whole text is treated as a type
+        #  hint. See:
+        #  https://github.com/jsh9/pydoclint/issues/336
         (', default is 3', True),
         (', default: 3', True),
         (', default 3', True),

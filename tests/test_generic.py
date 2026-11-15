@@ -354,8 +354,10 @@ def testStripBacktickWrapper(string: str, expected: str) -> None:
         ('int', False),
         ('int, default=3', False),
         ("Annotated[int, 'units, default=3']", False),
-        # Only `, default=` starts a default (see docs/style_deviations.md).
-        # Other ways of writing it aren't recognized.
+        # TODO: Recognize other ways of writing a default, and update these
+        #  cases. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md). See:
+        #  https://github.com/jsh9/pydoclint/issues/336
         (', default is 3', False),
         (', default: 3', False),
         ('default=3', False),  # no comma before `default`
@@ -381,8 +383,10 @@ def testIsDefaultOnly(typeHint: str, expected: bool) -> None:
         ('int', None),
         ("Annotated[int, 'units, default=3']", None),  # only inside the type
         ('list of int, default=3', None),  # not valid Python before it
-        # Only `, default=` starts a default (see docs/style_deviations.md).
-        # Other ways of writing it aren't recognized.
+        # TODO: Recognize other ways of writing a default, and update these
+        #  cases. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md). See:
+        #  https://github.com/jsh9/pydoclint/issues/336
         ('int, default is 3', None),
         ('int, default: 3', None),
     ],
@@ -408,8 +412,10 @@ def testSplitOuterDefault(
         ('list of int, default=None', 'None'),
         ('array-like of shape (n,), default=None', 'None'),
         ('``int``, default=3', '3'),
-        # Only `, default=` starts a default (see docs/style_deviations.md).
-        # Other ways of writing it aren't recognized.
+        # TODO: Recognize other ways of writing a default, and update these
+        #  cases. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md). See:
+        #  https://github.com/jsh9/pydoclint/issues/336
         ('int, default is 3', None),
         ('int, default: 3', None),
         (', default 3', None),

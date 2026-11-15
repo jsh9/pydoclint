@@ -971,8 +971,10 @@ def testPlaceholderDefaultsPreserveAnnotations(
         # Not valid Python before `, default=`: unchanged
         ('list of int, default=3', 'list of int, default=3'),
         ('list[int, default=3', 'list[int, default=3'),
-        # Only `, default=` starts a default (see docs/style_deviations.md).
-        # Other ways of writing it aren't recognized: unchanged
+        # TODO: Recognize other ways of writing a default, so that these are
+        #  removed too. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md), so these are unchanged. See:
+        #  https://github.com/jsh9/pydoclint/issues/336
         ('int, default is 3', 'int, default is 3'),
         ('int, default: 3', 'int, default: 3'),
         ('int, default 3', 'int, default 3'),

@@ -181,6 +181,9 @@ class Arg:
         ``Arg.typeHint`` for existing DOC105/DOC605 comparisons. Fall back to
         ``type_name`` for parser outputs without ``raw_type_name``.
         """
+        # TODO: Normalize other ways of writing a default here, such as
+        #  `default: 3` into `, default=3`. See:
+        #  https://github.com/jsh9/pydoclint/issues/336
         rawTypeName = getattr(docstringArg, 'raw_type_name', None)
         if rawTypeName is not None:
             return cls._str(rawTypeName)
