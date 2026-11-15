@@ -422,6 +422,9 @@ def specialEqual(str1: str, str2: str) -> bool:
 
     # Remove inline comments (everything after #).
     # Note: str.partition() is faster than str.split() in this case.
+    # TODO: Don't treat a `#` inside quotes as a comment. Now
+    #  `str, default='#1f77b4'` and `str, default='#ff0000'` are equal. See:
+    #  https://github.com/jsh9/pydoclint/issues/337
     if '#' in str1:
         str1 = str1.partition('#')[0].rstrip()
 
