@@ -758,8 +758,14 @@ def testEdgeCases(
                 'DOC110: Function `f`: The option `--arg-type-hints-in-docstring`'
                 ' is `True` but not all args in the docstring arg list have type'
                 ' hints',
-                # DOC105: without --check-arg-defaults, the docstring shouldn't
-                # give a default
+                # DOC105: with both type-hint options on, pydoclint compares the
+                # type hint text of `value` in the signature and the docstring.
+                # Without --check-arg-defaults, the signature's default isn't
+                # added to that text, so it is '' (no type), while the
+                # docstring's is ', default=3'. They differ, so DOC105 reports
+                # it: without --check-arg-defaults, docstrings shouldn't give
+                # defaults (see docs/style_deviations.md). (In the first case,
+                # with --check-arg-defaults, both are ', default=3'.)
                 'DOC105: Function `f`: Argument names match, but type hints in'
                 ' these args do not match: value',
             ],
