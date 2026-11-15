@@ -7,6 +7,8 @@ from typing import Any
 import pytest
 
 from pydoclint.utils.generic import (
+    _isPythonExpression,
+    _normalizeExpression,
     buildClassAttrToDefaultMapping,
     buildFuncArgToDefaultMapping,
     defaultValuesEqual,
@@ -426,6 +428,46 @@ def testDefaultValuesEqual(
         expected: bool,
 ) -> None:
     assert defaultValuesEqual(default1, default2) is expected
+
+
+@pytest.mark.parametrize(
+    ('text', 'expected'),
+    [
+        ('int', True),
+        ('  int\n', True),  # surrounding whitespace is ignored
+        ('int, optional', True),  # a tuple
+        ("Annotated[int, 'units, default=3']", True),
+        ('array-like', True),  # a subtraction
+        ('', False),
+        ('   ', False),
+        ('list of int', False),
+        ("Annotated[int, 'units", False),  # unclosed string and bracket
+        ('`int`', False),
+        ('int, default=3', False),
+    ],
+)
+def testIsPythonExpression(text: str, expected: bool) -> None:
+    assert _isPythonExpression(text) is expected
+
+
+@pytest.mark.parametrize(
+    ('text', 'expected'),
+    [
+        ('3', '3'),
+        ('  3\n', '3'),
+        ('"a"', "'a'"),
+        ("'a'", "'a'"),
+        ('0.00001', '1e-05'),
+        ('[1,2]', '[1, 2]'),
+        ('42  # noqa: E501', '42'),  # comments are dropped
+        ('int, optional', '(int, optional)'),
+        ('', None),
+        ('all rows', None),
+        ("'unclosed", None),
+    ],
+)
+def testNormalizeExpression(text: str, expected: str | None) -> None:
+    assert _normalizeExpression(text) == expected
 
 
 @pytest.mark.parametrize(

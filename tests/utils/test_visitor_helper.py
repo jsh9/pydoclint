@@ -1,6 +1,5 @@
 import ast
 from textwrap import dedent
-from typing import TYPE_CHECKING
 
 import pytest
 
@@ -12,13 +11,16 @@ from pydoclint.utils.return_yield_raise import (
     hasIteratorOrIterableAsReturnAnnotation,
 )
 from pydoclint.utils.unparser_custom import unparseName
+from pydoclint.utils.violation import VIOLATION_CODES, Violation
 from pydoclint.utils.visitor_helper import (
     _extractAnnotationSubscriptArgs,
     _extractAnnotationSubscriptSlice,
     _extractAsyncGeneratorAnnotationSubscriptArgs,
     _extractGeneratorAnnotationSubscriptArgs,
     _extractGeneratorOrAsyncGeneratorAnnotationArgs,
+    _removeDocstringDefault,
     addStarsToDocstringArgsWhenApplicable,
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs,
     extractClassAttributesFromNode,
     extractReturnTypeFromGeneratorAnnotation,
     extractYieldTypeFromGeneratorOrIteratorAnnotation,
@@ -29,9 +31,6 @@ from pydoclint.utils.visitor_helper import (
     shouldSkipCheckingPrivateFunction,
     updateDocumentedArgListWithInlineDocstrings,
 )
-
-if TYPE_CHECKING:
-    from pydoclint.utils.violation import Violation
 
 
 @pytest.mark.parametrize(
@@ -948,6 +947,178 @@ def testPlaceholderDefaultsPreserveAnnotations(
     )
     assert newDocArgs.infoList[0].typeHint == typeHint
     assert docArgs.infoList[0].typeHint == typeHint + docDefault
+
+
+@pytest.mark.parametrize(
+    ('typeHint', 'expected'),
+    [
+        ('int, default=3', 'int'),
+        ('int , default = 3', 'int'),
+        (', default=3', ''),
+        ('``int, default=3``', 'int'),
+        ('`int, default=3`', 'int'),
+        (
+            "Annotated[int, 'units, default=3'], default=5",
+            "Annotated[int, 'units, default=3']",
+        ),
+        # No outer default: unchanged, including the backticks
+        ('int', 'int'),
+        ('``int``', '``int``'),
+        (
+            "Annotated[int, 'units, default=3']",
+            "Annotated[int, 'units, default=3']",
+        ),
+        # Not valid Python before `, default=`: unchanged
+        ('list of int, default=3', 'list of int, default=3'),
+        ('list[int, default=3', 'list[int, default=3'),
+    ],
+)
+def testRemoveDocstringDefault(typeHint: str, expected: str) -> None:
+    assert _removeDocstringDefault(typeHint) == expected
+
+
+_CODE_ARGS = ArgList([
+    Arg('a', ''),
+    Arg('b', ', default=3'),
+    Arg('c', 'int, default=1'),
+])
+
+
+@pytest.mark.parametrize(
+    (
+        'docArgs',
+        'argTypeHintsInSignature',
+        'argTypeHintsInDocstring',
+        'compareDefaultsWithoutTypes',
+        'placeholderDefaultNames',
+        'expected',
+    ),
+    [
+        # Types and defaults differ: with both type-hint options on, the whole
+        # type hints are compared
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            True,
+            True,
+            True,
+            frozenset(),
+            ['a, b, c'],
+        ),
+        # With either type-hint option off, only the defaults are compared
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            True,
+            True,
+            frozenset(),
+            ['b'],
+        ),
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            True,
+            False,
+            True,
+            frozenset(),
+            ['b'],
+        ),
+        (
+            ArgList([
+                Arg('a', 'list of int, default=None'),
+                Arg('b', 'float'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            False,
+            True,
+            frozenset(),
+            ['a, b'],
+        ),
+        # ... unless that's turned off (as without --check-arg-defaults)
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            True,
+            False,
+            frozenset(),
+            [],
+        ),
+        # Placeholder defaults are not compared
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=4'),
+                Arg('c', ', default=1'),
+            ]),
+            False,
+            False,
+            True,
+            frozenset({'b'}),
+            [],
+        ),
+        # Matching defaults
+        (
+            ArgList([
+                Arg('a', 'list of int'),
+                Arg('b', 'float, default=3'),
+                Arg('c', ', default=1  # noqa'),
+            ]),
+            False,
+            True,
+            True,
+            frozenset(),
+            [],
+        ),
+    ],
+)
+def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
+        docArgs: ArgList,
+        argTypeHintsInSignature: bool,
+        argTypeHintsInDocstring: bool,
+        compareDefaultsWithoutTypes: bool,
+        placeholderDefaultNames: frozenset[str],
+        expected: list[str],
+) -> None:
+    """
+    Test which args checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs() lists
+    in DOC105 when the arg names and their order match. (``expected`` has the
+    arg names of each DOC105.)
+    """
+    violations: list[Violation] = []
+    checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
+        docArgs=docArgs,
+        codeArgs=_CODE_ARGS,
+        violations=violations,
+        codeArgsAreClassAttributes=False,
+        violationForOrderMismatch=Violation(code=104, line=1),
+        violationForTypeHintMismatch=Violation(code=105, line=1),
+        shouldCheckArgOrder=True,
+        argTypeHintsInSignature=argTypeHintsInSignature,
+        argTypeHintsInDocstring=argTypeHintsInDocstring,
+        compareDefaultsWithoutTypes=compareDefaultsWithoutTypes,
+        placeholderDefaultNames=placeholderDefaultNames,
+        requireInlineClassVarDocs=False,
+        lineNum=1,
+        msgPrefix='',
+    )
+    assert [str(_) for _ in violations] == [
+        f'DOC105: {VIOLATION_CODES[105]} {_}' for _ in expected
+    ]
 
 
 @pytest.mark.parametrize(
