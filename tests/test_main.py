@@ -2,7 +2,6 @@ import copy
 import shutil
 import sys
 from pathlib import Path
-from typing import Any
 
 import pytest
 from click.testing import CliRunner, Result
@@ -1482,23 +1481,17 @@ def testStubFileArgDefaults(tmp_path: Path, style: str, suffix: str) -> None:
     assert list(map(str, violations)) == expectedLookup[suffix]
 
 
-@pytest.mark.parametrize('suffix', ['.py', '.pyi'])
 @pytest.mark.parametrize('style', ['google', 'numpy'])
-def testStubFileUntypedArgDefaults(
-        tmp_path: Path,
-        style: str,
-        suffix: str,
-) -> None:
+def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
     """
     Like testStubFileArgDefaults(), but for untyped arguments, with both
     type-hint options off: their ``...`` defaults in a stub (.pyi) file can
     also be documented with any default or none.
 
-    In the .py file, ``...`` is a real default value. The type-hint options are
-    off, but with ``--check-arg-defaults`` the documented defaults are still
-    compared with it, so they get DOC105.
+    Only the .pyi version is tested. Untyped defaults in .py files are tested
+    in test_edge_cases.py (testUntypedArgDefaults).
     """
-    filename = tmp_path / f'untyped_defaults{suffix}'
+    filename = tmp_path / 'untyped_defaults.pyi'
     shutil.copyfile(
         DATA_DIR / f'{style}/stub_file/untyped_defaults.pyi',
         filename,
@@ -1510,15 +1503,7 @@ def testStubFileUntypedArgDefaults(
         argTypeHintsInSignature=False,
         argTypeHintsInDocstring=False,
     )
-    expectedLookup = {
-        '.py': [
-            'DOC105: Function `connect`: Argument names match, but type hints in'
-            ' these args do not match: host, port, verbose . (Note: docstring arg'
-            ' defaults should look like: `, default=XXX`)',
-        ],
-        '.pyi': [],
-    }
-    assert list(map(str, violations)) == expectedLookup[suffix]
+    assert list(map(str, violations)) == []
 
 
 @pytest.mark.parametrize('suffix', ['.py', '.pyi'])
@@ -2157,290 +2142,6 @@ def testArgDefaults(
         list(map(str, violations))
         == expectedViolationsLookup[checkArgDefaults]
     )
-
-
-_ARG_VIOLATION_MESSAGES: dict[int, str] = {
-    105: 'Argument names match, but type hints in these args do not match:',
-    106: (
-        'The option `--arg-type-hints-in-signature` is `True` but there are no'
-        ' argument type hints in the signature'
-    ),
-    107: (
-        'The option `--arg-type-hints-in-signature` is `True` but not all args'
-        ' in the signature have type hints'
-    ),
-    108: (
-        'The option `--arg-type-hints-in-signature` is `False` but there are'
-        ' argument type hints in the signature'
-    ),
-    109: (
-        'The option `--arg-type-hints-in-docstring` is `True` but there are no'
-        ' type hints in the docstring arg list'
-    ),
-    110: (
-        'The option `--arg-type-hints-in-docstring` is `True` but not all args'
-        ' in the docstring arg list have type hints'
-    ),
-    111: (
-        'The option `--arg-type-hints-in-docstring` is `False` but there are'
-        ' type hints in the docstring arg list'
-    ),
-}
-
-
-def _argViolation(
-        code: int,
-        function: str,
-        args: str = '',
-        *,
-        checkArgDefaults: bool,
-) -> str:
-    """Build the text of an argument violation (DOC105 to DOC111)."""
-    msg = f'DOC{code}: Function `{function}`: {_ARG_VIOLATION_MESSAGES[code]}'
-    if code != 105:
-        return msg
-
-    note = (
-        ' . (Note: docstring arg defaults should look like: `, default=XXX`)'
-        if checkArgDefaults
-        else ''
-    )
-    return f'{msg} {args}{note}'
-
-
-@pytest.mark.parametrize('argTypeHintsInDocstring', [True, False])
-@pytest.mark.parametrize('argTypeHintsInSignature', [True, False])
-@pytest.mark.parametrize('checkArgDefaults', [True, False])
-@pytest.mark.parametrize('style', ['google', 'numpy'])
-def testUntypedArgDefaults(
-        style: str,
-        checkArgDefaults: bool,
-        argTypeHintsInSignature: bool,
-        argTypeHintsInDocstring: bool,
-) -> None:
-    """
-    Test arguments with a default value but without a type annotation
-    (https://github.com/jsh9/pydoclint/issues/313).
-
-    A default value alone, such as ``value=3`` in the signature or ``value : ,
-    default=3`` in the docstring, is not a type hint: it doesn't hide
-    DOC106/DOC107/DOC109/DOC110, and doesn't cause DOC108/DOC111. With
-    ``--check-arg-defaults``, the documented defaults are compared with the
-    signature (DOC105) even when the type-hint options turn off the comparison
-    of types.
-    """
-    violations = _checkFile(
-        filename=DATA_DIR / f'{style}/arg_defaults/untyped_defaults.py',
-        style=style,
-        checkArgDefaults=checkArgDefaults,
-        argTypeHintsInSignature=argTypeHintsInSignature,
-        argTypeHintsInDocstring=argTypeHintsInDocstring,
-    )
-
-    # Keys are the values of checkArgDefaults, argTypeHintsInSignature, and
-    # argTypeHintsInDocstring. Each expected violation is a violation code, a
-    # function name, and (for DOC105) the args listed in the message.
-    expectedLookup: dict[tuple[bool, bool, bool], list[tuple[Any, ...]]] = {
-        (True, True, True): [
-            (106, 'undocumentedDefault'),
-            (107, 'undocumentedDefault'),
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (105, 'undocumentedDefault', 'value'),
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (105, 'typedDocstring', 'values, alpha'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'values, alpha'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'values, alpha'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (105, 'freeFormTypes', 'values, count'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values, count'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (105, 'typedSignature', 'x, y'),
-            (107, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-        ],
-        # Types only in the docstring: the defaults are still compared
-        (True, False, True): [
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (105, 'undocumentedDefault', 'value'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (105, 'typedDocstringWrongDefault', 'alpha'),
-            (105, 'typedDocstringMissingDefault', 'alpha'),
-            (105, 'defaultForRequiredArg', 'values'),
-            (108, 'typedSignature'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (105, 'typedSignature', 'y'),
-            (108, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-        ],
-        (True, True, False): [
-            (106, 'undocumentedDefault'),
-            (107, 'undocumentedDefault'),
-            (105, 'undocumentedDefault', 'value'),
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (111, 'typedDocstring'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (111, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'alpha'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (111, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'alpha'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (111, 'freeFormTypes'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (111, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values'),
-            (105, 'typedSignature', 'y'),
-            (107, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-        (True, False, False): [
-            (105, 'undocumentedDefault', 'value'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (111, 'typedDocstring'),
-            (111, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'alpha'),
-            (111, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'alpha'),
-            (111, 'freeFormTypes'),
-            (111, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values'),
-            (108, 'typedSignature'),
-            (105, 'typedSignature', 'y'),
-            (108, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-        # Without --check-arg-defaults, defaults are only compared along with
-        # the types, and a documented default alone is still not a type hint
-        (False, True, True): [
-            (106, 'undocumentedDefault'),
-            (107, 'undocumentedDefault'),
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (105, 'defaultOnly', 'value'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (105, 'wrongDefaultOnly', 'value'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (105, 'typedDocstring', 'values, alpha'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (105, 'typedDocstringWrongDefault', 'values, alpha'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (105, 'typedDocstringMissingDefault', 'values, alpha'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (105, 'freeFormTypes', 'values, count'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (105, 'defaultForRequiredArg', 'values, count'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (105, 'typedSignature', 'x, y'),
-            (107, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-            (105, 'partiallyTyped', 'value'),
-        ],
-        (False, False, True): [
-            (109, 'undocumentedDefault'),
-            (110, 'undocumentedDefault'),
-            (109, 'defaultOnly'),
-            (110, 'defaultOnly'),
-            (109, 'wrongDefaultOnly'),
-            (110, 'wrongDefaultOnly'),
-            (108, 'typedSignature'),
-            (109, 'typedSignature'),
-            (110, 'typedSignature'),
-            (108, 'partiallyTyped'),
-            (110, 'partiallyTyped'),
-        ],
-        (False, True, False): [
-            (106, 'undocumentedDefault'),
-            (107, 'undocumentedDefault'),
-            (106, 'defaultOnly'),
-            (107, 'defaultOnly'),
-            (106, 'wrongDefaultOnly'),
-            (107, 'wrongDefaultOnly'),
-            (106, 'typedDocstring'),
-            (107, 'typedDocstring'),
-            (111, 'typedDocstring'),
-            (106, 'typedDocstringWrongDefault'),
-            (107, 'typedDocstringWrongDefault'),
-            (111, 'typedDocstringWrongDefault'),
-            (106, 'typedDocstringMissingDefault'),
-            (107, 'typedDocstringMissingDefault'),
-            (111, 'typedDocstringMissingDefault'),
-            (106, 'freeFormTypes'),
-            (107, 'freeFormTypes'),
-            (111, 'freeFormTypes'),
-            (106, 'defaultForRequiredArg'),
-            (107, 'defaultForRequiredArg'),
-            (111, 'defaultForRequiredArg'),
-            (107, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-        (False, False, False): [
-            (111, 'typedDocstring'),
-            (111, 'typedDocstringWrongDefault'),
-            (111, 'typedDocstringMissingDefault'),
-            (111, 'freeFormTypes'),
-            (111, 'defaultForRequiredArg'),
-            (108, 'typedSignature'),
-            (108, 'partiallyTyped'),
-            (111, 'partiallyTyped'),
-        ],
-    }
-    expected = [
-        _argViolation(*_, checkArgDefaults=checkArgDefaults)
-        for _ in expectedLookup[
-            checkArgDefaults,
-            argTypeHintsInSignature,
-            argTypeHintsInDocstring,
-        ]
-    ]
-    assert list(map(str, violations)) == expected
 
 
 @pytest.mark.parametrize('argTypeHintsInDocstring', [False, True])
