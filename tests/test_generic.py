@@ -449,6 +449,9 @@ def testGetDefaultValue(typeHint: str, expected: str | None) -> None:
         ('all rows', 'all  rows', False),  # not valid Python: compare as text
         ('all rows', 'all rows', True),
         ('all rows  # noqa', 'all rows', True),  # comments are ignored
+        # A `#` inside quotes is not a comment (unlike in specialEqual(); see
+        # https://github.com/jsh9/pydoclint/issues/337)
+        ("'#1f77b4'", "'#ff0000'", False),
     ],
 )
 def testDefaultValuesEqual(

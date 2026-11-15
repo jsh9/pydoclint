@@ -669,16 +669,17 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
     Check the arg/attr list in the docstring against the arg/attr list in the
     code (either the function arguments or class attributes).
 
-    When the arg names and their order match, type hints are only compared when
-    both ``argTypeHintsInSignature`` and ``argTypeHintsInDocstring`` are True.
+    When the arg names match (and so does their order, if
+    ``shouldCheckArgOrder`` is True), type hints are only compared when both
+    ``argTypeHintsInSignature`` and ``argTypeHintsInDocstring`` are True.
     Otherwise, if ``compareDefaultsWithoutTypes`` is True, the default values
     (such as ``3`` in ``int, default=3``) are still compared, except for the
     args in ``placeholderDefaultNames``, whose documented default can be
     anything.
 
-    (When the names match but the order doesn't, DOC104 is reported, and DOC105
-    lists the args whose whole type hints differ, whatever the type-hint
-    options are.)
+    (When ``shouldCheckArgOrder`` is True and the names match but the order
+    doesn't, DOC104 is reported, and DOC105 lists the args whose whole type
+    hints differ, whatever the type-hint options are.)
     """
     if not docArgs.equals(
         codeArgs,
@@ -704,18 +705,15 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
                 )
                 violations.append(v105new)
             elif compareDefaultsWithoutTypes:
-                argsWithDifferentDefaults: list[Arg] = (
-                    codeArgs.findArgsWithDifferentDefaults(
-                        docArgs,
-                        ignoredArgNames=placeholderDefaultNames,
-                    )
+                argNames: str = ', '.join(
+                    _.name
+                    for _ in codeArgs.findArgsWithDifferentDefaults(docArgs)
+                    if _.name not in placeholderDefaultNames
                 )
-                if argsWithDifferentDefaults:
+                if argNames:
                     violations.append(
                         violationForTypeHintMismatch.appendMoreMsg(
-                            moreMsg=', '.join(
-                                _.name for _ in argsWithDifferentDefaults
-                            ),
+                            moreMsg=argNames,
                         )
                     )
         elif docArgs.equals(

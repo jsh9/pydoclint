@@ -376,48 +376,40 @@ def testArgList_typeHintPresence(
 
 
 @pytest.mark.parametrize(
-    ('codeArgs', 'docArgs', 'ignoredArgNames', 'expected'),
+    ('codeArgs', 'docArgs', 'expected'),
     [
         (
             ArgList([Arg('a', ''), Arg('b', ', default=3')]),
             ArgList([Arg('a', 'int'), Arg('b', 'float, default=3')]),
-            frozenset(),
             [],  # only the defaults are compared, not the types
         ),
         (
             ArgList([Arg('a', ', default=3'), Arg('b', 'str, default="x"')]),
             ArgList([Arg('a', 'int, default=4'), Arg('b', ", default='x'")]),
-            frozenset(),
             ['a'],
         ),
         (
             ArgList([Arg('a', ''), Arg('b', 'int, default=3')]),
             ArgList([Arg('a', 'list of int, default=None'), Arg('b', 'int')]),
-            frozenset(),
             ['a', 'b'],  # a default for `a` but not `b` in the docstring
         ),
         (
             ArgList([Arg('a', ''), Arg('b', 'int, default=3')]),
-            ArgList([Arg('b', 'int'), Arg('a', 'int, default=1')]),
-            frozenset({'a', 'b'}),
-            [],
+            ArgList([Arg('b', ', default=3'), Arg('a', 'int')]),
+            [],  # the args are matched by name, not by position
         ),
     ],
 )
 def testArgList_findArgsWithDifferentDefaults(
         codeArgs: ArgList,
         docArgs: ArgList,
-        ignoredArgNames: frozenset[str],
         expected: list[str],
 ) -> None:
     """
     Test that findArgsWithDifferentDefaults() finds the args whose default
-    values differ, whatever their types, and skips ``ignoredArgNames``.
+    values differ, whatever their types.
     """
-    result = codeArgs.findArgsWithDifferentDefaults(
-        docArgs,
-        ignoredArgNames=ignoredArgNames,
-    )
+    result = codeArgs.findArgsWithDifferentDefaults(docArgs)
     assert [_.name for _ in result] == expected
 
 

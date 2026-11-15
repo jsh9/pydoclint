@@ -278,25 +278,15 @@ def isDefaultOnly(typeHint: str) -> bool:
 
 def splitOuterDefault(typeHint: str) -> tuple[str, str] | None:
     """
-    Split ``typeHint`` into its type and its outer default value.
+    Split ``typeHint`` into its type and its outer default value: ``int`` and
+    ``3`` for ``int, default=3``, or ``''`` and ``3`` for ``, default=3``.
+    Backticks that wrap the whole type hint are removed.
 
-    For example, ``int, default=3`` is split into ``int`` and ``3``. Without a
-    type, ``, default=3`` is split into ``''`` and ``3``. A ``, default=``
-    inside the type itself, as in ``Annotated[int, 'units, default=3']``, is
-    not where the outer default starts: the text before it is not a complete
-    expression.
+    The outer default starts at the first ``, default=`` after an empty or
+    valid Python type, so one inside the type itself doesn't count. Return None
+    if there is no outer default.
 
-    Parameters
-    ----------
-    typeHint : str
-        The type hint, which may end with a default value
-
-    Returns
-    -------
-    tuple[str, str] | None
-        The type and the default value, with any backticks that wrap the whole
-        type hint removed. None if there is no outer default, or if no text
-        before a ``, default=`` is a valid Python expression.
+    For example, ``Annotated[int, 'units, default=3']`` has no outer default.
     """
     # Backticks can wrap the type and the default together, such as in
     # ``int, default=3``, so remove them first (just as type comparison does)
@@ -314,21 +304,13 @@ def splitOuterDefault(typeHint: str) -> tuple[str, str] | None:
 
 def getDefaultValue(typeHint: str) -> str | None:
     """
-    Get the outer default value in ``typeHint``.
+    Get the outer default value in ``typeHint`` (``3`` in ``int, default=3``),
+    or None if there is none.
 
-    For example, it is ``3`` in ``int, default=3``. Unlike splitOuterDefault(),
-    this also finds the default after a type that is not valid Python, such as
-    ``list of int, default=None``, which is common in docstrings.
+    Unlike splitOuterDefault(), this also finds the default after a type that
+    is not valid Python, which is common in docstrings.
 
-    Parameters
-    ----------
-    typeHint : str
-        The type hint, which may end with a default value
-
-    Returns
-    -------
-    str | None
-        The text of the default value, or None if there is no default value
+    For example, it is ``None`` in ``list of int, default=None``.
     """
     split = splitOuterDefault(typeHint)
     if split is not None:
