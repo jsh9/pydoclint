@@ -697,6 +697,13 @@ class Visitor(ast.NodeVisitor):
             shouldCheckArgOrder=self.checkArgOrder,
             argTypeHintsInSignature=considerArgTypeHintsInSignature,
             argTypeHintsInDocstring=considerArgTypeHintsInDocstring,
+            # When the type-hint options turn type comparison off, documented
+            # defaults are still checked against the signature. (But not when
+            # the docstring may be in another style; see `styleMismatch`.)
+            compareDefaultsWithoutTypes=(
+                self.checkArgDefaults and not styleMismatch
+            ),
+            placeholderDefaultNames=placeholderDefaultNames,
             requireInlineClassVarDocs=self.requireInlineClassVarDocs,
             lineNum=lineNum,
             msgPrefix=msgPrefix,

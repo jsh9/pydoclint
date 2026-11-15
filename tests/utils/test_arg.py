@@ -4,6 +4,7 @@ import pytest
 from docstring_parser.common import DocstringAttr, DocstringParam
 
 from pydoclint.utils.arg import Arg, ArgList
+from pydoclint.utils.edge_case_error import EdgeCaseError
 
 
 def testArg_initializationCheck() -> None:
@@ -309,6 +310,111 @@ def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
 )
 def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
     assert Arg._typeHintsEq(str1, str2) == expected
+
+
+@pytest.mark.parametrize(
+    ('typeHint', 'expected'),
+    [
+        ('', False),
+        ('int', True),
+        ('``int``', True),
+        ('int, default=3', True),
+        ('``int, default=3``', True),
+        ('int, optional, default=3', True),
+        ('list of int, default=None', True),  # not valid Python, but a type
+        ("Annotated[int, 'units, default=3']", True),  # default in the type
+        ("Annotated[int, 'units, default=3'], default=5", True),
+        # A default value alone is not a type hint (#313)
+        (', default=3', False),
+        (',default = 3', False),
+        ('  , default=3', False),
+        ('``, default=3``', False),
+        ('`, default=3`', False),
+        (", default=', default=3'", False),
+    ],
+)
+def testArg_hasTypeHint(typeHint: str, expected: bool) -> None:
+    assert Arg('arg', typeHint).hasTypeHint() is expected
+
+
+@pytest.mark.parametrize(
+    ('typeHints', 'expected'),
+    [
+        ([], (False, True)),
+        (['int', 'str'], (True, True)),
+        (['int', ', default=3'], (True, False)),
+        ([', default=3', ''], (False, False)),
+    ],
+)
+def testArgList_typeHintPresence(
+        typeHints: list[str],
+        expected: tuple[bool, bool],
+) -> None:
+    """
+    Test hasTypeHintInAnyArg() and hasTypeHintInAllArgs(), where a default
+    value alone (such as ``, default=3``) doesn't count as a type hint.
+    """
+    argList = ArgList([
+        Arg(f'arg{i}', typeHint) for i, typeHint in enumerate(typeHints)
+    ])
+    assert (
+        argList.hasTypeHintInAnyArg(),
+        argList.hasTypeHintInAllArgs(),
+    ) == expected
+    assert argList.noTypeHints() is not expected[0]
+
+
+@pytest.mark.parametrize(
+    ('codeArgs', 'docArgs', 'ignoredArgNames', 'expected'),
+    [
+        (
+            ArgList([Arg('a', ''), Arg('b', ', default=3')]),
+            ArgList([Arg('a', 'int'), Arg('b', 'float, default=3')]),
+            frozenset(),
+            [],  # only the defaults are compared, not the types
+        ),
+        (
+            ArgList([Arg('a', ', default=3'), Arg('b', 'str, default="x"')]),
+            ArgList([Arg('a', 'int, default=4'), Arg('b', ", default='x'")]),
+            frozenset(),
+            ['a'],
+        ),
+        (
+            ArgList([Arg('a', ''), Arg('b', 'int, default=3')]),
+            ArgList([Arg('a', 'list of int, default=None'), Arg('b', 'int')]),
+            frozenset(),
+            ['a', 'b'],  # a default for `a` but not `b` in the docstring
+        ),
+        (
+            ArgList([Arg('a', ''), Arg('b', 'int, default=3')]),
+            ArgList([Arg('b', 'int'), Arg('a', 'int, default=1')]),
+            frozenset({'a', 'b'}),
+            [],
+        ),
+    ],
+)
+def testArgList_findArgsWithDifferentDefaults(
+        codeArgs: ArgList,
+        docArgs: ArgList,
+        ignoredArgNames: frozenset[str],
+        expected: list[str],
+) -> None:
+    """
+    Test that findArgsWithDifferentDefaults() finds the args whose default
+    values differ, whatever their types, and skips ``ignoredArgNames``.
+    """
+    result = codeArgs.findArgsWithDifferentDefaults(
+        docArgs,
+        ignoredArgNames=ignoredArgNames,
+    )
+    assert [_.name for _ in result] == expected
+
+
+def testArgList_findArgsWithDifferentDefaults_differentNames() -> None:
+    with pytest.raises(EdgeCaseError, match='do not have the same arg names'):
+        ArgList([Arg('a', '')]).findArgsWithDifferentDefaults(
+            ArgList([Arg('b', '')]),
+        )
 
 
 @pytest.mark.parametrize(

@@ -8,6 +8,9 @@ if TYPE_CHECKING:
 
 from pydoclint.utils.edge_case_error import EdgeCaseError
 from pydoclint.utils.generic import (
+    defaultValuesEqual,
+    getDefaultValue,
+    isDefaultOnly,
     specialEqual,
     stripCommentsFromTypeHints,
     stripQuotes,
@@ -67,8 +70,15 @@ class Arg:
         return self.name == other.name
 
     def hasTypeHint(self) -> bool:
-        """Check whether this arg has type hint"""
-        return self.typeHint != ''
+        """
+        Check whether this arg has a type hint.
+
+        A default value alone, such as ``, default=3``, is not a type hint. An
+        argument like ``value=3`` gets it from the function signature (with
+        ``--check-arg-defaults``), and a docstring documents such an argument
+        as ``value : , default=3``.
+        """
+        return self.typeHint != '' and not isDefaultOnly(self.typeHint)
 
     def isStarArg(self) -> bool:
         """Check whether this arg is a star arg (such as *args, **kwargs)"""
@@ -428,6 +438,49 @@ class ArgList:
                 result.append(selfArg)
 
         return result
+
+    def findArgsWithDifferentDefaults(
+            self,
+            other: ArgList,
+            *,
+            ignoredArgNames: frozenset[str] = frozenset(),
+    ) -> list[Arg]:
+        """
+        Find args whose default values don't match those in ``other``.
+
+        Only the default values (such as ``3`` in ``int, default=3``) are
+        compared, not the types.
+
+        Parameters
+        ----------
+        other : ArgList
+            The other arg list, which must have the same arg names
+        ignoredArgNames : frozenset[str], default=frozenset()
+            Names of the args whose default values are not compared
+
+        Returns
+        -------
+        list[Arg]
+            The args in this object whose default values don't match
+
+        Raises
+        ------
+        EdgeCaseError
+            When the two arg lists don't have the same arg names
+        """
+        if not self.equals(other, checkTypeHint=False, orderMatters=False):
+            msg = 'These 2 arg lists do not have the same arg names'
+            raise EdgeCaseError(msg)
+
+        return [
+            selfArg
+            for selfArg in self.infoList
+            if selfArg.name not in ignoredArgNames
+            and not defaultValuesEqual(
+                getDefaultValue(selfArg.typeHint),
+                getDefaultValue(other.lookup[selfArg.name]),
+            )
+        ]
 
     def subtract(
             self,

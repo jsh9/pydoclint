@@ -50,7 +50,10 @@ def testBaselineCreation(baselineFile: Path, style: str) -> None:
         len(violations) == 0
         for violations in remainingViolationsInAllFiles.values()
     )
-    assert len(unfixedBaselineViolationsInAllFiles) == 36
+    # Sphinx has one file fewer: it has no `arg_defaults/untyped_defaults.py`,
+    # because it doesn't support `--check-arg-defaults`
+    expectedFileCount = {'google': 37, 'numpy': 37, 'sphinx': 36}
+    assert len(unfixedBaselineViolationsInAllFiles) == expectedFileCount[style]
 
 
 badDocstringFunction = '''
