@@ -1143,20 +1143,99 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         'argTypeHintsInSignature',
         'argTypeHintsInDocstring',
         'compareDefaultsWithoutTypes',
-        'reportsDoc104',
-        'argNamesInDoc105',
+        'placeholderDefaultNames',
+        'expectedViolations',
     ),
     [
         # Both type-hint options on: the whole type hints are compared
-        (True, True, True, True, True, 'a, b'),
-        # Either type-hint option off: only the defaults are compared
-        (True, False, True, True, True, 'b'),
-        (True, True, False, True, True, 'b'),
-        # ... unless that's turned off too: only the order is reported (#325)
-        (True, False, True, False, True, None),
+        (
+            True,
+            True,
+            True,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} a, b',
+            ],
+        ),
+        # A type-hint option off: only the defaults are compared
+        (
+            True,
+            False,
+            True,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} b',
+            ],
+        ),
+        (
+            True,
+            True,
+            False,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} b',
+            ],
+        ),
+        (
+            True,
+            False,
+            False,
+            True,
+            frozenset(),
+            [
+                f'DOC104: {VIOLATION_CODES[104]}',
+                f'DOC105: {VIOLATION_CODES[105]} b',
+            ],
+        ),
+        # ... and the placeholder default of `b` (in a stub) isn't compared
+        (
+            True,
+            False,
+            True,
+            True,
+            frozenset({'b'}),
+            [f'DOC104: {VIOLATION_CODES[104]}'],
+        ),
+        # Without comparing defaults either, only the order is reported (#325)
+        (
+            True,
+            False,
+            True,
+            False,
+            frozenset(),
+            [f'DOC104: {VIOLATION_CODES[104]}'],
+        ),
+        (
+            True,
+            False,
+            False,
+            False,
+            frozenset(),
+            [f'DOC104: {VIOLATION_CODES[104]}'],
+        ),
         # Without checking the order, DOC104 isn't reported
-        (False, False, True, True, False, 'b'),
-        (False, True, True, True, False, 'a, b'),
+        (
+            False,
+            False,
+            True,
+            True,
+            frozenset(),
+            [f'DOC105: {VIOLATION_CODES[105]} b'],
+        ),
+        (
+            False,
+            True,
+            True,
+            True,
+            frozenset(),
+            [f'DOC105: {VIOLATION_CODES[105]} a, b'],
+        ),
     ],
 )
 def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs_differentOrder(
@@ -1164,8 +1243,8 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs_differentOrder(
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
         compareDefaultsWithoutTypes: bool,
-        reportsDoc104: bool,
-        argNamesInDoc105: str | None,
+        placeholderDefaultNames: frozenset[str],
+        expectedViolations: list[str],
 ) -> None:
     """
     Test checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs() when the
@@ -1174,8 +1253,7 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs_differentOrder(
     The order gets DOC104 (if ``shouldCheckArgOrder``), and the type hints are
     checked for DOC105 just as when the order is right: whole type hints with
     both type-hint options on, otherwise only the defaults (if
-    ``compareDefaultsWithoutTypes``). ``argNamesInDoc105`` has the arg names
-    listed in DOC105, or None if no DOC105 is expected.
+    ``compareDefaultsWithoutTypes``), except for ``placeholderDefaultNames``.
     """
     # The args in the signature: `a` has no type and no default, `b` has a
     # default but no type, and `c` has both
@@ -1203,19 +1281,12 @@ def testCheckNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs_differentOrder(
         argTypeHintsInSignature=argTypeHintsInSignature,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
         compareDefaultsWithoutTypes=compareDefaultsWithoutTypes,
-        placeholderDefaultNames=frozenset(),
+        placeholderDefaultNames=placeholderDefaultNames,
         requireInlineClassVarDocs=False,
         lineNum=1,
         msgPrefix='',
     )
-    expected: list[str] = []
-    if reportsDoc104:
-        expected.append(f'DOC104: {VIOLATION_CODES[104]}')
-
-    if argNamesInDoc105 is not None:
-        expected.append(f'DOC105: {VIOLATION_CODES[105]} {argNamesInDoc105}')
-
-    assert [str(_) for _ in violations] == expected
+    assert [str(_) for _ in violations] == expectedViolations
 
 
 @pytest.mark.parametrize(
