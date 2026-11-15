@@ -34,7 +34,7 @@ def missingDefault(alpha=0.05) -> None:
     """
 
 
-def extraDefault(alpha) -> None:
+def spuriousDefault(alpha) -> None:
     """
     A default is documented, but the argument doesn't have one.
 

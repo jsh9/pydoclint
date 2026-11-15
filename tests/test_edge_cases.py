@@ -824,9 +824,9 @@ def testDefaultAloneIsNotATypeHint(
                 'DOC105: Function `missingDefault`: Argument names match, but'
                 ' type hints in these args do not match: alpha . (Note:'
                 ' docstring arg defaults should look like: `, default=XXX`)',
-                'DOC105: Function `extraDefault`: Argument names match, but type'
-                ' hints in these args do not match: alpha . (Note: docstring arg'
-                ' defaults should look like: `, default=XXX`)',
+                'DOC105: Function `spuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: alpha . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
             ],
             id='types-only-in-docstring',
         ),
@@ -872,7 +872,7 @@ def testDefaultsAreComparedWhenTypesAreNot(
     Test that, with ``--check-arg-defaults``, the documented default values are
     compared with the signature even when the type-hint options turn off the
     comparison of types (which needs both options to be True). A wrong,
-    missing, or extra default gets DOC105 (the type hints, which include the
+    missing, or spurious default gets DOC105 (the type hints, which include the
     defaults, don't match). See https://github.com/jsh9/pydoclint/issues/313.
     """
     fixtureDir = DATA_DIR / 'edge_cases/37_untyped_arg_defaults' / fixture
