@@ -3,6 +3,8 @@
 ## [Unreleased]
 
 - Fixed
+  - Preserve `#` inside quoted type hints and defaults when ignoring inline
+    comments, so different color defaults are reported by `DOC105` (#337)
   - A default value alone (`value=3` in the signature, `value : , default=3` in
     the docstring) is no longer treated as a type hint, so it no longer hides
     `DOC106`/`DOC107`/`DOC109`/`DOC110` or causes `DOC108`/`DOC111` (#313)
