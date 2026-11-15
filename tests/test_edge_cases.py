@@ -827,6 +827,16 @@ def testDefaultAloneIsNotATypeHint(
                 'DOC105: Function `spuriousDefault`: Argument names match, but'
                 ' type hints in these args do not match: alpha . (Note:'
                 ' docstring arg defaults should look like: `, default=XXX`)',
+                # The same three cases, after a type that isn't valid Python
+                'DOC105: Function `freeFormWrongDefault`: Argument names match, but'
+                ' type hints in these args do not match: values . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `freeFormMissingDefault`: Argument names match, but'
+                ' type hints in these args do not match: values . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `freeFormSpuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: values . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
             ],
             id='types-only-in-docstring',
         ),

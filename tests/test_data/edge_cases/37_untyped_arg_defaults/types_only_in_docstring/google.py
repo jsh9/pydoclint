@@ -37,9 +37,37 @@ def spuriousDefault(alpha) -> None:
     """
 
 
-def freeFormType(values=None) -> None:
+def freeFormCorrectDefault(values=None) -> None:
     """
-    The type is not valid Python, but the documented default is right.
+    The type is not valid Python, and the documented default is right.
+
+    Args:
+        values (array-like of shape (n,), default=None): The values.
+    """
+
+
+def freeFormWrongDefault(values=None) -> None:
+    """
+    The type is not valid Python, and the documented default is wrong.
+
+    Args:
+        values (array-like of shape (n,), default=[]): The values.
+    """
+
+
+def freeFormMissingDefault(values=None) -> None:
+    """
+    The type is not valid Python, and the default is not documented.
+
+    Args:
+        values (array-like of shape (n,)): The values.
+    """
+
+
+def freeFormSpuriousDefault(values) -> None:
+    """
+    The type is not valid Python, and a default is documented, but the
+    argument doesn't have one.
 
     Args:
         values (array-like of shape (n,), default=None): The values.
