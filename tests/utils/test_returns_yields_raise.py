@@ -779,3 +779,37 @@ def testGetReturnAnnotationName(
     node = ast.parse(f'{funcKeyword} func(){returnAnnotation}: ...').body[0]
     assert isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
     assert _getReturnAnnotationName(node) == expected
+
+
+@pytest.mark.parametrize(
+    ('body', 'expected'),
+    [
+        ('yield 1', True),
+        ('received = yield 1', True),
+        ('received: str = yield 1', True),
+        ('received = yield from values', True),
+        ('return (yield from values)', True),
+        ('consume((yield 1))', True),
+        ('if ready:\n        received = yield 1', True),
+        ('def inner():\n        yield 1', False),
+        (
+            'class Inner:\n        def method(self):\n            yield 1',
+            False,
+        ),
+        ('callback = lambda: (yield 1)', False),
+        ('def inner(value=(yield 1)):\n        pass', True),
+        ('callback = lambda value=(yield 1): value', True),
+        ('class Inner((yield 1)):\n        pass', True),
+        ('@(yield 1)\n    def inner():\n        pass', True),
+        (
+            'def inner():\n        yield 1\n'
+            '    if ready:\n        received = yield 2',
+            True,
+        ),
+    ],
+)
+def testHasYieldExpressions(body: str, expected: bool) -> None:
+    tree = ast.parse(f'def generate():\n    {body}\n')
+    node = tree.body[0]
+    assert isinstance(node, ast.FunctionDef)
+    assert hasYieldStatements(node) == expected

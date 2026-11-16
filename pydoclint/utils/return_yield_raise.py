@@ -106,13 +106,32 @@ def _getReturnAnnotationName(node: FuncOrAsyncFuncDef) -> str | None:
 
 def hasYieldStatements(node: FuncOrAsyncFuncDef) -> bool:
     """Check whether the function node has any yield statements"""
+    pending: list[ast.AST] = list(node.body)
+    while pending:
+        child = pending.pop()
+        if isinstance(child, (ast.Yield, ast.YieldFrom)):
+            return True
 
-    def isThisNodeAYieldStmt(node_: ast.AST) -> bool:
-        return isinstance(node_, ast.Expr) and isinstance(
-            node_.value, (ast.Yield, ast.YieldFrom)
-        )
+        if isinstance(
+            child,
+            (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda),
+        ):
+            # Defaults, bases, and decorators execute in the enclosing scope;
+            # only the nested body belongs to a different scope.
+            pending.extend(
+                descendant
+                for field, value in ast.iter_fields(child)
+                if field != 'body'
+                for descendant in (
+                    value if isinstance(value, list) else [value]
+                )
+                if isinstance(descendant, ast.AST)
+            )
+            continue
 
-    return _hasExpectedStatements(node, isThisNodeAYieldStmt)
+        pending.extend(ast.iter_child_nodes(child))
+
+    return False
 
 
 def hasReturnStatements(node: FuncOrAsyncFuncDef) -> bool:
