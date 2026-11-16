@@ -199,8 +199,11 @@ def testArg_str(arg: Arg, string_repr: str) -> None:
         (Arg(name='**kw', typeHint=''), Arg(name='\\**kw', typeHint='')),
         (Arg(name='\\*args', typeHint=''), Arg(name='*args', typeHint='')),
         (Arg(name='*args', typeHint=''), Arg(name='\\*args', typeHint='')),
-        # Type hints written differently but equal (#339): equal args must have
-        # equal hashes, or sets of args (used when the order differs) fail
+        # The type hints below are written differently, but __eq__ treats them
+        # as equal, so their hashes must be equal too. Otherwise a set of args
+        # can't find an equal arg in it: pydoclint compares sets of args when
+        # the docstring lists them in a different order, and it would then
+        # report an empty DOC105 (#339)
         (
             Arg(name='a', typeHint='Dict[str, int]'),
             Arg(name='a', typeHint='Dict[str,int]'),
