@@ -253,6 +253,121 @@ def stripBacktickWrapper(string: str) -> str:
     return string
 
 
+# With `--check-arg-defaults`, a default value is written after the type hint,
+# as in `int, default=3`. This is how docstrings give defaults, and it's also
+# how the type hints built from the function signature carry them.
+#
+# TODO: Recognize other ways of writing a default in docstrings, such as
+#  `default: 3`, `default is 3`, `default 3`, and `default=3` without a comma.
+#  For now, they are treated as part of the type. See:
+#  https://github.com/jsh9/pydoclint/issues/336
+_DEFAULT_SEPARATOR_PATTERN = re.compile(r',\s*default\s*=')
+
+
+def isDefaultOnly(typeHint: str) -> bool:
+    """
+    Check whether ``typeHint`` has a default value but no type.
+
+    An example is ``, default=3``. An argument like ``value=3``, with a default
+    value but no type annotation, gets this from the function signature. Its
+    docstring can document it as ``value : , default=3``.
+    """
+    unwrapped = stripBacktickWrapper(typeHint).lstrip()
+    return _DEFAULT_SEPARATOR_PATTERN.match(unwrapped) is not None
+
+
+def splitOuterDefault(typeHint: str) -> tuple[str, str] | None:
+    """
+    Split ``typeHint`` into its type and its outer default value: ``int`` and
+    ``3`` for ``int, default=3``, or ``''`` and ``3`` for ``, default=3``.
+    Backticks that wrap the whole type hint are removed.
+
+    The outer default starts at the first ``, default=`` after an empty or
+    valid Python type, so one inside the type itself doesn't count. Return None
+    if there is no outer default.
+
+    For example, ``Annotated[int, 'units, default=3']`` has no outer default.
+    """
+    # Backticks can wrap the type and the default together, such as in
+    # ``int, default=3``, so remove them first (just as type comparison does)
+    unwrapped = stripBacktickWrapper(typeHint)
+
+    # The outer default starts at the first `, default=` whose preceding text
+    # is empty (an untyped arg) or parses (a complete type)
+    for match in _DEFAULT_SEPARATOR_PATTERN.finditer(unwrapped):
+        typePart = unwrapped[: match.start()].rstrip()
+        if not typePart or _isPythonExpression(typePart):
+            return typePart, unwrapped[match.end() :].strip()
+
+    return None
+
+
+def getDefaultValue(typeHint: str) -> str | None:
+    """
+    Get the outer default value in ``typeHint`` (``3`` in ``int, default=3``),
+    or None if there is none.
+
+    Unlike splitOuterDefault(), this also finds the default after a type that
+    is not valid Python, which is common in docstrings.
+
+    For example, it is ``None`` in ``list of int, default=None``.
+    """
+    split = splitOuterDefault(typeHint)
+    if split is not None:
+        return split[1]
+
+    unwrapped = stripBacktickWrapper(typeHint)
+    firstMatch = _DEFAULT_SEPARATOR_PATTERN.search(unwrapped)
+    if firstMatch is None or _isPythonExpression(unwrapped):
+        # A complete type such as `Annotated[int, 'units, default=3']` only
+        # has a `, default=` inside the type, so it has no default value
+        return None
+
+    # The type isn't valid Python, so we can't tell where it ends. Assume the
+    # default starts at the first `, default=`, because the default value
+    # itself can contain `, default=`, as in `default=dict(a=1, default=2)`.
+    return unwrapped[firstMatch.end() :].strip()
+
+
+def defaultValuesEqual(default1: str | None, default2: str | None) -> bool:
+    """
+    Check whether two default values (as returned by getDefaultValue()) are the
+    same. Different ways of writing the same value, such as ``'a'`` and
+    ``"a"``, or ``1e-05`` and ``0.00001``, are considered the same, and so are
+    two missing default values (None).
+    """
+    if default1 == default2:
+        return True  # a shortcut, which also covers two None values
+
+    if default1 is None or default2 is None:
+        return False
+
+    normalized1 = _normalizeExpression(default1)
+    normalized2 = _normalizeExpression(default2)
+    if normalized1 is not None and normalized2 is not None:
+        return normalized1 == normalized2
+
+    return specialEqual(default1.strip(), default2.strip())
+
+
+def _isPythonExpression(text: str) -> bool:
+    try:
+        ast.parse(text.strip(), mode='eval')
+    except SyntaxError:
+        return False
+
+    return True
+
+
+def _normalizeExpression(text: str) -> str | None:
+    try:
+        tree = ast.parse(text.strip(), mode='eval')
+    except SyntaxError:
+        return None
+
+    return unparseName(tree)
+
+
 def _replacer(match: Match[str]) -> str:
     # If the matched string starts with 'Literal', return it unmodified
     if match.group(0).startswith('Literal'):
@@ -289,6 +404,9 @@ def specialEqual(str1: str, str2: str) -> bool:
 
     # Remove inline comments (everything after #).
     # Note: str.partition() is faster than str.split() in this case.
+    # TODO: Don't treat a `#` inside quotes as a comment. Now
+    #  `str, default='#1f77b4'` and `str, default='#ff0000'` are equal. See:
+    #  https://github.com/jsh9/pydoclint/issues/337
     if '#' in str1:
         str1 = str1.partition('#')[0].rstrip()
 

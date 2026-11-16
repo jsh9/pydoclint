@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import ast
-import re
 from typing import TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -21,7 +20,7 @@ from pydoclint.utils.generic import (
     getDocstring,
     isPlaceholderDefault,
     specialEqual,
-    stripBacktickWrapper,
+    splitOuterDefault,
     stripQuotes,
 )
 from pydoclint.utils.parse_docstring import parseDocstringInGivenStyle
@@ -191,6 +190,11 @@ def checkClassAttributesAgainstClassDocstring(
         shouldCheckArgOrder=shouldCheckArgOrder,
         argTypeHintsInSignature=argTypeHintsInSignature,
         argTypeHintsInDocstring=argTypeHintsInDocstring,
+        # Class attribute defaults are only compared together with the types.
+        # (An inline attribute docstring can't give a default when
+        # `argTypeHintsInDocstring` is False.)
+        compareDefaultsWithoutTypes=False,
+        placeholderDefaultNames=placeholderDefaultNames,
         requireInlineClassVarDocs=requireInlineClassVarDocs,
         lineNum=lineNum,
         msgPrefix=msgPrefix,
@@ -655,6 +659,8 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         shouldCheckArgOrder: bool,
         argTypeHintsInSignature: bool,
         argTypeHintsInDocstring: bool,
+        compareDefaultsWithoutTypes: bool,
+        placeholderDefaultNames: frozenset[str],
         requireInlineClassVarDocs: bool,
         lineNum: int,
         msgPrefix: str,
@@ -662,6 +668,15 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
     """
     Check the arg/attr list in the docstring against the arg/attr list in the
     code (either the function arguments or class attributes).
+
+    When the arg names match, type hints are only compared when both
+    ``argTypeHintsInSignature`` and ``argTypeHintsInDocstring`` are True.
+    Otherwise, if ``compareDefaultsWithoutTypes`` is True, the default values
+    (such as ``3`` in ``int, default=3``) are still compared, except for the
+    args in ``placeholderDefaultNames``, whose documented default can be
+    anything. This is the same whether or not the args are in the same order.
+    (A different order is reported on its own, if ``shouldCheckArgOrder`` is
+    True.)
     """
     if not docArgs.equals(
         codeArgs,
@@ -677,8 +692,17 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
         elif docArgs.equals(
             codeArgs,
             checkTypeHint=False,
-            orderMatters=shouldCheckArgOrder,
+            orderMatters=False,
         ):
+            # The arg names match, but the type hints don't (and the order
+            # may not either)
+            if shouldCheckArgOrder and not docArgs.equals(
+                codeArgs,
+                checkTypeHint=False,
+                orderMatters=True,
+            ):
+                violations.append(violationForOrderMismatch)
+
             if argTypeHintsInSignature and argTypeHintsInDocstring:
                 v105new = appendArgsToCheckToV105(
                     original_v105=violationForTypeHintMismatch,
@@ -686,17 +710,18 @@ def checkNameOrderAndTypeHintsOfDocArgsAgainstCodeArgs(
                     docArgs=docArgs,
                 )
                 violations.append(v105new)
-        elif docArgs.equals(
-            codeArgs,
-            checkTypeHint=False,
-            orderMatters=False,
-        ):
-            v105new = appendArgsToCheckToV105(
-                original_v105=violationForTypeHintMismatch,
-                codeArgs=codeArgs,
-                docArgs=docArgs,
-            )
-            violations.extend([violationForOrderMismatch, v105new])
+            elif compareDefaultsWithoutTypes:
+                argNames: str = ', '.join(
+                    _.name
+                    for _ in codeArgs.findArgsWithDifferentDefaults(docArgs)
+                    if _.name not in placeholderDefaultNames
+                )
+                if argNames:
+                    violations.append(
+                        violationForTypeHintMismatch.appendMoreMsg(
+                            moreMsg=argNames,
+                        )
+                    )
         else:
             argsInCodeNotInDoc: set[Arg] = codeArgs.subtract(
                 docArgs,
@@ -821,32 +846,13 @@ def addStarsToDocstringArgsWhenApplicable(
     return ArgList(normalizedDocArgs)
 
 
-DOCSTRING_DEFAULT_PREFIX_PATTERN = re.compile(r',\s*default\s*=')
-
-
 def _removeDocstringDefault(typeHint: str) -> str:
     """Remove an outer default suffix while preserving annotation text."""
-    # Backticks can wrap the type and the default together, such as in
-    # ``int, default=3``, so remove them first (just as type comparison does)
-    unwrapped = stripBacktickWrapper(typeHint)
+    split = splitOuterDefault(typeHint)
 
-    # A `, default=` can also appear inside the type itself, such as in
-    # `Annotated[int, 'units, default=3']`. There, the text before it is not a
-    # complete expression (it has an unclosed string or bracket). So the outer
-    # default starts at the first match whose preceding text parses.
-    for match in DOCSTRING_DEFAULT_PREFIX_PATTERN.finditer(unwrapped):
-        annotation = unwrapped[: match.start()].rstrip()
-        if not annotation:  # an untyped arg, such as `value (, default=3)`
-            return ''
-
-        try:
-            ast.parse(annotation.strip(), mode='eval')
-        except SyntaxError:
-            continue
-
-        return annotation
-
-    return typeHint
+    # A docstring type that isn't valid Python before `, default=` is left
+    # unchanged, so that the type comparison reports it later
+    return typeHint if split is None else split[0]
 
 
 def removeDocstringDefaults(

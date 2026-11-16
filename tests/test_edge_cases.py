@@ -704,3 +704,423 @@ def testEdgeCases(
 
     violations = _checkFile(filename=fullFilename, **options)
     assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    ('fixture', 'options', 'expectedViolations'),
+    [
+        pytest.param(
+            'default_only',
+            {'checkArgDefaults': True},
+            [
+                # DOC106/DOC107: type hints are required in the signature, but
+                # `value` has none (its default doesn't count as one)
+                'DOC106: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but there are no argument type hints in the'
+                ' signature',
+                'DOC107: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but not all args in the signature have type hints',
+                # DOC109/DOC110: the same, for the docstring
+                'DOC109: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but there are no type hints in the docstring arg'
+                ' list',
+                'DOC110: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but not all args in the docstring arg list have type'
+                ' hints',
+            ],
+            id='type-hints-required',
+        ),
+        pytest.param(
+            'default_only',
+            {
+                'checkArgDefaults': True,
+                'argTypeHintsInSignature': False,
+                'argTypeHintsInDocstring': False,
+            },
+            # No DOC108/DOC111 ("there are type hints, but there shouldn't
+            # be"): the defaults aren't type hints
+            [],
+            id='type-hints-not-allowed',
+        ),
+        pytest.param(
+            'default_only',
+            {'checkArgDefaults': False},
+            [
+                'DOC106: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but there are no argument type hints in the'
+                ' signature',
+                'DOC107: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but not all args in the signature have type hints',
+                'DOC109: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but there are no type hints in the docstring arg'
+                ' list',
+                'DOC110: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but not all args in the docstring arg list have type'
+                ' hints',
+                # DOC105: with both type-hint options on, pydoclint compares the
+                # type hint text of `value` in the signature and the docstring.
+                # Without --check-arg-defaults, the signature's default isn't
+                # added to that text, so it is '' (no type), while the
+                # docstring's is ', default=3'. They differ, so DOC105 reports
+                # it: without --check-arg-defaults, docstrings shouldn't give
+                # defaults (see docs/style_deviations.md). (In the first case,
+                # with --check-arg-defaults, both are ', default=3'.)
+                'DOC105: Function `f`: Argument names match, but type hints in'
+                ' these args do not match: value',
+            ],
+            id='type-hints-required-defaults-not-checked',
+        ),
+        pytest.param(
+            'partly_typed',
+            {'checkArgDefaults': True},
+            [
+                # Only DOC107/DOC110 ("not all args have type hints"), because
+                # `count` has a type hint and `value` doesn't
+                'DOC107: Function `f`: The option `--arg-type-hints-in-signature`'
+                ' is `True` but not all args in the signature have type hints',
+                'DOC110: Function `f`: The option `--arg-type-hints-in-docstring`'
+                ' is `True` but not all args in the docstring arg list have type'
+                ' hints',
+            ],
+            id='some-args-typed',
+        ),
+    ],
+)
+def testDefaultAloneIsNotATypeHint(
+        style: str,
+        fixture: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test that a default value alone is not a type hint.
+
+    In the fixtures, ``value=3`` has a default but no type annotation. The
+    numpy docstrings document it as ``value : , default=3``, and the Google
+    ones as ``value (, default=3): ...``. See
+    https://github.com/jsh9/pydoclint/issues/313.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/37_untyped_arg_defaults' / fixture
+    violations = _checkFile(
+        filename=fixtureDir / f'{style}.py',
+        style=style,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    ('fixture', 'options', 'expectedViolations'),
+    [
+        pytest.param(
+            'types_only_in_docstring',
+            {'checkArgDefaults': True, 'argTypeHintsInSignature': False},
+            [
+                'DOC105: Function `wrongDefault`: Argument names match, but type'
+                ' hints in these args do not match: alpha . (Note: docstring arg'
+                ' defaults should look like: `, default=XXX`)',
+                'DOC105: Function `missingDefault`: Argument names match, but'
+                ' type hints in these args do not match: alpha . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `spuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: alpha . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                # The same three cases, after a type that isn't valid Python
+                'DOC105: Function `freeFormWrongDefault`: Argument names match, but'
+                ' type hints in these args do not match: values . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `freeFormMissingDefault`: Argument names match, but'
+                ' type hints in these args do not match: values . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `freeFormSpuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: values . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+            ],
+            id='types-only-in-docstring',
+        ),
+        pytest.param(
+            'types_only_in_docstring',
+            {'checkArgDefaults': False, 'argTypeHintsInSignature': False},
+            [],  # without --check-arg-defaults, defaults aren't compared
+            id='types-only-in-docstring-defaults-not-checked',
+        ),
+        pytest.param(
+            'types_only_in_signature',
+            {'checkArgDefaults': True, 'argTypeHintsInDocstring': False},
+            [
+                'DOC105: Function `wrongDefault`: Argument names match, but type'
+                ' hints in these args do not match: x . (Note: docstring arg'
+                ' defaults should look like: `, default=XXX`)',
+                'DOC105: Function `missingDefault`: Argument names match, but'
+                ' type hints in these args do not match: x . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `spuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: x . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+            ],
+            id='types-only-in-signature',
+        ),
+        pytest.param(
+            'no_types',
+            {
+                'checkArgDefaults': True,
+                'argTypeHintsInSignature': False,
+                'argTypeHintsInDocstring': False,
+            },
+            [
+                'DOC105: Function `wrongDefault`: Argument names match, but type'
+                ' hints in these args do not match: value . (Note: docstring arg'
+                ' defaults should look like: `, default=XXX`)',
+                'DOC105: Function `missingDefault`: Argument names match, but'
+                ' type hints in these args do not match: value . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+                'DOC105: Function `spuriousDefault`: Argument names match, but'
+                ' type hints in these args do not match: value . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+            ],
+            id='no-types',
+        ),
+    ],
+)
+def testDefaultsAreComparedWhenTypesAreNot(
+        style: str,
+        fixture: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test that, with ``--check-arg-defaults``, the documented default values are
+    compared with the signature even when the type-hint options turn off the
+    comparison of types (which needs both options to be True). A wrong,
+    missing, or spurious default gets DOC105 (the type hints, which include the
+    defaults, don't match). See https://github.com/jsh9/pydoclint/issues/313.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/37_untyped_arg_defaults' / fixture
+    violations = _checkFile(
+        filename=fixtureDir / f'{style}.py',
+        style=style,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize(
+    ('fixtureFile', 'options', 'expectedViolations'),
+    [
+        # `...` in a stub file is a placeholder, so any documented default is
+        # fine for `x`, even after a type that isn't valid Python
+        pytest.param(
+            'stub_placeholders/numpy.pyi',
+            {'style': 'numpy'},
+            [],
+            id='stub-placeholders-numpy',
+        ),
+        pytest.param(
+            'stub_placeholders/google.pyi',
+            {'style': 'google'},
+            [],
+            id='stub-placeholders-google',
+        ),
+        # Class attribute defaults are only compared together with the types
+        # (both type-hint options on), so the wrong default isn't reported
+        pytest.param(
+            'class_attributes/numpy.py',
+            {'style': 'numpy', 'checkClassAttributes': True},
+            [],
+            id='class-attributes-numpy',
+        ),
+        pytest.param(
+            'class_attributes/google.py',
+            {'style': 'google', 'checkClassAttributes': True},
+            [],
+            id='class-attributes-google',
+        ),
+        # A docstring in another style only gets DOC003 (style mismatch), not
+        # DOC105 for its wrong default
+        pytest.param(
+            'style_mismatch/numpy.py',
+            {'style': 'numpy', 'checkStyleMismatch': True},
+            [
+                'DOC003: Function/method `f`: Docstring style mismatch. (Please'
+                ' read more at https://jsh9.github.io/pydoclint/style_mismatch.html'
+                ' ). You specified "numpy" style, but the docstring is likely not'
+                ' written in this style.',
+            ],
+            id='style-mismatch-numpy',
+        ),
+        pytest.param(
+            'style_mismatch/google.py',
+            {'style': 'google', 'checkStyleMismatch': True},
+            [
+                'DOC003: Function/method `f`: Docstring style mismatch. (Please'
+                ' read more at https://jsh9.github.io/pydoclint/style_mismatch.html'
+                ' ). You specified "google" style, but the docstring is likely'
+                ' not written in this style.',
+            ],
+            id='style-mismatch-google',
+        ),
+    ],
+)
+def testDefaultsAreNotComparedInTheseCases(
+        fixtureFile: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test the cases where, with ``--check-arg-defaults``, the documented
+    defaults are not compared with the code even though the type-hint options
+    turn off the comparison of types. (In all of them, the signature has no
+    types and ``--arg-type-hints-in-signature`` is False.)
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/37_untyped_arg_defaults'
+    violations = _checkFile(
+        filename=fixtureDir / fixtureFile,
+        checkArgDefaults=True,
+        argTypeHintsInSignature=False,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+@pytest.mark.parametrize(
+    ('fixture', 'options', 'expectedViolations'),
+    [
+        pytest.param(
+            'function_args',
+            {'argTypeHintsInSignature': False},
+            [
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+            ],
+            id='function-args',
+        ),
+        pytest.param(
+            'function_args',
+            {'argTypeHintsInSignature': False, 'checkArgDefaults': True},
+            [
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+                # The defaults are still compared, as when the order is right
+                'DOC105: Function `wrongOrderAndDefault`: Argument names match,'
+                ' but type hints in these args do not match: b . (Note:'
+                ' docstring arg defaults should look like: `, default=XXX`)',
+            ],
+            id='function-args-check-defaults',
+        ),
+        pytest.param(
+            'class_attributes',
+            {'argTypeHintsInSignature': False, 'checkClassAttributes': True},
+            [
+                'DOC604: Class `A`: Attributes are the same in docstring and'
+                ' class def, but are in a different order.  (Please read'
+                ' https://jsh9.github.io/pydoclint/checking_class_attributes.html'
+                ' on how to correctly document class attributes.)',
+            ],
+            id='class-attributes',
+        ),
+    ],
+)
+def testReorderedArgsWithTypeHintCheckOff(
+        style: str,
+        fixture: str,
+        options: dict[str, Any],
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test args (or class attributes) documented in a different order, with
+    ``--arg-type-hints-in-signature`` turned off.
+
+    They get DOC104 (DOC604) for the order, but no DOC105 (DOC605) for their
+    type hints, which aren't compared, just as when the order is right. See
+    https://github.com/jsh9/pydoclint/issues/325.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/38_reordered_args' / fixture
+    violations = _checkFile(
+        filename=fixtureDir / f'{style}.py',
+        style=style,
+        **options,
+    )
+    assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize(
+    ('fixtureFile', 'style', 'expectedViolations'),
+    [
+        pytest.param(
+            'numpy.py',
+            'google',
+            [
+                'DOC003: Function/method `wrongOrder`: Docstring style mismatch.'
+                ' (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "google" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC003: Function/method `wrongOrderAndDefault`: Docstring style'
+                ' mismatch. (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "google" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+            ],
+            id='numpy-docstrings-checked-as-google',
+        ),
+        pytest.param(
+            'google.py',
+            'numpy',
+            [
+                'DOC003: Function/method `wrongOrder`: Docstring style mismatch.'
+                ' (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "numpy" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrder`: Arguments are the same in the'
+                ' docstring and the function signature, but are in a different'
+                ' order.',
+                'DOC003: Function/method `wrongOrderAndDefault`: Docstring style'
+                ' mismatch. (Please read more at'
+                ' https://jsh9.github.io/pydoclint/style_mismatch.html ). You'
+                ' specified "numpy" style, but the docstring is likely not'
+                ' written in this style.',
+                'DOC104: Function `wrongOrderAndDefault`: Arguments are the same'
+                ' in the docstring and the function signature, but are in a'
+                ' different order.',
+            ],
+            id='google-docstrings-checked-as-numpy',
+        ),
+    ],
+)
+def testReorderedArgsInAnotherStyle(
+        fixtureFile: str,
+        style: str,
+        expectedViolations: list[str],
+) -> None:
+    """
+    Test args documented in a different order, in a docstring written in
+    another style (DOC003). Type hints aren't compared for such a docstring,
+    even with both type-hint options on, so there's DOC104 for the order but no
+    DOC105, just as when the order is right. See
+    https://github.com/jsh9/pydoclint/issues/325.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/38_reordered_args/function_args'
+    violations = _checkFile(
+        filename=fixtureDir / fixtureFile,
+        style=style,
+        checkStyleMismatch=True,
+    )
+    assert list(map(str, violations)) == expectedViolations

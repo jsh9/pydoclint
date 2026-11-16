@@ -7,12 +7,18 @@ from typing import Any
 import pytest
 
 from pydoclint.utils.generic import (
+    _isPythonExpression,
+    _normalizeExpression,
     buildClassAttrToDefaultMapping,
     buildFuncArgToDefaultMapping,
+    defaultValuesEqual,
     doList1ItemsStartWithList2Items,
+    getDefaultValue,
+    isDefaultOnly,
     isLastConstructor,
     isPlaceholderDefault,
     isStubFilename,
+    splitOuterDefault,
     stripBacktickWrapper,
     stripQuotes,
 )
@@ -335,6 +341,165 @@ def testIsStubFilename(filename: str | Path, expected: bool) -> None:
 )
 def testStripBacktickWrapper(string: str, expected: str) -> None:
     assert stripBacktickWrapper(string) == expected
+
+
+@pytest.mark.parametrize(
+    ('typeHint', 'expected'),
+    [
+        (', default=3', True),
+        (',default = 3', True),
+        ('\n  , default=3', True),
+        ('``, default=3``', True),
+        ('', False),
+        ('int', False),
+        ('int, default=3', False),
+        ("Annotated[int, 'units, default=3']", False),
+        # TODO: Recognize other ways of writing a default, and update these
+        #  cases. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md). See:
+        #  https://github.com/jsh9/pydoclint/issues/336
+        (', default is 3', False),
+        (', default: 3', False),
+        ('default=3', False),  # no comma before `default`
+    ],
+)
+def testIsDefaultOnly(typeHint: str, expected: bool) -> None:
+    assert isDefaultOnly(typeHint) is expected
+
+
+@pytest.mark.parametrize(
+    ('typeHint', 'expected'),
+    [
+        ('int, default=3', ('int', '3')),
+        (', default=3', ('', '3')),
+        ('int , default = [1, 2]', ('int', '[1, 2]')),
+        ('``int, default=3``', ('int', '3')),
+        ('int, optional, default=3', ('int, optional', '3')),
+        (
+            "Annotated[int, 'units, default=3'], default=5",
+            ("Annotated[int, 'units, default=3']", '5'),
+        ),
+        ("str, default=', default=x'", ('str', "', default=x'")),
+        ('int', None),
+        ("Annotated[int, 'units, default=3']", None),  # only inside the type
+        ('list of int, default=3', None),  # not valid Python before it
+        # TODO: Recognize other ways of writing a default, and update these
+        #  cases. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md). See:
+        #  https://github.com/jsh9/pydoclint/issues/336
+        ('int, default is 3', None),
+        ('int, default: 3', None),
+    ],
+)
+def testSplitOuterDefault(
+        typeHint: str,
+        expected: tuple[str, str] | None,
+) -> None:
+    assert splitOuterDefault(typeHint) == expected
+
+
+@pytest.mark.parametrize(
+    ('typeHint', 'expected'),
+    [
+        ('', None),
+        ('int', None),
+        ('int, default=3', '3'),
+        (', default=3', '3'),
+        ('``int, default=3``', '3'),
+        ("Annotated[int, 'units, default=3']", None),
+        ("Annotated[int, 'units, default=3'], default=5", '5'),
+        # Docstring types that aren't valid Python
+        ('list of int, default=None', 'None'),
+        ('array-like of shape (n,), default=None', 'None'),
+        ('``int``, default=3', '3'),
+        ('``list of int, default=3``', '3'),  # backticks around it all
+        # The default itself contains `, default=`: after a type that isn't
+        # valid Python, the default starts at the first `, default=`
+        (
+            'dict of str to int, default=dict(a=1, default=2)',
+            'dict(a=1, default=2)',
+        ),
+        ("list of str, default=', default=y'", "', default=y'"),
+        # TODO: Recognize other ways of writing a default, and update these
+        #  cases. For now, only `, default=` starts a default (see
+        #  docs/style_deviations.md). See:
+        #  https://github.com/jsh9/pydoclint/issues/336
+        ('int, default is 3', None),
+        ('int, default: 3', None),
+        (', default 3', None),
+    ],
+)
+def testGetDefaultValue(typeHint: str, expected: str | None) -> None:
+    assert getDefaultValue(typeHint) == expected
+
+
+@pytest.mark.parametrize(
+    ('default1', 'default2', 'expected'),
+    [
+        (None, None, True),
+        ('3', None, False),
+        (None, '3', False),
+        ('3', '3', True),
+        ('3', '4', False),
+        ("'a'", '"a"', True),
+        ('a', "'a'", False),
+        ('0.00001', '1e-05', True),
+        ('[1,2]', '[1, 2]', True),
+        ('42  # noqa: E501', '42', True),
+        ('all rows', 'all  rows', False),  # not valid Python: compare as text
+        ('all rows', 'all rows', True),
+        ('all rows  # noqa', 'all rows', True),  # comments are ignored
+        # A `#` inside quotes is not a comment (unlike in specialEqual(); see
+        # https://github.com/jsh9/pydoclint/issues/337)
+        ("'#1f77b4'", "'#ff0000'", False),
+    ],
+)
+def testDefaultValuesEqual(
+        default1: str | None,
+        default2: str | None,
+        expected: bool,
+) -> None:
+    assert defaultValuesEqual(default1, default2) is expected
+
+
+@pytest.mark.parametrize(
+    ('text', 'expected'),
+    [
+        ('int', True),
+        ('  int\n', True),  # surrounding whitespace is ignored
+        ('int, optional', True),  # a tuple
+        ("Annotated[int, 'units, default=3']", True),
+        ('array-like', True),  # a subtraction
+        ('', False),
+        ('   ', False),
+        ('list of int', False),
+        ("Annotated[int, 'units", False),  # unclosed string and bracket
+        ('`int`', False),
+        ('int, default=3', False),
+    ],
+)
+def testIsPythonExpression(text: str, expected: bool) -> None:
+    assert _isPythonExpression(text) is expected
+
+
+@pytest.mark.parametrize(
+    ('text', 'expected'),
+    [
+        ('3', '3'),
+        ('  3\n', '3'),
+        ('"a"', "'a'"),
+        ("'a'", "'a'"),
+        ('0.00001', '1e-05'),
+        ('[1,2]', '[1, 2]'),
+        ('42  # noqa: E501', '42'),  # comments are dropped
+        ('int, optional', '(int, optional)'),
+        ('', None),
+        ('all rows', None),
+        ("'unclosed", None),
+    ],
+)
+def testNormalizeExpression(text: str, expected: str | None) -> None:
+    assert _normalizeExpression(text) == expected
 
 
 @pytest.mark.parametrize(

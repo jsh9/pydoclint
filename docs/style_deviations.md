@@ -64,6 +64,10 @@ flag : int | None, default=None
 
 ### 1.2. Default values
 
+<!-- TODO: Recognize these other ways of writing a default, and report them
+with a separate code (DOC112) instead of DOC105. See:
+https://github.com/jsh9/pydoclint/issues/336 -->
+
 These styles to specify default values are ***not*** accepted by _pydoclint_:
 
 ```

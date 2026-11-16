@@ -1488,10 +1488,8 @@ def testStubFileUntypedArgDefaults(tmp_path: Path, style: str) -> None:
     type-hint options off: their ``...`` defaults in a stub (.pyi) file can
     also be documented with any default or none.
 
-    Only the .pyi version is tested. As a .py file, the same content gets
-    DOC108/DOC111, because default values are treated as type hints
-    (https://github.com/jsh9/pydoclint/issues/313), and this test shouldn't
-    lock that bug in.
+    Only the .pyi version is tested. Untyped defaults in .py files are tested
+    in test_edge_cases.py.
     """
     filename = tmp_path / 'untyped_defaults.pyi'
     shutil.copyfile(

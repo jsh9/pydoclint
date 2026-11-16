@@ -37,7 +37,7 @@ ______________________________________________________________________
 | `DOC102` | Docstring contains more arguments than in function signature                                                                                                            |
 | `DOC103` | Docstring arguments are different from function arguments. (Or could be other formatting issues: https://jsh9.github.io/pydoclint/violation_codes.html#notes-on-doc103) |
 | `DOC104` | Arguments are the same in the docstring and the function signature, but are in a different order.                                                                       |
-| `DOC105` | Argument names match, but type hints do not match                                                                                                                       |
+| `DOC105` | Argument names match, but type hints do not match (with `--check-arg-defaults`, this includes the default values)                                                       |
 | `DOC106` | The option `--arg-type-hints-in-signature` is `True` but there are no argument type hints in the signature                                                              |
 | `DOC107` | The option `--arg-type-hints-in-signature` is `True` but not all args in the signature have type hints                                                                  |
 | `DOC108` | The option `--arg-type-hints-in-signature` is `False` but there are argument type hints in the signature                                                                |

@@ -3,10 +3,21 @@
 ## [Unreleased]
 
 - Fixed
+  - A default value alone (`value=3` in the signature, `value : , default=3` in
+    the docstring) is no longer treated as a type hint, so it no longer hides
+    `DOC106`/`DOC107`/`DOC109`/`DOC110` or causes `DOC108`/`DOC111` (#313)
+  - Arguments documented in a different order no longer get `DOC105` (or
+    `DOC605` for class attributes) for their type hints when type hints aren't
+    compared (a type-hint option is off, or the docstring is in another style),
+    just as in the right order (#325)
   - Files saved as UTF-8 with a byte order mark (BOM) were reported as `DOC002`
     (syntax error: "unexpected indent") and not checked when their first line
     was code, such as a module docstring or an import. Now the BOM is dropped
     when reading the file, as Python does
+- Changed
+  - With `--check-arg-defaults=True`, documented defaults of function arguments
+    are compared with the signature even when a type-hint option is off, and
+    mismatches get `DOC105` (#313)
 - Maintenance
   - Renamed the internal `actualArgs` to `codeArgs` (and the helper functions,
     parameters and tests that use it), so that it pairs with `docArgs`. No
