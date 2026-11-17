@@ -1140,3 +1140,35 @@ def testReorderedArgsWithEqualTypeHints(style: str) -> None:
         'DOC104: Function `f`: Arguments are the same in the docstring and the'
         ' function signature, but are in a different order.',
     ]
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testTypeHintComparisonEdgeCases(style: str) -> None:
+    """
+    Test two edge cases of comparing type hints (with defaults) between the
+    signature and the docstring. See
+    https://github.com/jsh9/pydoclint/issues/337.
+
+    - ``hashInDefault``: a wrong default that starts with ``#`` gets DOC105.
+      (The ``#`` used to be taken as the start of a comment, which hid the
+      difference.)
+    - ``defaultWrittenDifferently``: a default value alone (no type), written
+      differently but equal, doesn't get DOC105.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/40_type_hint_comparison'
+    violations = _checkFile(
+        filename=fixtureDir / f'{style}.py',
+        style=style,
+        checkArgDefaults=True,
+    )
+    assert list(map(str, violations)) == [
+        'DOC105: Function `hashInDefault`: Argument names match, but type hints'
+        ' in these args do not match: color . (Note: docstring arg defaults'
+        ' should look like: `, default=XXX`)',
+        'DOC107: Function `defaultWrittenDifferently`: The option'
+        ' `--arg-type-hints-in-signature` is `True` but not all args in the'
+        ' signature have type hints',
+        'DOC110: Function `defaultWrittenDifferently`: The option'
+        ' `--arg-type-hints-in-docstring` is `True` but not all args in the'
+        ' docstring arg list have type hints',
+    ]

@@ -208,11 +208,17 @@ class Arg:
         # >>>     "def",
         # >>>     "ghi",
         # >>> ]
-        # TODO: A default-only hint such as `, default=1e-05` doesn't parse,
-        #  so it is compared as raw text, and it isn't equal to
-        #  `, default=0.00001`. Compare such defaults with
-        #  defaultValuesEqual() instead. See:
-        #  https://github.com/jsh9/pydoclint/issues/337
+        #
+        # A default value alone, such as `, default=1e-05`, doesn't parse, so
+        # it would be compared as raw text (and not be equal to the same value
+        # written as `, default=0.00001`). So compare such default values with
+        # each other instead.
+        if isDefaultOnly(hint1) and isDefaultOnly(hint2):
+            return defaultValuesEqual(
+                getDefaultValue(hint1),
+                getDefaultValue(hint2),
+            )
+
         try:
             hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))
         except SyntaxError:

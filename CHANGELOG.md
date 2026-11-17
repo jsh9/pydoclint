@@ -13,6 +13,11 @@
   - Arguments documented in a different order, with type hints that are equal
     but written differently (such as `Dict[str, int]` and `Dict[str,int]`), no
     longer get an empty `DOC105` next to `DOC104` (#339)
+  - A `#` inside quotes in a type hint or default (such as `default='#fff'`) is
+    no longer taken as the start of a comment, so a wrong default like that now
+    gets `DOC105` (#337)
+  - A default value alone that is written differently but equal (such as
+    `, default=0.00001` and `, default=1e-05`) no longer gets `DOC105` (#337)
 - Changed
   - With `--check-arg-defaults=True`, documented defaults of function arguments
     are compared with the signature even when a type-hint option is off, and

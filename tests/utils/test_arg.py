@@ -324,6 +324,13 @@ def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
         ('Tuple[int, ...]', 'Tuple[int,...]', True),
         ('Optional[int]', 'int | None', False),
         ('Literal["abc", "def"]', "Literal[\n  'abc',\n  'def',\n]", True),
+        # Different defaults that start with `#` (not a comment)
+        ("str, default='#1f77b4'", "str, default='#ff0000'", False),
+        # A default value alone: the values are compared, however written
+        (', default=1e-05', ', default=0.00001', True),
+        (', default=[1,2]', ', default=[1, 2]', True),
+        (", default='a'", ', default="a"', True),
+        (', default=3', ', default=4', False),
     ],
 )
 def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:

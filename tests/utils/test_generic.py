@@ -116,6 +116,10 @@ def testStripQuotes(string: str, expected: str) -> None:
         ('Hello" world\' 123', 'Hello\' world" 123', True),
         ('Hello" world\' 123', "Hello' world` 123", False),
         ('Hello" world\' 123', 'Hello\' world" 1234', False),
+        # Inline comments are ignored, but a `#` inside quotes isn't one
+        ('int  # noqa', 'int', True),
+        ("str, default='#1f77b4'", "str, default='#ff0000'", False),
+        ("str, default='#fff'  # noqa", 'str, default="#fff"', True),
     ],
 )
 def testSpecialEqual(str1: str, str2: str, expected: bool) -> None:
