@@ -63,7 +63,17 @@ class Arg:
         return self < other or self == other
 
     def __hash__(self) -> int:
-        return hash((self.name, stripQuotes(self.typeHint)))
+        # What: the hash uses only the arg name, not the type hint.
+        #
+        # Why: Python requires equal objects to have equal hashes, because a
+        # set or dict first picks candidates by hash and only then compares
+        # them with __eq__. Our __eq__ normalizes the type hints before
+        # comparing, so `Dict[str, int]` and `Dict[str,int]` are equal. If the
+        # hash used the type hint text, these two equal args would get
+        # different hashes, and a set would never compare them (see #339).
+        # Equal args always have the same name, so hashing the name alone is
+        # always safe, and __eq__ still checks the type hints.
+        return hash(self.name)
 
     def nameEquals(self, other: Arg) -> bool:
         """More lenient equality: only compare names"""

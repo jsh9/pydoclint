@@ -1124,3 +1124,19 @@ def testReorderedArgsInAnotherStyle(
         checkStyleMismatch=True,
     )
     assert list(map(str, violations)) == expectedViolations
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testReorderedArgsWithEqualTypeHints(style: str) -> None:
+    """
+    Test args documented in a different order, whose type hints are equal but
+    written differently (``Dict[str, int]`` and ``Dict[str,int]``). They only
+    get DOC104 for the order. (They used to also get a DOC105 that listed no
+    args. See https://github.com/jsh9/pydoclint/issues/339.)
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/39_reordered_args_equal_type_hints'
+    violations = _checkFile(filename=fixtureDir / f'{style}.py', style=style)
+    assert list(map(str, violations)) == [
+        'DOC104: Function `f`: Arguments are the same in the docstring and the'
+        ' function signature, but are in a different order.',
+    ]
