@@ -3,17 +3,32 @@ from __future__ import annotations
 import ast
 import json
 
-from pydoclint.utils.edge_case_error import EdgeCaseError
-from pydoclint.utils.generic import stripQuotes
+from pydoclint.utils.generic import stripBacktickWrapper, stripQuotes
 from pydoclint.utils.unparser_custom import unparseName
 
-MIN_TUPLE_ANNOTATION_LENGTH = len('tuple[]')  # shortest valid tuple annotation
+
+def _parseAnnotationExpr(text: str) -> ast.expr | None:
+    # Unwrap outer string quotes when the whole return annotation is a string
+    # forward reference (such as `'tuple[int, str]'`).
+    try:
+        expr: ast.expr = ast.parse(text, mode='eval').body
+    except (SyntaxError, ValueError):
+        return None
+
+    if isinstance(expr, ast.Constant) and isinstance(expr.value, str):
+        try:
+            expr = ast.parse(expr.value.strip(), mode='eval').body
+        except (SyntaxError, ValueError):
+            return None
+
+    return expr
 
 
 class ReturnAnnotation:
     """A class to hold the return annotation in a function's signature"""
 
     def __init__(self, annotation: str | None) -> None:
+        self._rawAnnotation: str | None = annotation
         self.annotation: str | None = stripQuotes(annotation)
 
     def __str__(self) -> str:
@@ -35,73 +50,60 @@ class ReturnAnnotation:
         -------
         list[str]
             The decomposed element
-
-        Raises
-        ------
-        EdgeCaseError
-            When the annotation string has strange values
         """
-        if self._isTuple():
-            assert (
-                self.annotation is not None
-            )  # narrow type for static checkers
+        tupleSubscript: ast.Subscript | None = self._parseTupleSubscript()
+        if tupleSubscript is None:
+            return self.putAnnotationInList()
 
-            if not self.annotation.endswith(']'):
-                raise EdgeCaseError('Return annotation not ending with `]`')
+        sliceExpr: ast.expr = tupleSubscript.slice
+        if isinstance(sliceExpr, ast.Constant) and sliceExpr.value is Ellipsis:
+            return self.putAnnotationInList()
 
-            if len(self.annotation) < MIN_TUPLE_ANNOTATION_LENGTH:
-                raise EdgeCaseError(f'Impossible annotation {self.annotation}')
+        if isinstance(sliceExpr, ast.Tuple):
+            elts: list[ast.expr] = sliceExpr.elts
+            if (
+                len(elts) > 0
+                and isinstance(elts[-1], ast.Constant)
+                and elts[-1].value is Ellipsis
+            ):
+                # Variadic tuple such as `Tuple[int, ...]`: length is unknown
+                return self.putAnnotationInList()
 
-            if self.annotation.lower() == 'tuple[]':
-                return []
+            return [stripQuotes(unparseName(_)) for _ in elts]
 
-            insideTuple: str = self.annotation[6:-1]
-            if insideTuple.endswith('...'):  # like this: Tuple[int, ...]
-                # because we don't know the tuple's length
-                return [self.annotation]
-
-            parsedBody0 = ast.parse(insideTuple).body[0]
-            assert isinstance(parsedBody0, ast.Expr), "Shouldn't have happened"
-
-            if isinstance(
-                parsedBody0.value, (ast.Attribute, ast.Name)
-            ):  # such as Tuple[int]
-                return [insideTuple]
-
-            if isinstance(
-                parsedBody0.value, ast.Tuple
-            ):  # like Tuple[int, str]
-                elts: list[ast.expr] = parsedBody0.value.elts
-                return [unparseName(_) for _ in elts]
-
-            raise EdgeCaseError('decompose(): This should not have happened')
-
-        return self.putAnnotationInList()
+        return [stripQuotes(unparseName(sliceExpr))]
 
     def _isTuple(self) -> bool:
-        if self.annotation is None:
-            return False
+        return self._parseTupleSubscript() is not None
 
-        # Keep the try scoped to parser/index failures; AST shape mismatches
-        # below are ordinary non-tuple annotations.
-        try:
-            parsedBody0: ast.stmt = ast.parse(self.annotation).body[0]
-        except (TypeError, IndexError, AssertionError):
-            return False
+    def _parseTupleSubscript(self) -> ast.Subscript | None:
+        if self._rawAnnotation is None:
+            return None
 
-        if not isinstance(parsedBody0, ast.Expr):
-            return False
+        unwrapped: str = stripBacktickWrapper(self._rawAnnotation).strip()
+        if unwrapped == '':
+            return None
 
-        parsedValue: ast.expr = parsedBody0.value
-        if not isinstance(parsedValue, ast.Subscript):
-            return False
+        expr: ast.expr | None = _parseAnnotationExpr(unwrapped)
+        if expr is None and self.annotation is not None:
+            expr = _parseAnnotationExpr(self.annotation.strip())
 
-        parsedValueName: ast.expr = parsedValue.value
-        if not isinstance(parsedValueName, ast.Name):
-            return False
+        if not isinstance(expr, ast.Subscript):
+            return None
 
-        # Only top-level tuple/Tuple annotations are decomposed by this class.
-        return parsedValueName.id in {'tuple', 'Tuple'}
+        subscriptHead: ast.expr = expr.value
+        if isinstance(subscriptHead, ast.Name):
+            # Only top-level tuple/Tuple annotations are decomposed here.
+            isTupleHead: bool = subscriptHead.id in {'tuple', 'Tuple'}
+        elif isinstance(subscriptHead, ast.Constant) and isinstance(
+            subscriptHead.value, str
+        ):
+            # Handles stringified head such as `'tuple'[int, int, str]`
+            isTupleHead = subscriptHead.value in {'tuple', 'Tuple'}
+        else:
+            isTupleHead = False
+
+        return expr if isTupleHead else None
 
     def putAnnotationInList(self) -> list[str]:
         """Put annotation string in a list"""

@@ -28,8 +28,38 @@ from pydoclint.utils.return_anno import ReturnAnnotation
         ("'tuple[int, int, str]'", True),
         ('"tuple[int, int, str]"', True),
         ("'tuple'[int, int, str]", True),
+        ('Annotated[int, "#x"]', False),
+        ("Literal['a]', 'b']", False),
+        ('tuple[Annotated[int, "#x"], str]', True),
+        ("Tuple[Literal['a]', 'b'], int]", True),
+        ('tuple[]', False),
+        ('int |', False),
     ],
 )
-def testIsTuple(annotation: str, expected: bool) -> None:
+def testIsTuple(annotation: str | None, expected: bool) -> None:
     retAnno = ReturnAnnotation(annotation=annotation)
     assert retAnno._isTuple() == expected
+
+
+@pytest.mark.parametrize(
+    ('annotation', 'expected'),
+    [
+        (None, []),
+        ('int', ['int']),
+        ('Tuple[int]', ['int']),
+        ('Tuple[int, str]', ['int', 'str']),
+        ('Tuple[int, ...]', ['Tuple[int, ...]']),
+        ('tuple[()]', []),
+        ('tuple[list[int]]', ['list[int]']),
+        ('Tuple["MyClass", int]', ['MyClass', 'int']),
+        ('Annotated[int, "#x"]', ['Annotated[int, #x]']),
+        ("Literal['a]', 'b']", ["Literal['a], b]"]),
+        (
+            "tuple[Annotated[int, \"#x\"], Literal['a]', 'b']]",
+            ['Annotated[int, #x]', "Literal['a], b]"],
+        ),
+    ],
+)
+def testDecompose(annotation: str | None, expected: list[str]) -> None:
+    retAnno = ReturnAnnotation(annotation=annotation)
+    assert retAnno.decompose() == expected
