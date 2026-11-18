@@ -198,17 +198,6 @@ class Arg:
 
     @classmethod
     def _typeHintsEq(cls, hint1: str, hint2: str) -> bool:
-        # We parse and then unparse so that cases like this can be
-        # treated as equal:
-        #
-        # >>> Literal['abc', 'def', 'ghi']
-        #
-        # >>> Literal[
-        # >>>     "abc",
-        # >>>     "def",
-        # >>>     "ghi",
-        # >>> ]
-        #
         # A default value alone, such as `, default=1e-05`, doesn't parse, so
         # it would be compared as raw text (and not be equal to the same value
         # written as `, default=0.00001`). So compare such default values with
@@ -219,6 +208,16 @@ class Arg:
                 getDefaultValue(hint2),
             )
 
+        # We parse and then unparse so that cases like this can be
+        # treated as equal:
+        #
+        # >>> Literal['abc', 'def', 'ghi']
+        #
+        # >>> Literal[
+        # >>>     "abc",
+        # >>>     "def",
+        # >>>     "ghi",
+        # >>> ]
         try:
             hint1_: str = unparseName(ast.parse(stripQuotes(hint1)))
         except SyntaxError:
@@ -448,13 +447,26 @@ class ArgList:
             selfArgTypeHint: str = selfArg.typeHint
             otherArgTypeHint: str = other.lookup[selfArg.name]
 
-            # Here we use unparseName(ast.parse(...)) in order to get rid of
-            # the comments at the end of type hints,
-            # such as: `int, default=42  # noqa: E501`
-            if not specialEqual(
-                stripCommentsFromTypeHints(selfArgTypeHint),
-                stripCommentsFromTypeHints(otherArgTypeHint),
+            # Compare default values alone (such as `, default=1e-05`) as
+            # values, just as Arg._typeHintsEq() does, so that this lists
+            # exactly the args that Arg.__eq__ finds different
+            if isDefaultOnly(selfArgTypeHint) and isDefaultOnly(
+                otherArgTypeHint
             ):
+                hintsMatch: bool = defaultValuesEqual(
+                    getDefaultValue(selfArgTypeHint),
+                    getDefaultValue(otherArgTypeHint),
+                )
+            else:
+                # Here we use unparseName(ast.parse(...)) in order to get rid
+                # of the comments at the end of type hints,
+                # such as: `int, default=42  # noqa: E501`
+                hintsMatch = specialEqual(
+                    stripCommentsFromTypeHints(selfArgTypeHint),
+                    stripCommentsFromTypeHints(otherArgTypeHint),
+                )
+
+            if not hintsMatch:
                 result.append(selfArg)
 
         return result

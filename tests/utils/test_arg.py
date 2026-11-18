@@ -331,6 +331,8 @@ def testArg_sorting(original: set[Arg], after: list[Arg]) -> None:
         (', default=[1,2]', ', default=[1, 2]', True),
         (", default='a'", ', default="a"', True),
         (', default=3', ', default=4', False),
+        # Only a default value alone on both sides is compared as a value
+        (', default=3', 'int, default=3', False),
     ],
 )
 def testArg_typeHintsEq(str1: str, str2: str, expected: bool) -> None:
@@ -435,6 +437,56 @@ def testArgList_findArgsWithDifferentDefaults(
     values differ, whatever their types.
     """
     result = codeArgs.findArgsWithDifferentDefaults(docArgs)
+    assert [_.name for _ in result] == expected
+
+
+@pytest.mark.parametrize(
+    ('codeArgs', 'docArgs', 'expected'),
+    [
+        (
+            ArgList([Arg('a', 'int'), Arg('b', 'str')]),
+            ArgList([Arg('a', 'int'), Arg('b', 'float')]),
+            ['b'],
+        ),
+        # Comments don't count
+        (
+            ArgList([Arg('a', 'int, default=42')]),
+            ArgList([Arg('a', 'int, default=42  # noqa: E501')]),
+            [],
+        ),
+        # Default values alone are compared as values, as in Arg.__eq__:
+        # `p` is equal (written differently), and only `q` is listed
+        (
+            ArgList([Arg('p', ', default=1e-05'), Arg('q', ', default=3')]),
+            ArgList([Arg('p', ', default=0.00001'), Arg('q', ', default=4')]),
+            ['q'],
+        ),
+        # Different values that differ only in their kind of quote are listed
+        # (as raw text, `'` and `"` count as the same)
+        (
+            ArgList([Arg('q', ', default="\'"')]),
+            ArgList([Arg('q', ", default='\"'")]),
+            ['q'],
+        ),
+        # A type and a default vs a default alone are different
+        (
+            ArgList([Arg('a', ', default=3')]),
+            ArgList([Arg('a', 'int, default=3')]),
+            ['a'],
+        ),
+    ],
+)
+def testArgList_findArgsWithDifferentTypeHints(
+        codeArgs: ArgList,
+        docArgs: ArgList,
+        expected: list[str],
+) -> None:
+    """
+    Test that findArgsWithDifferentTypeHints() lists the args whose type hints
+    (with defaults) differ, using the same rules as Arg.__eq__. DOC105 lists
+    these args.
+    """
+    result = codeArgs.findArgsWithDifferentTypeHints(docArgs)
     assert [_.name for _ in result] == expected
 
 

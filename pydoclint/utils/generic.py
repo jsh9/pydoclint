@@ -399,9 +399,16 @@ def _stripInlineComment(string: str) -> str:
 
     A ``#`` inside single or double quotes is part of a string, not the start
     of a comment. For example, nothing is removed from ``str, default='#fff'``.
+
+    This is a simple scan, not a full tokenizer: a string ends at the next
+    quote of the kind that started it. So a triple-quoted string that contains
+    that quote (``'''it's #1'''``) is cut too early. Type hints parsed by
+    ``ast`` don't reach this with such strings, because unparsing rewrites
+    them.
     """
     quote: str | None = None  # the quote that the current string started with
-    escaped: bool = False  # whether the previous char was a backslash
+    # Whether a backslash in the string escapes the current char
+    escaped: bool = False
     for i, char in enumerate(string):
         if quote is None:
             if char == '#':

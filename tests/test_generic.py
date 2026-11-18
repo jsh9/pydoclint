@@ -451,6 +451,8 @@ def testGetDefaultValue(typeHint: str, expected: str | None) -> None:
         ('all rows', 'all rows', True),
         ('all rows  # noqa', 'all rows', True),  # comments are ignored
         ("'#1f77b4'", "'#ff0000'", False),  # a `#` in quotes isn't a comment
+        # ... also when the values aren't valid Python and are compared as text
+        ('all "#1" rows', 'all "#2" rows', False),
     ],
 )
 def testDefaultValuesEqual(
@@ -536,6 +538,12 @@ def testIsPlaceholderDefault(expression: str, expected: bool) -> None:
         ('str, default="it\'s #1"  # x', 'str, default="it\'s #1"'),
         # After an unclosed quote, everything is part of the string
         ("Literal['a  # b", "Literal['a  # b"),
+        # An escaped backslash doesn't escape the closing quote
+        ("str, default='a\\\\'  # c", "str, default='a\\\\'"),
+        # A quote inside the comment doesn't matter
+        ("int  # it's", 'int'),
+        # A `#` right after a closing quote starts a comment
+        ("str, default='a'# c", "str, default='a'"),
     ],
 )
 def testStripInlineComment(string: str, expected: str) -> None:
