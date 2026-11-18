@@ -10,6 +10,9 @@
     `DOC605` for class attributes) for their type hints when type hints aren't
     compared (a type-hint option is off, or the docstring is in another style),
     just as in the right order (#325)
+  - Arguments documented in a different order, with type hints that are equal
+    but written differently (such as `Dict[str, int]` and `Dict[str,int]`), no
+    longer get an empty `DOC105` next to `DOC104` (#339)
   - Files saved as UTF-8 with a byte order mark (BOM) were reported as `DOC002`
     (syntax error: "unexpected indent") and not checked when their first line
     was code, such as a module docstring or an import. Now the BOM is dropped
@@ -22,6 +25,8 @@
   - Renamed the internal `actualArgs` to `codeArgs` (and the helper functions,
     parameters and tests that use it), so that it pairs with `docArgs`. No
     behavior changes (#314)
+  - Pinned `tox<4.67.14` in CI, because tox 4.67.14 breaks `tox-gh-actions`
+    3.5.0 and every CI job on Python 3.11+ failed at startup
 
 ## [0.12.0] - 2026-10-28
 

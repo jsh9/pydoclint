@@ -199,10 +199,28 @@ def testArg_str(arg: Arg, string_repr: str) -> None:
         (Arg(name='**kw', typeHint=''), Arg(name='\\**kw', typeHint='')),
         (Arg(name='\\*args', typeHint=''), Arg(name='*args', typeHint='')),
         (Arg(name='*args', typeHint=''), Arg(name='\\*args', typeHint='')),
+        # The type hints below are written differently, but __eq__ treats them
+        # as equal, so their hashes must be equal too. Otherwise a set of args
+        # can't find an equal arg in it: pydoclint compares sets of args when
+        # the docstring lists them in a different order, and it would then
+        # report an empty DOC105 (#339)
+        (
+            Arg(name='a', typeHint='Dict[str, int]'),
+            Arg(name='a', typeHint='Dict[str,int]'),
+        ),
+        (
+            Arg(name='a', typeHint="Optional['Foo']"),
+            Arg(name='a', typeHint='Optional[Foo]'),
+        ),
+        (
+            Arg(name='a', typeHint="Literal['x', 'y']"),
+            Arg(name='a', typeHint='Literal[\n    "x",\n    "y",\n]'),
+        ),
     ],
 )
 def testArg_equal(arg1: Arg, arg2: Arg) -> None:
     assert arg1 == arg2
+    assert hash(arg1) == hash(arg2)
     assert arg1 in {arg1}  # noqa: FURB171
     assert arg1 in {arg2}  # noqa: FURB171
     assert arg2 in {arg1}  # noqa: FURB171
