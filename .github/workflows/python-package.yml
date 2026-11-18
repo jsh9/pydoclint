@@ -25,7 +25,10 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install tox tox-gh-actions
+          # tox 4.67.14 removed `_PLACE_HOLDER`, which tox-gh-actions 3.5.0
+          # (the latest version) still imports, so `tox` fails at startup.
+          # Remove this pin once tox-gh-actions works with newer tox.
+          python -m pip install "tox<4.67.14" tox-gh-actions
       - name: Test with tox
         run: tox
   test-pre-commit-console-encoding:
