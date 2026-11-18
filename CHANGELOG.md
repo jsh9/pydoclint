@@ -13,6 +13,10 @@
   - Arguments documented in a different order, with type hints that are equal
     but written differently (such as `Dict[str, int]` and `Dict[str,int]`), no
     longer get an empty `DOC105` next to `DOC104` (#339)
+  - Files saved as UTF-8 with a byte order mark (BOM) were reported as `DOC002`
+    (syntax error: "unexpected indent") and not checked when their first line
+    was code, such as a module docstring or an import. Now the BOM is dropped
+    when reading the file, as Python does
 - Changed
   - With `--check-arg-defaults=True`, documented defaults of function arguments
     are compared with the signature even when a type-hint option is off, and
