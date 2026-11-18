@@ -3,7 +3,9 @@ from __future__ import annotations
 import ast
 import copy
 import re
+import tokenize
 from enum import Enum, auto
+from io import StringIO
 from pathlib import Path
 from re import Match
 from typing import TYPE_CHECKING, overload
@@ -402,16 +404,11 @@ def specialEqual(str1: str, str2: str) -> bool:
     if str1 == str2:
         return True  # using shortcuts to speed up evaluation
 
-    # Remove inline comments (everything after #).
-    # Note: str.partition() is faster than str.split() in this case.
-    # TODO: Don't treat a `#` inside quotes as a comment. Now
-    #  `str, default='#1f77b4'` and `str, default='#ff0000'` are equal. See:
-    #  https://github.com/jsh9/pydoclint/issues/337
     if '#' in str1:
-        str1 = str1.partition('#')[0].rstrip()
+        str1 = _stripInlineComment(str1)
 
     if '#' in str2:
-        str2 = str2.partition('#')[0].rstrip()
+        str2 = _stripInlineComment(str2)
 
     if '\n' in str1 or '\n' in str2:
         str1 = str1.replace(' ', '').replace('\n', '')
@@ -431,6 +428,23 @@ def specialEqual(str1: str, str2: str) -> bool:
         return False
 
     return True
+
+
+def _stripInlineComment(text: str) -> str:
+    """Remove an inline comment without cutting off a quoted hash character."""
+    try:
+        for token in tokenize.generate_tokens(StringIO(text).readline):
+            if token.type == tokenize.COMMENT:
+                line, column = token.start
+                lines = text.split('\n')
+                return (
+                    '\n'.join([*lines[: line - 1], lines[line - 1][:column]])
+                ).rstrip()
+    except (tokenize.TokenError, IndentationError):
+        # Docstring type hints need not be complete Python expressions.
+        pass
+
+    return text
 
 
 def doList1ItemsStartWithList2Items(
