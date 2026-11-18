@@ -9,6 +9,7 @@ import pytest
 from pydoclint.utils.generic import (
     _isPythonExpression,
     _normalizeExpression,
+    _stripInlineComment,
     buildClassAttrToDefaultMapping,
     buildFuncArgToDefaultMapping,
     defaultValuesEqual,
@@ -449,9 +450,9 @@ def testGetDefaultValue(typeHint: str, expected: str | None) -> None:
         ('all rows', 'all  rows', False),  # not valid Python: compare as text
         ('all rows', 'all rows', True),
         ('all rows  # noqa', 'all rows', True),  # comments are ignored
-        # A `#` inside quotes is not a comment (unlike in specialEqual(); see
-        # https://github.com/jsh9/pydoclint/issues/337)
-        ("'#1f77b4'", "'#ff0000'", False),
+        ("'#1f77b4'", "'#ff0000'", False),  # a `#` in quotes isn't a comment
+        # ... also when the values aren't valid Python and are compared as text
+        ('all "#1" rows', 'all "#2" rows', False),
     ],
 )
 def testDefaultValuesEqual(
@@ -518,3 +519,32 @@ def testIsPlaceholderDefault(expression: str, expected: bool) -> None:
     """Test that only the literal ``...`` counts as a placeholder default."""
     node = ast.parse(expression, mode='eval').body
     assert isPlaceholderDefault(node) is expected
+
+
+@pytest.mark.parametrize(
+    ('string', 'expected'),
+    [
+        ('int', 'int'),
+        ('int  # noqa: E501', 'int'),
+        ('# only a comment', ''),
+        # A `#` inside quotes is part of a string, not a comment
+        ("str, default='#fff'", "str, default='#fff'"),
+        ('str, default="#fff"', 'str, default="#fff"'),
+        ("str, default='#fff'  # noqa", "str, default='#fff'"),
+        ('Literal["a#b", \'c#d\']  # x', 'Literal["a#b", \'c#d\']'),
+        # An escaped quote doesn't end the string
+        ("str, default='it\\'s #1'", "str, default='it\\'s #1'"),
+        # The other kind of quote doesn't end the string either
+        ('str, default="it\'s #1"  # x', 'str, default="it\'s #1"'),
+        # After an unclosed quote, everything is part of the string
+        ("Literal['a  # b", "Literal['a  # b"),
+        # An escaped backslash doesn't escape the closing quote
+        ("str, default='a\\\\'  # c", "str, default='a\\\\'"),
+        # A quote inside the comment doesn't matter
+        ("int  # it's", 'int'),
+        # A `#` right after a closing quote starts a comment
+        ("str, default='a'# c", "str, default='a'"),
+    ],
+)
+def testStripInlineComment(string: str, expected: str) -> None:
+    assert _stripInlineComment(string) == expected

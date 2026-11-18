@@ -393,6 +393,39 @@ def appendArgsToCheckToV105(
     return original_v105.appendMoreMsg(moreMsg=argNames)
 
 
+def _stripInlineComment(string: str) -> str:
+    """
+    Remove an inline comment (from a ``#`` to the end) from ``string``.
+
+    A ``#`` inside single or double quotes is part of a string, not the start
+    of a comment. For example, nothing is removed from ``str, default='#fff'``.
+
+    This is a simple scan, not a full tokenizer: a string ends at the next
+    quote of the kind that started it. So a triple-quoted string that contains
+    that quote (``'''it's #1'''``) is cut too early. Type hints parsed by
+    ``ast`` don't reach this with such strings, because unparsing rewrites
+    them.
+    """
+    quote: str | None = None  # the quote that the current string started with
+    # Whether a backslash in the string escapes the current char
+    escaped: bool = False
+    for i, char in enumerate(string):
+        if quote is None:
+            if char == '#':
+                return string[:i].rstrip()
+
+            if char in {'"', "'"}:
+                quote = char
+        elif escaped:
+            escaped = False
+        elif char == '\\':
+            escaped = True
+        elif char == quote:
+            quote = None
+
+    return string
+
+
 def specialEqual(str1: str, str2: str) -> bool:
     """
     Check string equality but treat any single quotes as the same as double
@@ -402,16 +435,12 @@ def specialEqual(str1: str, str2: str) -> bool:
     if str1 == str2:
         return True  # using shortcuts to speed up evaluation
 
-    # Remove inline comments (everything after #).
-    # Note: str.partition() is faster than str.split() in this case.
-    # TODO: Don't treat a `#` inside quotes as a comment. Now
-    #  `str, default='#1f77b4'` and `str, default='#ff0000'` are equal. See:
-    #  https://github.com/jsh9/pydoclint/issues/337
+    # Remove inline comments (from a `#` outside quotes to the end)
     if '#' in str1:
-        str1 = str1.partition('#')[0].rstrip()
+        str1 = _stripInlineComment(str1)
 
     if '#' in str2:
-        str2 = str2.partition('#')[0].rstrip()
+        str2 = _stripInlineComment(str2)
 
     if '\n' in str1 or '\n' in str2:
         str1 = str1.replace(' ', '').replace('\n', '')

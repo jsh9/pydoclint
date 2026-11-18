@@ -1140,3 +1140,62 @@ def testReorderedArgsWithEqualTypeHints(style: str) -> None:
         'DOC104: Function `f`: Arguments are the same in the docstring and the'
         ' function signature, but are in a different order.',
     ]
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testTypeHintComparisonEdgeCases(style: str) -> None:
+    """
+    Test edge cases of comparing type hints (with defaults), and return types,
+    between the code and the docstring. See
+    https://github.com/jsh9/pydoclint/issues/337.
+
+    A ``#`` inside quotes is part of a string, not the start of a comment (it
+    used to hide the difference after it):
+
+    - ``hashInDefault``: a wrong default gets DOC105
+    - ``hashInReturnType``: a wrong return type gets DOC203
+    - ``HashInClassAttribute``: a wrong class attribute default gets DOC605
+
+    A default value alone (no type) is compared as a value:
+
+    - ``defaultWrittenDifferently``: an equal default written differently
+      (``0.00001`` vs ``1e-05``) doesn't get DOC105
+    - ``oneOfTwoDefaultsWrong``: DOC105 lists only the arg whose default is
+      wrong, not the one that is only written differently
+
+    (DOC107/DOC110 are for the args that have no type.)
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/40_type_hint_comparison'
+    violations = _checkFile(
+        filename=fixtureDir / f'{style}.py',
+        style=style,
+        checkArgDefaults=True,
+    )
+    assert list(map(str, violations)) == [
+        'DOC105: Function `hashInDefault`: Argument names match, but type hints'
+        ' in these args do not match: color . (Note: docstring arg defaults'
+        ' should look like: `, default=XXX`)',
+        'DOC107: Function `defaultWrittenDifferently`: The option'
+        ' `--arg-type-hints-in-signature` is `True` but not all args in the'
+        ' signature have type hints',
+        'DOC110: Function `defaultWrittenDifferently`: The option'
+        ' `--arg-type-hints-in-docstring` is `True` but not all args in the'
+        ' docstring arg list have type hints',
+        'DOC107: Function `oneOfTwoDefaultsWrong`: The option'
+        ' `--arg-type-hints-in-signature` is `True` but not all args in the'
+        ' signature have type hints',
+        'DOC110: Function `oneOfTwoDefaultsWrong`: The option'
+        ' `--arg-type-hints-in-docstring` is `True` but not all args in the'
+        ' docstring arg list have type hints',
+        'DOC105: Function `oneOfTwoDefaultsWrong`: Argument names match, but'
+        ' type hints in these args do not match: size . (Note: docstring arg'
+        ' defaults should look like: `, default=XXX`)',
+        'DOC203: Function `hashInReturnType` return type(s) in docstring not'
+        ' consistent with the return annotation. Return annotation types:'
+        " [\"Literal['#a', '#b']\"]; docstring return section types:"
+        " [\"Literal['#a', '#c']\"]",
+        'DOC605: Class `HashInClassAttribute`: Attribute names match, but type'
+        ' hints in these attributes do not match: color  (Please read'
+        ' https://jsh9.github.io/pydoclint/checking_class_attributes.html on'
+        ' how to correctly document class attributes.)',
+    ]
