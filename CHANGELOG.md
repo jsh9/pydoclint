@@ -13,6 +13,9 @@
   - Arguments documented in a different order, with type hints that are equal
     but written differently (such as `Dict[str, int]` and `Dict[str,int]`), no
     longer get an empty `DOC105` next to `DOC104` (#339)
+  - With `--style=numpy`, return annotations containing `#` or `]` inside a
+    string literal (such as `Annotated[int, "#x"]` and `Literal['a]', 'b']`) no
+    longer crash with `SyntaxError` (#343)
 - Changed
   - With `--check-arg-defaults=True`, documented defaults of function arguments
     are compared with the signature even when a type-hint option is off, and

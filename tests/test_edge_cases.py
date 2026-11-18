@@ -1140,3 +1140,21 @@ def testReorderedArgsWithEqualTypeHints(style: str) -> None:
         'DOC104: Function `f`: Arguments are the same in the docstring and the'
         ' function signature, but are in a different order.',
     ]
+
+
+@pytest.mark.parametrize('style', ['google', 'numpy'])
+def testQuotedSpecialCharsInReturnAnnotation(style: str) -> None:
+    """
+    Test return annotations containing ``#`` or ``]`` inside string literals
+    (such as ``Annotated[int, "#x"]`` and ``Literal['a]', 'b']``). Numpy style
+    used to crash with SyntaxError after stripping quotes. See
+    https://github.com/jsh9/pydoclint/issues/343.
+    """
+    fixtureDir = DATA_DIR / 'edge_cases/41_quoted_chars_in_return_anno'
+    violations = _checkFile(filename=fixtureDir / f'{style}.py', style=style)
+    assert list(map(str, violations)) == [
+        'DOC203: Function `returnMismatchedAnnotatedHash` return type(s) in'
+        ' docstring not consistent with the return annotation. Return'
+        " annotation types: ['Annotated[int, #x]']; docstring return section"
+        " types: ['str']",
+    ]
