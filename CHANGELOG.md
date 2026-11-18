@@ -21,6 +21,8 @@
   - Renamed the internal `actualArgs` to `codeArgs` (and the helper functions,
     parameters and tests that use it), so that it pairs with `docArgs`. No
     behavior changes (#314)
+  - Pinned `tox<4.67.14` in CI, because tox 4.67.14 breaks `tox-gh-actions`
+    3.5.0 and every CI job on Python 3.11+ failed at startup
 
 ## [0.12.0] - 2026-10-28
 
